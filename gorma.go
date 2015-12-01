@@ -103,25 +103,16 @@ func (g *Generator) Generate(api *design.APIDefinition) ([]string, error) {
 		panic(err)
 	}
 	mtw.WriteHeader(title, "models", imports)
-
 	err = api.IterateMediaTypes(func(res *design.MediaTypeDefinition) error {
 		if res.Type.IsObject() {
-			fmt.Println(res.UserTypeDefinition.TypeName)
 
-			fmt.Printf("%v\n", res)
 			err = mtw.Execute(res)
 			if err != nil {
-				panic(err)
-				//	g.Cleanup()
+				g.Cleanup()
 				return err
 			}
-
-		} else {
-			fmt.Println("skipping")
 		}
-
 		return nil
-
 	})
 	if err := mtw.FormatCode(); err != nil {
 		g.Cleanup()
