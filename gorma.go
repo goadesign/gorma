@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"text/template"
 
@@ -38,6 +39,8 @@ func NewModelWriter(filename string) (*ModelWriter, error) {
 	funcMap["typeMarshaler"] = codegen.MediaTypeMarshaler
 	funcMap["recursiveValidate"] = codegen.RecursiveChecker
 	funcMap["tempvar"] = codegen.Tempvar
+	funcMap["demodel"] = DeModel
+	funcMap["gorm"] = MakeGormModel
 
 	modelTmpl, err := template.New("models").Funcs(funcMap).Parse(modelTmpl)
 	if err != nil {
@@ -72,6 +75,14 @@ func NewGenerator() (*Generator, error) {
 // JSONSchemaDir is the path to the directory where the schema controller is generated.
 func ModelDir() string {
 	return filepath.Join(codegen.OutputDir, "models")
+}
+
+func DeModel(s string) string {
+	return strings.Replace(s, "Model", "", -1)
+}
+
+func MakeGormModel(s string) string {
+	return s[0:strings.Index(s, "{")+1] + "\n  gorm.Model\n" + s[strings.Index(s, "{")+2:]
 }
 
 // Generate produces the skeleton main.
@@ -138,16 +149,23 @@ func (g *Generator) Cleanup() {
 
 const modelTmpl = `// {{if .Description}}{{.Description}}{{else}}{{gotypename . 0}} media type{{end}}
 // Identifier: {{$typeName := gotypename . 0}}
-type {{$typeName}} {{gotypedef . 0 true false}}
+{{$td := gotypedef . 0 true false}}type {{$typeName}} {{gorm $td}}
 
-func {{$typeName}}FromCreatePayload(ctx *app.Create{{$typeName}}Context) {{$typeName}} {
+func {{$typeName}}FromCreatePayload(ctx *app.Create{{demodel $typeName}}Context) {{$typeName}} {
 	payload := ctx.Payload
 	m := {{$typeName}}{}
 	copier.Copy(&m, payload)
 	return m
 }
-func (m {{$typeName}}) ToApp() *app.{{$typeName}} {
-	target := app.{{$typeName}}{}
+
+func {{$typeName}}FromUpdatePayload(ctx *app.Update{{demodel $typeName}}Context) {{$typeName}} {
+	payload := ctx.Payload
+	m := {{$typeName}}{}
+	copier.Copy(&m, payload)
+	return m
+}
+func (m {{$typeName}}) ToApp() *app.{{demodel $typeName}} {
+	target := app.{{demodel $typeName}}{}
 	copier.Copy(&target, &m)
 	return &target 
 }
@@ -155,11 +173,11 @@ func (m {{$typeName}}) ToApp() *app.{{$typeName}} {
 
 
 type {{$typeName}}Storage interface {
-	List(ctx *app.List{{$typeName}}Context) []{{$typeName}}
-	Get(ctx *app.Show{{$typeName}}Context) ({{$typeName}}, error)
-	Add(ctx *app.Create{{$typeName}}Context) ({{$typeName}}, error)
-	Update(ctx *app.Update{{$typeName}}Context, m {{$typeName}}) ({{$typeName}}, error)
-	Delete(ctx *app.Delete{{$typeName}}Context, id int) (bool, error)
+	List(ctx *app.List{{demodel $typeName}}Context) []{{$typeName}}
+	Get(ctx *app.Show{{demodel $typeName }}Context) ({{$typeName}}, error)
+	Add(ctx *app.Create{{demodel $typeName}}Context) ({{$typeName}}, error)
+	Update(ctx *app.Update{{demodel $typeName}}Context) ({{$typeName}}, error)
+	Delete(ctx *app.Delete{{demodel $typeName}}Context) (bool, error)
 }
 
 type {{$typeName}}DB struct {
@@ -171,47 +189,47 @@ func New{{$typeName}}DB(db gorm.DB) *{{$typeName}}DB {
 	return &{{$typeName}}DB{DB: db}
 }
 
-func (m *{{$typeName}}DB) List(ctx *app.List{{$typeName}}Context) []{{$typeName}} {
+func (m *{{$typeName}}DB) List(ctx *app.List{{demodel $typeName}}Context) []{{$typeName}} {
 
 	var objs []{{$typeName}}
 	m.DB.Find(&objs)
 	return objs
 }
 
-func (m *{{$typeName}}DB) Get(ctx *app.Show{{$typeName}}Context) ({{$typeName}}, error) {
+func (m *{{$typeName}}DB) Get(ctx *app.Show{{demodel $typeName}}Context) ({{$typeName}}, error) {
 
 	var obj {{$typeName}}
 
-	err := m.DB.Find(&obj, ctx.{{$typeName}}ID).Error
+	err := m.DB.Find(&obj, ctx.{{demodel $typeName}}ID).Error
 	if err != nil {
 		ctx.Error(err.Error())
 	}
 	return obj, err
 }
 
-func (m *{{$typeName}}DB) Add(ctx *app.Create{{$typeName}}Context) ({{$typeName}}, error) {
+func (m *{{$typeName}}DB) Add(ctx *app.Create{{demodel $typeName}}Context) ({{$typeName}}, error) {
 	model := {{$typeName}}FromCreatePayload(ctx)
 	err := m.DB.Create(&model).Error
 	return model, err
 }
-func (m *{{$typeName}}DB) Update(ctx *app.Update{{$typeName}}Context, model {{$typeName}}) ({{$typeName}}, error) {
-	getCtx, err := app.NewShow{{$typeName}}Context(ctx.Context)
+func (m *{{$typeName}}DB) Update(ctx *app.Update{{demodel $typeName}}Context) ({{$typeName}}, error) {
+	getCtx, err := app.NewShow{{demodel $typeName}}Context(ctx.Context)
 	if err != nil {
 		return {{$typeName}}{}, err
 	}
 	obj, err := m.Get(getCtx)
 	if err != nil {
-		return model, err
+		return obj, err
 	}
-	err = m.DB.Model(&obj).Updates(model).Error
+	err = m.DB.Model(&obj).Updates({{$typeName}}FromUpdatePayload(ctx)).Error
 	if err != nil {
 		ctx.Error(err.Error())
 	}
 	return obj, err
 }
-func (m *{{$typeName}}DB) Delete(ctx *app.Delete{{$typeName}}Context, id int) (bool, error) {
+func (m *{{$typeName}}DB) Delete(ctx *app.Delete{{demodel $typeName}}Context) (bool, error) {
 	var obj {{$typeName}}
-	err := m.DB.Delete(&obj, id).Error
+	err := m.DB.Delete(&obj, ctx.{{demodel $typeName}}ID).Error
 	if err != nil {
 		ctx.Logger.Error(err.Error())
 		return false, err
@@ -222,17 +240,17 @@ func (m *{{$typeName}}DB) Delete(ctx *app.Delete{{$typeName}}Context, id int) (b
 
 
 type Mock{{$typeName}}Storage struct {
-	{{$typeName}}List  map[int]{{$typeName}}
-	nextID int
+	{{$typeName}}List  map[uint]{{$typeName}}
+	nextID uint
 	mut sync.Mutex
 }
 
 func NewMock{{$typeName}}Storage() *Mock{{$typeName}}Storage {
-	ml := make(map[int]{{$typeName}}, 0)
+	ml := make(map[uint]{{$typeName}}, 0)
 	return &Mock{{$typeName}}Storage{ {{$typeName}}List: ml}
 }
 
-func (db *Mock{{$typeName}}Storage) List(ctx *app.List{{$typeName}}Context) []{{$typeName}} {
+func (db *Mock{{$typeName}}Storage) List(ctx *app.List{{demodel $typeName}}Context) []{{$typeName}} {
 	var list []{{$typeName}} = make([]{{$typeName}}, 0)
 	for _, v := range db.{{$typeName}}List {
 		list = append(list, v)
@@ -240,11 +258,11 @@ func (db *Mock{{$typeName}}Storage) List(ctx *app.List{{$typeName}}Context) []{{
 	return list
 }
 
-func (db *Mock{{$typeName}}Storage) Get(ctx *app.Show{{$typeName}}Context) ({{$typeName}}, error) {
+func (db *Mock{{$typeName}}Storage) Get(ctx *app.Show{{demodel $typeName}}Context) ({{$typeName}}, error) {
 
 	var obj {{$typeName}}
 
-	obj, ok := db.{{$typeName}}List[ctx.{{$typeName}}ID]
+	obj, ok := db.{{$typeName}}List[uint(ctx.{{demodel $typeName}}ID)]
 	if ok {
 		return obj, nil
 	} else {
@@ -252,7 +270,7 @@ func (db *Mock{{$typeName}}Storage) Get(ctx *app.Show{{$typeName}}Context) ({{$t
 	}
 }
 
-func (db *Mock{{$typeName}}Storage) Add(ctx *app.Create{{$typeName}}Context)  ({{$typeName}}, error) {
+func (db *Mock{{$typeName}}Storage) Add(ctx *app.Create{{demodel $typeName}}Context)  ({{$typeName}}, error) {
 	u := {{$typeName}}FromCreatePayload(ctx)
 	db.mut.Lock()
 	db.nextID = db.nextID + 1
@@ -263,21 +281,21 @@ func (db *Mock{{$typeName}}Storage) Add(ctx *app.Create{{$typeName}}Context)  ({
 	return u, nil
 }
 
-func (db *Mock{{$typeName}}Storage) Update(ctx *app.Update{{$typeName}}Context, u {{$typeName}}) ({{$typeName}}, error) {
-	id := u.ID
+func (db *Mock{{$typeName}}Storage) Update(ctx *app.Update{{demodel $typeName}}Context) ({{$typeName}}, error) {
+	id := uint(ctx.{{demodel $typeName}}ID)
 	_, ok := db.{{$typeName}}List[id]
 	if ok {
-		db.{{$typeName}}List[id] = u
+		db.{{$typeName}}List[id] = {{$typeName}}FromUpdatePayload(ctx)
 		return db.{{$typeName}}List[id], nil
 	} else {
-		return u, errors.New("{{$typeName}} does not exist")
+		return db.{{$typeName}}List[id] , errors.New("{{$typeName}} does not exist")
 	}
 }
 
-func (db *Mock{{$typeName}}Storage) Delete(ctx *app.Delete{{$typeName}}Context, id int) (bool, error) {
-	_, ok := db.{{$typeName}}List[id]
+func (db *Mock{{$typeName}}Storage) Delete(ctx *app.Delete{{demodel $typeName}}Context) (bool, error) {
+	_, ok := db.{{$typeName}}List[uint(ctx.{{demodel $typeName}}ID)]
 	if ok {
-		delete(db.{{$typeName}}List, id)
+		delete(db.{{$typeName}}List, uint(ctx.{{demodel $typeName}}ID))
 		return true, nil
 	} else {
 		return false, errors.New("Could not delete this user")
