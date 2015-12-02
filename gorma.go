@@ -176,8 +176,8 @@ type {{$typeName}}Storage interface {
 	List(ctx *app.List{{demodel $typeName}}Context) []{{$typeName}}
 	Get(ctx *app.Show{{demodel $typeName }}Context) ({{$typeName}}, error)
 	Add(ctx *app.Create{{demodel $typeName}}Context) ({{$typeName}}, error)
-	Update(ctx *app.Update{{demodel $typeName}}Context) ({{$typeName}}, error)
-	Delete(ctx *app.Delete{{demodel $typeName}}Context) (bool, error)
+	Update(ctx *app.Update{{demodel $typeName}}Context) (error)
+	Delete(ctx *app.Delete{{demodel $typeName}}Context) (error)
 }
 
 type {{$typeName}}DB struct {
@@ -212,29 +212,29 @@ func (m *{{$typeName}}DB) Add(ctx *app.Create{{demodel $typeName}}Context) ({{$t
 	err := m.DB.Create(&model).Error
 	return model, err
 }
-func (m *{{$typeName}}DB) Update(ctx *app.Update{{demodel $typeName}}Context) ({{$typeName}}, error) {
+func (m *{{$typeName}}DB) Update(ctx *app.Update{{demodel $typeName}}Context) error {
 	getCtx, err := app.NewShow{{demodel $typeName}}Context(ctx.Context)
 	if err != nil {
-		return {{$typeName}}{}, err
+		return  err
 	}
 	obj, err := m.Get(getCtx)
 	if err != nil {
-		return obj, err
+		return  err
 	}
 	err = m.DB.Model(&obj).Updates({{$typeName}}FromUpdatePayload(ctx)).Error
 	if err != nil {
 		ctx.Error(err.Error())
 	}
-	return obj, err
+	return err
 }
-func (m *{{$typeName}}DB) Delete(ctx *app.Delete{{demodel $typeName}}Context) (bool, error) {
+func (m *{{$typeName}}DB) Delete(ctx *app.Delete{{demodel $typeName}}Context)  error {
 	var obj {{$typeName}}
 	err := m.DB.Delete(&obj, ctx.{{demodel $typeName}}ID).Error
 	if err != nil {
 		ctx.Logger.Error(err.Error())
-		return false, err
+		return  err
 	}
-	return true, nil
+	return  nil
 }
 
 
@@ -281,24 +281,24 @@ func (db *Mock{{$typeName}}Storage) Add(ctx *app.Create{{demodel $typeName}}Cont
 	return u, nil
 }
 
-func (db *Mock{{$typeName}}Storage) Update(ctx *app.Update{{demodel $typeName}}Context) ({{$typeName}}, error) {
+func (db *Mock{{$typeName}}Storage) Update(ctx *app.Update{{demodel $typeName}}Context) error {
 	id := uint(ctx.{{demodel $typeName}}ID)
 	_, ok := db.{{$typeName}}List[id]
 	if ok {
 		db.{{$typeName}}List[id] = {{$typeName}}FromUpdatePayload(ctx)
-		return db.{{$typeName}}List[id], nil
+		return  nil
 	} else {
-		return db.{{$typeName}}List[id] , errors.New("{{$typeName}} does not exist")
+		return errors.New("{{$typeName}} does not exist")
 	}
 }
 
-func (db *Mock{{$typeName}}Storage) Delete(ctx *app.Delete{{demodel $typeName}}Context) (bool, error) {
+func (db *Mock{{$typeName}}Storage) Delete(ctx *app.Delete{{demodel $typeName}}Context)  error {
 	_, ok := db.{{$typeName}}List[uint(ctx.{{demodel $typeName}}ID)]
 	if ok {
 		delete(db.{{$typeName}}List, uint(ctx.{{demodel $typeName}}ID))
-		return true, nil
+		return  nil
 	} else {
-		return false, errors.New("Could not delete this user")
+		return  errors.New("Could not delete this user")
 	}
 }
 `
