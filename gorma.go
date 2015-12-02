@@ -51,7 +51,7 @@ func NewModelWriter(filename string) (*ModelWriter, error) {
 }
 
 // Execute writes the code for the context types to the writer.
-func (w *ModelWriter) Execute(mt *design.MediaTypeDefinition) error {
+func (w *ModelWriter) Execute(mt *design.UserTypeDefinition) error {
 	return w.ModelTmpl.Execute(w, mt)
 }
 
@@ -103,13 +103,17 @@ func (g *Generator) Generate(api *design.APIDefinition) ([]string, error) {
 		panic(err)
 	}
 	mtw.WriteHeader(title, "models", imports)
-	err = api.IterateMediaTypes(func(res *design.MediaTypeDefinition) error {
+	err = api.IterateUserTypes(func(res *design.UserTypeDefinition) error {
 		if res.Type.IsObject() {
-
-			err = mtw.Execute(res)
-			if err != nil {
-				g.Cleanup()
-				return err
+			//only generate if the user type ends in "Model"
+			tn := codegen.GoTypeName(res, 0)
+			fmt.Println(tn)
+			if tn[len(tn)-5:] == "Model" {
+				err = mtw.Execute(res)
+				if err != nil {
+					g.Cleanup()
+					return err
+				}
 			}
 		}
 		return nil
@@ -133,7 +137,7 @@ func (g *Generator) Cleanup() {
 }
 
 const modelTmpl = `// {{if .Description}}{{.Description}}{{else}}{{gotypename . 0}} media type{{end}}
-// Identifier: {{.Identifier}}{{$typeName := gotypename . 0}}
+// Identifier: {{$typeName := gotypename . 0}}
 type {{$typeName}} {{gotypedef . 0 true false}}
 
 func {{$typeName}}FromCreatePayload(ctx *app.Create{{$typeName}}Context) {{$typeName}} {
