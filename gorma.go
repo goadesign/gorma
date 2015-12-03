@@ -377,11 +377,24 @@ func (m *{{$typeName}}DB) Delete(ctx *app.Delete{{demodel $typeName}}Context)  e
 
 
 
+
 type Mock{{$typeName}}Storage struct {
 	{{$typeName}}List  map[uint]{{$typeName}}
 	nextID uint
 	mut sync.Mutex
 }
+{{if ne $belongsto ""}}
+func filter{{$typeName}}By{{$belongsto}}(parent int, list []{{$typeName}}) []{{$typeName}} {
+	filtered := make([]{{$typeName}},0)
+	for _,o := range list {
+		if o.{{$belongsto}}ID == uint(parent) {
+			filtered = append(filtered,o)
+		}
+	}
+	return filtered
+}
+{{end}}
+
 
 func NewMock{{$typeName}}Storage() *Mock{{$typeName}}Storage {
 	ml := make(map[uint]{{$typeName}}, 0)
@@ -393,7 +406,8 @@ func (db *Mock{{$typeName}}Storage) List(ctx *app.List{{demodel $typeName}}Conte
 	for _, v := range db.{{$typeName}}List {
 		list = append(list, v)
 	}
-	return list
+{{if ne $belongsto ""}}
+return filter{{$typeName}}By{{$belongsto}}(ctx.{{$belongsto}}ID, list) {{else}}return list{{end}}
 }
 
 func (db *Mock{{$typeName}}Storage) Get(ctx *app.Show{{demodel $typeName}}Context) ({{$typeName}}, error) {
