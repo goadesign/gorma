@@ -95,7 +95,6 @@ func (g *Generator) Generate(api *design.APIDefinition) ([]string, error) {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println(codegen.OutputDir)
 	imp, err := filepath.Rel(filepath.Join(os.Getenv("GOPATH"), "src"), codegen.OutputDir)
 	if err != nil {
 		return nil, err
@@ -118,6 +117,7 @@ func (g *Generator) Generate(api *design.APIDefinition) ([]string, error) {
 		if res.Type.IsObject() {
 			//only generate if the user type ends in "Model"
 			tn := codegen.GoTypeName(res, 0)
+			fmt.Println("Metadata: ", res.Metadata)
 			fmt.Println(tn)
 			if tn[len(tn)-5:] == "Model" {
 				err = mtw.Execute(res)
@@ -127,6 +127,21 @@ func (g *Generator) Generate(api *design.APIDefinition) ([]string, error) {
 				}
 			}
 		}
+		return nil
+	})
+	err = api.IterateMediaTypes(func(res *design.MediaTypeDefinition) error {
+		if res.Type.IsObject() {
+			fmt.Println("Metadata: ", res.Metadata)
+		}
+		return nil
+	})
+	fmt.Println("Metadata :", api.Metadata)
+	err = api.IterateResources(func(res *design.ResourceDefinition) error {
+		fmt.Println("Metadata:", res.Metadata)
+		for _, a := range res.Actions {
+			fmt.Println("Metadata: ", a.Metadata)
+		}
+
 		return nil
 	})
 	if err := mtw.FormatCode(); err != nil {
