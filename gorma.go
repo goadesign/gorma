@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"unicode"
 
 	"text/template"
 
@@ -25,6 +26,10 @@ type ModelWriter struct {
 	ModelTmpl *template.Template
 }
 
+type UserTypeMetadata struct {
+	Filter string
+}
+
 // NewModelWriter returns a contexts code writer.
 // Media types contain the data used to render response bodies.
 func NewModelWriter(filename string) (*ModelWriter, error) {
@@ -40,7 +45,8 @@ func NewModelWriter(filename string) (*ModelWriter, error) {
 	funcMap["recursiveValidate"] = codegen.RecursiveChecker
 	funcMap["tempvar"] = codegen.Tempvar
 	funcMap["demodel"] = DeModel
-	funcMap["gorm"] = MakeGormModel
+	funcMap["modeldef"] = MakeModelDef
+	funcMap["snake"] = CamelToSnake
 
 	modelTmpl, err := template.New("models").Funcs(funcMap).Parse(modelTmpl)
 	if err != nil {
@@ -72,6 +78,44 @@ func NewGenerator() (*Generator, error) {
 	return new(Generator), nil
 }
 
+// CamelToSnake converts a given string to snake case
+func CamelToSnake(s string) string {
+	var result string
+	var words []string
+	var lastPos int
+	rs := []rune(s)
+
+	for i := 0; i < len(rs); i++ {
+		if i > 0 && unicode.IsUpper(rs[i]) {
+			if initialism := startsWithInitialism(s[lastPos:]); initialism != "" {
+				words = append(words, initialism)
+
+				i += len(initialism) - 1
+				lastPos = i
+				continue
+			}
+
+			words = append(words, s[lastPos:i])
+			lastPos = i
+		}
+	}
+
+	// append the last word
+	if s[lastPos:] != "" {
+		words = append(words, s[lastPos:])
+	}
+
+	for k, word := range words {
+		if k > 0 {
+			result += "_"
+		}
+
+		result += strings.ToLower(word)
+	}
+
+	return result
+}
+
 // JSONSchemaDir is the path to the directory where the schema controller is generated.
 func ModelDir() string {
 	return filepath.Join(codegen.OutputDir, "models")
@@ -81,8 +125,77 @@ func DeModel(s string) string {
 	return strings.Replace(s, "Model", "", -1)
 }
 
-func MakeGormModel(s string) string {
-	return s[0:strings.Index(s, "{")+1] + "\n  gorm.Model\n" + s[strings.Index(s, "{")+2:]
+func IncludeForeignKey(res *design.UserTypeDefinition) string {
+	if assoc, ok := res.Metadata["github.com/bketelsen/gorma#belongsto"]; ok {
+		return assoc + "ID uint\n"
+	}
+	return ""
+}
+
+func MakeModelDef(s string, res *design.UserTypeDefinition) string {
+	return s[0:strings.Index(s, "{")+1] + "\n  gorm.Model\n" + IncludeForeignKey(res) + s[strings.Index(s, "{")+2:]
+}
+
+// Is c an ASCII lower-case letter?
+func isASCIILower(c byte) bool {
+	return 'a' <= c && c <= 'z'
+}
+
+// Is c an ASCII digit?
+func isASCIIDigit(c byte) bool {
+	return '0' <= c && c <= '9'
+}
+
+func unexport(s string) string {
+	return strings.ToLower(s[0:1]) + s[1:]
+}
+
+// startsWithInitialism returns the initialism if the given string begins with it
+func startsWithInitialism(s string) string {
+	var initialism string
+	// the longest initialism is 5 char, the shortest 2
+	for i := 1; i <= 5; i++ {
+		if len(s) > i-1 && commonInitialisms[s[:i]] {
+			initialism = s[:i]
+		}
+	}
+	return initialism
+}
+
+// commonInitialisms, taken from
+// https://github.com/golang/lint/blob/3d26dc39376c307203d3a221bada26816b3073cf/lint.go#L482
+var commonInitialisms = map[string]bool{
+	"API":   true,
+	"ASCII": true,
+	"CPU":   true,
+	"CSS":   true,
+	"DNS":   true,
+	"EOF":   true,
+	"GUID":  true,
+	"HTML":  true,
+	"HTTP":  true,
+	"HTTPS": true,
+	"ID":    true,
+	"IP":    true,
+	"JSON":  true,
+	"LHS":   true,
+	"QPS":   true,
+	"RAM":   true,
+	"RHS":   true,
+	"RPC":   true,
+	"SLA":   true,
+	"SMTP":  true,
+	"SSH":   true,
+	"TLS":   true,
+	"TTL":   true,
+	"UI":    true,
+	"UID":   true,
+	"UUID":  true,
+	"URI":   true,
+	"URL":   true,
+	"UTF8":  true,
+	"VM":    true,
+	"XML":   true,
 }
 
 // Generate produces the skeleton main.
@@ -115,31 +228,18 @@ func (g *Generator) Generate(api *design.APIDefinition) ([]string, error) {
 	mtw.WriteHeader(title, "models", imports)
 	err = api.IterateUserTypes(func(res *design.UserTypeDefinition) error {
 		if res.Type.IsObject() {
-			//only generate if the user type ends in "Model"
-			tn := codegen.GoTypeName(res, 0)
-			fmt.Println("Metadata: ", res.Metadata)
-			fmt.Println(tn)
-			if tn[len(tn)-5:] == "Model" {
+
+			if md, ok := res.Metadata["github.com/bketelsen/gorma"]; ok && md == "Model" {
+				fmt.Println("Found Gorma Metadata:", md)
+				if err != nil {
+					panic(err)
+				}
 				err = mtw.Execute(res)
 				if err != nil {
 					g.Cleanup()
 					return err
 				}
 			}
-		}
-		return nil
-	})
-	err = api.IterateMediaTypes(func(res *design.MediaTypeDefinition) error {
-		if res.Type.IsObject() {
-			fmt.Println("Metadata: ", res.Metadata)
-		}
-		return nil
-	})
-	fmt.Println("Metadata :", api.Metadata)
-	err = api.IterateResources(func(res *design.ResourceDefinition) error {
-		fmt.Println("Metadata:", res.Metadata)
-		for _, a := range res.Actions {
-			fmt.Println("Metadata: ", a.Metadata)
 		}
 
 		return nil
@@ -162,14 +262,15 @@ func (g *Generator) Cleanup() {
 	g.genfiles = nil
 }
 
-const modelTmpl = `// {{if .Description}}{{.Description}}{{else}}{{gotypename . 0}} media type{{end}}
-// Identifier: {{$typeName := gotypename . 0}}
-{{$td := gotypedef . 0 true false}}type {{$typeName}} {{gorm $td}}
-
+const modelTmpl = `// {{if .Description}}{{.Description}}{{else}}app.{{gotypename . 0}} storage type{{end}}
+// Identifier: {{ $typeName :=  gotypename . 0}}{{$typeName := demodel $typeName}}
+{{$td := gotypedef . 0 true false}}type {{$typeName}} {{modeldef $td .}}
+{{ $belongsto := index .Metadata "github.com/bketelsen/gorma#belongsto" }}
 func {{$typeName}}FromCreatePayload(ctx *app.Create{{demodel $typeName}}Context) {{$typeName}} {
 	payload := ctx.Payload
 	m := {{$typeName}}{}
 	copier.Copy(&m, payload)
+	{{ if ne $belongsto "" }} m.{{ $belongsto }}ID=uint(ctx.{{ demodel $belongsto }}ID){{end}}
 	return m
 }
 
@@ -198,8 +299,18 @@ type {{$typeName}}Storage interface {
 type {{$typeName}}DB struct {
 	DB gorm.DB
 }
-
-
+{{ if ne $belongsto "" }}
+func {{$typeName}}Filter(parentid int, originaldb *gorm.DB) func(db *gorm.DB) *gorm.DB {
+	if parentid > 0 {
+		return func(db *gorm.DB) *gorm.DB {
+			return db.Where("{{ snake $belongsto }}_id = ?", parentid)
+		}
+	} else {
+		return func(db *gorm.DB) *gorm.DB {
+			return db
+		}
+	}
+}{{end}}
 func New{{$typeName}}DB(db gorm.DB) *{{$typeName}}DB {
 	return &{{$typeName}}DB{DB: db}
 }
@@ -207,7 +318,7 @@ func New{{$typeName}}DB(db gorm.DB) *{{$typeName}}DB {
 func (m *{{$typeName}}DB) List(ctx *app.List{{demodel $typeName}}Context) []{{$typeName}} {
 
 	var objs []{{$typeName}}
-	m.DB.Find(&objs)
+    {{ if ne $belongsto "" }}m.DB.Scopes({{$typeName}}Filter(ctx.{{demodel $belongsto}}ID, &m.DB)).Find(&objs){{ else }} m.DB.Find(&objs) {{end}}
 	return objs
 }
 
