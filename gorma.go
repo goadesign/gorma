@@ -9,6 +9,7 @@ import (
 
 	"text/template"
 
+	"github.com/jinzhu/inflection"
 	"github.com/raphael/goa/design"
 	"github.com/raphael/goa/goagen/codegen"
 	"gopkg.in/alecthomas/kingpin.v2"
@@ -131,9 +132,19 @@ func IncludeForeignKey(res *design.UserTypeDefinition) string {
 	}
 	return ""
 }
-
+func IncludeChildren(res *design.UserTypeDefinition) string {
+	if assoc, ok := res.Metadata["github.com/bketelsen/gorma#hasmany"]; ok {
+		children := strings.Split(assoc, ",")
+		var associations string
+		for _, child := range children {
+			associations = associations + inflection.Plural(child) + " []" + child + "\n"
+		}
+		return associations
+	}
+	return ""
+}
 func MakeModelDef(s string, res *design.UserTypeDefinition) string {
-	return s[0:strings.Index(s, "{")+1] + "\n  gorm.Model\n" + IncludeForeignKey(res) + s[strings.Index(s, "{")+2:]
+	return s[0:strings.Index(s, "{")+1] + "\n  gorm.Model\n" + IncludeForeignKey(res) + IncludeChildren(res) + s[strings.Index(s, "{")+2:]
 }
 
 // Is c an ASCII lower-case letter?
@@ -300,6 +311,7 @@ type {{$typeName}}DB struct {
 	DB gorm.DB
 }
 {{ if ne $belongsto "" }}
+// would prefer to just pass a context in here, but they're all different, so can't
 func {{$typeName}}Filter(parentid int, originaldb *gorm.DB) func(db *gorm.DB) *gorm.DB {
 	if parentid > 0 {
 		return func(db *gorm.DB) *gorm.DB {
