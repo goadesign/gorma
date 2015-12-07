@@ -18,7 +18,7 @@ func {{$typeName}}FromUpdatePayload(ctx *app.Update{{demodel $typeName}}Context)
 	copier.Copy(&m, payload)
 	return m
 }
-func (m {{$typeName}}) ToApp() *app.{{$typeName}} {
+func (m {{$typeName}}) ToApp() *app.{{demodel $typeName}} {
 	target := app.{{demodel $typeName}}{}
 	copier.Copy(&target, &m)
 	return &target 
