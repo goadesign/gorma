@@ -11,6 +11,19 @@ const (
 
 var RBAC *gorbac.RBAC
 
+
+
+// Roler is an interface that provides a Role function
+// which returns a string value representing the role to which a user
+// belongs.
+type Roler interface{
+	GetRole() string
+}
+
+func Authorize(r Roler, perm string) bool {
+	return RBAC.IsGranted(r.GetRole(), perm, nil)
+}
+
 // These are provided as a template.  Edit to suit as required by your applicaton
 // Test roles in your controllers with models.RBAC.isGranted(ROLE, SOMEPERMISSION, nil)
 func init() {

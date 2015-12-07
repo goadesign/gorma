@@ -23,8 +23,12 @@ func (m {{$typeName}}) ToApp() *app.{{demodel $typeName}} {
 	copier.Copy(&target, &m)
 	return &target 
 }
-
-
+{{ $roler := index .Metadata "github.com/bketelsen/gorma#roler" }}
+{{ if ne $roler "" }}
+func (m {{$typeName}}) GetRole() string {
+	return m.Role
+}
+{{end}}
 
 type {{$typeName}}Storage interface {
 	List(ctx *app.List{{demodel $typeName}}Context) []{{$typeName}}
