@@ -137,7 +137,7 @@ func Split(s string, sep string) []string {
 }
 
 func MakeModelDef(s string, res *design.UserTypeDefinition) string {
-	start := s[0:strings.Index(s, "{")+1] + "\n  gorm.Model\n" + +IncludeMany2Many(res) + IncludeForeignKey(res) + IncludeChildren(res) + Authboss(res) + s[strings.Index(s, "{")+2:]
+	start := s[0:strings.Index(s, "{")+1] + "\n  gorm.Model\n" + IncludeMany2Many(res) + IncludeForeignKey(res) + IncludeChildren(res) + Authboss(res) + s[strings.Index(s, "{")+2:]
 	newstrings := make([]string, 0)
 	chunks := strings.Split(start, "\n")
 	// Good lord, shoot me for this hack - remove the ID field in the model if it exists
