@@ -92,7 +92,6 @@ func Authboss(res *design.UserTypeDefinition) string {
 	if _, ok := res.Metadata["github.com/bketelsen/gorma#authboss"]; ok {
 		fields := `	// Auth
 	Email    string
-	Password string
 
 	// OAuth2
 	Oauth2Uid      string
