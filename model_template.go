@@ -41,7 +41,7 @@ type {{$typeName}}Storage interface {
 type {{$typeName}}DB struct {
 	DB gorm.DB
 }
-{{ if ne $belongsto "" }}{{$barray := split $belongsto ,}}{{$idx, $bt := range $barray}}
+{{ if ne $belongsto "" }}{{$barray := split $belongsto ","}}{{$idx, $bt := range $barray}}
 // would prefer to just pass a context in here, but they're all different, so can't
 func {{$typeName}}Filter(parentid int, originaldb *gorm.DB) func(db *gorm.DB) *gorm.DB {
 	if parentid > 0 {
@@ -114,7 +114,7 @@ type Mock{{$typeName}}Storage struct {
 	nextID uint
 	mut sync.Mutex
 }
-{{if ne $belongsto ""}}{{$barray := split $belongsto ,}}{{$idx, $bt := range $barray}}
+{{if ne $belongsto ""}}{{$barray := split $belongsto ","}}{{$idx, $bt := range $barray}}
 func filter{{$typeName}}By{{$bt}}(parent int, list []{{$typeName}}) []{{$typeName}} {
 	filtered := make([]{{$typeName}},0)
 	for _,o := range list {
