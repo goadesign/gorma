@@ -118,6 +118,12 @@ func Authboss(res *design.UserTypeDefinition) string {
 	}
 	return ""
 }
+
+func Split(s string, sep string) []string {
+
+	return strings.Split(s, sep)
+}
+
 func MakeModelDef(s string, res *design.UserTypeDefinition) string {
 	start := s[0:strings.Index(s, "{")+1] + "\n  gorm.Model\n" + IncludeForeignKey(res) + IncludeChildren(res) + Authboss(res) + s[strings.Index(s, "{")+2:]
 	newstrings := make([]string, 0)

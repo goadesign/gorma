@@ -41,19 +41,19 @@ type {{$typeName}}Storage interface {
 type {{$typeName}}DB struct {
 	DB gorm.DB
 }
-{{ if ne $belongsto "" }}
+{{ if ne $belongsto "" }}{{$barray := split $belongsto ,}}{{$idx, $bt := range $barray}}
 // would prefer to just pass a context in here, but they're all different, so can't
 func {{$typeName}}Filter(parentid int, originaldb *gorm.DB) func(db *gorm.DB) *gorm.DB {
 	if parentid > 0 {
 		return func(db *gorm.DB) *gorm.DB {
-			return db.Where("{{ snake $belongsto }}_id = ?", parentid)
+			return db.Where("{{ snake $bt }}_id = ?", parentid)
 		}
 	} else {
 		return func(db *gorm.DB) *gorm.DB {
 			return db
 		}
 	}
-}{{end}}
+}{{end}}{{end}}
 func New{{$typeName}}DB(db gorm.DB) *{{$typeName}}DB {
 	return &{{$typeName}}DB{DB: db}
 }
@@ -114,17 +114,17 @@ type Mock{{$typeName}}Storage struct {
 	nextID uint
 	mut sync.Mutex
 }
-{{if ne $belongsto ""}}
-func filter{{$typeName}}By{{$belongsto}}(parent int, list []{{$typeName}}) []{{$typeName}} {
+{{if ne $belongsto ""}}{{$barray := split $belongsto ,}}{{$idx, $bt := range $barray}}
+func filter{{$typeName}}By{{$bt}}(parent int, list []{{$typeName}}) []{{$typeName}} {
 	filtered := make([]{{$typeName}},0)
 	for _,o := range list {
-		if o.{{$belongsto}}ID == uint(parent) {
+		if o.{{$bt}}ID == uint(parent) {
 			filtered = append(filtered,o)
 		}
 	}
 	return filtered
 }
-{{end}}
+{{end}}{{end}}
 
 
 func NewMock{{$typeName}}Storage() *Mock{{$typeName}}Storage {
