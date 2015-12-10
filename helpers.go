@@ -71,15 +71,21 @@ func IncludeForeignKey(res *design.UserTypeDefinition) string {
 	return ""
 }
 func IncludeChildren(res *design.UserTypeDefinition) string {
+	var associations string
 	if assoc, ok := res.Metadata["github.com/bketelsen/gorma#hasmany"]; ok {
 		children := strings.Split(assoc, ",")
-		var associations string
+
 		for _, child := range children {
 			associations = associations + inflection.Plural(child) + " []" + child + "\n"
 		}
-		return associations
 	}
-	return ""
+	if assoc, ok := res.Metadata["github.com/bketelsen/gorma#hasone"]; ok {
+		children := strings.Split(assoc, ",")
+		for _, child := range children {
+			associations = associations + child + " " + child + "\n"
+		}
+	}
+	return associations
 }
 func Authboss(res *design.UserTypeDefinition) string {
 	if _, ok := res.Metadata["github.com/bketelsen/gorma#authboss"]; ok {
