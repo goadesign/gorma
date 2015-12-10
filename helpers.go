@@ -88,6 +88,19 @@ func IncludeChildren(res *design.UserTypeDefinition) string {
 	}
 	return associations
 }
+
+func IncludeMany2Many(res *design.UserTypeDefinition) string {
+	var associations string
+	if assoc, ok := res.Metadata["github.com/bketelsen/gorma#many2many"]; ok {
+		children := strings.Split(assoc, ",")
+
+		for _, child := range children {
+			pieces := strings.Split(child, ":")
+			associations = associations + pieces[0] + "\t" + pieces[1] + "\t" + "`gorm:\"many2many:" + pieces[2] + ";\"`\n"
+		}
+	}
+	return associations
+}
 func Authboss(res *design.UserTypeDefinition) string {
 	if _, ok := res.Metadata["github.com/bketelsen/gorma#authboss"]; ok {
 		fields := `	// Auth
@@ -124,7 +137,7 @@ func Split(s string, sep string) []string {
 }
 
 func MakeModelDef(s string, res *design.UserTypeDefinition) string {
-	start := s[0:strings.Index(s, "{")+1] + "\n  gorm.Model\n" + IncludeForeignKey(res) + IncludeChildren(res) + Authboss(res) + s[strings.Index(s, "{")+2:]
+	start := s[0:strings.Index(s, "{")+1] + "\n  gorm.Model\n" + +IncludeMany2Many(res) + IncludeForeignKey(res) + IncludeChildren(res) + Authboss(res) + s[strings.Index(s, "{")+2:]
 	newstrings := make([]string, 0)
 	chunks := strings.Split(start, "\n")
 	// Good lord, shoot me for this hack - remove the ID field in the model if it exists
