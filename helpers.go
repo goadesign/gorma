@@ -83,7 +83,7 @@ func IncludeChildren(res *design.UserTypeDefinition) string {
 		children := strings.Split(assoc, ",")
 		for _, child := range children {
 			associations = associations + child + " " + child + "\n"
-			associations = associations + child + "ID " + "*NullInt64\n"
+			associations = associations + child + "ID " + "*sql.NullInt64\n"
 		}
 	}
 	return associations

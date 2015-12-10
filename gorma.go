@@ -49,6 +49,7 @@ func (g *Generator) Generate(api *design.APIDefinition) ([]string, error) {
 		codegen.SimpleImport(imp),
 		codegen.SimpleImport("github.com/jinzhu/gorm"),
 		codegen.SimpleImport("github.com/jinzhu/copier"),
+		codegen.SimpleImport("db/sql"),
 	}
 
 	title := fmt.Sprintf("%s: Models", api.Name)
