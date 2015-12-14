@@ -74,7 +74,7 @@ func StorageDefinition(res *design.UserTypeDefinition) string {
 			pieces := strings.Split(child, ":")
 			associations = associations + "List" + pieces[0] + "(ctx *app.List" + strings.ToLower(pieces[0]) + res.TypeName + "Context) []" + pieces[1] + "\n"
 			associations = associations + "Add" + pieces[1] + "(ctx *app.Create" + strings.ToLower(pieces[1]) + res.TypeName + "Context) " + pieces[1] + " error\n"
-			associations = associations + "Delete" + pieces[1] + "(ctx *app.Create" + strings.ToLower(pieces[1]) + res.TypeName + "Context) error "
+			associations = associations + "Delete" + pieces[1] + "(ctx *app.Create" + strings.ToLower(pieces[1]) + res.TypeName + "Context) error \n"
 		}
 	}
 	return associations
