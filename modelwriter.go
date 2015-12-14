@@ -33,6 +33,7 @@ func NewModelWriter(filename string) (*ModelWriter, error) {
 	funcMap["snake"] = CamelToSnake
 	funcMap["split"] = Split
 	funcMap["storagedef"] = StorageDefinition
+	funcMap["lower"] = Lower
 
 	modelTmpl, err := template.New("models").Funcs(funcMap).Parse(modelTmpl)
 	if err != nil {
