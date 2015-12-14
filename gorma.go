@@ -64,7 +64,7 @@ func (g *Generator) Generate(api *design.APIDefinition) ([]string, error) {
 	err = api.IterateUserTypes(func(res *design.UserTypeDefinition) error {
 		if res.Type.IsObject() {
 			title := fmt.Sprintf("%s: Models", api.Name)
-			modelname := strings.ToLower(DeMmodel(res.TypeName))
+			modelname := strings.ToLower(DeModel(res.TypeName))
 			filename := filepath.Join(ModelDir(), modelname+"_model.go")
 			mtw, err := NewModelWriter(filename)
 			if err != nil {
