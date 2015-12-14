@@ -21,6 +21,7 @@ func {{$typeName}}FromUpdatePayload(ctx *app.Update{{demodel $typeName}}Context)
 func (m {{$typeName}}) ToApp() *app.{{demodel $typeName}} {
 	target := app.{{demodel $typeName}}{}
 	copier.Copy(&target, &m)
+	target.Href = app.{{demodel $typename}}Href(target.ID)
 	return &target 
 }
 {{ $roler := index .Metadata "github.com/bketelsen/gorma#roler" }}
