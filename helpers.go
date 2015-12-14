@@ -1,6 +1,7 @@
 package gorma
 
 import (
+	"fmt"
 	"path/filepath"
 	"strings"
 	"unicode"
@@ -65,15 +66,15 @@ func Upper(s string) string {
 }
 
 func StorageDefinition(res *design.UserTypeDefinition) string {
-	//List(ctx *app.List{{demodel $typeName}}Context) []{{$typeName}}
-	// Add(ctx *app.Create{{demodel $typeName}}Context) ({{$typeName}}, error)
-	//Delete(ctx *app.Delete{{demodel $typeName}}Context) (error)
+
 	var associations string
 	if assoc, ok := res.Metadata["github.com/bketelsen/gorma#many2many"]; ok {
 		children := strings.Split(assoc, ",")
 
 		for _, child := range children {
+			fmt.Println("child")
 			pieces := strings.Split(child, ":")
+			fmt.Println(pieces)
 			if DeModel(res.TypeName) == pieces[1] {
 				associations = associations + "List" + pieces[0] + "(ctx *app.List" + strings.ToLower(pieces[0]) + res.TypeName + "Context) []" + pieces[1] + "\n"
 				associations = associations + "Add" + pieces[1] + "(ctx *app.Create" + strings.ToLower(pieces[1]) + res.TypeName + "Context) " + pieces[1] + " error\n"
