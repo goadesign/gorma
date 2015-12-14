@@ -59,6 +59,7 @@ func (g *Generator) Generate(api *design.APIDefinition) ([]string, error) {
 	}
 
 	rbactitle := fmt.Sprintf("%s: RBAC", api.Name)
+	interfacetitle := fmt.Sprintf("%s: Interfaces", api.Name)
 	_, dorbac := api.Metadata["github.com/bketelsen/gorma#rbac"]
 
 	err = api.IterateUserTypes(func(res *design.UserTypeDefinition) error {
@@ -92,6 +93,27 @@ func (g *Generator) Generate(api *design.APIDefinition) ([]string, error) {
 		return nil
 
 	})
+	interfaceimports := []*codegen.ImportSpec{
+		codegen.SimpleImport(imp),
+	}
+	intfilename := filepath.Join(ModelDir(), "interface.go")
+	intw, err := NewInterfaceWriter(intfilename)
+	if err != nil {
+		panic(err)
+	}
+	intw.WriteHeader(interfacetitle, "models", interfaceimports)
+	err = intw.Execute(api)
+	if err != nil {
+		g.Cleanup()
+		return g.genfiles, err
+	}
+	if err := intw.FormatCode(); err != nil {
+		g.Cleanup()
+		return nil, err
+	}
+	if err != nil {
+		g.genfiles = append(g.genfiles, intfilename)
+	}
 	if dorbac {
 		rbacfilename := filepath.Join(ModelDir(), "rbac.go")
 		rbacw, err := NewRbacWriter(rbacfilename)
