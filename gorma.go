@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/raphael/goa/design"
 	"github.com/raphael/goa/goagen/codegen"
@@ -63,7 +64,8 @@ func (g *Generator) Generate(api *design.APIDefinition) ([]string, error) {
 	err = api.IterateUserTypes(func(res *design.UserTypeDefinition) error {
 		if res.Type.IsObject() {
 			title := fmt.Sprintf("%s: Models", api.Name)
-			filename := filepath.Join(ModelDir(), res.TypeName+"_model.go")
+			modelname := strings.ToLower(Demodel(res.TypeName))
+			filename := filepath.Join(ModelDir(), modelname+"_model.go")
 			mtw, err := NewModelWriter(filename)
 			if err != nil {
 				panic(err)
