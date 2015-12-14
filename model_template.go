@@ -109,8 +109,8 @@ func (m *{{$typeName}}DB) Delete(ctx *app.Delete{{demodel $typeName}}Context)  e
 }
 
 {{ if ne $m2m "" }}{{$barray := split $m2m ","}}{{ range $idx, $bt := $barray}}
-{{ $pieces := split $bt ":" }}
-func (m *{{$typeName}}DB) Delete{{index $pieces 0}}(ctx *app.Delete{{lower | demodel $typeName}}Context)  error {
+{{ $pieces := split $bt ":" }} {{ $lowerType := demodel $typeName  }} {{ $lower := lower $lowertype }}
+func (m *{{$typeName}}DB) Delete{{index $pieces 0}}(ctx *app.Delete{{$lower}}Context)  error {
 	var obj {{$typeName}}
 	err := m.DB.Delete(&obj, ctx.{{demodel $typeName}}ID).Error
 	if err != nil {
