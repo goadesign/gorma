@@ -30,7 +30,7 @@ func NewInterfaceWriter(filename string) (*InterfaceWriter, error) {
 	funcMap["lower"] = Lower
 	funcMap["upper"] = Upper
 
-	intTmpl, err := template.New("rbac").Funcs(funcMap).Parse(rbacTmpl)
+	intTmpl, err := template.New("interfaces").Funcs(funcMap).Parse(intTmpl)
 	if err != nil {
 		return nil, err
 	}
