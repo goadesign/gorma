@@ -4,6 +4,7 @@ const modelTmpl = `// {{if .Description}}{{.Description}}{{else}}app.{{gotypenam
 // Identifier: {{ $typeName :=  gotypename . 0}}{{$typeName := demodel $typeName}}
 {{$td := gotypedef . 0 true false}}type {{$typeName}} {{modeldef $td .}}
 {{ $belongsto := index .Metadata "github.com/bketelsen/gorma#belongsto" }}
+{{ $m2m := index .Metadata "github.com/bketelsen/gorma#many2many" }}
 func {{$typeName}}FromCreatePayload(ctx *app.Create{{demodel $typeName}}Context) {{$typeName}} {
 	payload := ctx.Payload
 	m := {{$typeName}}{}
@@ -107,8 +108,18 @@ func (m *{{$typeName}}DB) Delete(ctx *app.Delete{{demodel $typeName}}Context)  e
 	return  nil
 }
 
-
-
+{{ if ne $m2m "" }}{{$barray := split $m2m ","}}{{ range $idx, $bt := $barray}}
+{{ $pieces := split $bt ":" }}
+func (m *{{$typeName}}DB) Delete{{pieces[0]}}(ctx *app.Delete{{demodel $typeName}}Context)  error {
+	var obj {{$typeName}}
+	err := m.DB.Delete(&obj, ctx.{{demodel $typeName}}ID).Error
+	if err != nil {
+		ctx.Logger.Error(err.Error())
+		return  err
+	}
+	return  nil
+}
+{{end}}
 
 type Mock{{$typeName}}Storage struct {
 	{{$typeName}}List  map[int]{{$typeName}}
