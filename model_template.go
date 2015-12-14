@@ -36,6 +36,7 @@ type {{$typeName}}Storage interface {
 	Add(ctx *app.Create{{demodel $typeName}}Context) ({{$typeName}}, error)
 	Update(ctx *app.Update{{demodel $typeName}}Context) (error)
 	Delete(ctx *app.Delete{{demodel $typeName}}Context) (error)
+	{{ storagedefinition . }}
 }
 
 type {{$typeName}}DB struct {
