@@ -8,7 +8,7 @@ func {{$typeName}}FromCreatePayload(ctx *app.Create{{demodel $typeName}}Context)
 	payload := ctx.Payload
 	m := {{$typeName}}{}
 	copier.Copy(&m, payload)
-	{{ if ne $belongsto "" }} m.{{ $belongsto }}ID=uint(ctx.{{ demodel $belongsto }}ID){{end}}
+	{{ if ne $belongsto "" }} m.{{ $belongsto }}ID=int(ctx.{{ demodel $belongsto }}ID){{end}}
 	return m
 }
 
@@ -110,15 +110,15 @@ func (m *{{$typeName}}DB) Delete(ctx *app.Delete{{demodel $typeName}}Context)  e
 
 
 type Mock{{$typeName}}Storage struct {
-	{{$typeName}}List  map[uint]{{$typeName}}
-	nextID uint
+	{{$typeName}}List  map[int]{{$typeName}}
+	nextID int
 	mut sync.Mutex
 }
 {{if ne $belongsto ""}}{{$barray := split $belongsto ","}}{{ range $idx, $bt := $barray}}
 func filter{{$typeName}}By{{$bt}}(parent int, list []{{$typeName}}) []{{$typeName}} {
 	filtered := make([]{{$typeName}},0)
 	for _,o := range list {
-		if o.{{$bt}}ID == uint(parent) {
+		if o.{{$bt}}ID == int(parent) {
 			filtered = append(filtered,o)
 		}
 	}
@@ -128,7 +128,7 @@ func filter{{$typeName}}By{{$bt}}(parent int, list []{{$typeName}}) []{{$typeNam
 
 
 func NewMock{{$typeName}}Storage() *Mock{{$typeName}}Storage {
-	ml := make(map[uint]{{$typeName}}, 0)
+	ml := make(map[int]{{$typeName}}, 0)
 	return &Mock{{$typeName}}Storage{ {{$typeName}}List: ml}
 }
 
@@ -145,7 +145,7 @@ func (db *Mock{{$typeName}}Storage) Get(ctx *app.Show{{demodel $typeName}}Contex
 
 	var obj {{$typeName}}
 
-	obj, ok := db.{{$typeName}}List[uint(ctx.{{demodel $typeName}}ID)]
+	obj, ok := db.{{$typeName}}List[int(ctx.{{demodel $typeName}}ID)]
 	if ok {
 		return obj, nil
 	} else {
@@ -165,7 +165,7 @@ func (db *Mock{{$typeName}}Storage) Add(ctx *app.Create{{demodel $typeName}}Cont
 }
 
 func (db *Mock{{$typeName}}Storage) Update(ctx *app.Update{{demodel $typeName}}Context) error {
-	id := uint(ctx.{{demodel $typeName}}ID)
+	id := int(ctx.{{demodel $typeName}}ID)
 	_, ok := db.{{$typeName}}List[id]
 	if ok {
 		db.{{$typeName}}List[id] = {{$typeName}}FromUpdatePayload(ctx)
@@ -176,9 +176,9 @@ func (db *Mock{{$typeName}}Storage) Update(ctx *app.Update{{demodel $typeName}}C
 }
 
 func (db *Mock{{$typeName}}Storage) Delete(ctx *app.Delete{{demodel $typeName}}Context)  error {
-	_, ok := db.{{$typeName}}List[uint(ctx.{{demodel $typeName}}ID)]
+	_, ok := db.{{$typeName}}List[int(ctx.{{demodel $typeName}}ID)]
 	if ok {
-		delete(db.{{$typeName}}List, uint(ctx.{{demodel $typeName}}ID))
+		delete(db.{{$typeName}}List, int(ctx.{{demodel $typeName}}ID))
 		return  nil
 	} else {
 		return  errors.New("Could not delete this user")

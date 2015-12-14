@@ -66,7 +66,7 @@ func Upper(s string) string {
 
 func IncludeForeignKey(res *design.UserTypeDefinition) string {
 	if assoc, ok := res.Metadata["github.com/bketelsen/gorma#belongsto"]; ok {
-		return assoc + "ID uint\n"
+		return assoc + "ID int\n"
 	}
 	return ""
 }
@@ -138,7 +138,7 @@ func Split(s string, sep string) []string {
 
 func MakeModelDef(s string, res *design.UserTypeDefinition) string {
 
-	start := s[0:strings.Index(s, "{")+1] + "\n  	ID        uint `gorm:\"primary_key\"`\nCreatedAt time.Time\nUpdatedAt time.Time\nDeletedAt *time.Time\n" + IncludeMany2Many(res) + IncludeForeignKey(res) + IncludeChildren(res) + Authboss(res) + s[strings.Index(s, "{")+2:]
+	start := s[0:strings.Index(s, "{")+1] + "\n  	ID        int `gorm:\"primary_key\"`\nCreatedAt time.Time\nUpdatedAt time.Time\nDeletedAt *time.Time\n" + IncludeMany2Many(res) + IncludeForeignKey(res) + IncludeChildren(res) + Authboss(res) + s[strings.Index(s, "{")+2:]
 	newstrings := make([]string, 0)
 	chunks := strings.Split(start, "\n")
 	// Good lord, shoot me for this hack - remove the ID field in the model if it exists
