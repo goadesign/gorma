@@ -72,6 +72,7 @@ func StorageDefinition(res *design.UserTypeDefinition) string {
 		children := strings.Split(assoc, ",")
 
 		for _, child := range children {
+			fmt.Println(res.TypeName)
 			fmt.Println("child")
 			pieces := strings.Split(child, ":")
 			fmt.Println(pieces)
