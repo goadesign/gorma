@@ -52,14 +52,6 @@ func (g *Generator) Generate(api *design.APIDefinition) ([]string, error) {
 		codegen.SimpleImport("database/sql"),
 	}
 
-	title := fmt.Sprintf("%s: Models", api.Name)
-	filename := filepath.Join(ModelDir(), "models.go")
-	mtw, err := NewModelWriter(filename)
-	if err != nil {
-		panic(err)
-	}
-	mtw.WriteHeader(title, "models", imports)
-
 	rbacimports := []*codegen.ImportSpec{
 		codegen.SimpleImport(imp),
 		codegen.SimpleImport("github.com/mikespook/gorbac"),
@@ -70,7 +62,13 @@ func (g *Generator) Generate(api *design.APIDefinition) ([]string, error) {
 
 	err = api.IterateUserTypes(func(res *design.UserTypeDefinition) error {
 		if res.Type.IsObject() {
-
+			title := fmt.Sprintf("%s: Models", api.Name)
+			filename := filepath.Join(ModelDir(), res.Name()+"_model.go")
+			mtw, err := NewModelWriter(filename)
+			if err != nil {
+				panic(err)
+			}
+			mtw.WriteHeader(title, "models", imports)
 			if md, ok := res.Metadata["github.com/bketelsen/gorma"]; ok && md == "Model" {
 				fmt.Println("Found Gorma Metadata:", md)
 				err = mtw.Execute(res)
@@ -79,9 +77,18 @@ func (g *Generator) Generate(api *design.APIDefinition) ([]string, error) {
 					return err
 				}
 			}
+			if err := mtw.FormatCode(); err != nil {
+				g.Cleanup()
+
+			}
+			if err != nil {
+				g.genfiles = append(g.genfiles, filename)
+			}
+			return nil
 		}
 
 		return nil
+
 	})
 	if dorbac {
 		rbacfilename := filepath.Join(ModelDir(), "rbac.go")
@@ -105,14 +112,6 @@ func (g *Generator) Generate(api *design.APIDefinition) ([]string, error) {
 
 	}
 
-	if err := mtw.FormatCode(); err != nil {
-		g.Cleanup()
-		return nil, err
-	}
-
-	if err != nil {
-		g.genfiles = append(g.genfiles, filename)
-	}
 	return g.genfiles, err
 }
 
