@@ -65,17 +65,23 @@ func Upper(s string) string {
 }
 
 func StorageDefinition(res *design.UserTypeDefinition) string {
-	/*type {{$typeName}}Storage interface {
-	  List(ctx *app.List{{demodel $typeName}}Context) []{{$typeName}}
-	  Get(ctx *app.Show{{demodel $typeName }}Context) ({{$typeName}}, error)
-	  Add(ctx *app.Create{{demodel $typeName}}Context) ({{$typeName}}, error)
-	  Update(ctx *app.Update{{demodel $typeName}}Context) (error)
-	  Delete(ctx *app.Delete{{demodel $typeName}}Context) (error)
-	  }
+	//List(ctx *app.List{{demodel $typeName}}Context) []{{$typeName}}
+	// Add(ctx *app.Create{{demodel $typeName}}Context) ({{$typeName}}, error)
+	//Delete(ctx *app.Delete{{demodel $typeName}}Context) (error)
+	var associations string
+	if assoc, ok := res.Metadata["github.com/bketelsen/gorma#many2many"]; ok {
+		children := strings.Split(assoc, ",")
 
-	*/
-	return ""
-
+		for _, child := range children {
+			pieces := strings.Split(child, ":")
+			if res.TypeName == pieces[1] {
+				associations = associations + "List" + pieces[0] + "(ctx *app.List" + strings.ToLower(pieces[0]) + res.TypeName + "Context) []" + pieces[1] + "\n"
+				associations = associations + "Add" + pieces[1] + "(ctx *app.Create" + strings.ToLower(pieces[1]) + res.TypeName + "Context) " + pieces[1] + " error\n"
+				associations = associations + "Delete" + pieces[1] + "(ctx *app.Create" + strings.ToLower(pieces[1]) + res.TypeName + "Context) error "
+			}
+		}
+	}
+	return associations
 }
 func IncludeForeignKey(res *design.UserTypeDefinition) string {
 	if assoc, ok := res.Metadata["github.com/bketelsen/gorma#belongsto"]; ok {
