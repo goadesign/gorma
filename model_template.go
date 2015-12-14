@@ -119,7 +119,7 @@ func (m *{{$typeName}}DB) Delete{{index $pieces 0}}(ctx *app.Delete{{demodel $ty
 	}
 	return  nil
 }
-{{end}}
+{{end}}{{end}}
 
 type Mock{{$typeName}}Storage struct {
 	{{$typeName}}List  map[int]{{$typeName}}
