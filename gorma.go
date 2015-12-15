@@ -43,7 +43,7 @@ func (g *Generator) Generate(api *design.APIDefinition) ([]string, error) {
 	}
 	var outPkg string
 	fmt.Println(codegen.DesignPackagePath)
-	outPkg = strings.ToLower(codegen.DesignPackagePath)
+	outPkg = codegen.DesignPackagePath[0:strings.LastIndex(codegen.DesignPackagePath, "/")]
 	if err != nil {
 		panic(err)
 	}
