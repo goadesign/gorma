@@ -10,6 +10,10 @@ import (
 	"github.com/raphael/goa/goagen/codegen"
 )
 
+func TitleCase(s string) string {
+	return strings.Title(s)
+}
+
 // CamelToSnake converts a given string to snake case
 func CamelToSnake(s string) string {
 	var result string
