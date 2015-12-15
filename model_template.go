@@ -129,7 +129,10 @@ func (m *{{$typeName}}DB) Delete{{index $pieces 1}}(ctx *app.Delete{{$lower}}{{$
 }
 func (m *{{$typeName}}DB) Add{{index $pieces 1}}(ctx *app.Add{{$lower}}{{$typeName}}Context) error {
 	var obj {{$typeName}}
-	assoc_id := ctx.Payload.{{index $pieces 1}}Id
+	assoc_id, err  := strconv.Atoi(ctx.Payload.{{index $pieces 1}}Id)
+	if err != nil {
+		return err
+	}
 	var assoc {{index $pieces 1}}
 	assoc.ID = assoc_id
 	err := m.DB.Model(&obj).Association("{{index $pieces 0}}").Append(assoc).Error
