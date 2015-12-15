@@ -41,20 +41,22 @@ func (g *Generator) Generate(api *design.APIDefinition) ([]string, error) {
 	if err != nil {
 		panic(err)
 	}
-	imp, err := filepath.Rel(filepath.Join(os.Getenv("GOPATH"), "src"), codegen.OutputDir)
+	var outPkg string
+	outPkg, err = filepath.Rel(os.Getenv("GOPATH"), codegen.OutputDir)
 	if err != nil {
-		return nil, err
+		panic(err)
 	}
-	imp = filepath.Join(imp, "app")
+	outPkg = strings.TrimPrefix(outPkg, "src/")
+	appPkg := filepath.Join(outPkg, "app")
 	imports := []*codegen.ImportSpec{
-		codegen.SimpleImport(imp),
+		codegen.SimpleImport(appPkg),
 		codegen.SimpleImport("github.com/jinzhu/gorm"),
 		codegen.SimpleImport("github.com/jinzhu/copier"),
 		codegen.SimpleImport("database/sql"),
 	}
 
 	rbacimports := []*codegen.ImportSpec{
-		codegen.SimpleImport(imp),
+		codegen.SimpleImport(appPkg),
 		codegen.SimpleImport("github.com/mikespook/gorbac"),
 	}
 
