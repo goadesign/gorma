@@ -119,6 +119,24 @@ func (m *{{$typeName}}DB) Delete{{index $pieces 1}}(ctx *app.Delete{{$lower}}{{$
 	}
 	return  nil
 }
+func (m *{{$typeName}}DB) Add{{index $pieces 1}}(ctx *app.Add{{$lower}}{{$typeName}}Context) ( $typeName, error) {
+	var obj {{$typeName}}
+	err := m.DB.Delete(&obj, ctx.{{demodel $typeName}}ID).Error
+	if err != nil {
+		ctx.Logger.Error(err.Error())
+		return  err
+	}
+	return  nil
+}
+func (m *{{$typeName}}DB) List{{index $pieces 0}}(ctx *app.List{{$lower}}{{$typeName}}Context)  $typeName{
+	var obj {{$typeName}}
+	err := m.DB.Delete(&obj, ctx.{{demodel $typeName}}ID).Error
+	if err != nil {
+		ctx.Logger.Error(err.Error())
+		return  err
+	}
+	return  nil
+}
 {{end}}{{end}}
 
 type Mock{{$typeName}}Storage struct {
