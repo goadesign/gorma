@@ -112,13 +112,14 @@ func (m *{{$typeName}}DB) Delete(ctx *app.Delete{{demodel $typeName}}Context)  e
 {{ $pieces := split $bt ":" }} {{ $lowertype := index $pieces 1  }} {{ $lower := lower $lowertype }}  {{ $lowerplural := index $pieces 0  }} {{ $lowerplural := lower $lowerplural}}
 func (m *{{$typeName}}DB) Delete{{index $pieces 1}}(ctx *app.Delete{{$lower}}{{$typeName}}Context)  error {
 	var obj {{$typeName}}
-	assoc_id, err  := strconv.Atoi(ctx.Payload.{{index $pieces 1}}Id)
+
+	assoc_id, err  := strconv.Atoi(ctx.{{index $pieces 1}}Id)
 	var assoc {{index $pieces 1}}
 	assoc.ID = assoc_id
 	if err != nil {
 		return err
 	}
-	err := m.DB.Model(&obj).Association("{{index $pieces 0}}").Delete(assoc).Error
+	err = m.DB.Model(&obj).Association("{{index $pieces 0}}").Delete(assoc).Error
 	if err != nil {
 		ctx.Logger.Error(err.Error())
 		return  err
