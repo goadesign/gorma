@@ -42,7 +42,7 @@ func (g *Generator) Generate(api *design.APIDefinition) ([]string, error) {
 		panic(err)
 	}
 	var outPkg string
-	outPkg, err = filepath.Rel(os.Getenv("GOPATH"), codegen.OutputDir)
+	outPkg, err = filepath.Rel(codegen.OutputDir, codegen.DesignPackagePath)
 	if err != nil {
 		panic(err)
 	}
