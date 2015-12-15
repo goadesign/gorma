@@ -42,7 +42,7 @@ func (g *Generator) Generate(api *design.APIDefinition) ([]string, error) {
 		panic(err)
 	}
 	var outPkg string
-	fmt.Println(codegen.DesignPackagePath)
+	// going to hell for this == HELP Wanted (windows)
 	outPkg = codegen.DesignPackagePath[0:strings.LastIndex(codegen.DesignPackagePath, "/")]
 	if err != nil {
 		panic(err)

@@ -89,6 +89,9 @@ func IncludeForeignKey(res *design.UserTypeDefinition) string {
 	}
 	return ""
 }
+func Plural(s string) string {
+	return inflection.Plural(s)
+}
 func IncludeChildren(res *design.UserTypeDefinition) string {
 	var associations string
 	if assoc, ok := res.Metadata["github.com/bketelsen/gorma#hasmany"]; ok {

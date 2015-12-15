@@ -35,6 +35,7 @@ func NewModelWriter(filename string) (*ModelWriter, error) {
 	funcMap["storagedef"] = StorageDefinition
 	funcMap["lower"] = Lower
 	funcMap["title"] = TitleCase
+	funcMap["plural"] = Plural
 
 	modelTmpl, err := template.New("models").Funcs(funcMap).Parse(modelTmpl)
 	if err != nil {
