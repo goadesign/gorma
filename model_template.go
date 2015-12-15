@@ -115,8 +115,11 @@ func (m *{{$typeName}}DB) Delete{{index $pieces 1}}(ctx *app.Delete{{$lower}}{{$
 
 	assoc_id := ctx.{{index $pieces 1}}ID
 	var assoc {{index $pieces 1}}
-	assoc.ID = assoc_id
-	err := m.DB.Model(&obj).Association("{{index $pieces 0}}").Delete(assoc).Error
+	assoc.ID, err  := strconv.Atoi(assoc_id)
+	if err != nil {
+		return err
+	}
+	err = m.DB.Model(&obj).Association("{{index $pieces 0}}").Delete(assoc).Error
 	if err != nil {
 		ctx.Logger.Error(err.Error())
 		return  err
