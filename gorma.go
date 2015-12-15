@@ -53,7 +53,7 @@ func (g *Generator) Generate(api *design.APIDefinition) ([]string, error) {
 		codegen.SimpleImport(appPkg),
 		codegen.SimpleImport("github.com/jinzhu/gorm"),
 		codegen.SimpleImport("github.com/jinzhu/copier"),
-		codegen.SimpleImport("database/sql"),
+		codegen.SimpleImport("time"),
 	}
 
 	rbacimports := []*codegen.ImportSpec{
