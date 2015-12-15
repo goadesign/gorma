@@ -135,7 +135,7 @@ func (m *{{$typeName}}DB) Add{{index $pieces 1}}(ctx *app.Add{{$lower}}{{$typeNa
 	}
 	var assoc {{index $pieces 1}}
 	assoc.ID = assoc_id
-	err := m.DB.Model(&obj).Association("{{index $pieces 0}}").Append(assoc).Error
+	err = m.DB.Model(&obj).Association("{{index $pieces 0}}").Append(assoc).Error
 	if err != nil {
 		ctx.Logger.Error(err.Error())
 		return  err
