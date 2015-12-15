@@ -34,7 +34,7 @@ func NewModelWriter(filename string) (*ModelWriter, error) {
 	funcMap["split"] = Split
 	funcMap["storagedef"] = StorageDefinition
 	funcMap["lower"] = Lower
-	funcMap["title"] = Title
+	funcMap["title"] = TitleCase
 
 	modelTmpl, err := template.New("models").Funcs(funcMap).Parse(modelTmpl)
 	if err != nil {
