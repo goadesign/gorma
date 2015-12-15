@@ -119,7 +119,7 @@ func (m *{{$typeName}}DB) Delete{{index $pieces 1}}(ctx *app.Delete{{$lower}}{{$
 	}
 	return  nil
 }
-func (m *{{$typeName}}DB) Add{{index $pieces 1}}(ctx *app.Add{{$lower}}{{$typeName}}Context) ( $typeName, error) {
+func (m *{{$typeName}}DB) Add{{index $pieces 1}}(ctx *app.Add{{$lower}}{{$typeName}}Context) ( {{$typeName}}, error) {
 	var obj {{$typeName}}
 	err := m.DB.Delete(&obj, ctx.{{demodel $typeName}}ID).Error
 	if err != nil {
@@ -128,7 +128,7 @@ func (m *{{$typeName}}DB) Add{{index $pieces 1}}(ctx *app.Add{{$lower}}{{$typeNa
 	}
 	return  nil
 }
-func (m *{{$typeName}}DB) List{{index $pieces 0}}(ctx *app.List{{$lower}}{{$typeName}}Context)  $typeName{
+func (m *{{$typeName}}DB) List{{index $pieces 0}}(ctx *app.List{{$lower}}{{$typeName}}Context)  {{$typeName}} {
 	var obj {{$typeName}}
 	err := m.DB.Delete(&obj, ctx.{{demodel $typeName}}ID).Error
 	if err != nil {
