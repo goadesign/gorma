@@ -119,9 +119,9 @@ func (m *{{$typeName}}DB) Delete{{index $pieces 1}}(ctx *app.Delete{{$lower}}{{$
 	}
 	return  nil
 }
-func (m *{{$typeName}}DB) Add{{index $pieces 1}}(ctx *app.Add{{$lower}}{{$typeName}}Context) ( {{$typeName}}, error) {
+func (m *{{$typeName}}DB) Add{{index $pieces 1}}(ctx *app.Add{{$lower}}{{$typeName}}Context) error {
 	var obj {{$typeName}}
-	err := m.DB.Delete(&obj, ctx.{{demodel $typeName}}ID).Error
+	err := m.DB.Model(&obj).Association("{{index $pieces 0}}").Append({{index $pieces 1}}{ID: ctx{{index $pieces 1}}ID})
 	if err != nil {
 		ctx.Logger.Error(err.Error())
 		return  err
