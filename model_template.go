@@ -116,10 +116,7 @@ func (m *{{$typeName}}DB) Delete{{index $pieces 1}}(ctx *app.Delete{{$lower}}{{$
 	assoc_id := ctx.{{index $pieces 1}}ID
 	var assoc {{index $pieces 1}}
 	assoc.ID = assoc_id
-	if err != nil {
-		return err
-	}
-	err = m.DB.Model(&obj).Association("{{index $pieces 0}}").Delete(assoc).Error
+	err := m.DB.Model(&obj).Association("{{index $pieces 0}}").Delete(assoc).Error
 	if err != nil {
 		ctx.Logger.Error(err.Error())
 		return  err
@@ -128,8 +125,7 @@ func (m *{{$typeName}}DB) Delete{{index $pieces 1}}(ctx *app.Delete{{$lower}}{{$
 }
 func (m *{{$typeName}}DB) Add{{index $pieces 1}}(ctx *app.Add{{$lower}}{{$typeName}}Context) error {
 	var obj {{$typeName}}
-	var payload app.Add{{$lower}}{{$typeName}}Payload
-	assoc_id := payload.(Add{{$lower}}{{$typeName}}Payload).{{index $pieces 1}}Id
+	assoc_id := payload.{{index $pieces 1}}Id
 	var assoc {{index $pieces 1}}
 	assoc.ID = assoc_id
 	err := m.DB.Model(&obj).Association("{{index $pieces 0}}").Append(assoc).Error
@@ -140,11 +136,12 @@ func (m *{{$typeName}}DB) Add{{index $pieces 1}}(ctx *app.Add{{$lower}}{{$typeNa
 	return  nil
 }
 func (m *{{$typeName}}DB) List{{index $pieces 0}}(ctx *app.List{{plural $lowerplural}}{{$typeName}}Context)  []{{index $pieces 1}} {
+	list := make([]{{index $pieces 1}})
 	var obj {{$typeName}}
-	err := m.DB.Delete(&obj, ctx.{{demodel $typeName}}ID).Error
+	err := m.DB.Get(&obj, ctx.{{demodel $typeName}}ID).Error
 	if err != nil {
 		ctx.Logger.Error(err.Error())
-		return  err
+		return  obj
 	}
 	return  nil
 }
