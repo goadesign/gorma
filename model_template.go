@@ -125,7 +125,7 @@ func (m *{{$typeName}}DB) Delete{{index $pieces 1}}(ctx *app.Delete{{$lower}}{{$
 }
 func (m *{{$typeName}}DB) Add{{index $pieces 1}}(ctx *app.Add{{$lower}}{{$typeName}}Context) error {
 	var obj {{$typeName}}
-	assoc_id := payload.{{index $pieces 1}}Id
+	assoc_id := ctx.Payload.{{index $pieces 1}}Id
 	var assoc {{index $pieces 1}}
 	assoc.ID = assoc_id
 	err := m.DB.Model(&obj).Association("{{index $pieces 0}}").Append(assoc).Error
@@ -136,12 +136,13 @@ func (m *{{$typeName}}DB) Add{{index $pieces 1}}(ctx *app.Add{{$lower}}{{$typeNa
 	return  nil
 }
 func (m *{{$typeName}}DB) List{{index $pieces 0}}(ctx *app.List{{plural $lowerplural}}{{$typeName}}Context)  []{{index $pieces 1}} {
-	list := make([]{{index $pieces 1}})
+	list := make([]{{index $pieces 1}}, 0)
 	var obj {{$typeName}}
-	err := m.DB.Get(&obj, ctx.{{demodel $typeName}}ID).Error
+	obj.ID = ctx.{{$typeName}}ID
+	err := m.DB.Model(&obj).Association("{{index $pieces 0}}").Find(&list).Error
 	if err != nil {
 		ctx.Logger.Error(err.Error())
-		return  obj
+		return  list
 	}
 	return  nil
 }
