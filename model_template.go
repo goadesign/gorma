@@ -73,9 +73,6 @@ func (m *{{$typeName}}DB) Get(ctx context.Context, id int) ({{$typeName}}, error
 	var obj {{$typeName}}
 
 	err := m.DB.Find(&obj, id).Error
-	if err != nil {
-		ctx.Error(err.Error())
-	}
 	return obj, err
 }
 
@@ -89,16 +86,12 @@ func (m *{{$typeName}}DB) Update(ctx context.Context, model {{$typeName}}) error
 		return  err
 	}
 	err = m.DB.Model(&obj).Updates(model).Error
-	if err != nil {
-		ctx.Error(err.Error())
-	}
 	return err
 }
 func (m *{{$typeName}}DB) Delete(ctx context.Context, id int)  error {
 	var obj {{$typeName}}
 	err := m.DB.Delete(&obj, id).Error
 	if err != nil {
-		ctx.Logger.Error(err.Error())
 		return  err
 	}
 	return  nil
@@ -117,7 +110,6 @@ func (m *{{$typeName}}DB) Delete{{index $pieces 1}}(ctx context.Context, {{$lowe
 	}
 	err = m.DB.Model(&obj).Association("{{index $pieces 0}}").Delete(assoc).Error
 	if err != nil {
-		ctx.Logger.Error(err.Error())
 		return  err
 	}
 	return  nil
@@ -129,7 +121,6 @@ func (m *{{$typeName}}DB) Add{{index $pieces 1}}(ctx context.Context, {{lower $t
 	assoc.ID = {{$lower}}ID
 	err := m.DB.Model(&{{lower $typeName}}).Association("{{index $pieces 0}}").Append(assoc).Error
 	if err != nil {
-		ctx.Logger.Error(err.Error())
 		return  err
 	}
 	return  nil
@@ -138,11 +129,7 @@ func (m *{{$typeName}}DB) List{{index $pieces 0}}(ctx context.Context, {{lower $
 	list := make([]{{index $pieces 1}}, 0)
 	var obj {{$typeName}}
 	obj.ID = {{lower $typeName}}ID
-	err := m.DB.Model(&obj).Association("{{index $pieces 0}}").Find(&list).Error
-	if err != nil {
-		ctx.Logger.Error(err.Error())
-		return  list
-	}
+	m.DB.Model(&obj).Association("{{index $pieces 0}}").Find(&list)
 	return  nil
 }
 {{end}}{{end}}
