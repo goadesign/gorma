@@ -156,7 +156,7 @@ type Mock{{$typeName}}Storage struct {
 	mut sync.Mutex
 }
 {{if ne $belongsto ""}}{{$barray := split $belongsto ","}}{{ range $idx, $bt := $barray}}
-func filter{{$typeName}}By{{$bt}}(parent int, list []{{$typeName}}) []{{$typeName}} {
+func Filter{{$typeName}}By{{$bt}}(parent int, list []{{$typeName}}) []{{$typeName}} {
 	filtered := make([]{{$typeName}},0)
 	for _,o := range list {
 		if o.{{$bt}}ID == int(parent) {
