@@ -98,6 +98,7 @@ func (g *Generator) Generate(api *design.APIDefinition) ([]string, error) {
 	})
 	if dorbac {
 		rbacfilename := filepath.Join(ModelDir(), "rbac_genmodel.go")
+		os.Remove(rbacfilename)
 		rbacw, err := NewRbacWriter(rbacfilename)
 		if err != nil {
 			panic(err)
