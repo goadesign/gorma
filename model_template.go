@@ -122,20 +122,20 @@ func (m *{{$typeName}}DB) Delete{{index $pieces 1}}(ctx goa.Context, {{$lower}}I
 	}
 	return  nil
 }
-func (m *{{$typeName}}DB) Add{{index $pieces 1}}(ctx goa.Context, {{$lower}}ID int) error {
+func (m *{{$typeName}}DB) Add{{index $pieces 1}}(ctx goa.Context, {{lower $typeName}}ID, {{$lower}}ID int) error {
 	var assoc {{index $pieces 1}}
 	assoc.ID = {{$lower}}ID
-	err = m.DB.Model(&{{$lower}}).Association("{{index $pieces 0}}").Append(assoc).Error
+	err := m.DB.Model(&{{$lower}}).Association("{{index $pieces 0}}").Append(assoc).Error
 	if err != nil {
 		ctx.Logger.Error(err.Error())
 		return  err
 	}
 	return  nil
 }
-func (m *{{$typeName}}DB) List{{index $pieces 0}}(ctx goa.Context)  []{{index $pieces 1}} {
+func (m *{{$typeName}}DB) List{{index $pieces 0}}(ctx goa.Context, {{lower $typeName}}ID int)  []{{index $pieces 1}} {
 	list := make([]{{index $pieces 1}}, 0)
 	var obj {{$typeName}}
-	obj.ID = ctx.{{$typeName}}ID
+	obj.ID = {{lower $typeName}}ID
 	err := m.DB.Model(&obj).Association("{{index $pieces 0}}").Find(&list).Error
 	if err != nil {
 		ctx.Logger.Error(err.Error())
