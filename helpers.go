@@ -118,7 +118,7 @@ func IncludeMany2Many(res *design.UserTypeDefinition) string {
 
 		for _, child := range children {
 			pieces := strings.Split(child, ":")
-			associations = associations + pieces[0] + "\t" + pieces[1] + "\t" + "`gorm:\"many2many:" + pieces[2] + ";\"`\n"
+			associations = associations + pieces[0] + "\t []" + pieces[1] + "\t" + "`gorm:\"many2many:" + pieces[2] + ";\"`\n"
 		}
 	}
 	return associations
