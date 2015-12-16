@@ -101,7 +101,7 @@ func (m *{{$typeName}}DB) Delete(ctx context.Context, id int)  error {
 {{ $pieces := split $bt ":" }} {{ $lowertype := index $pieces 1  }} {{ $lower := lower $lowertype }}  {{ $lowerplural := index $pieces 0  }} {{ $lowerplural := lower $lowerplural}}
 func (m *{{$typeName}}DB) Delete{{index $pieces 1}}(ctx context.Context,{{lower $typeName}}ID,  {{$lower}}ID int)  error {
 	var obj {{$typeName}}
-	obj.{{lower $typeName}}ID = {{lowerTypeName}}ID
+	obj.{{lower $typeName}}ID = {{lower TypeName}}ID
 	var assoc {{index $pieces 1}}
 	var err error
 	assoc.ID = {{$lower}}ID
