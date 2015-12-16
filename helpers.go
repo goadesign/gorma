@@ -76,9 +76,9 @@ func StorageDefinition(res *design.UserTypeDefinition) string {
 
 		for _, child := range children {
 			pieces := strings.Split(child, ":")
-			associations = associations + "List" + pieces[0] + "(ctx goa.Context) []" + pieces[1] + "\n"
-			associations = associations + "Add" + pieces[1] + "(ctx goa.Context) (error)\n"
-			associations = associations + "Delete" + pieces[1] + "(ctx goa.Context) error \n"
+			associations = associations + "List" + pieces[0] + "(ctx context.Context) []" + pieces[1] + "\n"
+			associations = associations + "Add" + pieces[1] + "(ctx context.Context) (error)\n"
+			associations = associations + "Delete" + pieces[1] + "(ctx context.Context) error \n"
 		}
 	}
 	return associations
