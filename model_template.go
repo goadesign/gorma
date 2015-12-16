@@ -32,11 +32,11 @@ func (m {{$typeName}}) GetRole() string {
 {{end}}
 
 type {{$typeName}}Storage interface {
-	List(ctx *app.List{{demodel $typeName}}Context) []{{$typeName}}
-	Get(ctx *app.Show{{demodel $typeName }}Context) ({{$typeName}}, error)
-	Add(ctx *app.Create{{demodel $typeName}}Context) ({{$typeName}}, error)
-	Update(ctx *app.Update{{demodel $typeName}}Context) (error)
-	Delete(ctx *app.Delete{{demodel $typeName}}Context) (error)
+	List(ctx goa.Context) []{{$typeName}}
+	Get(ctx goa.Context) ({{$typeName}}, error)
+	Add(ctx goa.Context) ({{$typeName}}, error)
+	Update(ctx goa.Context) (error)
+	Delete(ctx goa.Context) (error)
 	{{ storagedef . }}
 }
 
@@ -60,14 +60,14 @@ func New{{$typeName}}DB(db gorm.DB) *{{$typeName}}DB {
 	return &{{$typeName}}DB{DB: db}
 }
 
-func (m *{{$typeName}}DB) List(ctx *app.List{{demodel $typeName}}Context) []{{$typeName}} {
+func (m *{{$typeName}}DB) List(ctx goa.Context) []{{$typeName}} {
 
 	var objs []{{$typeName}}
     {{ if ne $belongsto "" }}m.DB.Scopes({{$typeName}}Filter(ctx.{{demodel $belongsto}}ID, &m.DB)).Find(&objs){{ else }} m.DB.Find(&objs) {{end}}
 	return objs
 }
 
-func (m *{{$typeName}}DB) Get(ctx *app.Show{{demodel $typeName}}Context) ({{$typeName}}, error) {
+func (m *{{$typeName}}DB) Get(ctx goa.Context) ({{$typeName}}, error) {
 
 	var obj {{$typeName}}
 
@@ -78,17 +78,13 @@ func (m *{{$typeName}}DB) Get(ctx *app.Show{{demodel $typeName}}Context) ({{$typ
 	return obj, err
 }
 
-func (m *{{$typeName}}DB) Add(ctx *app.Create{{demodel $typeName}}Context) ({{$typeName}}, error) {
+func (m *{{$typeName}}DB) Add(ctx goa.Context) ({{$typeName}}, error) {
 	model := {{$typeName}}FromCreatePayload(ctx)
 	err := m.DB.Create(&model).Error
 	return model, err
 }
-func (m *{{$typeName}}DB) Update(ctx *app.Update{{demodel $typeName}}Context) error {
-	getCtx, err := app.NewShow{{demodel $typeName}}Context(ctx.Context)
-	if err != nil {
-		return  err
-	}
-	obj, err := m.Get(getCtx)
+func (m *{{$typeName}}DB) Update(ctx goa.Context) error {
+	obj, err := m.Get(ctx)
 	if err != nil {
 		return  err
 	}
@@ -98,7 +94,7 @@ func (m *{{$typeName}}DB) Update(ctx *app.Update{{demodel $typeName}}Context) er
 	}
 	return err
 }
-func (m *{{$typeName}}DB) Delete(ctx *app.Delete{{demodel $typeName}}Context)  error {
+func (m *{{$typeName}}DB) Delete(ctx goa.Context)  error {
 	var obj {{$typeName}}
 	err := m.DB.Delete(&obj, ctx.{{demodel $typeName}}ID).Error
 	if err != nil {
@@ -110,7 +106,7 @@ func (m *{{$typeName}}DB) Delete(ctx *app.Delete{{demodel $typeName}}Context)  e
 
 {{ if ne $m2m "" }}{{$barray := split $m2m ","}}{{ range $idx, $bt := $barray}}
 {{ $pieces := split $bt ":" }} {{ $lowertype := index $pieces 1  }} {{ $lower := lower $lowertype }}  {{ $lowerplural := index $pieces 0  }} {{ $lowerplural := lower $lowerplural}}
-func (m *{{$typeName}}DB) Delete{{index $pieces 1}}(ctx *app.Delete{{$lower}}{{$typeName}}Context)  error {
+func (m *{{$typeName}}DB) Delete{{index $pieces 1}}(ctx goa.Context)  error {
 	var obj {{$typeName}}
 
 	assoc_id := ctx.{{index $pieces 1}}ID
@@ -127,7 +123,7 @@ func (m *{{$typeName}}DB) Delete{{index $pieces 1}}(ctx *app.Delete{{$lower}}{{$
 	}
 	return  nil
 }
-func (m *{{$typeName}}DB) Add{{index $pieces 1}}(ctx *app.Add{{$lower}}{{$typeName}}Context) error {
+func (m *{{$typeName}}DB) Add{{index $pieces 1}}(ctx goa.Context) error {
 	var obj {{$typeName}}
 	assoc_id, err  := strconv.Atoi(ctx.Payload.{{index $pieces 1}}Id)
 	if err != nil {
@@ -142,7 +138,7 @@ func (m *{{$typeName}}DB) Add{{index $pieces 1}}(ctx *app.Add{{$lower}}{{$typeNa
 	}
 	return  nil
 }
-func (m *{{$typeName}}DB) List{{index $pieces 0}}(ctx *app.List{{plural $lowerplural}}{{$typeName}}Context)  []{{index $pieces 1}} {
+func (m *{{$typeName}}DB) List{{index $pieces 0}}(ctx goa.Context)  []{{index $pieces 1}} {
 	list := make([]{{index $pieces 1}}, 0)
 	var obj {{$typeName}}
 	obj.ID = ctx.{{$typeName}}ID
@@ -178,7 +174,7 @@ func NewMock{{$typeName}}Storage() *Mock{{$typeName}}Storage {
 	return &Mock{{$typeName}}Storage{ {{$typeName}}List: ml}
 }
 
-func (db *Mock{{$typeName}}Storage) List(ctx *app.List{{demodel $typeName}}Context) []{{$typeName}} {
+func (db *Mock{{$typeName}}Storage) List(ctx goa.Context) []{{$typeName}} {
 	var list []{{$typeName}} = make([]{{$typeName}}, 0)
 	for _, v := range db.{{$typeName}}List {
 		list = append(list, v)
@@ -187,7 +183,7 @@ func (db *Mock{{$typeName}}Storage) List(ctx *app.List{{demodel $typeName}}Conte
 return filter{{$typeName}}By{{$belongsto}}(ctx.{{$belongsto}}ID, list) {{else}}return list{{end}}
 }
 
-func (db *Mock{{$typeName}}Storage) Get(ctx *app.Show{{demodel $typeName}}Context) ({{$typeName}}, error) {
+func (db *Mock{{$typeName}}Storage) Get(ctx goa.Context) ({{$typeName}}, error) {
 
 	var obj {{$typeName}}
 
@@ -199,7 +195,7 @@ func (db *Mock{{$typeName}}Storage) Get(ctx *app.Show{{demodel $typeName}}Contex
 	}
 }
 
-func (db *Mock{{$typeName}}Storage) Add(ctx *app.Create{{demodel $typeName}}Context)  ({{$typeName}}, error) {
+func (db *Mock{{$typeName}}Storage) Add(ctx goa.Context)  ({{$typeName}}, error) {
 	u := {{$typeName}}FromCreatePayload(ctx)
 	db.mut.Lock()
 	db.nextID = db.nextID + 1
@@ -210,7 +206,7 @@ func (db *Mock{{$typeName}}Storage) Add(ctx *app.Create{{demodel $typeName}}Cont
 	return u, nil
 }
 
-func (db *Mock{{$typeName}}Storage) Update(ctx *app.Update{{demodel $typeName}}Context) error {
+func (db *Mock{{$typeName}}Storage) Update(ctx goa.Context) error {
 	id := int(ctx.{{demodel $typeName}}ID)
 	_, ok := db.{{$typeName}}List[id]
 	if ok {
@@ -221,7 +217,7 @@ func (db *Mock{{$typeName}}Storage) Update(ctx *app.Update{{demodel $typeName}}C
 	}
 }
 
-func (db *Mock{{$typeName}}Storage) Delete(ctx *app.Delete{{demodel $typeName}}Context)  error {
+func (db *Mock{{$typeName}}Storage) Delete(ctx goa.Context)  error {
 	_, ok := db.{{$typeName}}List[int(ctx.{{demodel $typeName}}ID)]
 	if ok {
 		delete(db.{{$typeName}}List, int(ctx.{{demodel $typeName}}ID))
