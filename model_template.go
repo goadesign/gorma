@@ -43,7 +43,7 @@ type {{$typeName}}Storage interface {
 type {{$typeName}}DB struct {
 	DB gorm.DB
 }
-{{ if ne $belongsto "" }}{{$barray := split $belongsto ","}}{{ range $idx, $bt := $barray}}
+/*{{ if ne $belongsto "" }}{{$barray := split $belongsto ","}}{{ range $idx, $bt := $barray}}
 // would prefer to just pass a context in here, but they're all different, so can't
 func {{$typeName}}Filter(parentid int, originaldb *gorm.DB) func(db *gorm.DB) *gorm.DB {
 	if parentid > 0 {
@@ -56,14 +56,15 @@ func {{$typeName}}Filter(parentid int, originaldb *gorm.DB) func(db *gorm.DB) *g
 		}
 	}
 }{{end}}{{end}}
+*/
 func New{{$typeName}}DB(db gorm.DB) *{{$typeName}}DB {
 	return &{{$typeName}}DB{DB: db}
 }
 
-func (m *{{$typeName}}DB) List(ctx goa.Context, parentid int) []{{$typeName}} {
+func (m *{{$typeName}}DB) List(ctx goa.Context) []{{$typeName}} {
 
 	var objs []{{$typeName}}
-    {{ if ne $belongsto "" }}m.DB.Scopes({{$typeName}}Filter(ctx.{{demodel $belongsto}}ID, &m.DB)).Find(&objs){{ else }} m.DB.Find(&objs) {{end}}
+    m.DB.Find(&objs)
 	return objs
 }
 
@@ -105,13 +106,12 @@ func (m *{{$typeName}}DB) Delete(ctx goa.Context, id int)  error {
 
 {{ if ne $m2m "" }}{{$barray := split $m2m ","}}{{ range $idx, $bt := $barray}}
 {{ $pieces := split $bt ":" }} {{ $lowertype := index $pieces 1  }} {{ $lower := lower $lowertype }}  {{ $lowerplural := index $pieces 0  }} {{ $lowerplural := lower $lowerplural}}
-func (m *{{$typeName}}DB) Delete{{index $pieces 1}}(ctx goa.Context)  error {
+func (m *{{$typeName}}DB) Delete{{index $pieces 1}}(ctx goa.Context, {{$lower}}ID int)  error {
 	var obj {{$typeName}}
 
-	assoc_id := ctx.{{index $pieces 1}}ID
 	var assoc {{index $pieces 1}}
 	var err error
-	assoc.ID = assoc_id
+	assoc.ID = {{$lower}}ID
 	if err != nil {
 		return err
 	}
@@ -122,15 +122,10 @@ func (m *{{$typeName}}DB) Delete{{index $pieces 1}}(ctx goa.Context)  error {
 	}
 	return  nil
 }
-func (m *{{$typeName}}DB) Add{{index $pieces 1}}(ctx goa.Context) error {
-	var obj {{$typeName}}
-	assoc_id, err  := strconv.Atoi(ctx.Payload.{{index $pieces 1}}Id)
-	if err != nil {
-		return err
-	}
+func (m *{{$typeName}}DB) Add{{index $pieces 1}}(ctx goa.Context, {{$lower}}ID int) error {
 	var assoc {{index $pieces 1}}
-	assoc.ID = assoc_id
-	err = m.DB.Model(&obj).Association("{{index $pieces 0}}").Append(assoc).Error
+	assoc.ID = {{$lower}}ID
+	err = m.DB.Model(&{{$lower}}).Association("{{index $pieces 0}}").Append(assoc).Error
 	if err != nil {
 		ctx.Logger.Error(err.Error())
 		return  err
@@ -179,7 +174,7 @@ func (db *Mock{{$typeName}}Storage) List(ctx goa.Context) []{{$typeName}} {
 		list = append(list, v)
 	}
 {{if ne $belongsto ""}}
-return filter{{$typeName}}By{{$belongsto}}(ctx.{{$belongsto}}ID, list) {{else}}return list{{end}}
+return Filter{{$typeName}}By{{$belongsto}}(ctx.{{$belongsto}}ID, list) {{else}}return list{{end}}
 }
 
 func (db *Mock{{$typeName}}Storage) Get(ctx goa.Context) ({{$typeName}}, error) {
