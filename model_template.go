@@ -32,11 +32,11 @@ func (m {{$typeName}}) GetRole() string {
 {{end}}
 
 type {{$typeName}}Storage interface {
-	List(ctx ctx.Context) []{{$typeName}}
-	Get(ctx ctx.Context, id int) ({{$typeName}}, error)
-	Add(ctx ctx.Context, o {{$typeName}}) ({{$typeName}}, error)
-	Update(ctx ctx.Context, o {{$typeName}}) (error)
-	Delete(ctx ctx.Context, id int) (error)
+	List(ctx context.Context) []{{$typeName}}
+	Get(ctx context.Context, id int) ({{$typeName}}, error)
+	Add(ctx context.Context, o {{$typeName}}) ({{$typeName}}, error)
+	Update(ctx context.Context, o {{$typeName}}) (error)
+	Delete(ctx context.Context, id int) (error)
 	{{ storagedef . }}
 }
 
@@ -61,14 +61,14 @@ func New{{$typeName}}DB(db gorm.DB) *{{$typeName}}DB {
 	return &{{$typeName}}DB{DB: db}
 }
 
-func (m *{{$typeName}}DB) List(ctx ctx.Context) []{{$typeName}} {
+func (m *{{$typeName}}DB) List(ctx context.Context) []{{$typeName}} {
 
 	var objs []{{$typeName}}
     m.DB.Find(&objs)
 	return objs
 }
 
-func (m *{{$typeName}}DB) Get(ctx ctx.Context, id int) ({{$typeName}}, error) {
+func (m *{{$typeName}}DB) Get(ctx context.Context, id int) ({{$typeName}}, error) {
 
 	var obj {{$typeName}}
 
@@ -79,11 +79,11 @@ func (m *{{$typeName}}DB) Get(ctx ctx.Context, id int) ({{$typeName}}, error) {
 	return obj, err
 }
 
-func (m *{{$typeName}}DB) Add(ctx ctx.Context, model {{$typeName}}) ({{$typeName}}, error) {
+func (m *{{$typeName}}DB) Add(ctx context.Context, model {{$typeName}}) ({{$typeName}}, error) {
 	err := m.DB.Create(&model).Error
 	return model, err
 }
-func (m *{{$typeName}}DB) Update(ctx ctx.Context, model {{$typeName}}) error {
+func (m *{{$typeName}}DB) Update(ctx context.Context, model {{$typeName}}) error {
 	obj, err := m.Get(ctx, model.ID)
 	if err != nil {
 		return  err
@@ -94,7 +94,7 @@ func (m *{{$typeName}}DB) Update(ctx ctx.Context, model {{$typeName}}) error {
 	}
 	return err
 }
-func (m *{{$typeName}}DB) Delete(ctx ctx.Context, id int)  error {
+func (m *{{$typeName}}DB) Delete(ctx context.Context, id int)  error {
 	var obj {{$typeName}}
 	err := m.DB.Delete(&obj, id).Error
 	if err != nil {
@@ -106,7 +106,7 @@ func (m *{{$typeName}}DB) Delete(ctx ctx.Context, id int)  error {
 
 {{ if ne $m2m "" }}{{$barray := split $m2m ","}}{{ range $idx, $bt := $barray}}
 {{ $pieces := split $bt ":" }} {{ $lowertype := index $pieces 1  }} {{ $lower := lower $lowertype }}  {{ $lowerplural := index $pieces 0  }} {{ $lowerplural := lower $lowerplural}}
-func (m *{{$typeName}}DB) Delete{{index $pieces 1}}(ctx ctx.Context, {{$lower}}ID int)  error {
+func (m *{{$typeName}}DB) Delete{{index $pieces 1}}(ctx context.Context, {{$lower}}ID int)  error {
 	var obj {{$typeName}}
 
 	var assoc {{index $pieces 1}}
@@ -122,7 +122,7 @@ func (m *{{$typeName}}DB) Delete{{index $pieces 1}}(ctx ctx.Context, {{$lower}}I
 	}
 	return  nil
 }
-func (m *{{$typeName}}DB) Add{{index $pieces 1}}(ctx ctx.Context, {{lower $typeName}}ID, {{$lower}}ID int) error {
+func (m *{{$typeName}}DB) Add{{index $pieces 1}}(ctx context.Context, {{lower $typeName}}ID, {{$lower}}ID int) error {
 	var {{lower $typeName}} {{$typeName}}
 	{{lower $typeName}}.ID = {{lower $typeName}}ID
 	var assoc {{index $pieces 1}}
@@ -134,7 +134,7 @@ func (m *{{$typeName}}DB) Add{{index $pieces 1}}(ctx ctx.Context, {{lower $typeN
 	}
 	return  nil
 }
-func (m *{{$typeName}}DB) List{{index $pieces 0}}(ctx ctx.Context, {{lower $typeName}}ID int)  []{{index $pieces 1}} {
+func (m *{{$typeName}}DB) List{{index $pieces 0}}(ctx context.Context, {{lower $typeName}}ID int)  []{{index $pieces 1}} {
 	list := make([]{{index $pieces 1}}, 0)
 	var obj {{$typeName}}
 	obj.ID = {{lower $typeName}}ID
