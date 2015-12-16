@@ -123,9 +123,11 @@ func (m *{{$typeName}}DB) Delete{{index $pieces 1}}(ctx goa.Context, {{$lower}}I
 	return  nil
 }
 func (m *{{$typeName}}DB) Add{{index $pieces 1}}(ctx goa.Context, {{lower $typeName}}ID, {{$lower}}ID int) error {
+	var {{lower $typeName}} {{$typeName}}
+	{{lower $typeName}}.ID = {{lower $typeName}}ID
 	var assoc {{index $pieces 1}}
 	assoc.ID = {{$lower}}ID
-	err := m.DB.Model(&{{$lower}}).Association("{{index $pieces 0}}").Append(assoc).Error
+	err := m.DB.Model(&{{lower $typeName}}).Association("{{index $pieces 0}}").Append(assoc).Error
 	if err != nil {
 		ctx.Logger.Error(err.Error())
 		return  err
