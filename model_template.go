@@ -33,10 +33,10 @@ func (m {{$typeName}}) GetRole() string {
 
 type {{$typeName}}Storage interface {
 	List(ctx goa.Context) []{{$typeName}}
-	Get(ctx goa.Context) ({{$typeName}}, error)
-	Add(ctx goa.Context) ({{$typeName}}, error)
-	Update(ctx goa.Context) (error)
-	Delete(ctx goa.Context) (error)
+	Get(ctx goa.Context, id int) ({{$typeName}}, error)
+	Add(ctx goa.Context, o {{$typeName}}) ({{$typeName}}, error)
+	Update(ctx goa.Context, o {{$typeName}}) (error)
+	Delete(ctx goa.Context, id int) (error)
 	{{ storagedef . }}
 }
 
@@ -60,43 +60,42 @@ func New{{$typeName}}DB(db gorm.DB) *{{$typeName}}DB {
 	return &{{$typeName}}DB{DB: db}
 }
 
-func (m *{{$typeName}}DB) List(ctx goa.Context) []{{$typeName}} {
+func (m *{{$typeName}}DB) List(ctx goa.Context, parentid int) []{{$typeName}} {
 
 	var objs []{{$typeName}}
     {{ if ne $belongsto "" }}m.DB.Scopes({{$typeName}}Filter(ctx.{{demodel $belongsto}}ID, &m.DB)).Find(&objs){{ else }} m.DB.Find(&objs) {{end}}
 	return objs
 }
 
-func (m *{{$typeName}}DB) Get(ctx goa.Context) ({{$typeName}}, error) {
+func (m *{{$typeName}}DB) Get(ctx goa.Context, id int) ({{$typeName}}, error) {
 
 	var obj {{$typeName}}
 
-	err := m.DB.Find(&obj, ctx.{{demodel $typeName}}ID).Error
+	err := m.DB.Find(&obj, id).Error
 	if err != nil {
 		ctx.Error(err.Error())
 	}
 	return obj, err
 }
 
-func (m *{{$typeName}}DB) Add(ctx goa.Context) ({{$typeName}}, error) {
-	model := {{$typeName}}FromCreatePayload(ctx)
+func (m *{{$typeName}}DB) Add(ctx goa.Context, model {{$typeName}}) ({{$typeName}}, error) {
 	err := m.DB.Create(&model).Error
 	return model, err
 }
-func (m *{{$typeName}}DB) Update(ctx goa.Context) error {
-	obj, err := m.Get(ctx)
+func (m *{{$typeName}}DB) Update(ctx goa.Context, model {{$typeName}}) error {
+	obj, err := m.Get(ctx, model.ID)
 	if err != nil {
 		return  err
 	}
-	err = m.DB.Model(&obj).Updates({{$typeName}}FromUpdatePayload(ctx)).Error
+	err = m.DB.Model(&obj).Updates(model).Error
 	if err != nil {
 		ctx.Error(err.Error())
 	}
 	return err
 }
-func (m *{{$typeName}}DB) Delete(ctx goa.Context)  error {
+func (m *{{$typeName}}DB) Delete(ctx goa.Context, id int)  error {
 	var obj {{$typeName}}
-	err := m.DB.Delete(&obj, ctx.{{demodel $typeName}}ID).Error
+	err := m.DB.Delete(&obj, id).Error
 	if err != nil {
 		ctx.Logger.Error(err.Error())
 		return  err
