@@ -144,12 +144,6 @@ func (m *{{$typeName}}DB) List{{index $pieces 0}}(ctx goa.Context)  []{{index $p
 	return  nil
 }
 {{end}}{{end}}
-
-type Mock{{$typeName}}Storage struct {
-	{{$typeName}}List  map[int]{{$typeName}}
-	nextID int
-	mut sync.Mutex
-}
 {{if ne $belongsto ""}}{{$barray := split $belongsto ","}}{{ range $idx, $bt := $barray}}
 func Filter{{$typeName}}By{{$bt}}(parent int, list []{{$typeName}}) []{{$typeName}} {
 	filtered := make([]{{$typeName}},0)
@@ -161,63 +155,4 @@ func Filter{{$typeName}}By{{$bt}}(parent int, list []{{$typeName}}) []{{$typeNam
 	return filtered
 }
 {{end}}{{end}}
-
-
-func NewMock{{$typeName}}Storage() *Mock{{$typeName}}Storage {
-	ml := make(map[int]{{$typeName}}, 0)
-	return &Mock{{$typeName}}Storage{ {{$typeName}}List: ml}
-}
-
-func (db *Mock{{$typeName}}Storage) List(ctx goa.Context) []{{$typeName}} {
-	var list []{{$typeName}} = make([]{{$typeName}}, 0)
-	for _, v := range db.{{$typeName}}List {
-		list = append(list, v)
-	}
-{{if ne $belongsto ""}}
-return Filter{{$typeName}}By{{$belongsto}}(ctx.{{$belongsto}}ID, list) {{else}}return list{{end}}
-}
-
-func (db *Mock{{$typeName}}Storage) Get(ctx goa.Context) ({{$typeName}}, error) {
-
-	var obj {{$typeName}}
-
-	obj, ok := db.{{$typeName}}List[int(ctx.{{demodel $typeName}}ID)]
-	if ok {
-		return obj, nil
-	} else {
-		return obj, errors.New("{{$typeName}} does not exist")
-	}
-}
-
-func (db *Mock{{$typeName}}Storage) Add(ctx goa.Context)  ({{$typeName}}, error) {
-	u := {{$typeName}}FromCreatePayload(ctx)
-	db.mut.Lock()
-	db.nextID = db.nextID + 1
-	u.ID = db.nextID
-	db.mut.Unlock()
-
-	db.{{$typeName}}List[u.ID] = u
-	return u, nil
-}
-
-func (db *Mock{{$typeName}}Storage) Update(ctx goa.Context) error {
-	id := int(ctx.{{demodel $typeName}}ID)
-	_, ok := db.{{$typeName}}List[id]
-	if ok {
-		db.{{$typeName}}List[id] = {{$typeName}}FromUpdatePayload(ctx)
-		return  nil
-	} else {
-		return errors.New("{{$typeName}} does not exist")
-	}
-}
-
-func (db *Mock{{$typeName}}Storage) Delete(ctx goa.Context)  error {
-	_, ok := db.{{$typeName}}List[int(ctx.{{demodel $typeName}}ID)]
-	if ok {
-		delete(db.{{$typeName}}List, int(ctx.{{demodel $typeName}}ID))
-		return  nil
-	} else {
-		return  errors.New("Could not delete this user")
-	}
-}
 `
