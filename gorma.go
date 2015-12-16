@@ -33,7 +33,7 @@ func NewGenerator() (*Generator, error) {
 // Generate produces the skeleton main.
 func (g *Generator) Generate(api *design.APIDefinition) ([]string, error) {
 
-	os.RemoveAll(ModelDir())
+	os.RemoveAll(ModelDir() + "*genmodel.go")
 	os.MkdirAll(ModelDir(), 0755)
 	app := kingpin.New("Model generator", "model generator")
 	codegen.RegisterFlags(app)
@@ -68,7 +68,7 @@ func (g *Generator) Generate(api *design.APIDefinition) ([]string, error) {
 		if res.Type.IsObject() {
 			title := fmt.Sprintf("%s: Models", api.Name)
 			modelname := strings.ToLower(DeModel(res.TypeName))
-			filename := filepath.Join(ModelDir(), modelname+"_model.go")
+			filename := filepath.Join(ModelDir(), modelname+"_genmodel.go")
 			mtw, err := NewModelWriter(filename)
 			if err != nil {
 				panic(err)
