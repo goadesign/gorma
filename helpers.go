@@ -84,10 +84,11 @@ func StorageDefinition(res *design.UserTypeDefinition) string {
 	return associations
 }
 func IncludeForeignKey(res *design.UserTypeDefinition) string {
+	var associations string
 	if assoc, ok := res.Metadata["github.com/bketelsen/gorma#belongsto"]; ok {
-		return assoc + "ID int\n"
+		associations = associations + assoc + "ID int\n"
 	}
-	return ""
+	return associations
 }
 func Plural(s string) string {
 	return inflection.Plural(s)
@@ -127,6 +128,7 @@ func Authboss(res *design.UserTypeDefinition) string {
 	if _, ok := res.Metadata["github.com/bketelsen/gorma#authboss"]; ok {
 		fields := `	// Auth
 	Email    string
+	Password string
 
 	// OAuth2
 	Oauth2Uid      string

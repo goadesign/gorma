@@ -33,7 +33,7 @@ func (m {{$typeName}}) GetRole() string {
 
 type {{$typeName}}Storage interface {
 	List(ctx context.Context) []{{$typeName}}
-	Get(ctx context.Context, id int) ({{$typeName}}, error)
+	One(ctx context.Context, id int) ({{$typeName}}, error)
 	Add(ctx context.Context, o {{$typeName}}) ({{$typeName}}, error)
 	Update(ctx context.Context, o {{$typeName}}) (error)
 	Delete(ctx context.Context, id int) (error)
@@ -68,7 +68,7 @@ func (m *{{$typeName}}DB) List(ctx context.Context) []{{$typeName}} {
 	return objs
 }
 
-func (m *{{$typeName}}DB) Get(ctx context.Context, id int) ({{$typeName}}, error) {
+func (m *{{$typeName}}DB) One(ctx context.Context, id int) ({{$typeName}}, error) {
 
 	var obj {{$typeName}}
 
@@ -81,7 +81,7 @@ func (m *{{$typeName}}DB) Add(ctx context.Context, model {{$typeName}}) ({{$type
 	return model, err
 }
 func (m *{{$typeName}}DB) Update(ctx context.Context, model {{$typeName}}) error {
-	obj, err := m.Get(ctx, model.ID)
+	obj, err := m.One(ctx, model.ID)
 	if err != nil {
 		return  err
 	}
