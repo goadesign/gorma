@@ -86,7 +86,12 @@ func StorageDefinition(res *design.UserTypeDefinition) string {
 func IncludeForeignKey(res *design.UserTypeDefinition) string {
 	var associations string
 	if assoc, ok := res.Metadata["github.com/bketelsen/gorma#belongsto"]; ok {
-		associations = associations + assoc + "ID int\n"
+		children := strings.Split(assoc, ",")
+
+		for _, child := range children {
+			associations = associations + child + "ID int\n"
+
+		}
 	}
 	return associations
 }
@@ -127,7 +132,6 @@ func IncludeMany2Many(res *design.UserTypeDefinition) string {
 func Authboss(res *design.UserTypeDefinition) string {
 	if _, ok := res.Metadata["github.com/bketelsen/gorma#authboss"]; ok {
 		fields := `	// Auth
-	Email    string
 	Password string
 
 	// OAuth2
@@ -167,17 +171,17 @@ func MakeModelDef(s string, res *design.UserTypeDefinition) string {
 	chunks := strings.Split(start, "\n")
 	// Good lord, shoot me for this hack - remove the ID field in the model if it exists
 	for _, chunk := range chunks {
-		var isId, isEmail, isAuthboss bool
+		var didEmail, isId, isAuthboss bool
 		if strings.HasPrefix(chunk, "\tID ") {
 			isId = true
 		}
 		if _, ok := res.Metadata["github.com/bketelsen/gorma#authboss"]; ok && strings.HasPrefix(chunk, "\tEmail") {
 			isAuthboss = true
-			isEmail = true
 		}
 		if isAuthboss {
-			if !isEmail && !isId {
+			if !didEmail && !isId {
 				newstrings = append(newstrings, chunk)
+				didEmail = true
 			}
 		} else {
 			if !isId {

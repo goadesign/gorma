@@ -9,7 +9,8 @@ func {{$typeName}}FromCreatePayload(ctx *app.Create{{demodel $typeName}}Context)
 	payload := ctx.Payload
 	m := {{$typeName}}{}
 	copier.Copy(&m, payload)
-	{{ if ne $belongsto "" }} m.{{ $belongsto }}ID=int(ctx.{{ demodel $belongsto }}ID){{end}}
+{{ if ne $belongsto "" }}{{$barray := split $belongsto ","}}{{ range $idx, $bt := $barray}}
+	m.{{ $bt}}ID=int(ctx.{{ demodel $bt}}ID){{end}}{{end}}
 	return m
 }
 
@@ -43,9 +44,9 @@ type {{$typeName}}Storage interface {
 type {{$typeName}}DB struct {
 	DB gorm.DB
 }
-/*{{ if ne $belongsto "" }}{{$barray := split $belongsto ","}}{{ range $idx, $bt := $barray}}
+{{ if ne $belongsto "" }}{{$barray := split $belongsto ","}}{{ range $idx, $bt := $barray}}
 // would prefer to just pass a context in here, but they're all different, so can't
-func {{$typeName}}Filter(parentid int, originaldb *gorm.DB) func(db *gorm.DB) *gorm.DB {
+func {{$typeName}}FilterBy{{$bt}}(parentid int, originaldb *gorm.DB) func(db *gorm.DB) *gorm.DB {
 	if parentid > 0 {
 		return func(db *gorm.DB) *gorm.DB {
 			return db.Where("{{ snake $bt }}_id = ?", parentid)
@@ -56,7 +57,7 @@ func {{$typeName}}Filter(parentid int, originaldb *gorm.DB) func(db *gorm.DB) *g
 		}
 	}
 }{{end}}{{end}}
-*/
+
 func New{{$typeName}}DB(db gorm.DB) *{{$typeName}}DB {
 	return &{{$typeName}}DB{DB: db}
 }
