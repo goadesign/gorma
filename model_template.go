@@ -20,11 +20,18 @@ func {{$typeName}}FromUpdatePayload(ctx *app.Update{{demodel $typeName}}Context)
 	copier.Copy(&m, payload)
 	return m
 }
+
 func (m {{$typeName}}) ToApp() *app.{{demodel $typeName}} {
 	target := app.{{demodel $typeName}}{}
 	copier.Copy(&target, &m)
-	return &target 
+	return &target
 }
+{{ $tablename := index .Metadata "github.com/bketelsen/gorma#tablename" }}
+{{ if ne $tablename "" }}
+func (m {{$typeName}}) TableName() string {
+	return "{{ $tablename }}"
+}
+{{ end }}
 {{ $roler := index .Metadata "github.com/bketelsen/gorma#roler" }}
 {{ if ne $roler "" }}
 func (m {{$typeName}}) GetRole() string {
@@ -81,6 +88,7 @@ func (m *{{$typeName}}DB) Add(ctx context.Context, model {{$typeName}}) ({{$type
 	err := m.DB.Create(&model).Error
 	return model, err
 }
+
 func (m *{{$typeName}}DB) Update(ctx context.Context, model {{$typeName}}) error {
 	obj, err := m.One(ctx, model.ID)
 	if err != nil {
@@ -89,6 +97,7 @@ func (m *{{$typeName}}DB) Update(ctx context.Context, model {{$typeName}}) error
 	err = m.DB.Model(&obj).Updates(model).Error
 	return err
 }
+
 func (m *{{$typeName}}DB) Delete(ctx context.Context, id int)  error {
 	var obj {{$typeName}}
 	err := m.DB.Delete(&obj, id).Error
