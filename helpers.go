@@ -102,10 +102,10 @@ func IncludeForeignKey(res *design.UserTypeDefinition) string {
 func PKTag(res *design.UserTypeDefinition) string {
 	var tag string
 	if metatag, ok := res.Metadata["github.com/bketelsen/gorma#gormpktag"]; ok {
-		tag = fmt.Sprintf(" `gorm:\"%s\"`", metatag)
+		tag = fmt.Sprintf(" `gorm:\"%s\"`\n", metatag)
 
 	} else {
-		tag = "`gorm:\"primary_key\"`"
+		tag = "`gorm:\"primary_key\"`\n"
 	}
 	return tag
 }
@@ -265,9 +265,19 @@ func godef(ds design.DataStructure, tabs int, jsonTags, inner, res bool) string 
 	}
 }
 
+func TimeStamps(res *design.UserTypeDefinition) string {
+	var ts string
+	if _, ok := res.Metadata["github.com/bketelsen/gorma#skipts"]; ok {
+		ts = ""
+	} else {
+		ts = "CreatedAt time.Time\nUpdatedAt time.Time\nDeletedAt *time.Time\n"
+	}
+	return ts
+}
+
 func MakeModelDef(s string, res *design.UserTypeDefinition) string {
 
-	start := s[0:strings.Index(s, "{")+1] + "\n  	ID        int " + PKTag(res) + "\nCreatedAt time.Time\nUpdatedAt time.Time\nDeletedAt *time.Time\n" + IncludeMany2Many(res) + IncludeForeignKey(res) + IncludeChildren(res) + Authboss(res) + s[strings.Index(s, "{")+2:]
+	start := s[0:strings.Index(s, "{")+1] + "\n  	ID        int " + PKTag(res) + TimeStamps(res) + IncludeMany2Many(res) + IncludeForeignKey(res) + IncludeChildren(res) + Authboss(res) + s[strings.Index(s, "{")+2:]
 	newstrings := make([]string, 0)
 	chunks := strings.Split(start, "\n")
 	// Good lord, shoot me for this hack - remove the ID field in the model if it exists

@@ -76,18 +76,19 @@ func (g *Generator) Generate(api *design.APIDefinition) ([]string, error) {
 			}
 			mtw.WriteHeader(title, "models", imports)
 			if md, ok := res.Metadata["github.com/bketelsen/gorma"]; ok && md == "Model" {
-				fmt.Println("Found Gorma Metadata:", md)
 				err = mtw.Execute(res)
 				if err != nil {
+					fmt.Println("Error executing Gorma: ", err.Error())
 					g.Cleanup()
 					return err
 				}
 			}
 			if err := mtw.FormatCode(); err != nil {
+				fmt.Println("Error executing Gorma: ", err.Error())
 				g.Cleanup()
 
 			}
-			if err != nil {
+			if err == nil {
 				g.genfiles = append(g.genfiles, filename)
 			}
 			return nil
@@ -101,22 +102,24 @@ func (g *Generator) Generate(api *design.APIDefinition) ([]string, error) {
 		os.Remove(rbacfilename)
 		rbacw, err := NewRbacWriter(rbacfilename)
 		if err != nil {
+			fmt.Println("Error executing Gorma: ", err.Error())
 			panic(err)
 		}
 		rbacw.WriteHeader(rbactitle, "models", rbacimports)
 		err = rbacw.Execute(api)
 		if err != nil {
+			fmt.Println("Error executing Gorma: ", err.Error())
 			g.Cleanup()
 			return g.genfiles, err
 		}
 		if err := rbacw.FormatCode(); err != nil {
+			fmt.Println("Error executing Gorma: ", err.Error())
 			g.Cleanup()
 			return nil, err
 		}
-		if err != nil {
+		if err == nil {
 			g.genfiles = append(g.genfiles, rbacfilename)
 		}
-
 	}
 
 	return g.genfiles, err
