@@ -224,14 +224,17 @@ func godef(ds design.DataStructure, tabs int, jsonTags, inner, res bool) string 
 			var tags string
 			if jsonTags {
 				var omit string
-				var gorm string
+				var gorm, sql string
 				if !def.IsRequired(name) {
 					omit = ",omitempty"
 				}
 				if val, ok := actual[name].Metadata["github.com/bketelsen/gorma#gormtag"]; ok {
 					gorm = fmt.Sprintf(" gorm:\"%s\"", val)
 				}
-				tags = fmt.Sprintf(" `json:\"%s%s\" %s`", name, omit, gorm)
+				if val, ok := actual[name].Metadata["github.com/bketelsen/gorma#sqltag"]; ok {
+					sql = fmt.Sprintf(" sql:\"%s\"", val)
+				}
+				tags = fmt.Sprintf(" `json:\"%s%s\"%s%s`", name, omit, gorm, sql)
 			}
 			desc := actual[name].Description
 			if desc != "" {
