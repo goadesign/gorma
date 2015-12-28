@@ -19,7 +19,7 @@ type ModelWriter struct {
 func NewModelWriter(filename string) (*ModelWriter, error) {
 	cw := codegen.NewGoGenerator(filename)
 	funcMap := cw.FuncMap
-	funcMap["gotypedef"] = codegen.GoTypeDef
+	funcMap["gotypedef"] = GoTypeDef
 	funcMap["gotyperef"] = codegen.GoTypeRef
 	funcMap["goify"] = codegen.Goify
 	funcMap["gotypename"] = codegen.GoTypeName

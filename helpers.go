@@ -1,7 +1,10 @@
 package gorma
 
 import (
+	"bytes"
+	"fmt"
 	"path/filepath"
+	"sort"
 	"strings"
 	"unicode"
 
@@ -95,6 +98,17 @@ func IncludeForeignKey(res *design.UserTypeDefinition) string {
 	}
 	return associations
 }
+
+func PKTag(res *design.UserTypeDefinition) string {
+	var tag string
+	if metatag, ok := res.Metadata["github.com/bketelsen/gorma#gormpktag"]; ok {
+		tag = fmt.Sprintf(" `gorm:\"%s\"`", metatag)
+
+	} else {
+		tag = "`gorm:\"primary_key\"`"
+	}
+	return tag
+}
 func Plural(s string) string {
 	return inflection.Plural(s)
 }
@@ -164,9 +178,93 @@ func Split(s string, sep string) []string {
 	return strings.Split(s, sep)
 }
 
+// GoTypeDef returns the Go code that defines a Go type which matches the data structure
+// definition (the part that comes after `type foo`).
+// tabs indicates the number of tab character(s) used to tabulate the definition however the first
+// line is never indented.
+// jsonTags controls whether to produce json tags.
+// inner indicates whether to prefix the struct of an attribute of type object with *.
+func GoTypeDef(ds design.DataStructure, tabs int, jsonTags, inner bool) string {
+	return godef(ds, tabs, jsonTags, inner, false)
+}
+
+// godef is the common implementation for both GoTypeDef and GoResDef.
+// The only difference between the two is how the type names for fields that refer to a media type
+// is generated: GoTypeDef uses the type name but GoResDef uses the underlying resource name if the
+// type is a media type that corresponds to the canonical representation of a resource.
+func godef(ds design.DataStructure, tabs int, jsonTags, inner, res bool) string {
+	var buffer bytes.Buffer
+	def := ds.Definition()
+	t := def.Type
+	switch actual := t.(type) {
+	case design.Primitive:
+		return codegen.GoTypeName(t, tabs)
+	case *design.Array:
+		return "[]" + godef(actual.ElemType, tabs, jsonTags, true, res)
+	case *design.Hash:
+		keyDef := godef(actual.KeyType, tabs, jsonTags, true, res)
+		elemDef := godef(actual.ElemType, tabs, jsonTags, true, res)
+		return fmt.Sprintf("map[%s]%s", keyDef, elemDef)
+	case design.Object:
+		if inner {
+			buffer.WriteByte('*')
+		}
+		buffer.WriteString("struct {\n")
+		keys := make([]string, len(actual))
+		i := 0
+		for n := range actual {
+			keys[i] = n
+			i++
+		}
+		sort.Strings(keys)
+		for _, name := range keys {
+			codegen.WriteTabs(&buffer, tabs+1)
+			typedef := godef(actual[name], tabs+1, jsonTags, true, res)
+			fname := codegen.Goify(name, true)
+			var tags string
+			if jsonTags {
+				var omit string
+				var gorm string
+				if !def.IsRequired(name) {
+					omit = ",omitempty"
+				}
+				if val, ok := actual[name].Metadata["github.com/bketelsen/gorma#gormtag"]; ok {
+					gorm = fmt.Sprintf(" gorm:\"%s\"", val)
+				}
+				tags = fmt.Sprintf(" `json:\"%s%s\" %s`", name, omit, gorm)
+			}
+			desc := actual[name].Description
+			if desc != "" {
+				desc = fmt.Sprintf("// %s\n", desc)
+			}
+			buffer.WriteString(fmt.Sprintf("%s%s %s%s\n", desc, fname, typedef, tags))
+		}
+		codegen.WriteTabs(&buffer, tabs)
+		buffer.WriteString("}")
+		return buffer.String()
+	case *design.UserTypeDefinition:
+		name := codegen.GoTypeName(actual, tabs)
+		if actual.Type.IsObject() {
+			return "*" + name
+		}
+		return name
+	case *design.MediaTypeDefinition:
+		if res && actual.Resource != nil {
+			return "*" + codegen.Goify(actual.Resource.Name, true)
+		}
+		name := codegen.GoTypeName(actual, tabs)
+		if actual.Type.IsObject() {
+			return "*" + name
+		}
+		return name
+	default:
+		panic("goa bug: unknown data structure type")
+	}
+}
+
 func MakeModelDef(s string, res *design.UserTypeDefinition) string {
 
-	start := s[0:strings.Index(s, "{")+1] + "\n  	ID        int `gorm:\"primary_key\"`\nCreatedAt time.Time\nUpdatedAt time.Time\nDeletedAt *time.Time\n" + IncludeMany2Many(res) + IncludeForeignKey(res) + IncludeChildren(res) + Authboss(res) + s[strings.Index(s, "{")+2:]
+	start := s[0:strings.Index(s, "{")+1] + "\n  	ID        int " + PKTag(res) + "\nCreatedAt time.Time\nUpdatedAt time.Time\nDeletedAt *time.Time\n" + IncludeMany2Many(res) + IncludeForeignKey(res) + IncludeChildren(res) + Authboss(res) + s[strings.Index(s, "{")+2:]
 	newstrings := make([]string, 0)
 	chunks := strings.Split(start, "\n")
 	// Good lord, shoot me for this hack - remove the ID field in the model if it exists
