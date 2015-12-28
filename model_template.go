@@ -39,6 +39,8 @@ func (m {{$typeName}}) GetRole() string {
 }
 {{end}}
 
+
+
 type {{$typeName}}Storage interface {
 	List(ctx context.Context) []{{$typeName}}
 	One(ctx context.Context, id int) ({{$typeName}}, error)
@@ -47,9 +49,10 @@ type {{$typeName}}Storage interface {
 	Delete(ctx context.Context, id int) (error)
 	{{ storagedef . }}
 }
-
+{{ $cached := index .Metadata "github.com/bketelsen/gorma#cached" }}
 type {{$typeName}}DB struct {
 	DB gorm.DB
+	{{ if ne $cached "" }}cache *cache.Cache{{end}}
 }
 {{ if ne $belongsto "" }}{{$barray := split $belongsto ","}}{{ range $idx, $bt := $barray}}
 // would prefer to just pass a context in here, but they're all different, so can't
@@ -66,7 +69,15 @@ func {{$typeName}}FilterBy{{$bt}}(parentid int, originaldb *gorm.DB) func(db *go
 }{{end}}{{end}}
 
 func New{{$typeName}}DB(db gorm.DB) *{{$typeName}}DB {
+	{{ if ne $cached "" }}
+	return &{{$typeName}}DB{
+		DB: db,
+		cache: cache.New(5*time.Minute, 30*time.Second)
+	}
+	{{ else  }}
 	return &{{$typeName}}DB{DB: db}
+
+	{{ end  }}
 }
 
 func (m *{{$typeName}}DB) List(ctx context.Context) []{{$typeName}} {

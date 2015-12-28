@@ -62,6 +62,16 @@ func (g *Generator) Generate(api *design.APIDefinition) ([]string, error) {
 
 	rbactitle := fmt.Sprintf("%s: RBAC", api.Name)
 	_, dorbac := api.Metadata["github.com/bketelsen/gorma#rbac"]
+	_, cached := api.Metadata["github.com/bketelsen/gorma#cached"]
+	if cached {
+		imports = []*codegen.ImportSpec{
+			codegen.SimpleImport(appPkg),
+			codegen.SimpleImport("github.com/jinzhu/gorm"),
+			codegen.SimpleImport("github.com/jinzhu/copier"),
+			codegen.SimpleImport("time"),
+			codegen.SimpleImport("github.com/patrickmn/go-cache"),
+		}
+	}
 
 	err = api.IterateUserTypes(func(res *design.UserTypeDefinition) error {
 		if res.Type.IsObject() {
