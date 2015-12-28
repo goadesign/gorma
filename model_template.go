@@ -72,7 +72,7 @@ func New{{$typeName}}DB(db gorm.DB) *{{$typeName}}DB {
 	{{ if ne $cached "" }}
 	return &{{$typeName}}DB{
 		DB: db,
-		cache: cache.New(5*time.Minute, 30*time.Second)
+		cache: cache.New(5*time.Minute, 30*time.Second),
 	}
 	{{ else  }}
 	return &{{$typeName}}DB{DB: db}
