@@ -88,7 +88,10 @@ func (m *{{$typeName}}DB) List(ctx context.Context) []{{$typeName}} {
 }
 
 func (m *{{$typeName}}DB) One(ctx context.Context, id int) ({{$typeName}}, error) {
-
+	{{ if ne $cached "" }}o,found := m.cache.Get(strconv.Itoa(id))
+	if found {
+		return o.({{$typeName}}), nil
+	} {{ end }}
 	var obj {{$typeName}}
 
 	err := m.DB.Find(&obj, id).Error
