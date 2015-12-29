@@ -66,7 +66,17 @@ func {{$typeName}}FilterBy{{$bt}}(parentid int, originaldb *gorm.DB) func(db *go
 			return db
 		}
 	}
-}{{end}}{{end}}
+}
+
+func (m *{{$typeName}}DB) ListBy{{$bt}}(ctx context.Context) []{{$typeName}} {
+
+	var objs []{{$typeName}}
+    m.DB.Scopes({{$typeName}}FilterBy{{$bt}}).Find(&objs)
+	return objs
+}
+
+
+{{end}}{{end}}
 
 func New{{$typeName}}DB(db gorm.DB) *{{$typeName}}DB {
 	{{ if ne $cached "" }}
