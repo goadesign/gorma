@@ -48,7 +48,8 @@ type {{$typeName}}Storage interface {
 	Update(ctx context.Context{{ if ne $dyntablename "" }}, tableName string{{ end }}, o {{$typeName}}) (error)
 	Delete(ctx context.Context{{ if ne $dyntablename "" }}, tableName string{{ end }}, id int) (error)
 {{ if ne $belongsto "" }}{{$barray := split $belongsto ","}}{{ range $idx, $bt := $barray}}
-	ListBy{{$bt}}(ctx context.Context{{ if ne $dyntablename "" }}, tableName string{{ end }}, id int) []{{$typeName}}
+	ListBy{{$bt}}(ctx context.Context{{ if ne $dyntablename "" }}, tableName string{{ end }}, parentid int) []{{$typeName}}
+	OneBy{{$bt}}(ctx context.Context{{ if ne $dyntablename "" }}, tableName string{{ end }}, parentid, id int) ({{$typeName}}, error)
 {{end}}{{end}}
 	{{ storagedef . }}
 }
@@ -78,7 +79,19 @@ func (m *{{$typeName}}DB) ListBy{{$bt}}(ctx context.Context{{ if ne $dyntablenam
 	return objs
 }
 
+func (m *{{$typeName}}DB) OneBy{{$bt}}(ctx context.Context{{ if ne $dyntablename "" }}, tableName string{{ end }}, parentid, id int) ({{$typeName}}, error) {
+	{{ if ne $cached "" }}//first attempt to retrieve from cache
+	o,found := m.cache.Get(strconv.Itoa(id))
+	if found {
+		return o.({{$typeName}}), nil
+	}
+	// fallback to database if not found{{ end }}
+	var obj {{$typeName}}
 
+	err := m.DB{{ if ne $dyntablename "" }}.Table(tableName){{ end }}.Scopes({{$typeName}}FilterBy{{$bt}}(parentid, &m.DB)).Find(&obj, id).Error
+	{{ if ne $cached "" }} go m.cache.Set(strconv.Itoa(id), obj, cache.DefaultExpiration) {{ end }}
+	return obj, err
+}
 {{end}}{{end}}
 
 func New{{$typeName}}DB(db gorm.DB) *{{$typeName}}DB {
