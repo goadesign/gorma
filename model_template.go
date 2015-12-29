@@ -47,6 +47,9 @@ type {{$typeName}}Storage interface {
 	Add(ctx context.Context, o {{$typeName}}) ({{$typeName}}, error)
 	Update(ctx context.Context, o {{$typeName}}) (error)
 	Delete(ctx context.Context, id int) (error)
+{{ if ne $belongsto "" }}{{$barray := split $belongsto ","}}{{ range $idx, $bt := $barray}}
+	ListBy{{$bt}}(ctx context.Context, id int) []{{$typeName}}
+{{end}}
 	{{ storagedef . }}
 }
 {{ $cached := index .Metadata "github.com/bketelsen/gorma#cached" }}
