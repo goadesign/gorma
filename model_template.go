@@ -88,18 +88,22 @@ func (m *{{$typeName}}DB) List(ctx context.Context) []{{$typeName}} {
 }
 
 func (m *{{$typeName}}DB) One(ctx context.Context, id int) ({{$typeName}}, error) {
-	{{ if ne $cached "" }}o,found := m.cache.Get(strconv.Itoa(id))
+	{{ if ne $cached "" }}//first attempt to retrieve from cache
+	o,found := m.cache.Get(strconv.Itoa(id))
 	if found {
 		return o.({{$typeName}}), nil
-	} {{ end }}
+	} 
+	// fallback to database if not found{{ end }}
 	var obj {{$typeName}}
 
 	err := m.DB.Find(&obj, id).Error
+	{{ if ne $cached "" }} go m.cache.Set(strconv.Itoa(id), obj, cache.DefaultExpiration) {{ end }}
 	return obj, err
 }
 
 func (m *{{$typeName}}DB) Add(ctx context.Context, model {{$typeName}}) ({{$typeName}}, error) {
 	err := m.DB.Create(&model).Error
+	{{ if ne $cached "" }} go m.cache.Set(strconv.Itoa(id), model, cache.DefaultExpiration) {{ end }}
 	return model, err
 }
 
@@ -109,6 +113,15 @@ func (m *{{$typeName}}DB) Update(ctx context.Context, model {{$typeName}}) error
 		return  err
 	}
 	err = m.DB.Model(&obj).Updates(model).Error
+	{{ if ne $cached "" }} 
+	go func(){
+	obj, err := m.One(ctx, model.ID)
+	if err == nil {
+		m.cache.Set(strconv.Itoa(model.ID), obj, cache.DefaultExpiration)
+	}
+	}()	
+	{{ end }}
+
 	return err
 }
 
@@ -118,6 +131,7 @@ func (m *{{$typeName}}DB) Delete(ctx context.Context, id int)  error {
 	if err != nil {
 		return  err
 	}
+	{{ if ne $cached "" }} go m.cache.Delete(strconv.Itoa(id)) {{ end }
 	return  nil
 }
 
