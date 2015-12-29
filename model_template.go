@@ -103,7 +103,7 @@ func (m *{{$typeName}}DB) One(ctx context.Context, id int) ({{$typeName}}, error
 
 func (m *{{$typeName}}DB) Add(ctx context.Context, model {{$typeName}}) ({{$typeName}}, error) {
 	err := m.DB.Create(&model).Error
-	{{ if ne $cached "" }} go m.cache.Set(strconv.Itoa(id), model, cache.DefaultExpiration) {{ end }}
+	{{ if ne $cached "" }} go m.cache.Set(strconv.Itoa(model.ID), model, cache.DefaultExpiration) {{ end }}
 	return model, err
 }
 
