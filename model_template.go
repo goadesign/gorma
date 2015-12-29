@@ -131,7 +131,7 @@ func (m *{{$typeName}}DB) Delete(ctx context.Context, id int)  error {
 	if err != nil {
 		return  err
 	}
-	{{ if ne $cached "" }} go m.cache.Delete(strconv.Itoa(id)) {{ end }
+	{{ if ne $cached "" }} go m.cache.Delete(strconv.Itoa(id)) {{ end }}
 	return  nil
 }
 
