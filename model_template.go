@@ -68,10 +68,10 @@ func {{$typeName}}FilterBy{{$bt}}(parentid int, originaldb *gorm.DB) func(db *go
 	}
 }
 
-func (m *{{$typeName}}DB) ListBy{{$bt}}(ctx context.Context) []{{$typeName}} {
+func (m *{{$typeName}}DB) ListBy{{$bt}}(ctx context.Context, parentid int) []{{$typeName}} {
 
 	var objs []{{$typeName}}
-    m.DB.Scopes({{$typeName}}FilterBy{{$bt}}).Find(&objs)
+    m.DB.Scopes({{$typeName}}FilterBy{{$bt}}(parentid, m.DB)).Find(&objs)
 	return objs
 }
 
