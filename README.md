@@ -5,7 +5,7 @@ Gorma is a storage generator for [goa](http://goa.design)
 Gorma uses metadata in the `goa` DSL to generate a working storage system for your API.
 
 ## Opinionated
-Gorma generates Go code that uses [gorm](https://github.com/jinhzu/gorm) to access your database, therefore it is quite opinionated about how the data accessl ayer is generated
+Gorma generates Go code that uses [gorm](https://github.com/jinhzu/gorm) to access your database, therefore it is quite opinionated about how the data access layer is generated
 
 ## Example
 
