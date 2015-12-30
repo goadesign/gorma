@@ -222,5 +222,15 @@ This tag adds a GetRole() function to the model, and returns the "Role" field of
 	Metadata("github.com/bketelsen/gorma#hasmany", "Proposal,Review")
 ```
 This tag denotes the model as being the parent in a "Has Many" relationship.  e.g. User "Has Many" Proposals
+Multiple has-many relationships can be expressed by including them as comma separated entities.
+
+
+```	
+	Metadata("github.com/bketelsen/gorma#belongsto", "User")
+```
+This tag denotes that the model "belongs to" a parent.  e.g. Proposal "Belongs To" User
+Multiple belongs-to relationships can be expressed by including them as comma separated entities.
+
+
 
 
