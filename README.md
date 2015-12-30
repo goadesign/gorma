@@ -206,38 +206,43 @@ func (m *UserDB) Delete(ctx context.Context, id int) error {
 ```
 
 ### Supported Metadata Tags
+The following is a list of tags supported by Gorma.  Unrecognized tags will be silently ignored.
 
+#### "Model"
 ```	
 	Metadata("github.com/bketelsen/gorma", "Model")
 ```
 This tag is required in your model in order for gorma to process it.
 
+#### "roler"
 
 ``` 
 	Metadata("github.com/bketelsen/gorma#roler", "true") 
 ```
 This tag adds a GetRole() function to the model, and returns the "Role" field of the model.  To be used with the RBAC tag.
 
+#### "hasmany"
 ```
 	Metadata("github.com/bketelsen/gorma#hasmany", "Proposal,Review")
 ```
 This tag denotes the model as being the parent in a "Has Many" relationship.  e.g. User "Has Many" Proposals
 Multiple has-many relationships can be expressed by including them as comma separated entities.
 
-
+#### "belongsto"
 ```	
 	Metadata("github.com/bketelsen/gorma#belongsto", "User")
 ```
 This tag denotes that the model "belongs to" a parent.  e.g. Proposal "Belongs To" User
 Multiple belongs-to relationships can be expressed by including them as comma separated entities.
 
-
+#### "hasone"
 ```	
 	Metadata("github.com/bketelsen/gorma#hasone", "Address")
 ```
 This tag denotes that the model is the parent of a "belongs to" relationship.e  e.g. User "has one" Address
 Multiple has-one relationships can be expressed by including them as comma separated entities.
 
+#### "many2many"
 ```	
 	Metadata("github.com/bketelsen/gorma#many2many", "PluralModel:SingularModel:join_table_name")
 ```
