@@ -204,3 +204,23 @@ func (m *UserDB) Delete(ctx context.Context, id int) error {
 	return nil
 }
 ```
+
+### Supported Metadata Tags
+
+```	
+	Metadata("github.com/bketelsen/gorma", "Model")
+```
+This tag is required in your model in order for gorma to process it.
+
+
+``` 
+	Metadata("github.com/bketelsen/gorma#roler", "true") 
+```
+This tag adds a GetRole() function to the model, and returns the "Role" field of the model.  To be used with the RBAC tag.
+
+```
+	Metadata("github.com/bketelsen/gorma#hasmany", "Proposal,Review")
+```
+This tag denotes the model as being the parent in a "Has Many" relationship.  e.g. User "Has Many" Proposals
+
+
