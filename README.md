@@ -231,12 +231,18 @@ Multiple has-many relationships can be expressed by including them as comma sepa
 This tag denotes that the model "belongs to" a parent.  e.g. Proposal "Belongs To" User
 Multiple belongs-to relationships can be expressed by including them as comma separated entities.
 
+
+```	
+	Metadata("github.com/bketelsen/gorma#hasone", "Address")
+```
+This tag denotes that the model is the parent of a "belongs to" relationship.e  e.g. User "has one" Address
+Multiple has-one relationships can be expressed by including them as comma separated entities.
+
 ```	
 	Metadata("github.com/bketelsen/gorma#many2many", "PluralModel:SingularModel:join_table_name")
 ```
 This tag denotes that the model should have a join table for a relationship.  The arguments of the
-metadata create the struct field, the type of the struct field, and the name of the join table.  
-When added to a model called "Company", the below metadata
+metadata create the struct field, the type of the struct field, and the name of the join table.  When added to a model called "Company", the below example  
 represents a many to many relationship between a Company and an Industry which would create a join table called
 `company_industries`  and a field in the Company struct called `Industries` which is of type `[]Industry`
 
