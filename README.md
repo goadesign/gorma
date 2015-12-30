@@ -12,6 +12,13 @@ Gorma generates Go code that uses [gorm](https://github.com/jinhzu/gorm) to acce
 Gorma is a work in progress, but is being used in several applications that are not yet in production.  Use at your own risk.
 Much of the code is in need of cleanup/rewriting/woodshed-beatdown.  
 
+## Use
+From the root of your application, issue the `goagen` command as follows:
+
+```
+	goagen --design=github.com/gopheracademy/congo/design gen --pkg-path=github.com/bketelsen/gorma
+```
+Be sure to replace `github.com/gopheracademy/congo/design` with the design package of your `goa` application.
 
 ## Example
 
