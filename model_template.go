@@ -5,6 +5,8 @@ const modelTmpl = `// {{if .Description}}{{.Description}}{{else}}app.{{gotypenam
 {{$td := gotypedef . 0 true false}}type {{$typeName}} {{modeldef $td .}}
 {{ $belongsto := index .Metadata "github.com/bketelsen/gorma#belongsto" }}
 {{ $m2m := index .Metadata "github.com/bketelsen/gorma#many2many" }}
+{{ $nomedia := index .Metadata "github.com/bketelsen/gorma#nomedia" }}
+{{ if eq $nomedia "" }}
 func {{$typeName}}FromCreatePayload(ctx *app.Create{{demodel $typeName}}Context) {{$typeName}} {
 	payload := ctx.Payload
 	m := {{$typeName}}{}
@@ -26,6 +28,7 @@ func (m {{$typeName}}) ToApp() *app.{{demodel $typeName}} {
 	copier.Copy(&target, &m)
 	return &target
 }
+{{ end }}
 {{ $tablename := index .Metadata "github.com/bketelsen/gorma#tablename" }}
 {{ if ne $tablename "" }}
 func (m {{$typeName}}) TableName() string {
