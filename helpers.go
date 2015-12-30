@@ -13,6 +13,7 @@ import (
 	"github.com/raphael/goa/goagen/codegen"
 )
 
+// TitleCase converts a string to Title case
 func TitleCase(s string) string {
 	return strings.Title(s)
 }
@@ -55,22 +56,28 @@ func CamelToSnake(s string) string {
 	return result
 }
 
-// JSONSchemaDir is the path to the directory where the schema controller is generated.
+// ModelDir is the path to the directory where the schema controller is generated.
 func ModelDir() string {
 	return filepath.Join(codegen.OutputDir, "models")
 }
 
+// DeModel remove the word "Model" from the string
 func DeModel(s string) string {
 	return strings.Replace(s, "Model", "", -1)
 }
 
+// Lower returns the string in lowercase
 func Lower(s string) string {
 	return strings.ToLower(s)
 }
+
+// Upper returns the string in upper case
 func Upper(s string) string {
 	return strings.ToUpper(s)
 }
 
+// StorageDefinition creates the storage interface that will be used
+// in place of a concrete type for testability
 func StorageDefinition(res *design.UserTypeDefinition) string {
 
 	var associations string
@@ -86,6 +93,9 @@ func StorageDefinition(res *design.UserTypeDefinition) string {
 	}
 	return associations
 }
+
+// IncludeForeignKey adds foreign key relations to the struct being
+// generated
 func IncludeForeignKey(res *design.UserTypeDefinition) string {
 	var associations string
 	if assoc, ok := res.Metadata["github.com/bketelsen/gorma#belongsto"]; ok {
@@ -99,6 +109,7 @@ func IncludeForeignKey(res *design.UserTypeDefinition) string {
 	return associations
 }
 
+// PKTag adds the pk tag to the model definition
 func PKTag(res *design.UserTypeDefinition) string {
 	var tag string
 	if metatag, ok := res.Metadata["github.com/bketelsen/gorma#gormpktag"]; ok {
@@ -109,9 +120,14 @@ func PKTag(res *design.UserTypeDefinition) string {
 	}
 	return tag
 }
+
+// Plural returns the plural version of a word
 func Plural(s string) string {
 	return inflection.Plural(s)
 }
+
+// IncludeChildren adds the fields to a struct represented
+// in a has-many relationship
 func IncludeChildren(res *design.UserTypeDefinition) string {
 	var associations string
 	if assoc, ok := res.Metadata["github.com/bketelsen/gorma#hasmany"]; ok {
@@ -131,6 +147,8 @@ func IncludeChildren(res *design.UserTypeDefinition) string {
 	return associations
 }
 
+// IncludeMany2Many returns the appropriate struct tags
+// for a m2m relationship in gorm
 func IncludeMany2Many(res *design.UserTypeDefinition) string {
 	var associations string
 	if assoc, ok := res.Metadata["github.com/bketelsen/gorma#many2many"]; ok {
@@ -143,6 +161,9 @@ func IncludeMany2Many(res *design.UserTypeDefinition) string {
 	}
 	return associations
 }
+
+// Authboss returns the tags required to implement authboss storage
+// currently experimental and quite unfinished
 func Authboss(res *design.UserTypeDefinition) string {
 	if _, ok := res.Metadata["github.com/bketelsen/gorma#authboss"]; ok {
 		fields := `	// Auth
@@ -173,6 +194,7 @@ func Authboss(res *design.UserTypeDefinition) string {
 	return ""
 }
 
+// Split splits a string by separater `sep`
 func Split(s string, sep string) []string {
 
 	return strings.Split(s, sep)
@@ -184,6 +206,7 @@ func Split(s string, sep string) []string {
 // line is never indented.
 // jsonTags controls whether to produce json tags.
 // inner indicates whether to prefix the struct of an attribute of type object with *.
+// copied from GOA
 func GoTypeDef(ds design.DataStructure, tabs int, jsonTags, inner bool) string {
 	return godef(ds, tabs, jsonTags, inner, false)
 }
@@ -192,6 +215,7 @@ func GoTypeDef(ds design.DataStructure, tabs int, jsonTags, inner bool) string {
 // The only difference between the two is how the type names for fields that refer to a media type
 // is generated: GoTypeDef uses the type name but GoResDef uses the underlying resource name if the
 // type is a media type that corresponds to the canonical representation of a resource.
+// copied from GOA and modified
 func godef(ds design.DataStructure, tabs int, jsonTags, inner, res bool) string {
 	var buffer bytes.Buffer
 	def := ds.Definition()
@@ -265,6 +289,7 @@ func godef(ds design.DataStructure, tabs int, jsonTags, inner, res bool) string 
 	}
 }
 
+// Timestamps returns the timestamp fields if "skipts" isn't set
 func TimeStamps(res *design.UserTypeDefinition) string {
 	var ts string
 	if _, ok := res.Metadata["github.com/bketelsen/gorma#skipts"]; ok {
@@ -275,6 +300,7 @@ func TimeStamps(res *design.UserTypeDefinition) string {
 	return ts
 }
 
+// MakeModelDef is the main function to create a struct definition
 func MakeModelDef(s string, res *design.UserTypeDefinition) string {
 
 	start := s[0:strings.Index(s, "{")+1] + "\n  	ID        int " + PKTag(res) + TimeStamps(res) + IncludeMany2Many(res) + IncludeForeignKey(res) + IncludeChildren(res) + Authboss(res) + s[strings.Index(s, "{")+2:]

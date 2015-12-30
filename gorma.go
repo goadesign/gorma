@@ -30,7 +30,7 @@ func NewGenerator() (*Generator, error) {
 	return new(Generator), nil
 }
 
-// Generate produces the skeleton main.
+// Generate produces the generated model files
 func (g *Generator) Generate(api *design.APIDefinition) ([]string, error) {
 
 	os.MkdirAll(ModelDir(), 0755)
@@ -41,7 +41,7 @@ func (g *Generator) Generate(api *design.APIDefinition) ([]string, error) {
 		panic(err)
 	}
 	var outPkg string
-	// going to hell for this == HELP Wanted (windows)
+	// going to hell for this == HELP Wanted (windows) TODO:(BJK)
 	outPkg = codegen.DesignPackagePath[0:strings.LastIndex(codegen.DesignPackagePath, "/")]
 	if err != nil {
 		panic(err)
