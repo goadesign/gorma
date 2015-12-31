@@ -2,7 +2,7 @@ package gorma
 
 const modelTmpl = `// {{if .Description}}{{.Description}}{{else}}app.{{gotypename . 0}} storage type{{end}}
 // Identifier: {{ $typeName :=  gotypename . 0}}{{$typeName := demodel $typeName}}
-{{$td := gotypedef . 0 true false}}type {{$typeName}} {{modeldef $td .}}
+type {{$typeName}} {{ modeldef . }}
 {{ $belongsto := index .Metadata "github.com/bketelsen/gorma#belongsto" }}
 {{ $m2m := index .Metadata "github.com/bketelsen/gorma#many2many" }}
 {{ $nomedia := index .Metadata "github.com/bketelsen/gorma#nomedia" }}

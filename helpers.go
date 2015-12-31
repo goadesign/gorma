@@ -79,7 +79,6 @@ func Upper(s string) string {
 // StorageDefinition creates the storage interface that will be used
 // in place of a concrete type for testability
 func StorageDefinition(res *design.UserTypeDefinition) string {
-
 	var associations string
 	if assoc, ok := res.Metadata["github.com/bketelsen/gorma#many2many"]; ok {
 		children := strings.Split(assoc, ",")
@@ -96,7 +95,7 @@ func StorageDefinition(res *design.UserTypeDefinition) string {
 
 // IncludeForeignKey adds foreign key relations to the struct being
 // generated
-func IncludeForeignKey(res *design.UserTypeDefinition) string {
+func IncludeForeignKey(res *design.AttributeDefinition) string {
 	var associations string
 	if assoc, ok := res.Metadata["github.com/bketelsen/gorma#belongsto"]; ok {
 		children := strings.Split(assoc, ",")
@@ -109,18 +108,6 @@ func IncludeForeignKey(res *design.UserTypeDefinition) string {
 	return associations
 }
 
-// PKTag adds the pk tag to the model definition
-func PKTag(res *design.UserTypeDefinition) string {
-	var tag string
-	if metatag, ok := res.Metadata["github.com/bketelsen/gorma#gormpktag"]; ok {
-		tag = fmt.Sprintf(" `gorm:\"%s\"`\n", metatag)
-
-	} else {
-		tag = "`gorm:\"primary_key\"`\n"
-	}
-	return tag
-}
-
 // Plural returns the plural version of a word
 func Plural(s string) string {
 	return inflection.Plural(s)
@@ -128,7 +115,7 @@ func Plural(s string) string {
 
 // IncludeChildren adds the fields to a struct represented
 // in a has-many relationship
-func IncludeChildren(res *design.UserTypeDefinition) string {
+func IncludeChildren(res *design.AttributeDefinition) string {
 	var associations string
 	if assoc, ok := res.Metadata["github.com/bketelsen/gorma#hasmany"]; ok {
 		children := strings.Split(assoc, ",")
@@ -149,7 +136,7 @@ func IncludeChildren(res *design.UserTypeDefinition) string {
 
 // IncludeMany2Many returns the appropriate struct tags
 // for a m2m relationship in gorm
-func IncludeMany2Many(res *design.UserTypeDefinition) string {
+func IncludeMany2Many(res *design.AttributeDefinition) string {
 	var associations string
 	if assoc, ok := res.Metadata["github.com/bketelsen/gorma#many2many"]; ok {
 		children := strings.Split(assoc, ",")
@@ -164,7 +151,7 @@ func IncludeMany2Many(res *design.UserTypeDefinition) string {
 
 // Authboss returns the tags required to implement authboss storage
 // currently experimental and quite unfinished
-func Authboss(res *design.UserTypeDefinition) string {
+func Authboss(res *design.AttributeDefinition) string {
 	if _, ok := res.Metadata["github.com/bketelsen/gorma#authboss"]; ok {
 		fields := `	// Auth
 	Password string
@@ -187,7 +174,7 @@ func Authboss(res *design.UserTypeDefinition) string {
 
 	// Recover
 	RecoverToken       string
-	RecoverTokenExpiry time.Time 
+	RecoverTokenExpiry time.Time
 	`
 		return fields
 	}
@@ -196,101 +183,11 @@ func Authboss(res *design.UserTypeDefinition) string {
 
 // Split splits a string by separater `sep`
 func Split(s string, sep string) []string {
-
 	return strings.Split(s, sep)
 }
 
-// GoTypeDef returns the Go code that defines a Go type which matches the data structure
-// definition (the part that comes after `type foo`).
-// tabs indicates the number of tab character(s) used to tabulate the definition however the first
-// line is never indented.
-// jsonTags controls whether to produce json tags.
-// inner indicates whether to prefix the struct of an attribute of type object with *.
-// copied from GOA
-func GoTypeDef(ds design.DataStructure, tabs int, jsonTags, inner bool) string {
-	return godef(ds, tabs, jsonTags, inner, false)
-}
-
-// godef is the common implementation for both GoTypeDef and GoResDef.
-// The only difference between the two is how the type names for fields that refer to a media type
-// is generated: GoTypeDef uses the type name but GoResDef uses the underlying resource name if the
-// type is a media type that corresponds to the canonical representation of a resource.
-// copied from GOA and modified
-func godef(ds design.DataStructure, tabs int, jsonTags, inner, res bool) string {
-	var buffer bytes.Buffer
-	def := ds.Definition()
-	t := def.Type
-	switch actual := t.(type) {
-	case design.Primitive:
-		return codegen.GoTypeName(t, tabs)
-	case *design.Array:
-		return "[]" + godef(actual.ElemType, tabs, jsonTags, true, res)
-	case *design.Hash:
-		keyDef := godef(actual.KeyType, tabs, jsonTags, true, res)
-		elemDef := godef(actual.ElemType, tabs, jsonTags, true, res)
-		return fmt.Sprintf("map[%s]%s", keyDef, elemDef)
-	case design.Object:
-		if inner {
-			buffer.WriteByte('*')
-		}
-		buffer.WriteString("struct {\n")
-		keys := make([]string, len(actual))
-		i := 0
-		for n := range actual {
-			keys[i] = n
-			i++
-		}
-		sort.Strings(keys)
-		for _, name := range keys {
-			codegen.WriteTabs(&buffer, tabs+1)
-			typedef := godef(actual[name], tabs+1, jsonTags, true, res)
-			fname := codegen.Goify(name, true)
-			var tags string
-			if jsonTags {
-				var omit string
-				var gorm, sql string
-				if !def.IsRequired(name) {
-					omit = ",omitempty"
-				}
-				if val, ok := actual[name].Metadata["github.com/bketelsen/gorma#gormtag"]; ok {
-					gorm = fmt.Sprintf(" gorm:\"%s\"", val)
-				}
-				if val, ok := actual[name].Metadata["github.com/bketelsen/gorma#sqltag"]; ok {
-					sql = fmt.Sprintf(" sql:\"%s\"", val)
-				}
-				tags = fmt.Sprintf(" `json:\"%s%s\"%s%s`", name, omit, gorm, sql)
-			}
-			desc := actual[name].Description
-			if desc != "" {
-				desc = fmt.Sprintf("// %s\n", desc)
-			}
-			buffer.WriteString(fmt.Sprintf("%s%s %s%s\n", desc, fname, typedef, tags))
-		}
-		codegen.WriteTabs(&buffer, tabs)
-		buffer.WriteString("}")
-		return buffer.String()
-	case *design.UserTypeDefinition:
-		name := codegen.GoTypeName(actual, tabs)
-		if actual.Type.IsObject() {
-			return "*" + name
-		}
-		return name
-	case *design.MediaTypeDefinition:
-		if res && actual.Resource != nil {
-			return "*" + codegen.Goify(actual.Resource.Name, true)
-		}
-		name := codegen.GoTypeName(actual, tabs)
-		if actual.Type.IsObject() {
-			return "*" + name
-		}
-		return name
-	default:
-		panic("goa bug: unknown data structure type")
-	}
-}
-
 // Timestamps returns the timestamp fields if "skipts" isn't set
-func TimeStamps(res *design.UserTypeDefinition) string {
+func TimeStamps(res *design.AttributeDefinition) string {
 	var ts string
 	if _, ok := res.Metadata["github.com/bketelsen/gorma#skipts"]; ok {
 		ts = ""
@@ -301,33 +198,92 @@ func TimeStamps(res *design.UserTypeDefinition) string {
 }
 
 // MakeModelDef is the main function to create a struct definition
-func MakeModelDef(s string, res *design.UserTypeDefinition) string {
+func MakeModelDef(res *design.UserTypeDefinition) string {
+	var buffer bytes.Buffer
+	def := res.Definition()
+	t := def.Type
+	switch actual := t.(type) {
+	case design.Object:
+		actual = setupIDAttribute(actual, res)
 
-	start := s[0:strings.Index(s, "{")+1] + "\n  	ID        int " + PKTag(res) + TimeStamps(res) + IncludeMany2Many(res) + IncludeForeignKey(res) + IncludeChildren(res) + Authboss(res) + s[strings.Index(s, "{")+2:]
-	newstrings := make([]string, 0)
-	chunks := strings.Split(start, "\n")
-	// Good lord, shoot me for this hack - remove the ID field in the model if it exists
-	for _, chunk := range chunks {
-		var didEmail, isId, isAuthboss bool
-		if strings.HasPrefix(chunk, "\tID ") {
-			isId = true
+		buffer.WriteString("struct {\n")
+		keys := make([]string, len(actual))
+		i := 0
+		for n := range actual {
+			keys[i] = n
+			i++
 		}
-		if _, ok := res.Metadata["github.com/bketelsen/gorma#authboss"]; ok && strings.HasPrefix(chunk, "\tEmail") {
-			isAuthboss = true
-		}
-		if isAuthboss {
-			if !didEmail && !isId {
-				newstrings = append(newstrings, chunk)
-				didEmail = true
+		sort.Strings(keys)
+		for _, name := range keys {
+			codegen.WriteTabs(&buffer, 1)
+			typedef := codegen.GoTypeDef(actual[name], 1, true, true)
+			fname := codegen.Goify(name, true)
+			var tags string
+			var omit string
+			var gorm, sql string
+			if !def.IsRequired(name) {
+				omit = ",omitempty"
 			}
-		} else {
-			if !isId {
-				newstrings = append(newstrings, chunk)
+			if val, ok := actual[name].Metadata["github.com/bketelsen/gorma#gormtag"]; ok {
+				gorm = fmt.Sprintf(" gorm:\"%s\"", val)
+			}
+			if val, ok := actual[name].Metadata["github.com/bketelsen/gorma#sqltag"]; ok {
+				sql = fmt.Sprintf(" sql:\"%s\"", val)
+			}
+			tags = fmt.Sprintf(" `json:\"%s%s\"%s%s`", name, omit, gorm, sql)
+			desc := actual[name].Description
+			if desc != "" {
+				desc = fmt.Sprintf("// %s\n", desc)
+			}
+			buffer.WriteString(fmt.Sprintf("%s%s %s%s\n", desc, fname, typedef, tags))
+		}
+
+		for k, v := range genfuncs {
+			s := v(def)
+			if s != "" {
+				buffer.WriteString(fmt.Sprintf("%s%s", k, s))
 			}
 		}
 
+		codegen.WriteTabs(&buffer, 0)
+		buffer.WriteString("}")
+		return buffer.String()
+	default:
+		panic("gorma bug: unexpected data structure type")
 	}
-	return strings.Join(newstrings, "\n")
+}
+
+// setupIDAttribute adds or updates the ID field of a user type definition.
+func setupIDAttribute(obj design.Object, res *design.UserTypeDefinition) design.Object {
+	idName := ""
+	foundID := false
+	for n := range obj {
+		if n == "ID" || n == "Id" || n == "id" {
+			idName = n
+			foundID = true
+		}
+	}
+
+	var gorm string
+	if val, ok := res.Metadata["github.com/bketelsen/gorma#gormpktag"]; ok {
+		gorm = val
+	} else {
+		gorm = "primary_key"
+	}
+
+	if foundID {
+		// If the user already defined gormtag, leave it alone.
+		if _, ok := obj[idName].Metadata["github.com/bketelsen/gorma#gormtag"]; !ok {
+			obj[idName].Metadata["github.com/bketelsen/gorma#gormtag"] = gorm
+		}
+	} else {
+		obj["ID"] = &design.AttributeDefinition{
+			Type:     design.Integer,
+			Metadata: design.MetadataDefinition{"github.com/bketelsen/gorma#gormtag": gorm},
+		}
+	}
+
+	return obj
 }
 
 // Is c an ASCII lower-case letter?
@@ -354,6 +310,14 @@ func startsWithInitialism(s string) string {
 		}
 	}
 	return initialism
+}
+
+var genfuncs = map[string]func(*design.AttributeDefinition) string{
+	"\n// Timestamps\n":   TimeStamps,
+	"\n// Many2Many\n":    IncludeMany2Many,
+	"\n// Foreign Keys\n": IncludeForeignKey,
+	"\n// Children\n":     IncludeChildren,
+	"\n// Authboss\n\n":   Authboss,
 }
 
 // commonInitialisms, taken from
