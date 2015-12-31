@@ -13,12 +13,14 @@ import (
 	"github.com/raphael/goa/goagen/codegen"
 )
 
-// TitleCase converts a string to Title case.
+const META_NAMESPACE = "github.com/bketelsen/gorma"
+
+// titleCase converts a string to Title case.
 func titleCase(s string) string {
 	return strings.Title(s)
 }
 
-// CamelToSnake converts a given string to snake case.
+// camelToSnake converts a given string to snake case.
 func camelToSnake(s string) string {
 	var result string
 	var words []string
@@ -56,31 +58,51 @@ func camelToSnake(s string) string {
 	return result
 }
 
-// ModelDir is the path to the directory where the schema controller is generated.
+// modelDir is the path to the directory where the schema controller is generated.
 func modelDir() string {
 	return filepath.Join(codegen.OutputDir, "models")
 }
 
-// DeModel remove the word "Model" from the string.
+// deModel removes the word "Model" from the string.
 func deModel(s string) string {
 	return strings.Replace(s, "Model", "", -1)
 }
 
-// Lower returns the string in lowercase.
+// lower returns the string in lowercase.
 func lower(s string) string {
 	return strings.ToLower(s)
 }
 
-// Upper returns the string in upper case.
+// upper returns the string in upper case.
 func upper(s string) string {
 	return strings.ToUpper(s)
 }
 
-// StorageDefinition creates the storage interface that will be used
+// metaLookup is a helper function to lookup gorma-namespaced metadata keys in a
+// case-insensitive way.
+func metaLookup(md design.MetadataDefinition, hashtag string) (result string, ok bool) {
+	needle := strings.ToLower(META_NAMESPACE + hashtag)
+	for k, v := range md {
+		k = strings.ToLower(k)
+		if k == needle {
+			return v, true
+		}
+	}
+
+	return
+}
+
+// metaLookupTmpl is a helpful wrapper around metaLookup for use in templates.
+func metaLookupTmpl(md design.MetadataDefinition, hashtag string) string {
+	result, _ := metaLookup(md, hashtag)
+	return result
+}
+
+// StorageDef creates the storage interface that will be used
 // in place of a concrete type for testability.
 func StorageDef(res *design.UserTypeDefinition) string {
 	var associations string
-	if assoc, ok := res.Metadata["github.com/bketelsen/gorma#many2many"]; ok {
+	if assoc, ok := metaLookup(res.Metadata, "#many2many"); ok {
 		children := strings.Split(assoc, ",")
 
 		for _, child := range children {
@@ -93,11 +115,11 @@ func StorageDef(res *design.UserTypeDefinition) string {
 	return associations
 }
 
-// IncludeForeignKey adds foreign key relations to the struct being
+// includeForeignKey adds foreign key relations to the struct being
 // generated.
 func includeForeignKey(res *design.AttributeDefinition) string {
 	var associations string
-	if assoc, ok := res.Metadata["github.com/bketelsen/gorma#belongsto"]; ok {
+	if assoc, ok := metaLookup(res.Metadata, "#belongsto"); ok {
 		children := strings.Split(assoc, ",")
 
 		for _, child := range children {
@@ -108,23 +130,23 @@ func includeForeignKey(res *design.AttributeDefinition) string {
 	return associations
 }
 
-// Plural returns the plural version of a word.
+// plural returns the plural version of a word.
 func plural(s string) string {
 	return inflection.Plural(s)
 }
 
-// IncludeChildren adds the fields to a struct represented
+// includeChildren adds the fields to a struct represented
 // in a has-many relationship.
 func includeChildren(res *design.AttributeDefinition) string {
 	var associations string
-	if assoc, ok := res.Metadata["github.com/bketelsen/gorma#hasmany"]; ok {
+	if assoc, ok := metaLookup(res.Metadata, "#hasmany"); ok {
 		children := strings.Split(assoc, ",")
 
 		for _, child := range children {
 			associations = associations + inflection.Plural(child) + " []" + child + "\n"
 		}
 	}
-	if assoc, ok := res.Metadata["github.com/bketelsen/gorma#hasone"]; ok {
+	if assoc, ok := metaLookup(res.Metadata, "#hasone"); ok {
 		children := strings.Split(assoc, ",")
 		for _, child := range children {
 			associations = associations + child + " " + child + "\n"
@@ -134,11 +156,11 @@ func includeChildren(res *design.AttributeDefinition) string {
 	return associations
 }
 
-// IncludeMany2Many returns the appropriate struct tags
+// includeMany2Many returns the appropriate struct tags
 // for a m2m relationship in gorm.
 func includeMany2Many(res *design.AttributeDefinition) string {
 	var associations string
-	if assoc, ok := res.Metadata["github.com/bketelsen/gorma#many2many"]; ok {
+	if assoc, ok := metaLookup(res.Metadata, "#many2many"); ok {
 		children := strings.Split(assoc, ",")
 
 		for _, child := range children {
@@ -149,10 +171,10 @@ func includeMany2Many(res *design.AttributeDefinition) string {
 	return associations
 }
 
-// Authboss returns the tags required to implement authboss storage.
+// includeAuthboss returns the tags required to implement authboss storage.
 // Currently experimental and quite unfinished.
 func includeAuthboss(res *design.AttributeDefinition) string {
-	if _, ok := res.Metadata["github.com/bketelsen/gorma#authboss"]; ok {
+	if _, ok := metaLookup(res.Metadata, "#authboss"); ok {
 		fields := `	// Auth
 	Password string
 
@@ -181,15 +203,15 @@ func includeAuthboss(res *design.AttributeDefinition) string {
 	return ""
 }
 
-// Split splits a string by separater `sep`.
+// split splits a string by separater `sep`.
 func split(s string, sep string) []string {
 	return strings.Split(s, sep)
 }
 
-// TimeStamps returns the timestamp fields if "skipts" isn't set.
+// includeTimeStamps returns the timestamp fields if "skipts" isn't set.
 func includeTimeStamps(res *design.AttributeDefinition) string {
 	var ts string
-	if _, ok := res.Metadata["github.com/bketelsen/gorma#skipts"]; ok {
+	if _, ok := metaLookup(res.Metadata, "#skipts"); ok {
 		ts = ""
 	} else {
 		ts = "CreatedAt time.Time\nUpdatedAt time.Time\nDeletedAt *time.Time\n"
@@ -197,7 +219,7 @@ func includeTimeStamps(res *design.AttributeDefinition) string {
 	return ts
 }
 
-// MakeModelDef is the main function to create a struct definition.
+// ModelDef is the main function to create a struct definition.
 func ModelDef(res *design.UserTypeDefinition) string {
 	var buffer bytes.Buffer
 	def := res.Definition()
@@ -224,10 +246,10 @@ func ModelDef(res *design.UserTypeDefinition) string {
 			if !def.IsRequired(name) {
 				omit = ",omitempty"
 			}
-			if val, ok := actual[name].Metadata["github.com/bketelsen/gorma#gormtag"]; ok {
+			if val, ok := metaLookup(actual[name].Metadata, "#gormtag"); ok {
 				gorm = fmt.Sprintf(" gorm:\"%s\"", val)
 			}
-			if val, ok := actual[name].Metadata["github.com/bketelsen/gorma#sqltag"]; ok {
+			if val, ok := metaLookup(actual[name].Metadata, "#sqltag"); ok {
 				sql = fmt.Sprintf(" sql:\"%s\"", val)
 			}
 			tags = fmt.Sprintf(" `json:\"%s%s\"%s%s`", name, omit, gorm, sql)
@@ -278,15 +300,15 @@ func setupIDAttribute(obj design.Object, res *design.UserTypeDefinition) design.
 	}
 
 	var gorm string
-	if val, ok := res.Metadata["github.com/bketelsen/gorma#gormpktag"]; ok {
+	if val, ok := metaLookup(res.Metadata, "#gormpktag"); ok {
 		gorm = val
 	} else {
 		gorm = "primary_key"
 	}
 
 	// If the user already defined gormtag, leave it alone.
-	if _, ok := obj["id"].Metadata["github.com/bketelsen/gorma#gormtag"]; !ok {
-		obj["id"].Metadata["github.com/bketelsen/gorma#gormtag"] = gorm
+	if _, ok := metaLookup(obj["id"].Metadata, "#gormtag"); !ok {
+		obj["id"].Metadata[META_NAMESPACE+"#gormtag"] = gorm
 	}
 
 	return obj
@@ -319,7 +341,7 @@ func startsWithInitialism(s string) string {
 	return initialism
 }
 
-// genfuncs is a map of comments and functions that will be used by MakeModelDef
+// genfuncs is a map of comments and functions that will be used by ModelDef
 // to conditionally add fields to the model struct.  If the function returns
 // content, the content will be preceded by the the map key, which should be a
 // comment.
