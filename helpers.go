@@ -14,12 +14,12 @@ import (
 )
 
 // TitleCase converts a string to Title case.
-func TitleCase(s string) string {
+func titleCase(s string) string {
 	return strings.Title(s)
 }
 
 // CamelToSnake converts a given string to snake case.
-func CamelToSnake(s string) string {
+func camelToSnake(s string) string {
 	var result string
 	var words []string
 	var lastPos int
@@ -57,28 +57,28 @@ func CamelToSnake(s string) string {
 }
 
 // ModelDir is the path to the directory where the schema controller is generated.
-func ModelDir() string {
+func modelDir() string {
 	return filepath.Join(codegen.OutputDir, "models")
 }
 
 // DeModel remove the word "Model" from the string.
-func DeModel(s string) string {
+func deModel(s string) string {
 	return strings.Replace(s, "Model", "", -1)
 }
 
 // Lower returns the string in lowercase.
-func Lower(s string) string {
+func lower(s string) string {
 	return strings.ToLower(s)
 }
 
 // Upper returns the string in upper case.
-func Upper(s string) string {
+func upper(s string) string {
 	return strings.ToUpper(s)
 }
 
 // StorageDefinition creates the storage interface that will be used
 // in place of a concrete type for testability.
-func StorageDefinition(res *design.UserTypeDefinition) string {
+func StorageDef(res *design.UserTypeDefinition) string {
 	var associations string
 	if assoc, ok := res.Metadata["github.com/bketelsen/gorma#many2many"]; ok {
 		children := strings.Split(assoc, ",")
@@ -95,7 +95,7 @@ func StorageDefinition(res *design.UserTypeDefinition) string {
 
 // IncludeForeignKey adds foreign key relations to the struct being
 // generated.
-func IncludeForeignKey(res *design.AttributeDefinition) string {
+func includeForeignKey(res *design.AttributeDefinition) string {
 	var associations string
 	if assoc, ok := res.Metadata["github.com/bketelsen/gorma#belongsto"]; ok {
 		children := strings.Split(assoc, ",")
@@ -109,13 +109,13 @@ func IncludeForeignKey(res *design.AttributeDefinition) string {
 }
 
 // Plural returns the plural version of a word.
-func Plural(s string) string {
+func plural(s string) string {
 	return inflection.Plural(s)
 }
 
 // IncludeChildren adds the fields to a struct represented
 // in a has-many relationship.
-func IncludeChildren(res *design.AttributeDefinition) string {
+func includeChildren(res *design.AttributeDefinition) string {
 	var associations string
 	if assoc, ok := res.Metadata["github.com/bketelsen/gorma#hasmany"]; ok {
 		children := strings.Split(assoc, ",")
@@ -136,7 +136,7 @@ func IncludeChildren(res *design.AttributeDefinition) string {
 
 // IncludeMany2Many returns the appropriate struct tags
 // for a m2m relationship in gorm.
-func IncludeMany2Many(res *design.AttributeDefinition) string {
+func includeMany2Many(res *design.AttributeDefinition) string {
 	var associations string
 	if assoc, ok := res.Metadata["github.com/bketelsen/gorma#many2many"]; ok {
 		children := strings.Split(assoc, ",")
@@ -151,7 +151,7 @@ func IncludeMany2Many(res *design.AttributeDefinition) string {
 
 // Authboss returns the tags required to implement authboss storage.
 // Currently experimental and quite unfinished.
-func Authboss(res *design.AttributeDefinition) string {
+func includeAuthboss(res *design.AttributeDefinition) string {
 	if _, ok := res.Metadata["github.com/bketelsen/gorma#authboss"]; ok {
 		fields := `	// Auth
 	Password string
@@ -182,12 +182,12 @@ func Authboss(res *design.AttributeDefinition) string {
 }
 
 // Split splits a string by separater `sep`.
-func Split(s string, sep string) []string {
+func split(s string, sep string) []string {
 	return strings.Split(s, sep)
 }
 
 // TimeStamps returns the timestamp fields if "skipts" isn't set.
-func TimeStamps(res *design.AttributeDefinition) string {
+func includeTimeStamps(res *design.AttributeDefinition) string {
 	var ts string
 	if _, ok := res.Metadata["github.com/bketelsen/gorma#skipts"]; ok {
 		ts = ""
@@ -198,7 +198,7 @@ func TimeStamps(res *design.AttributeDefinition) string {
 }
 
 // MakeModelDef is the main function to create a struct definition.
-func MakeModelDef(res *design.UserTypeDefinition) string {
+func ModelDef(res *design.UserTypeDefinition) string {
 	var buffer bytes.Buffer
 	def := res.Definition()
 	t := def.Type
@@ -324,11 +324,11 @@ func startsWithInitialism(s string) string {
 // content, the content will be preceded by the the map key, which should be a
 // comment.
 var genfuncs = map[string]func(*design.AttributeDefinition) string{
-	"\n// Timestamps\n":   TimeStamps,
-	"\n// Many2Many\n":    IncludeMany2Many,
-	"\n// Foreign Keys\n": IncludeForeignKey,
-	"\n// Children\n":     IncludeChildren,
-	"\n// Authboss\n\n":   Authboss,
+	"\n// Timestamps\n":   includeTimeStamps,
+	"\n// Many2Many\n":    includeMany2Many,
+	"\n// Foreign Keys\n": includeForeignKey,
+	"\n// Children\n":     includeChildren,
+	"\n// Authboss\n\n":   includeAuthboss,
 }
 
 // commonInitialisms, taken from

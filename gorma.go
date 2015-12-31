@@ -33,7 +33,7 @@ func NewGenerator() (*Generator, error) {
 // Generate produces the generated model files
 func (g *Generator) Generate(api *design.APIDefinition) ([]string, error) {
 
-	os.MkdirAll(ModelDir(), 0755)
+	os.MkdirAll(modelDir(), 0755)
 	app := kingpin.New("Model generator", "model generator")
 	codegen.RegisterFlags(app)
 	_, err := app.Parse(os.Args[1:])
@@ -76,9 +76,9 @@ func (g *Generator) Generate(api *design.APIDefinition) ([]string, error) {
 	err = api.IterateUserTypes(func(res *design.UserTypeDefinition) error {
 		if res.Type.IsObject() {
 			title := fmt.Sprintf("%s: Models", api.Name)
-			modelname := strings.ToLower(DeModel(res.TypeName))
+			modelname := strings.ToLower(deModel(res.TypeName))
 
-			filename := filepath.Join(ModelDir(), modelname+"_genmodel.go")
+			filename := filepath.Join(modelDir(), modelname+"_genmodel.go")
 			os.Remove(filename)
 			mtw, err := NewModelWriter(filename)
 			if err != nil {
@@ -108,7 +108,7 @@ func (g *Generator) Generate(api *design.APIDefinition) ([]string, error) {
 
 	})
 	if dorbac {
-		rbacfilename := filepath.Join(ModelDir(), "rbac_genmodel.go")
+		rbacfilename := filepath.Join(modelDir(), "rbac_genmodel.go")
 		os.Remove(rbacfilename)
 		rbacw, err := NewRbacWriter(rbacfilename)
 		if err != nil {
