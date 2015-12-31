@@ -28,14 +28,14 @@ func NewModelWriter(filename string) (*ModelWriter, error) {
 	funcMap["typeMarshaler"] = codegen.MediaTypeMarshaler
 	funcMap["recursiveValidate"] = codegen.RecursiveChecker
 	funcMap["tempvar"] = codegen.Tempvar
-	funcMap["demodel"] = DeModel
-	funcMap["modeldef"] = MakeModelDef
-	funcMap["snake"] = CamelToSnake
-	funcMap["split"] = Split
-	funcMap["storagedef"] = StorageDefinition
-	funcMap["lower"] = Lower
-	funcMap["title"] = TitleCase
-	funcMap["plural"] = Plural
+	funcMap["demodel"] = deModel
+	funcMap["modeldef"] = ModelDef
+	funcMap["snake"] = camelToSnake
+	funcMap["split"] = split
+	funcMap["storagedef"] = StorageDef
+	funcMap["lower"] = lower
+	funcMap["title"] = titleCase
+	funcMap["plural"] = plural
 
 	modelTmpl, err := template.New("models").Funcs(funcMap).Parse(modelTmpl)
 	if err != nil {
