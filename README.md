@@ -1,16 +1,30 @@
 # gorma
-Gorma is a storage generator for [goa](http://goa.design)
+Gorma is a storage generator for [goa](http://goa.design).
+
+[![GoDoc](https://godoc.org/github.com/bketelsen/gorma?status.svg)](http://godoc.org/github.com/bketelsen/gorma)
+
+## Table of Contents
+
+- [Purpose](#purpose)
+- [Opinionated](#opinionated)
+- [Status](#opinionated)
+- [Use](#use)
+- [Supported Metadata Tags](#tags)
+- [Example](#example)
+
 
 ## Purpose
 Gorma uses metadata in the `goa` DSL to generate a working storage system for your API.
 
+
 ## Opinionated
-Gorma generates Go code that uses [gorm](https://github.com/jinhzu/gorm) to access your database, therefore it is quite opinionated about how the data access layer is generated
+Gorma generates Go code that uses [gorm](https://github.com/jinhzu/gorm) to access your database, therefore it is quite opinionated about how the data access layer is generated.
 
 
 ## Status
 Gorma is a work in progress, but is being used in several applications that are not yet in production.  Use at your own risk.
-Much of the code is in need of cleanup/rewriting/woodshed-beatdown.  
+Much of the code is in need of cleanup/rewriting/woodshed-beatdown.
+
 
 ## Use
 From the root of your application, issue the `goagen` command as follows:
@@ -19,6 +33,131 @@ From the root of your application, issue the `goagen` command as follows:
 	goagen --design=github.com/gopheracademy/congo/design gen --pkg-path=github.com/bketelsen/gorma
 ```
 Be sure to replace `github.com/gopheracademy/congo/design` with the design package of your `goa` application.
+
+
+## Supported Metadata Tags
+The following is a list of [Metadata](https://godoc.org/github.com/raphael/goa/design/dsl#Metadata) tags supported by Gorma.
+Unrecognized tags will be silently ignored.
+
+### Model
+```
+Metadata("github.com/bketelsen/gorma", "Model")
+```
+**Scope:** Model
+
+This tag is required in your model in order for gorma to process it.
+
+### belongsto
+```
+Metadata("github.com/bketelsen/gorma#belongsto", "User")
+```
+**Scope:** Model
+
+This tag denotes that the model "belongs to" a parent, e.g. Proposal "Belongs To" User.
+Multiple `belongsto` relationships can be expressed by including them as comma separated entities.
+
+### dyntablename
+```
+	Metadata("github.com/bketelsen/gorma#dyntablename", "true")
+```
+**Scope:** Model
+
+This tag denotes that the given model requires a dynamic table name causing
+gorma to generate a `tableName` field to relevant function signatures.
+
+### gormpktag
+```
+	Metadata("github.com/bketelsen/gorma#gormpktag", "column:users_id;primary")
+```
+**Scope:** Model
+
+This tag is used in the Model scope to denote `gorm` tags that need to be used for the auto-generated ID field.
+
+### gormtag
+```
+	Metadata("github.com/bketelsen/gorma#gormtag", "column:first_name")
+```
+**Scope:** Attribute
+
+This tag is used in the Attribute scope to denote `gorm` tags that need to be added to the generated struct.
+
+### hasmany
+```
+Metadata("github.com/bketelsen/gorma#hasmany", "Proposal,Review")
+```
+**Scope:** Model
+
+This tag denotes the model as being the parent in a "Has Many" relationship, e.g. User "Has Many" Proposals.
+Multiple `hasmany` relationships can be expressed by including them as comma separated entities.
+
+### hasone
+```
+Metadata("github.com/bketelsen/gorma#hasone", "Address")
+```
+**Scope:** Model
+
+This tag denotes that the model is the parent of a "belongs to" relationship, e.g. User "has one" Address.
+Multiple `hasone` relationships can be expressed by including them as comma separated entities.
+
+### many2many
+```
+Metadata("github.com/bketelsen/gorma#many2many", "PluralModel:SingularModel:join_table_name")
+```
+**Scope:** Model
+
+This tag denotes that the model should have a join table for a relationship.
+The arguments of the metadata create the struct field, the type of the struct field, and the name of the join table.
+When added to a model called "Company", the below example represents a many to
+many relationship between a Company and an Industry which would create a join
+table called `company_industries` and a field in the Company struct called
+`Industries` which is of type `[]Industry`
+
+```
+Metadata("github.com/bketelsen/gorma#many2many", "Industries:Industry:company_industries")
+```
+
+### nomedia
+```
+	Metadata("github.com/bketelsen/gorma#nomedia", "true")
+```
+**Scope:** Model
+
+This tag informs gorma that no corresponding Media Type is defined for the given User Type definition.
+This feature is useful when you want gorma to generate code for models that are not exposed in your API.
+
+### roler
+```
+	Metadata("github.com/bketelsen/gorma#roler", "true")
+```
+**Scope:** Model
+
+This tag adds a GetRole() function to the model, and returns the "Role" field of the model.  To be used with the RBAC tag.
+
+### sqltag
+```
+	Metadata("github.com/bketelsen/gorma#sqltag", "size:255")
+```
+**Scope:** Attribute
+
+This tag is used in the Attribute scope to denote `sql` tags that need to be added to the generated struct.
+
+### tablename
+```
+	Metadata("github.com/bketelsen/gorma#tablename", "example.users")
+```
+**Scope:** Model
+
+This tag denotes that the underlying table name does not match gorm conventions.
+The metadata argument is used as the table name in the generated model.
+
+### skipts
+```
+	Metadata("github.com/bketelsen/gorma#skipts", "true")
+```
+**Scope:** Model
+
+This tag instructs gorma to not generate the CreatedAt, UpdatedAt, and DeletedAt timestamp fields for the model.
+
 
 ## Example
 
@@ -217,56 +356,3 @@ func (m *UserDB) Delete(ctx context.Context, id int) error {
 	return nil
 }
 ```
-
-### Supported Metadata Tags
-The following is a list of tags supported by Gorma.  Unrecognized tags will be silently ignored.
-
-#### "Model"
-```	
-	Metadata("github.com/bketelsen/gorma", "Model")
-```
-This tag is required in your model in order for gorma to process it.
-
-#### "roler"
-
-``` 
-	Metadata("github.com/bketelsen/gorma#roler", "true") 
-```
-This tag adds a GetRole() function to the model, and returns the "Role" field of the model.  To be used with the RBAC tag.
-
-#### "hasmany"
-```
-	Metadata("github.com/bketelsen/gorma#hasmany", "Proposal,Review")
-```
-This tag denotes the model as being the parent in a "Has Many" relationship.  e.g. User "Has Many" Proposals
-Multiple has-many relationships can be expressed by including them as comma separated entities.
-
-#### "belongsto"
-```	
-	Metadata("github.com/bketelsen/gorma#belongsto", "User")
-```
-This tag denotes that the model "belongs to" a parent.  e.g. Proposal "Belongs To" User
-Multiple belongs-to relationships can be expressed by including them as comma separated entities.
-
-#### "hasone"
-```	
-	Metadata("github.com/bketelsen/gorma#hasone", "Address")
-```
-This tag denotes that the model is the parent of a "belongs to" relationship.e  e.g. User "has one" Address
-Multiple has-one relationships can be expressed by including them as comma separated entities.
-
-#### "many2many"
-```	
-	Metadata("github.com/bketelsen/gorma#many2many", "PluralModel:SingularModel:join_table_name")
-```
-This tag denotes that the model should have a join table for a relationship.  The arguments of the
-metadata create the struct field, the type of the struct field, and the name of the join table.  When added to a model called "Company", the below example  
-represents a many to many relationship between a Company and an Industry which would create a join table called
-`company_industries`  and a field in the Company struct called `Industries` which is of type `[]Industry`
-
-```Metadata("github.com/bketelsen/gorma#many2many", "Industries:Industry:company_industries")``` 
-	
-
-
-
-
