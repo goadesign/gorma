@@ -13,12 +13,12 @@ import (
 	"github.com/raphael/goa/goagen/codegen"
 )
 
-// TitleCase converts a string to Title case
+// TitleCase converts a string to Title case.
 func TitleCase(s string) string {
 	return strings.Title(s)
 }
 
-// CamelToSnake converts a given string to snake case
+// CamelToSnake converts a given string to snake case.
 func CamelToSnake(s string) string {
 	var result string
 	var words []string
@@ -61,23 +61,23 @@ func ModelDir() string {
 	return filepath.Join(codegen.OutputDir, "models")
 }
 
-// DeModel remove the word "Model" from the string
+// DeModel remove the word "Model" from the string.
 func DeModel(s string) string {
 	return strings.Replace(s, "Model", "", -1)
 }
 
-// Lower returns the string in lowercase
+// Lower returns the string in lowercase.
 func Lower(s string) string {
 	return strings.ToLower(s)
 }
 
-// Upper returns the string in upper case
+// Upper returns the string in upper case.
 func Upper(s string) string {
 	return strings.ToUpper(s)
 }
 
 // StorageDefinition creates the storage interface that will be used
-// in place of a concrete type for testability
+// in place of a concrete type for testability.
 func StorageDefinition(res *design.UserTypeDefinition) string {
 	var associations string
 	if assoc, ok := res.Metadata["github.com/bketelsen/gorma#many2many"]; ok {
@@ -94,7 +94,7 @@ func StorageDefinition(res *design.UserTypeDefinition) string {
 }
 
 // IncludeForeignKey adds foreign key relations to the struct being
-// generated
+// generated.
 func IncludeForeignKey(res *design.AttributeDefinition) string {
 	var associations string
 	if assoc, ok := res.Metadata["github.com/bketelsen/gorma#belongsto"]; ok {
@@ -108,13 +108,13 @@ func IncludeForeignKey(res *design.AttributeDefinition) string {
 	return associations
 }
 
-// Plural returns the plural version of a word
+// Plural returns the plural version of a word.
 func Plural(s string) string {
 	return inflection.Plural(s)
 }
 
 // IncludeChildren adds the fields to a struct represented
-// in a has-many relationship
+// in a has-many relationship.
 func IncludeChildren(res *design.AttributeDefinition) string {
 	var associations string
 	if assoc, ok := res.Metadata["github.com/bketelsen/gorma#hasmany"]; ok {
@@ -135,7 +135,7 @@ func IncludeChildren(res *design.AttributeDefinition) string {
 }
 
 // IncludeMany2Many returns the appropriate struct tags
-// for a m2m relationship in gorm
+// for a m2m relationship in gorm.
 func IncludeMany2Many(res *design.AttributeDefinition) string {
 	var associations string
 	if assoc, ok := res.Metadata["github.com/bketelsen/gorma#many2many"]; ok {
@@ -149,8 +149,8 @@ func IncludeMany2Many(res *design.AttributeDefinition) string {
 	return associations
 }
 
-// Authboss returns the tags required to implement authboss storage
-// currently experimental and quite unfinished
+// Authboss returns the tags required to implement authboss storage.
+// Currently experimental and quite unfinished.
 func Authboss(res *design.AttributeDefinition) string {
 	if _, ok := res.Metadata["github.com/bketelsen/gorma#authboss"]; ok {
 		fields := `	// Auth
@@ -181,12 +181,12 @@ func Authboss(res *design.AttributeDefinition) string {
 	return ""
 }
 
-// Split splits a string by separater `sep`
+// Split splits a string by separater `sep`.
 func Split(s string, sep string) []string {
 	return strings.Split(s, sep)
 }
 
-// Timestamps returns the timestamp fields if "skipts" isn't set
+// TimeStamps returns the timestamp fields if "skipts" isn't set.
 func TimeStamps(res *design.AttributeDefinition) string {
 	var ts string
 	if _, ok := res.Metadata["github.com/bketelsen/gorma#skipts"]; ok {
@@ -197,7 +197,7 @@ func TimeStamps(res *design.AttributeDefinition) string {
 	return ts
 }
 
-// MakeModelDef is the main function to create a struct definition
+// MakeModelDef is the main function to create a struct definition.
 func MakeModelDef(res *design.UserTypeDefinition) string {
 	var buffer bytes.Buffer
 	def := res.Definition()
@@ -264,6 +264,19 @@ func setupIDAttribute(obj design.Object, res *design.UserTypeDefinition) design.
 		}
 	}
 
+	if foundID {
+		// enforce lowercase key
+		if idName != "id" {
+			obj["id"] = obj[idName]
+			delete(obj, idName)
+		}
+	} else {
+		obj["id"] = &design.AttributeDefinition{
+			Type:     design.Integer,
+			Metadata: design.MetadataDefinition{},
+		}
+	}
+
 	var gorm string
 	if val, ok := res.Metadata["github.com/bketelsen/gorma#gormpktag"]; ok {
 		gorm = val
@@ -271,31 +284,25 @@ func setupIDAttribute(obj design.Object, res *design.UserTypeDefinition) design.
 		gorm = "primary_key"
 	}
 
-	if foundID {
-		// If the user already defined gormtag, leave it alone.
-		if _, ok := obj[idName].Metadata["github.com/bketelsen/gorma#gormtag"]; !ok {
-			obj[idName].Metadata["github.com/bketelsen/gorma#gormtag"] = gorm
-		}
-	} else {
-		obj["ID"] = &design.AttributeDefinition{
-			Type:     design.Integer,
-			Metadata: design.MetadataDefinition{"github.com/bketelsen/gorma#gormtag": gorm},
-		}
+	// If the user already defined gormtag, leave it alone.
+	if _, ok := obj["id"].Metadata["github.com/bketelsen/gorma#gormtag"]; !ok {
+		obj["id"].Metadata["github.com/bketelsen/gorma#gormtag"] = gorm
 	}
 
 	return obj
 }
 
-// Is c an ASCII lower-case letter?
+// isASCIILower returns whether c is an ASCII lower-case letter.
 func isASCIILower(c byte) bool {
 	return 'a' <= c && c <= 'z'
 }
 
-// Is c an ASCII digit?
+// isASCIIDigit returns whether c is an ASCII digit.
 func isASCIIDigit(c byte) bool {
 	return '0' <= c && c <= '9'
 }
 
+// unexport lowercases the first character of a string.
 func unexport(s string) string {
 	return strings.ToLower(s[0:1]) + s[1:]
 }
@@ -312,6 +319,10 @@ func startsWithInitialism(s string) string {
 	return initialism
 }
 
+// genfuncs is a map of comments and functions that will be used by MakeModelDef
+// to conditionally add fields to the model struct.  If the function returns
+// content, the content will be preceded by the the map key, which should be a
+// comment.
 var genfuncs = map[string]func(*design.AttributeDefinition) string{
 	"\n// Timestamps\n":   TimeStamps,
 	"\n// Many2Many\n":    IncludeMany2Many,
