@@ -45,7 +45,7 @@ func (m {{$typeName}}) GetRole() string {
 {{ $dyntablename := metaLookup .Metadata "#dyntablename" }}
 
 type {{$typeName}}Storage interface {
-	DB() *gorm.DB
+	DB() interface{}
 	List(ctx context.Context{{ if ne $dyntablename "" }}, tableName string{{ end }}) []{{$typeName}}
 	One(ctx context.Context{{ if ne $dyntablename "" }}, tableName string{{ end }}, id int) ({{$typeName}}, error)
 	Add(ctx context.Context{{ if ne $dyntablename "" }}, tableName string{{ end }}, o {{$typeName}}) ({{$typeName}}, error)
@@ -110,7 +110,7 @@ func New{{$typeName}}DB(db gorm.DB) *{{$typeName}}DB {
 	{{ end  }}
 }
 
-func (m *{{$typeName}}DB) DB() *gorm.DB {
+func (m *{{$typeName}}DB) DB() interface{} {
 	return &m.db
 }
 
