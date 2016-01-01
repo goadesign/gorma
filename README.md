@@ -47,52 +47,52 @@ Metadata("github.com/bketelsen/gorma", "Model")
 
 This tag is required in your model in order for gorma to process it.
 
-### belongsto
+### belongsTo
 ```
-Metadata("github.com/bketelsen/gorma#belongsto", "User")
+Metadata("github.com/bketelsen/gorma#belongsTo", "User")
 ```
 **Scope:** Model
 
 This tag denotes that the model "belongs to" a parent, e.g. Proposal "Belongs To" User.
 Multiple `belongsto` relationships can be expressed by including them as comma separated entities.
 
-### dyntablename
+### dynTableName
 ```
-	Metadata("github.com/bketelsen/gorma#dyntablename", "true")
+	Metadata("github.com/bketelsen/gorma#dynTableName", "true")
 ```
 **Scope:** Model
 
 This tag denotes that the given model requires a dynamic table name causing
 gorma to generate a `tableName` field to relevant function signatures.
 
-### gormpktag
+### gormPKTag
 ```
-	Metadata("github.com/bketelsen/gorma#gormpktag", "column:users_id;primary")
+	Metadata("github.com/bketelsen/gorma#gormPKTag", "column:users_id;primary")
 ```
 **Scope:** Model
 
 This tag is used in the Model scope to denote `gorm` tags that need to be used for the auto-generated ID field.
 
-### gormtag
+### gormTag
 ```
-	Metadata("github.com/bketelsen/gorma#gormtag", "column:first_name")
+	Metadata("github.com/bketelsen/gorma#gormTag", "column:first_name")
 ```
 **Scope:** Attribute
 
 This tag is used in the Attribute scope to denote `gorm` tags that need to be added to the generated struct.
 
-### hasmany
+### hasMany
 ```
-Metadata("github.com/bketelsen/gorma#hasmany", "Proposal,Review")
+Metadata("github.com/bketelsen/gorma#hasMany", "Proposal,Review")
 ```
 **Scope:** Model
 
 This tag denotes the model as being the parent in a "Has Many" relationship, e.g. User "Has Many" Proposals.
 Multiple `hasmany` relationships can be expressed by including them as comma separated entities.
 
-### hasone
+### hasOne
 ```
-Metadata("github.com/bketelsen/gorma#hasone", "Address")
+Metadata("github.com/bketelsen/gorma#hasOne", "Address")
 ```
 **Scope:** Model
 
@@ -116,9 +116,9 @@ table called `company_industries` and a field in the Company struct called
 Metadata("github.com/bketelsen/gorma#many2many", "Industries:Industry:company_industries")
 ```
 
-### nomedia
+### noMedia
 ```
-	Metadata("github.com/bketelsen/gorma#nomedia", "true")
+	Metadata("github.com/bketelsen/gorma#noMedia", "true")
 ```
 **Scope:** Model
 
@@ -132,27 +132,28 @@ This feature is useful when you want gorma to generate code for models that are 
 **Scope:** Model
 
 This tag adds a GetRole() function to the model, and returns the "Role" field of the model.  To be used with the RBAC tag.
+Requires [github.com/mikespook/gorbac](https://github.com/mikespook/gorbac).
 
-### sqltag
+### sqlTag
 ```
-	Metadata("github.com/bketelsen/gorma#sqltag", "size:255")
+	Metadata("github.com/bketelsen/gorma#sqlTag", "size:255")
 ```
 **Scope:** Attribute
 
 This tag is used in the Attribute scope to denote `sql` tags that need to be added to the generated struct.
 
-### tablename
+### tableName
 ```
-	Metadata("github.com/bketelsen/gorma#tablename", "example.users")
+	Metadata("github.com/bketelsen/gorma#tableName", "example.users")
 ```
 **Scope:** Model
 
 This tag denotes that the underlying table name does not match gorm conventions.
 The metadata argument is used as the table name in the generated model.
 
-### skipts
+### skipTS
 ```
-	Metadata("github.com/bketelsen/gorma#skipts", "true")
+	Metadata("github.com/bketelsen/gorma#skipTS", "true")
 ```
 **Scope:** Model
 

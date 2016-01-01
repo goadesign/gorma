@@ -36,6 +36,7 @@ func NewModelWriter(filename string) (*ModelWriter, error) {
 	funcMap["lower"] = lower
 	funcMap["title"] = titleCase
 	funcMap["plural"] = plural
+	funcMap["metaLookup"] = metaLookupTmpl
 
 	modelTmpl, err := template.New("models").Funcs(funcMap).Parse(modelTmpl)
 	if err != nil {

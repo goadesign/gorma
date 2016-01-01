@@ -3,9 +3,9 @@ package gorma
 const modelTmpl = `// {{if .Description}}{{.Description}}{{else}}app.{{gotypename . 0}} storage type{{end}}
 // Identifier: {{ $typeName :=  gotypename . 0}}{{$typeName := demodel $typeName}}
 type {{$typeName}} {{ modeldef . }}
-{{ $belongsto := index .Metadata "github.com/bketelsen/gorma#belongsto" }}
-{{ $m2m := index .Metadata "github.com/bketelsen/gorma#many2many" }}
-{{ $nomedia := index .Metadata "github.com/bketelsen/gorma#nomedia" }}
+{{ $belongsto := metaLookup .Metadata "#belongsto" }}
+{{ $m2m := metaLookup .Metadata "#many2many" }}
+{{ $nomedia := metaLookup .Metadata "#nomedia" }}
 {{ if eq $nomedia "" }}
 func {{$typeName}}FromCreatePayload(ctx *app.Create{{demodel $typeName}}Context) {{$typeName}} {
 	payload := ctx.Payload
@@ -29,20 +29,20 @@ func (m {{$typeName}}) ToApp() *app.{{demodel $typeName}} {
 	return &target
 }
 {{ end }}
-{{ $tablename := index .Metadata "github.com/bketelsen/gorma#tablename" }}
+{{ $tablename := metaLookup .Metadata "#tablename" }}
 {{ if ne $tablename "" }}
 func (m {{$typeName}}) TableName() string {
 	return "{{ $tablename }}"
 }
 {{ end }}
-{{ $roler := index .Metadata "github.com/bketelsen/gorma#roler" }}
+{{ $roler := metaLookup .Metadata "#roler" }}
 {{ if ne $roler "" }}
 func (m {{$typeName}}) GetRole() string {
 	return m.Role
 }
 {{end}}
 
-{{ $dyntablename := index .Metadata "github.com/bketelsen/gorma#dyntablename" }}
+{{ $dyntablename := metaLookup .Metadata "#dyntablename" }}
 
 type {{$typeName}}Storage interface {
 	List(ctx context.Context{{ if ne $dyntablename "" }}, tableName string{{ end }}) []{{$typeName}}
@@ -56,7 +56,7 @@ type {{$typeName}}Storage interface {
 {{end}}{{end}}
 	{{ storagedef . }}
 }
-{{ $cached := index .Metadata "github.com/bketelsen/gorma#cached" }}
+{{ $cached := metaLookup .Metadata "#cached" }}
 type {{$typeName}}DB struct {
 	DB gorm.DB
 	{{ if ne $cached "" }}cache *cache.Cache{{end}}

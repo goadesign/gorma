@@ -61,8 +61,8 @@ func (g *Generator) Generate(api *design.APIDefinition) ([]string, error) {
 	}
 
 	rbactitle := fmt.Sprintf("%s: RBAC", api.Name)
-	_, dorbac := api.Metadata["github.com/bketelsen/gorma#rbac"]
-	_, cached := api.Metadata["github.com/bketelsen/gorma#cached"]
+	_, dorbac := metaLookup(api.Metadata, "#rbac")
+	_, cached := metaLookup(api.Metadata, "#cached")
 	if cached {
 		imports = []*codegen.ImportSpec{
 			codegen.SimpleImport(appPkg),
@@ -85,7 +85,7 @@ func (g *Generator) Generate(api *design.APIDefinition) ([]string, error) {
 				panic(err)
 			}
 			mtw.WriteHeader(title, "models", imports)
-			if md, ok := res.Metadata["github.com/bketelsen/gorma"]; ok && md == "Model" {
+			if md, ok := metaLookup(res.Metadata, ""); ok && md == "Model" {
 				err = mtw.Execute(res)
 				if err != nil {
 					fmt.Println("Error executing Gorma: ", err.Error())
