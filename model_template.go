@@ -45,6 +45,7 @@ func (m {{$typeName}}) GetRole() string {
 {{ $dyntablename := metaLookup .Metadata "#dyntablename" }}
 
 type {{$typeName}}Storage interface {
+	DB() interface{}
 	List(ctx context.Context{{ if ne $dyntablename "" }}, tableName string{{ end }}) []{{$typeName}}
 	One(ctx context.Context{{ if ne $dyntablename "" }}, tableName string{{ end }}, id int) ({{$typeName}}, error)
 	Add(ctx context.Context{{ if ne $dyntablename "" }}, tableName string{{ end }}, o {{$typeName}}) ({{$typeName}}, error)
@@ -58,7 +59,7 @@ type {{$typeName}}Storage interface {
 }
 {{ $cached := metaLookup .Metadata "#cached" }}
 type {{$typeName}}DB struct {
-	DB gorm.DB
+	db gorm.DB
 	{{ if ne $cached "" }}cache *cache.Cache{{end}}
 }
 {{ if ne $belongsto "" }}{{$barray := split $belongsto ","}}{{ range $idx, $bt := $barray}}
@@ -78,7 +79,7 @@ func {{$typeName}}FilterBy{{$bt}}(parentid int, originaldb *gorm.DB) func(db *go
 func (m *{{$typeName}}DB) ListBy{{$bt}}(ctx context.Context{{ if ne $dyntablename "" }}, tableName string{{ end }}, parentid int) []{{$typeName}} {
 
 	var objs []{{$typeName}}
-	m.DB{{ if ne $dyntablename "" }}.Table(tableName){{ end }}.Scopes({{$typeName}}FilterBy{{$bt}}(parentid, &m.DB)).Find(&objs)
+	m.db{{ if ne $dyntablename "" }}.Table(tableName){{ end }}.Scopes({{$typeName}}FilterBy{{$bt}}(parentid, &m.db)).Find(&objs)
 	return objs
 }
 
@@ -91,7 +92,7 @@ func (m *{{$typeName}}DB) OneBy{{$bt}}(ctx context.Context{{ if ne $dyntablename
 	// fallback to database if not found{{ end }}
 	var obj {{$typeName}}
 
-	err := m.DB{{ if ne $dyntablename "" }}.Table(tableName){{ end }}.Scopes({{$typeName}}FilterBy{{$bt}}(parentid, &m.DB)).Find(&obj, id).Error
+	err := m.db{{ if ne $dyntablename "" }}.Table(tableName){{ end }}.Scopes({{$typeName}}FilterBy{{$bt}}(parentid, &m.db)).Find(&obj, id).Error
 	{{ if ne $cached "" }} go m.cache.Set(strconv.Itoa(id), obj, cache.DefaultExpiration) {{ end }}
 	return obj, err
 }
@@ -100,19 +101,23 @@ func (m *{{$typeName}}DB) OneBy{{$bt}}(ctx context.Context{{ if ne $dyntablename
 func New{{$typeName}}DB(db gorm.DB) *{{$typeName}}DB {
 	{{ if ne $cached "" }}
 	return &{{$typeName}}DB{
-		DB: db,
+		db: db,
 		cache: cache.New(5*time.Minute, 30*time.Second),
 	}
 	{{ else  }}
-	return &{{$typeName}}DB{DB: db}
+	return &{{$typeName}}DB{db: db}
 
 	{{ end  }}
+}
+
+func (m *{{$typeName}}DB) DB() interface{} {
+	return &m.db
 }
 
 func (m *{{$typeName}}DB) List(ctx context.Context{{ if ne $dyntablename "" }}, tableName string{{ end }}) []{{$typeName}} {
 
 	var objs []{{$typeName}}
-	m.DB{{ if ne $dyntablename "" }}.Table(tableName){{ end }}.Find(&objs)
+	m.db{{ if ne $dyntablename "" }}.Table(tableName){{ end }}.Find(&objs)
 	return objs
 }
 
@@ -125,13 +130,13 @@ func (m *{{$typeName}}DB) One(ctx context.Context{{ if ne $dyntablename "" }}, t
 	// fallback to database if not found{{ end }}
 	var obj {{$typeName}}
 
-	err := m.DB{{ if ne $dyntablename "" }}.Table(tableName){{ end }}.Find(&obj, id).Error
+	err := m.db{{ if ne $dyntablename "" }}.Table(tableName){{ end }}.Find(&obj, id).Error
 	{{ if ne $cached "" }} go m.cache.Set(strconv.Itoa(id), obj, cache.DefaultExpiration) {{ end }}
 	return obj, err
 }
 
 func (m *{{$typeName}}DB) Add(ctx context.Context{{ if ne $dyntablename "" }}, tableName string{{ end }}, model {{$typeName}}) ({{$typeName}}, error) {
-	err := m.DB{{ if ne $dyntablename "" }}.Table(tableName){{ end }}.Create(&model).Error
+	err := m.db{{ if ne $dyntablename "" }}.Table(tableName){{ end }}.Create(&model).Error
 	{{ if ne $cached "" }} go m.cache.Set(strconv.Itoa(model.ID), model, cache.DefaultExpiration) {{ end }}
 	return model, err
 }
@@ -141,7 +146,7 @@ func (m *{{$typeName}}DB) Update(ctx context.Context{{ if ne $dyntablename "" }}
 	if err != nil {
 		return  err
 	}
-	err = m.DB{{ if ne $dyntablename "" }}.Table(tableName){{ end }}.Model(&obj).Updates(model).Error
+	err = m.db{{ if ne $dyntablename "" }}.Table(tableName){{ end }}.Model(&obj).Updates(model).Error
 	{{ if ne $cached "" }}
 	go func(){
 	obj, err := m.One(ctx, model.ID)
@@ -156,7 +161,7 @@ func (m *{{$typeName}}DB) Update(ctx context.Context{{ if ne $dyntablename "" }}
 
 func (m *{{$typeName}}DB) Delete(ctx context.Context{{ if ne $dyntablename "" }}, tableName string{{ end }}, id int)  error {
 	var obj {{$typeName}}
-	err := m.DB{{ if ne $dyntablename "" }}.Table(tableName){{ end }}.Delete(&obj, id).Error
+	err := m.db{{ if ne $dyntablename "" }}.Table(tableName){{ end }}.Delete(&obj, id).Error
 	if err != nil {
 		return  err
 	}
@@ -175,7 +180,7 @@ func (m *{{$typeName}}DB) Delete{{index $pieces 1}}(ctx context.Context{{ if ne 
 	if err != nil {
 		return err
 	}
-	err = m.DB{{ if ne $dyntablename "" }}.Table(tableName){{ end }}.Model(&obj).Association("{{index $pieces 0}}").Delete(assoc).Error
+	err = m.db{{ if ne $dyntablename "" }}.Table(tableName){{ end }}.Model(&obj).Association("{{index $pieces 0}}").Delete(assoc).Error
 	if err != nil {
 		return  err
 	}
@@ -186,7 +191,7 @@ func (m *{{$typeName}}DB) Add{{index $pieces 1}}(ctx context.Context{{ if ne $dy
 	{{lower $typeName}}.ID = {{lower $typeName}}ID
 	var assoc {{index $pieces 1}}
 	assoc.ID = {{$lower}}ID
-	err := m.DB{{ if ne $dyntablename "" }}.Table(tableName){{ end }}.Model(&{{lower $typeName}}).Association("{{index $pieces 0}}").Append(assoc).Error
+	err := m.db{{ if ne $dyntablename "" }}.Table(tableName){{ end }}.Model(&{{lower $typeName}}).Association("{{index $pieces 0}}").Append(assoc).Error
 	if err != nil {
 		return  err
 	}
@@ -196,7 +201,7 @@ func (m *{{$typeName}}DB) List{{index $pieces 0}}(ctx context.Context{{ if ne $d
 	list := make([]{{index $pieces 1}}, 0)
 	var obj {{$typeName}}
 	obj.ID = {{lower $typeName}}ID
-	m.DB{{ if ne $dyntablename "" }}.Table(tableName){{ end }}.Model(&obj).Association("{{index $pieces 0}}").Find(&list)
+	m.db{{ if ne $dyntablename "" }}.Table(tableName){{ end }}.Model(&obj).Association("{{index $pieces 0}}").Find(&list)
 	return  nil
 }
 {{end}}{{end}}
