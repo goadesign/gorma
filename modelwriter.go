@@ -30,6 +30,7 @@ func NewModelWriter(filename string) (*ModelWriter, error) {
 	funcMap["tempvar"] = codegen.Tempvar
 	funcMap["demodel"] = DeModel
 	funcMap["modeldef"] = MakeModelDef
+	funcMap["columns"] = GetAttributeColumns
 	funcMap["snake"] = CamelToSnake
 	funcMap["split"] = Split
 	funcMap["storagedef"] = StorageDefinition

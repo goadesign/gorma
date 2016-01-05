@@ -18,6 +18,27 @@ func TitleCase(s string) string {
 	return strings.Title(s)
 }
 
+type Field struct {
+	Column  string
+	Coltype string
+}
+
+func GetAttributeColumns(att *design.AttributeDefinition) []Field {
+	var columns []Field
+	if o := att.Type.ToObject(); o != nil {
+		o.IterateAttributes(func(n string, catt *design.AttributeDefinition) error {
+			f := Field{
+				Column:  n,
+				Coltype: codegen.GoNativeType(catt.Type),
+			}
+			columns = append(columns, f)
+			return nil
+		})
+	}
+
+	return columns
+}
+
 // CamelToSnake converts a given string to snake case
 func CamelToSnake(s string) string {
 	var result string

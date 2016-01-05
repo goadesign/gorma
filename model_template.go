@@ -116,6 +116,23 @@ func (m *{{$typeName}}DB) List(ctx context.Context{{ if ne $dyntablename "" }}, 
 	return objs
 }
 
+
+{{ range $idx, $col := columns .AttributeDefinition }} 
+func (m *{{$typeName}}DB) ListBy{{title $col.Column}}Equal(ctx context.Context, {{lower $col.Column}} {{$col.Coltype}}, {{ if ne $dyntablename "" }}, tableName string{{ end }}) []{{$typeName}} {
+
+	var objs []{{$typeName}}
+	m.DB.Where("{{lower $col.Column}} = ?",  {{lower $col.Column}}){{ if ne $dyntablename "" }}.Table(tableName){{ end }}.Find(&objs)
+	return objs
+}
+func (m *{{$typeName}}DB) ListBy{{title $col.Column}}Like(ctx context.Context, {{lower $col.Column}} {{$col.Coltype}}, {{ if ne $dyntablename "" }}, tableName string{{ end }}) []{{$typeName}} {
+
+	var objs []{{$typeName}}
+	m.DB.Where("{{lower $col.Column}} like ?",  {{lower $col.Column}}){{ if ne $dyntablename "" }}.Table(tableName){{ end }}.Find(&objs)
+	return objs
+}
+{{ end  }}
+
+
 func (m *{{$typeName}}DB) One(ctx context.Context{{ if ne $dyntablename "" }}, tableName string{{ end }}, id int) ({{$typeName}}, error) {
 	{{ if ne $cached "" }}//first attempt to retrieve from cache
 	o,found := m.cache.Get(strconv.Itoa(id))
@@ -153,6 +170,7 @@ func (m *{{$typeName}}DB) Update(ctx context.Context{{ if ne $dyntablename "" }}
 
 	return err
 }
+
 
 func (m *{{$typeName}}DB) Delete(ctx context.Context{{ if ne $dyntablename "" }}, tableName string{{ end }}, id int)  error {
 	var obj {{$typeName}}
