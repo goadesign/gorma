@@ -1,6 +1,7 @@
 package gorma
 
 import (
+	"strings"
 	"text/template"
 
 	"github.com/raphael/goa/design"
@@ -13,7 +14,10 @@ type ModelWriter struct {
 	*codegen.GoGenerator
 	ModelTmpl *template.Template
 }
-
+type Field struct {
+	Column  string
+	Coltype string
+}
 type BelongsTo struct {
 	Parent        string
 	DatabaseField string
@@ -24,18 +28,76 @@ type Many2Many struct {
 	TableName      string
 }
 type ModelData struct {
-	TypeDef           *design.UserTypeDefinition
-	TypeName          string
-	ModelUpper        string
-	ModelLower        string
-	NoModel           string
-	BelongsTo         []BelongsTo
-	M2M               []Many2Many
-	CustomTableName   string
-	DoMedia           bool
-	DoRoler           bool
-	DoCustomTableName bool
-	DoCache           bool
+	TypeDef            *design.UserTypeDefinition
+	TypeName           string
+	ModelUpper         string
+	ModelLower         string
+	BelongsTo          []BelongsTo
+	M2M                []Many2Many
+	CustomTableName    string
+	DynamicTableName   bool
+	DoMedia            bool
+	DoRoler            bool
+	DoCustomTableName  bool
+	DoDynamicTableName bool
+	DoCache            bool
+}
+
+func NewModelData(utd *design.UserTypeDefinition) ModelData {
+	md := ModelData{
+		TypeDef: utd,
+	}
+	tn := deModel(codegen.GoTypeName(utd, 0))
+	md.TypeName = tn
+	md.ModelUpper = Upper(tn)
+	md.ModelLower = Lower(tn)
+
+	belongs := make([]BelongsTo, 0)
+	if bt, ok := metaLookup(utd.Metadata, BELONGSTO); ok {
+		btlist := strings.Split(bt, ",")
+		for _, s := range btlist {
+			binst := BelongsTo{
+				Parent:        s,
+				DatabaseField: camelToSnake(s),
+			}
+			belongs = append(belongs, binst)
+		}
+	}
+	md.BelongsTo = belongs
+
+	m2m := make([]Many2Many, 0)
+	if m2, ok := metaLookup(utd.Metadata, M2M); ok {
+		mlist := strings.Split(m2, ",")
+		for _, s := range mlist {
+			parms := strings.Split(s, ":")
+
+			minst := Many2Many{
+				Relation:       parms[0],
+				PluralRelation: parms[1],
+				TableName:      parms[2],
+			}
+			m2m = append(m2m, minst)
+		}
+
+	}
+	md.M2M = m2m
+
+	if ctn, ok := metaLookup(utd.Metadata, TABLENAME); ok {
+		md.CustomTableName = ctn
+		md.DoCustomTableName = ok
+	}
+
+	if dtn, ok := metaLookup(utd.Metadata, DYNAMICTABLE); ok {
+		md.DynamicTableName = ok
+	}
+	md.DoMedia = true
+	if dom, ok := metaLookup(utd.Metadata, MEDIA); ok {
+		md.DoMedia = !ok
+	}
+	if cache, ok := metaLookup(utd.Metadata, CACHE); ok {
+		md.DoCache = ok
+	}
+	return md
 }
 
 // NewModelWriter returns a contexts code writer.
@@ -76,5 +138,6 @@ func NewModelWriter(filename string) (*ModelWriter, error) {
 
 // Execute writes the code for the context types to the writer.
 func (w *ModelWriter) Execute(mt *design.UserTypeDefinition) error {
+	md := NewModelData(mt)
 	return w.ModelTmpl.Execute(w, mt)
 }

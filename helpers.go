@@ -15,14 +15,21 @@ import (
 
 const META_NAMESPACE = "github.com/bketelsen/gorma"
 
+const (
+	M2M          = "#many2many"
+	BELONGSTO    = "#belongsto"
+	HASONE       = "#hasone"
+	HASMANY      = "#hasmany"
+	ROLER        = "#roler"
+	TABLENAME    = "#tablename"
+	DYNAMICTABLE = "#dyntablename"
+	MEDIA        = "#nomedia"
+	CACHE        = "#cache"
+)
+
 // titleCase converts a string to Title case.
 func titleCase(s string) string {
 	return strings.Title(s)
-}
-
-type Field struct {
-	Column  string
-	Coltype string
 }
 
 func GetAttributeColumns(att *design.AttributeDefinition) []Field {
