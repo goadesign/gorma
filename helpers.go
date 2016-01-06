@@ -27,6 +27,15 @@ const (
 	CACHE        = "#cache"
 )
 
+func packageName(base string, version *design.APIVersionDefinition) (pack string) {
+	pack = base
+	if version.Version != "" {
+		pack = codegen.Goify(codegen.VersionPackage(version.Version), false)
+	}
+
+	return
+}
+
 // titleCase converts a string to Title case.
 func titleCase(s string) string {
 	return strings.Title(s)
