@@ -6,9 +6,9 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/alecthomas/kingpin"
 	"github.com/raphael/goa/design"
 	"github.com/raphael/goa/goagen/codegen"
-	"gopkg.in/alecthomas/kingpin.v2"
 )
 
 // Generator is the application code generator.

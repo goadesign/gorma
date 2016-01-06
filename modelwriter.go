@@ -14,6 +14,30 @@ type ModelWriter struct {
 	ModelTmpl *template.Template
 }
 
+type BelongsTo struct {
+	Parent        string
+	DatabaseField string
+}
+type Many2Many struct {
+	Relation       string
+	PluralRelation string
+	TableName      string
+}
+type ModelData struct {
+	TypeDef           *design.UserTypeDefinition
+	TypeName          string
+	ModelUpper        string
+	ModelLower        string
+	NoModel           string
+	BelongsTo         []BelongsTo
+	M2M               []Many2Many
+	CustomTableName   string
+	DoMedia           bool
+	DoRoler           bool
+	DoCustomTableName bool
+	DoCache           bool
+}
+
 // NewModelWriter returns a contexts code writer.
 // Media types contain the data used to render response bodies.
 func NewModelWriter(filename string) (*ModelWriter, error) {
