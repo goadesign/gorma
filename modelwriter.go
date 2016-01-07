@@ -43,9 +43,10 @@ type ModelData struct {
 	DoCustomTableName  bool
 	DoDynamicTableName bool
 	DoCache            bool
+	APIVersion         string
 }
 
-func NewModelData(utd *design.UserTypeDefinition) ModelData {
+func NewModelData(version string, utd *design.UserTypeDefinition) ModelData {
 	md := ModelData{
 		TypeDef: utd,
 	}
@@ -53,6 +54,11 @@ func NewModelData(utd *design.UserTypeDefinition) ModelData {
 	md.TypeName = tn
 	md.ModelUpper = upper(tn)
 	md.ModelLower = lower(tn)
+	if version != "" {
+		md.APIVersion = codegen.VersionPackage(version)
+	} else {
+		md.APIVersion = "app"
+	}
 
 	belongs := make([]BelongsTo, 0)
 	if bt, ok := metaLookup(utd.Metadata, BELONGSTO); ok {
@@ -145,7 +151,7 @@ func NewModelWriter(filename string) (*ModelWriter, error) {
 }
 
 // Execute writes the code for the context types to the writer.
-func (w *ModelWriter) Execute(mt *design.UserTypeDefinition) error {
-	md := NewModelData(mt)
+func (w *ModelWriter) Execute(version string, mt *design.UserTypeDefinition) error {
+	md := NewModelData(version, mt)
 	return w.ModelTmpl.Execute(w, md)
 }

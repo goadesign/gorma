@@ -27,6 +27,31 @@ const (
 	CACHE        = "#cache"
 )
 
+func versionize(s string) string {
+	if s == "app" {
+		return "Default"
+	}
+	return upper(s)
+
+}
+
+func hasUserType(action *design.ActionDefinition) bool {
+	if action.Payload != nil {
+		a := action.Payload.Definition().Dup()
+		needle := strings.ToLower(META_NAMESPACE)
+		for k, v := range a.Metadata {
+			k = strings.ToLower(k)
+			v = strings.ToLower(v)
+			if k == needle {
+				if v == "model" {
+					return true
+				}
+			}
+		}
+
+	}
+	return false
+}
 func packageName(base string, version *design.APIVersionDefinition) (pack string) {
 	pack = base
 	if version.Version != "" {
@@ -275,7 +300,8 @@ func ModelDef(res *design.UserTypeDefinition) string {
 		sort.Strings(keys)
 		for _, name := range keys {
 			codegen.WriteTabs(&buffer, 1)
-			typedef := codegen.GoTypeDef(actual[name], 1, true, true)
+			// func GoTypeDef(ds design.DataStructure, versioned bool, defPkg string, tabs int, jsonTags, inner bool) string {
+			typedef := codegen.GoTypeDef(actual[name], false, "app", 1, true, true)
 			fname := codegen.Goify(name, true)
 			var tags string
 			var omit string

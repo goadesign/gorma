@@ -7,29 +7,6 @@ type {{.TypeName}} {{ modeldef .TypeDef }}
 {{ $dynamictable := .DoDynamicTableName }}
 {{ $typename  := .TypeName }}
 {{ $cached := .DoCache }}
-{{ if .DoMedia }}
-func {{$typename}}FromCreatePayload(ctx *app.Create{{$typename}}Context) {{$typename}} {
-	payload := ctx.Payload
-	m := {{$typename}}{}
-	copier.Copy(&m, payload)
-{{ range $idx, $bt := .BelongsTo }}
-	m.{{ $bt.Parent}}ID=int(ctx.{{ $bt.Parent}}ID){{end}}
-	return m
-}
-
-func {{$typename}}FromUpdatePayload(ctx *app.Update{{$typename}}Context) {{$typename}} {
-	payload := ctx.Payload
-	m := {{$typename}}{}
-	copier.Copy(&m, payload)
-	return m
-}
-
-func (m {{$typename}}) ToApp() *app.{{$typename}} {
-	target := app.{{$typename}}{}
-	copier.Copy(&target, &m)
-	return &target
-}
-{{ end }}
 {{ if .DoCustomTableName }}
 func (m {{$typename}}) TableName() string {
 	return "{{ .CustomTableName}}"
@@ -121,13 +98,13 @@ func (m *{{$typename}}DB) List(ctx context.Context{{ if $dynamictable }}, tableN
 func (m *{{$typename}}DB) ListBy{{title $col.Column}}Equal(ctx context.Context, {{lower $col.Column}} {{$col.Coltype}}, {{ if $dynamictable }}, tableName string{{ end }}) []{{$typename}} {
 
 	var objs []{{$typename}}
-	m.DB.Where("{{lower $col.Column}} = ?",  {{lower $col.Column}}){{ if $dynamictable }}.Table(tableName){{ end }}.Find(&objs)
+	m.db.Where("{{lower $col.Column}} = ?",  {{lower $col.Column}}){{ if $dynamictable }}.Table(tableName){{ end }}.Find(&objs)
 	return objs
 }
 func (m *{{$typename}}DB) ListBy{{title $col.Column}}Like(ctx context.Context, {{lower $col.Column}} {{$col.Coltype}}, {{ if $dynamictable }}, tableName string{{ end }}) []{{$typename}} {
 
 	var objs []{{$typename}}
-	m.DB.Where("{{lower $col.Column}} like ?",  {{lower $col.Column}}){{ if $dynamictable }}.Table(tableName){{ end }}.Find(&objs)
+	m.db.Where("{{lower $col.Column}} like ?",  {{lower $col.Column}}){{ if $dynamictable }}.Table(tableName){{ end }}.Find(&objs)
 	return objs
 }
 {{ end  }}
