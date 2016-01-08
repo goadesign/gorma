@@ -319,8 +319,15 @@ func (g *Generator) generateMedia(api *design.APIDefinition) error {
 	err = api.IterateVersions(func(v *design.APIVersionDefinition) error {
 		err = v.IterateMediaTypes(func(res *design.MediaTypeDefinition) error {
 			if res.Reference == nil {
+				// not a mediatype that references a model
 				return nil
 			}
+			if model, ok := res.Reference.(*design.UserTypeDefinition); ok {
+				if !modelMetadata(model.Definition()) {
+					return nil
+				}
+			}
+
 			if res.Type.IsObject() {
 				if !res.SupportsVersion(v.Version) {
 					return nil

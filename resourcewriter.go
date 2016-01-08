@@ -29,7 +29,7 @@ func NewResourceData(version string, utd *design.ResourceDefinition) ResourceDat
 	md := ResourceData{
 		TypeDef: utd,
 	}
-	md.TypeName = strings.Title(utd.Name)
+	md.TypeName = codegen.Goify(utd.Name, true)
 	md.MediaUpper = upper(utd.Name)
 	md.MediaLower = lower(utd.Name)
 	if version != "" {

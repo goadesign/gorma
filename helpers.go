@@ -34,21 +34,23 @@ func versionize(s string) string {
 	return upper(s)
 
 }
-
+func modelMetadata(ad *design.AttributeDefinition) bool {
+	needle := strings.ToLower(META_NAMESPACE)
+	for k, v := range ad.Metadata {
+		k = strings.ToLower(k)
+		v = strings.ToLower(v)
+		if k == needle {
+			if v == "model" {
+				return true
+			}
+		}
+	}
+	return false
+}
 func hasUserType(action *design.ActionDefinition) bool {
 	if action.Payload != nil {
 		a := action.Payload.Definition()
-		needle := strings.ToLower(META_NAMESPACE)
-		for k, v := range a.Metadata {
-			k = strings.ToLower(k)
-			v = strings.ToLower(v)
-			if k == needle {
-				if v == "model" {
-					return true
-				}
-			}
-		}
-
+		return modelMetadata(a)
 	}
 	return false
 }
