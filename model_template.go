@@ -163,7 +163,7 @@ func (m *{{$typename}}DB) Delete(ctx context.Context{{ if $dynamictable }}, tabl
 func (m *{{$typename}}DB) Delete{{$bt.Relation}}(ctx context.Context{{ if $dynamictable }}, tableName string{{ end }}, {{lower $typename}}ID,  {{$bt.LowerRelation}}ID int)  error {
 	var obj {{$typename}}
 	obj.ID = {{lower $typename}}ID
-	var assoc {{$bt.LowerRelation}}
+	var assoc {{$bt.Relation}}
 	var err error
 	assoc.ID = {{$bt.LowerRelation}}ID
 	if err != nil {
@@ -175,7 +175,7 @@ func (m *{{$typename}}DB) Delete{{$bt.Relation}}(ctx context.Context{{ if $dynam
 	}
 	return  nil
 }
-func (m *{{$typename}}DB) Add{{$bt.Relation}}(ctx context.Context{{ if $dynamictable }}, tableName string{{ end }}, {{lower $typename}}ID, {{$bt.Relation}}ID int) error {
+func (m *{{$typename}}DB) Add{{$bt.Relation}}(ctx context.Context{{ if $dynamictable }}, tableName string{{ end }}, {{lower $typename}}ID, {{$bt.LowerRelation}}ID int) error {
 	var {{lower $typename}} {{$typename}}
 	{{lower $typename}}.ID = {{lower $typename}}ID
 	var assoc {{$bt.Relation}}
