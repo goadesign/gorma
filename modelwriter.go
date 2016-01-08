@@ -79,10 +79,10 @@ func NewModelData(version string, utd *design.UserTypeDefinition) ModelData {
 			parms := strings.Split(s, ":")
 
 			minst := Many2Many{
-				Relation:            parms[0],
-				LowerRelation:       lower(parms[0]),
-				PluralRelation:      parms[1],
-				LowerPluralRelation: lower(parms[1]),
+				Relation:            parms[1],
+				LowerRelation:       lower(parms[1]),
+				PluralRelation:      parms[0],
+				LowerPluralRelation: lower(parms[0]),
 				TableName:           parms[2],
 			}
 			m2m = append(m2m, minst)
