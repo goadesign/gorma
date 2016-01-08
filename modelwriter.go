@@ -37,7 +37,6 @@ type ModelData struct {
 	BelongsTo          []BelongsTo
 	M2M                []Many2Many
 	CustomTableName    string
-	DynamicTableName   bool
 	DoMedia            bool
 	DoRoler            bool
 	DoCustomTableName  bool
@@ -102,7 +101,7 @@ func NewModelData(version string, utd *design.UserTypeDefinition) ModelData {
 	}
 
 	if _, ok := metaLookup(utd.Metadata, DYNAMICTABLE); ok {
-		md.DynamicTableName = ok
+		md.DoDynamicTableName = ok
 	}
 	md.DoMedia = true
 	if _, ok := metaLookup(utd.Metadata, MEDIA); ok {
