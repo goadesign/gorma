@@ -29,7 +29,7 @@ func NewMediaData(version string, utd *design.MediaTypeDefinition) MediaData {
 	md := MediaData{
 		TypeDef: utd,
 	}
-	md.TypeName = strings.Title(utd.TypeName)
+	md.TypeName = codegen.Goify(utd.TypeName, true)
 	md.MediaUpper = upper(utd.Name())
 	md.MediaLower = lower(utd.Name())
 	if version != "" {
