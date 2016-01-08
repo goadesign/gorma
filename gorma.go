@@ -211,10 +211,12 @@ func (g *Generator) generateResources(api *design.APIDefinition) error {
 	gopath := filepath.SplitList(os.Getenv("GOPATH"))[0]
 
 	imp, err := filepath.Rel(filepath.Join(gopath, "src"), codegen.OutputDir)
+	fmt.Println("IMP:", imp)
 	if err != nil {
 		return err
 	}
 	imp = path.Join(filepath.ToSlash(imp), "app")
+	fmt.Println("IMP2:", imp)
 	imports := []*codegen.ImportSpec{
 		codegen.SimpleImport(imp),
 		codegen.SimpleImport("github.com/jinzhu/copier"),
@@ -224,7 +226,7 @@ func (g *Generator) generateResources(api *design.APIDefinition) error {
 		if v.IsDefault() {
 			return nil
 		}
-		imports = append(imports, codegen.SimpleImport(imp+"/"+codegen.Goify(codegen.VersionPackage(v.Version), false)))
+		imports = append(imports, codegen.SimpleImport(filepath.Join(filepath.ToSlash(imp), codegen.Goify(codegen.VersionPackage(v.Version), false))))
 		return nil
 	})
 
