@@ -77,15 +77,17 @@ func NewModelData(version string, utd *design.UserTypeDefinition) ModelData {
 		mlist := strings.Split(m2, ",")
 		for _, s := range mlist {
 			parms := strings.Split(s, ":")
+			if len(parms) == 3 {
 
-			minst := Many2Many{
-				Relation:            parms[1],
-				LowerRelation:       lower(parms[1]),
-				PluralRelation:      parms[0],
-				LowerPluralRelation: lower(parms[0]),
-				TableName:           parms[2],
+				minst := Many2Many{
+					Relation:            parms[1],
+					LowerRelation:       lower(parms[1]),
+					PluralRelation:      parms[0],
+					LowerPluralRelation: lower(parms[0]),
+					TableName:           parms[2],
+				}
+				m2m = append(m2m, minst)
 			}
-			m2m = append(m2m, minst)
 		}
 
 	}
