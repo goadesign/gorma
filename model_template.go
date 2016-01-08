@@ -95,13 +95,13 @@ func (m *{{$typename}}DB) List(ctx context.Context{{ if $dynamictable }}, tableN
 
 
 {{ range $idx, $col := columns .TypeDef.AttributeDefinition }}
-func (m *{{$typename}}DB) ListBy{{title $col.Column}}Equal(ctx context.Context, {{lower $col.Column}} {{$col.Coltype}}, {{ if $dynamictable }}, tableName string{{ end }}) []{{$typename}} {
+func (m *{{$typename}}DB) ListBy{{title $col.Column}}Equal(ctx context.Context, {{lower $col.Column}} {{$col.Coltype}}{{ if $dynamictable }}, tableName string{{ end }}) []{{$typename}} {
 
 	var objs []{{$typename}}
 	m.db.Where("{{lower $col.Column}} = ?",  {{lower $col.Column}}){{ if $dynamictable }}.Table(tableName){{ end }}.Find(&objs)
 	return objs
 }
-func (m *{{$typename}}DB) ListBy{{title $col.Column}}Like(ctx context.Context, {{lower $col.Column}} {{$col.Coltype}}, {{ if $dynamictable }}, tableName string{{ end }}) []{{$typename}} {
+func (m *{{$typename}}DB) ListBy{{title $col.Column}}Like(ctx context.Context, {{lower $col.Column}} {{$col.Coltype}}{{ if $dynamictable }}, tableName string{{ end }}) []{{$typename}} {
 
 	var objs []{{$typename}}
 	m.db.Where("{{lower $col.Column}} like ?",  {{lower $col.Column}}){{ if $dynamictable }}.Table(tableName){{ end }}.Find(&objs)
@@ -160,7 +160,7 @@ func (m *{{$typename}}DB) Delete(ctx context.Context{{ if $dynamictable }}, tabl
 }
 
 {{ range $idx, $bt := .M2M}}
-func (m *{{$typename}}DB) Delete{{$bt.Relation}}(ctx context.Context{{ if $dynamictable }}, tableName string{{ end }},{{lower $typename}}ID,  {{$bt.LowerRelation}}ID int)  error {
+func (m *{{$typename}}DB) Delete{{$bt.Relation}}(ctx context.Context{{ if $dynamictable }}, tableName string{{ end }}, {{lower $typename}}ID,  {{$bt.LowerRelation}}ID int)  error {
 	var obj {{$typename}}
 	obj.ID = {{lower $typename}}ID
 	var assoc {{$bt.LowerRelation}}
