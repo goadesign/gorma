@@ -37,7 +37,7 @@ func versionize(s string) string {
 
 func hasUserType(action *design.ActionDefinition) bool {
 	if action.Payload != nil {
-		a := action.Payload.Definition().Dup()
+		a := action.Payload.Definition()
 		needle := strings.ToLower(META_NAMESPACE)
 		for k, v := range a.Metadata {
 			k = strings.ToLower(k)
