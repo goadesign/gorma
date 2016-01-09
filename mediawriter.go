@@ -39,7 +39,7 @@ func NewMediaData(version string, utd *design.MediaTypeDefinition) MediaData {
 		md.APIVersion = "app"
 	}
 
-	belongs := make([]BelongsTo, 0)
+	var belongs []BelongsTo
 	if bt, ok := metaLookup(utd.Metadata, BELONGSTO); ok {
 		btlist := strings.Split(bt, ",")
 		for _, s := range btlist {

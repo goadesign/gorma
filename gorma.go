@@ -108,15 +108,20 @@ func (g *Generator) generateModels(api *design.APIDefinition) error {
 		err = v.IterateUserTypes(func(res *design.UserTypeDefinition) error {
 			if res.Type.IsObject() {
 				title := fmt.Sprintf("%s: Models", api.Name)
-				modelname := strings.ToLower(deModel(res.TypeName))
+				name := strings.ToLower(deModel(res.TypeName))
 
-				filename := filepath.Join(verdir, modelname+"_genmodel.go")
+				err := os.MkdirAll(filepath.Join(modelDir(), name), 0755)
+				if err != nil {
+					panic(err)
+				}
+
+				filename := filepath.Join(verdir, name, "genmodel.go")
 				os.Remove(filename)
 				mtw, err := NewModelWriter(filename)
 				if err != nil {
 					panic(err)
 				}
-				mtw.WriteHeader(title, "models", imports)
+				mtw.WriteHeader(title, name, imports)
 				if md, ok := metaLookup(res.Metadata, ""); ok && md == "Model" {
 					err = mtw.Execute(v.Version, res)
 					if err != nil {
@@ -147,10 +152,13 @@ func (g *Generator) generateModels(api *design.APIDefinition) error {
 
 // Generate produces the generated rbac files
 func (g *Generator) generateRBAC(api *design.APIDefinition) error {
-	os.MkdirAll(modelDir(), 0755)
+	err := os.MkdirAll(modelDir(), 0755)
+	if err != nil {
+		panic(err)
+	}
 	app := kingpin.New("Model generator", "model generator")
 	codegen.RegisterFlags(app)
-	_, err := app.Parse(os.Args[1:])
+	_, err = app.Parse(os.Args[1:])
 	if err != nil {
 		panic(err)
 	}
@@ -211,12 +219,10 @@ func (g *Generator) generateResources(api *design.APIDefinition) error {
 	gopath := filepath.SplitList(os.Getenv("GOPATH"))[0]
 
 	imp, err := filepath.Rel(filepath.Join(gopath, "src"), codegen.OutputDir)
-	fmt.Println("IMP:", imp)
 	if err != nil {
 		return err
 	}
 	imp = path.Join(filepath.ToSlash(imp), "app")
-	fmt.Println("IMP2:", imp)
 	imports := []*codegen.ImportSpec{
 		codegen.SimpleImport(imp),
 		codegen.SimpleImport("github.com/jinzhu/copier"),
@@ -249,14 +255,19 @@ func (g *Generator) generateResources(api *design.APIDefinition) error {
 			if !res.SupportsVersion(v.Version) {
 				return nil
 			}
-			prefix := "_resource"
+			prefix := "resource"
 			if v.Version != "" {
 				prefix = prefix + "_v" + codegen.Goify(v.Version, false)
 
 			}
-			name := strings.ToLower(res.Name)
+			name := strings.ToLower(codegen.Goify(res.Name, false))
 
-			mediafilename := filepath.Join(modelDir(), name+prefix+"_genmodel.go")
+			err := os.MkdirAll(filepath.Join(modelDir(), name), 0755)
+			if err != nil {
+				panic(err)
+			}
+
+			mediafilename := filepath.Join(modelDir(), name, prefix+"_genmodel.go")
 			os.Remove(mediafilename)
 
 			resw, err := NewResourceWriter(mediafilename)
@@ -264,7 +275,7 @@ func (g *Generator) generateResources(api *design.APIDefinition) error {
 				fmt.Println("Error executing Gorma: ", err.Error())
 				panic(err)
 			}
-			resw.WriteHeader(title, "models", imports)
+			resw.WriteHeader(title, name, imports)
 
 			err = resw.Execute(v.Version, res)
 			if err != nil {
@@ -334,14 +345,19 @@ func (g *Generator) generateMedia(api *design.APIDefinition) error {
 				if !res.SupportsVersion(v.Version) {
 					return nil
 				}
-				prefix := "_media"
+				prefix := "media"
 				if v.Version != "" {
 					prefix = prefix + "_v" + codegen.Goify(v.Version, false)
 
 				}
-				name := strings.ToLower(res.TypeName)
+				name := strings.ToLower(codegen.Goify(res.TypeName, false))
 
-				mediafilename := filepath.Join(modelDir(), name+prefix+"_genmodel.go")
+				err := os.MkdirAll(filepath.Join(modelDir(), name), 0755)
+				if err != nil {
+					panic(err)
+				}
+
+				mediafilename := filepath.Join(modelDir(), name, prefix+"_genmodel.go")
 
 				os.Remove(mediafilename)
 				resw, err := NewMediaWriter(mediafilename)
@@ -349,7 +365,7 @@ func (g *Generator) generateMedia(api *design.APIDefinition) error {
 					fmt.Println("Error executing Gorma: ", err.Error())
 					panic(err)
 				}
-				resw.WriteHeader(title, "models", imports)
+				resw.WriteHeader(title, name, imports)
 
 				err = resw.Execute(v.Version, res)
 				if err != nil {

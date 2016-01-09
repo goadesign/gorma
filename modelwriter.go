@@ -59,7 +59,7 @@ func NewModelData(version string, utd *design.UserTypeDefinition) ModelData {
 		md.APIVersion = "app"
 	}
 
-	belongs := make([]BelongsTo, 0)
+	var belongs []BelongsTo
 	if bt, ok := metaLookup(utd.Metadata, BELONGSTO); ok {
 		btlist := strings.Split(bt, ",")
 		for _, s := range btlist {
@@ -72,7 +72,7 @@ func NewModelData(version string, utd *design.UserTypeDefinition) ModelData {
 	}
 	md.BelongsTo = belongs
 
-	m2m := make([]Many2Many, 0)
+	var m2m []Many2Many
 	if m2, ok := metaLookup(utd.Metadata, M2M); ok {
 		mlist := strings.Split(m2, ",")
 		for _, s := range mlist {

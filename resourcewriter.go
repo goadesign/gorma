@@ -39,7 +39,7 @@ func NewResourceData(version string, utd *design.ResourceDefinition) ResourceDat
 		md.APIVersion = "app"
 	}
 
-	belongs := make([]BelongsTo, 0)
+	var belongs []BelongsTo
 	if bt, ok := metaLookup(utd.Metadata, BELONGSTO); ok {
 		btlist := strings.Split(bt, ",")
 		for _, s := range btlist {
