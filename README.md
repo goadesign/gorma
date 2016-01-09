@@ -18,7 +18,7 @@ Gorma uses metadata in the `goa` DSL to generate a working storage system for yo
 
 
 ## Opinionated
-Gorma generates Go code that uses [gorm](https://github.com/jinhzu/gorm) to access your database, therefore it is quite opinionated about how the data access layer is generated.
+Gorma generates Go code that uses [gorm](https://github.com/jinzhu/gorm) to access your database, therefore it is quite opinionated about how the data access layer is generated.
 
 
 ## Status
