@@ -171,7 +171,7 @@ func StorageDef(res *design.UserTypeDefinition) string {
 
 		for _, child := range children {
 			pieces := strings.Split(child, ":")
-			associations = associations + "List" + pieces[0] + "(context.Context, int) []" + pieces[1] + "\n"
+			associations = associations + "List" + pieces[0] + "(context.Context, int) []" + lower(pieces[1]) + "." + pieces[1] + "\n"
 			associations = associations + "Add" + pieces[1] + "(context.Context, int, int) (error)\n"
 			associations = associations + "Delete" + pieces[1] + "(context.Context, int, int) error \n"
 		}

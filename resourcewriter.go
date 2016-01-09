@@ -16,18 +16,20 @@ type ResourceWriter struct {
 	ResourceTmpl *template.Template
 }
 type ResourceData struct {
-	TypeDef    *design.ResourceDefinition
-	TypeName   string
-	MediaUpper string
-	MediaLower string
-	BelongsTo  []BelongsTo
-	DoMedia    bool
-	APIVersion string
+	TypeDef          *design.ResourceDefinition
+	TypeName         string
+	MediaUpper       string
+	MediaLower       string
+	BelongsTo        []BelongsTo
+	DoMedia          bool
+	APIVersion       string
+	RequiredPackages map[string]bool
 }
 
 func NewResourceData(version string, utd *design.ResourceDefinition) ResourceData {
 	md := ResourceData{
-		TypeDef: utd,
+		TypeDef:          utd,
+		RequiredPackages: make(map[string]bool, 0),
 	}
 	md.TypeName = codegen.Goify(utd.Name, true)
 	md.MediaUpper = upper(utd.Name)
@@ -48,6 +50,8 @@ func NewResourceData(version string, utd *design.ResourceDefinition) ResourceDat
 				DatabaseField: camelToSnake(s),
 			}
 			belongs = append(belongs, binst)
+
+			md.RequiredPackages[lower(s)] = true
 		}
 	}
 	md.BelongsTo = belongs
@@ -98,9 +102,8 @@ func NewResourceWriter(filename string) (*ResourceWriter, error) {
 }
 
 // Execute writes the code for the context types to the writer.
-func (w *ResourceWriter) Execute(version string, mt *design.ResourceDefinition) error {
-	md := NewResourceData(version, mt)
-	err := w.ResourceTmpl.Execute(w, md)
+func (w *ResourceWriter) Execute(rd *ResourceData) error {
+	err := w.ResourceTmpl.Execute(w, rd)
 	if err != nil {
 		fmt.Println("Error executing template", err.Error())
 	}

@@ -16,18 +16,20 @@ type MediaWriter struct {
 	MediaTmpl *template.Template
 }
 type MediaData struct {
-	TypeDef    *design.MediaTypeDefinition
-	TypeName   string
-	MediaUpper string
-	MediaLower string
-	BelongsTo  []BelongsTo
-	DoMedia    bool
-	APIVersion string
+	TypeDef          *design.MediaTypeDefinition
+	TypeName         string
+	MediaUpper       string
+	MediaLower       string
+	BelongsTo        []BelongsTo
+	DoMedia          bool
+	APIVersion       string
+	RequiredPackages map[string]bool
 }
 
 func NewMediaData(version string, utd *design.MediaTypeDefinition) MediaData {
 	md := MediaData{
-		TypeDef: utd,
+		TypeDef:          utd,
+		RequiredPackages: make(map[string]bool, 0),
 	}
 	md.TypeName = codegen.Goify(utd.TypeName, true)
 	md.MediaUpper = upper(utd.Name())
@@ -48,6 +50,8 @@ func NewMediaData(version string, utd *design.MediaTypeDefinition) MediaData {
 				DatabaseField: camelToSnake(s),
 			}
 			belongs = append(belongs, binst)
+
+			md.RequiredPackages[lower(s)] = true
 		}
 	}
 	md.BelongsTo = belongs
@@ -97,8 +101,7 @@ func NewMediaWriter(filename string) (*MediaWriter, error) {
 }
 
 // Execute writes the code for the context types to the writer.
-func (w *MediaWriter) Execute(version string, mt *design.MediaTypeDefinition) error {
-	md := NewMediaData(version, mt)
+func (w *MediaWriter) Execute(md *MediaData) error {
 	err := w.MediaTmpl.Execute(w, md)
 	if err != nil {
 		fmt.Println("Error executing template", err.Error())

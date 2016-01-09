@@ -163,7 +163,7 @@ func (m *{{$typename}}DB) Delete(ctx context.Context{{ if $dynamictable }}, tabl
 func (m *{{$typename}}DB) Delete{{$bt.Relation}}(ctx context.Context{{ if $dynamictable }}, tableName string{{ end }}, {{lower $typename}}ID,  {{$bt.LowerRelation}}ID int)  error {
 	var obj {{$typename}}
 	obj.ID = {{lower $typename}}ID
-	var assoc {{$bt.Relation}}
+	var assoc {{$bt.LowerRelation}}.{{$bt.Relation}}
 	var err error
 	assoc.ID = {{$bt.LowerRelation}}ID
 	if err != nil {
@@ -178,7 +178,7 @@ func (m *{{$typename}}DB) Delete{{$bt.Relation}}(ctx context.Context{{ if $dynam
 func (m *{{$typename}}DB) Add{{$bt.Relation}}(ctx context.Context{{ if $dynamictable }}, tableName string{{ end }}, {{lower $typename}}ID, {{$bt.LowerRelation}}ID int) error {
 	var {{lower $typename}} {{$typename}}
 	{{lower $typename}}.ID = {{lower $typename}}ID
-	var assoc {{$bt.Relation}}
+	var assoc {{$bt.LowerRelation}}.{{$bt.Relation}}
 	assoc.ID = {{$bt.LowerRelation}}ID
 	err := m.db{{ if $dynamictable }}.Table(tableName){{ end }}.Model(&{{lower $typename}}).Association("{{$bt.PluralRelation}}").Append(assoc).Error
 	if err != nil {
@@ -186,8 +186,8 @@ func (m *{{$typename}}DB) Add{{$bt.Relation}}(ctx context.Context{{ if $dynamict
 	}
 	return  nil
 }
-func (m *{{$typename}}DB) List{{$bt.PluralRelation}}(ctx context.Context{{ if $dynamictable }}, tableName string{{ end }}, {{lower $typename}}ID int)  []{{$bt.Relation}} {
-	list := make([]{{$bt.Relation}}, 0)
+func (m *{{$typename}}DB) List{{$bt.PluralRelation}}(ctx context.Context{{ if $dynamictable }}, tableName string{{ end }}, {{lower $typename}}ID int)  []{{$bt.LowerRelation}}.{{$bt.Relation}} {
+	list := make([]{{$bt.LowerRelation}}.{{$bt.Relation}}, 0)
 	var obj {{$typename}}
 	obj.ID = {{lower $typename}}ID
 	m.db{{ if $dynamictable }}.Table(tableName){{ end }}.Model(&obj).Association("{{$bt.PluralRelation}}").Find(&list)

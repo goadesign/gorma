@@ -64,11 +64,12 @@ func (g *Generator) generateModels(api *design.APIDefinition) error {
 	outdir := modelDir()
 	gopath := filepath.SplitList(os.Getenv("GOPATH"))[0]
 
-	imp, err := filepath.Rel(filepath.Join(gopath, "src"), codegen.OutputDir)
+	mainimp, err := filepath.Rel(filepath.Join(gopath, "src"), codegen.OutputDir)
 	if err != nil {
 		return err
 	}
-	imp = path.Join(filepath.ToSlash(imp), "app")
+	mainimp = filepath.ToSlash(mainimp)
+	imp := path.Join(mainimp, "app")
 	imports := []*codegen.ImportSpec{
 		codegen.SimpleImport(imp),
 		codegen.SimpleImport("github.com/jinzhu/gorm"),
@@ -121,9 +122,15 @@ func (g *Generator) generateModels(api *design.APIDefinition) error {
 				if err != nil {
 					panic(err)
 				}
+
+				md := NewModelData(v.Version, res)
+				for k, _ := range md.RequiredPackages {
+					imports = append(imports, codegen.SimpleImport(path.Join(mainimp, "models", k)))
+				}
+
 				mtw.WriteHeader(title, name, imports)
-				if md, ok := metaLookup(res.Metadata, ""); ok && md == "Model" {
-					err = mtw.Execute(v.Version, res)
+				if m, ok := metaLookup(res.Metadata, ""); ok && m == "Model" {
+					err = mtw.Execute(&md)
 					if err != nil {
 						fmt.Println("Error executing Gorma: ", err.Error())
 						g.Cleanup()
@@ -218,11 +225,12 @@ func (g *Generator) generateResources(api *design.APIDefinition) error {
 	}
 	gopath := filepath.SplitList(os.Getenv("GOPATH"))[0]
 
-	imp, err := filepath.Rel(filepath.Join(gopath, "src"), codegen.OutputDir)
+	mainimp, err := filepath.Rel(filepath.Join(gopath, "src"), codegen.OutputDir)
 	if err != nil {
 		return err
 	}
-	imp = path.Join(filepath.ToSlash(imp), "app")
+	mainimp = filepath.ToSlash(mainimp)
+	imp := path.Join(mainimp, "app")
 	imports := []*codegen.ImportSpec{
 		codegen.SimpleImport(imp),
 		codegen.SimpleImport("github.com/jinzhu/copier"),
@@ -275,9 +283,14 @@ func (g *Generator) generateResources(api *design.APIDefinition) error {
 				fmt.Println("Error executing Gorma: ", err.Error())
 				panic(err)
 			}
+
+			rd := NewResourceData(v.Version, res)
+			for k, _ := range rd.RequiredPackages {
+				imports = append(imports, codegen.SimpleImport(path.Join(mainimp, "models", k)))
+			}
 			resw.WriteHeader(title, name, imports)
 
-			err = resw.Execute(v.Version, res)
+			err = resw.Execute(&rd)
 			if err != nil {
 				fmt.Println("Error executing Gorma: ", err.Error())
 				g.Cleanup()
@@ -309,11 +322,12 @@ func (g *Generator) generateMedia(api *design.APIDefinition) error {
 	}
 	gopath := filepath.SplitList(os.Getenv("GOPATH"))[0]
 
-	imp, err := filepath.Rel(filepath.Join(gopath, "src"), codegen.OutputDir)
+	mainimp, err := filepath.Rel(filepath.Join(gopath, "src"), codegen.OutputDir)
 	if err != nil {
 		return err
 	}
-	imp = path.Join(filepath.ToSlash(imp), "app")
+	mainimp = filepath.ToSlash(mainimp)
+	imp := path.Join(mainimp, "app")
 	imports := []*codegen.ImportSpec{
 		codegen.SimpleImport(imp),
 		codegen.SimpleImport("github.com/jinzhu/copier"),
@@ -365,9 +379,14 @@ func (g *Generator) generateMedia(api *design.APIDefinition) error {
 					fmt.Println("Error executing Gorma: ", err.Error())
 					panic(err)
 				}
+
+				md := NewMediaData(v.Version, res)
+				for k, _ := range md.RequiredPackages {
+					imports = append(imports, codegen.SimpleImport(path.Join(mainimp, "models", k)))
+				}
 				resw.WriteHeader(title, name, imports)
 
-				err = resw.Execute(v.Version, res)
+				err = resw.Execute(&md)
 				if err != nil {
 					fmt.Println("Error executing Gorma: ", err.Error())
 					g.Cleanup()

@@ -43,11 +43,13 @@ type ModelData struct {
 	DoDynamicTableName bool
 	DoCache            bool
 	APIVersion         string
+	RequiredPackages   map[string]bool
 }
 
 func NewModelData(version string, utd *design.UserTypeDefinition) ModelData {
 	md := ModelData{
-		TypeDef: utd,
+		TypeDef:          utd,
+		RequiredPackages: make(map[string]bool, 0),
 	}
 	tn := deModel(codegen.GoTypeName(utd, 0))
 	md.TypeName = tn
@@ -87,11 +89,27 @@ func NewModelData(version string, utd *design.UserTypeDefinition) ModelData {
 					TableName:           parms[2],
 				}
 				m2m = append(m2m, minst)
+
+				md.RequiredPackages[lower(deModel(parms[1]))] = true
 			}
 		}
 
 	}
 	md.M2M = m2m
+
+	if many, ok := metaLookup(utd.Metadata, "#hasmany"); ok {
+		list := strings.Split(many, ",")
+		for _, s := range list {
+			md.RequiredPackages[lower(s)] = true
+		}
+	}
+
+	if children, ok := metaLookup(utd.Metadata, "#hasone"); ok {
+		list := strings.Split(children, ",")
+		for _, s := range list {
+			md.RequiredPackages[lower(s)] = true
+		}
+	}
 
 	if _, ok := metaLookup(utd.Metadata, ROLER); ok {
 		md.DoRoler = ok
@@ -152,7 +170,6 @@ func NewModelWriter(filename string) (*ModelWriter, error) {
 }
 
 // Execute writes the code for the context types to the writer.
-func (w *ModelWriter) Execute(version string, mt *design.UserTypeDefinition) error {
-	md := NewModelData(version, mt)
+func (w *ModelWriter) Execute(md *ModelData) error {
 	return w.ModelTmpl.Execute(w, md)
 }
