@@ -141,6 +141,8 @@ func NewModelWriter(filename string) (*ModelWriter, error) {
 	funcMap["metaLookup"] = metaLookupTmpl
 	funcMap["columns"] = GetAttributeColumns
 	funcMap["pkattributes"] = pkAttributes
+	funcMap["pkwhere"] = pkWhere
+	funcMap["pkwherefields"] = pkWhereFields
 	modelTmpl, err := template.New("models").Funcs(funcMap).Parse(modelTmpl)
 	if err != nil {
 		return nil, err

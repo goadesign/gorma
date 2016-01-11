@@ -389,6 +389,26 @@ func pkAttributes(pks []PrimaryKey) string {
 
 	return strings.Join(pkdefs, ",")
 }
+func pkWhere(pks []PrimaryKey) string {
+
+	var pkwhere []string
+	for _, pk := range pks {
+		def := fmt.Sprintf("%s = ?", pk.Field)
+		pkwhere = append(pkwhere, def)
+	}
+
+	pkw := strings.Join(pkwhere, " and ")
+}
+func pkWhereFields(pks []PrimaryKey) string {
+
+	var pkwhere []string
+	for _, pk := range pks {
+		def := fmt.Sprintf("%s", pk.Field)
+		pkwhere = append(pkwhere, def)
+	}
+
+	pkw := strings.Join(pkwhere, ",")
+}
 
 // setupIDAttribute adds or updates the ID field of a user type definition.
 func setupIDAttribute(obj design.Object, res *design.UserTypeDefinition) design.Object {

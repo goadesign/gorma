@@ -119,8 +119,11 @@ func (m *{{$typename}}DB) One(ctx context.Context{{ if $dynamictable }}, tableNa
 	}
 	// fallback to database if not found{{ end }}
 	var obj {{$typename}}
-
+	{{ if len $pks == 1 }}
 	err := m.db{{ if $dynamictable }}.Table(tableName){{ end }}.Find(&obj, id).Error
+	{{ else  }}
+	err := m.db{{ if $dynamictable }}.Table(tableName){{ end }}.Find(&obj).Where("{{pkwhere $pks}}", {{$pkwherefields $pks}}).Error
+	{{ end }}
 	{{ if $cached }} go m.cache.Set(strconv.Itoa(id), obj, cache.DefaultExpiration) {{ end }}
 	return obj, err
 }
