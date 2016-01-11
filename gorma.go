@@ -128,7 +128,7 @@ func (g *Generator) generateImpls(api *design.APIDefinition) error {
 
 				md := NewImplData(v.Version, res)
 				for k, _ := range md.RequiredPackages {
-					imports = append(imports, codegen.SimpleImport(path.Join(mainimp, "models", k)))
+					imports = append(imports, codegen.SimpleImport(path.Join(mainimp, "models", "generated", k)))
 				}
 
 				mtw.WriteHeader(title, name, imports)
