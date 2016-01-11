@@ -4,6 +4,7 @@ const implTmpl = `// {{if .TypeDef.Description}}{{.TypeDef.Description}}{{else}}
 // Identifier: {{ .TypeName}}
 {{ $dynamictable := .DoDynamicTableName }}
 {{ $typename  := .TypeName }}
+{{ $typedef := .TypeDef  }}
 {{ $pks := .PrimaryKeys }}
 type {{$typename}}Storage interface {
 	DB() interface{}
