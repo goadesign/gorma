@@ -116,7 +116,7 @@ func (g *Generator) generateModels(api *design.APIDefinition) error {
 					panic(err)
 				}
 
-				filename := filepath.Join(verdir, name, "genmodel.go")
+				filename := filepath.Join(verdir, "generated", name, "genmodel.go")
 				os.Remove(filename)
 				mtw, err := NewModelWriter(filename)
 				if err != nil {
@@ -275,7 +275,7 @@ func (g *Generator) generateResources(api *design.APIDefinition) error {
 				panic(err)
 			}
 
-			mediafilename := filepath.Join(modelDir(), name, prefix+"_genmodel.go")
+			mediafilename := filepath.Join(modelDir(), "generated", name, prefix+"_genmodel.go")
 			os.Remove(mediafilename)
 
 			resw, err := NewResourceWriter(mediafilename)
@@ -371,7 +371,7 @@ func (g *Generator) generateMedia(api *design.APIDefinition) error {
 					panic(err)
 				}
 
-				mediafilename := filepath.Join(modelDir(), name, prefix+"_genmodel.go")
+				mediafilename := filepath.Join(modelDir(), "generated", name, prefix+"_genmodel.go")
 
 				os.Remove(mediafilename)
 				resw, err := NewMediaWriter(mediafilename)
