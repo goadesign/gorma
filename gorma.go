@@ -44,6 +44,9 @@ func (g *Generator) Generate(api *design.APIDefinition) ([]string, error) {
 	if err := g.generateModels(api); err != nil {
 		return nil, err
 	}
+	if err := g.generateImpls(api); err != nil {
+		return nil, err
+	}
 	if err := g.generateMedia(api); err != nil {
 		return nil, err
 	}
@@ -51,6 +54,110 @@ func (g *Generator) Generate(api *design.APIDefinition) ([]string, error) {
 		return nil, err
 	}
 	return g.genfiles, nil
+}
+
+// Generate produces the implementation model files
+func (g *Generator) generateImpls(api *design.APIDefinition) error {
+	app := kingpin.New("Model generator", "model generator")
+	codegen.RegisterFlags(app)
+	_, err := app.Parse(os.Args[1:])
+	if err != nil {
+		panic(err)
+	}
+	outdir := modelDir()
+	gopath := filepath.SplitList(os.Getenv("GOPATH"))[0]
+
+	mainimp, err := filepath.Rel(filepath.Join(gopath, "src"), codegen.OutputDir)
+	if err != nil {
+		return err
+	}
+	mainimp = filepath.ToSlash(mainimp)
+	imp := path.Join(mainimp, "app")
+	imports := []*codegen.ImportSpec{
+		codegen.SimpleImport(imp),
+		codegen.SimpleImport("github.com/jinzhu/gorm"),
+		codegen.SimpleImport("github.com/jinzhu/copier"),
+		codegen.SimpleImport("time"),
+	}
+	// get the imports for the app packages
+	api.IterateVersions(func(v *design.APIVersionDefinition) error {
+		if v.IsDefault() {
+			return nil
+		}
+		imports = append(imports, codegen.SimpleImport(imp+"/"+codegen.Goify(v.Version, false)))
+		return nil
+	})
+	// Now generate the models, by iterating the versions
+	err = api.IterateVersions(func(v *design.APIVersionDefinition) error {
+		verdir := outdir
+		if v.Version != "" {
+			return nil
+		}
+		if err := os.MkdirAll(verdir, 0755); err != nil {
+			return err
+		}
+		var outPkg string
+		// going to hell for this == HELP Wanted (windows) TODO:(BJK)
+		outPkg = codegen.DesignPackagePath[0:strings.LastIndex(codegen.DesignPackagePath, "/")]
+		if err != nil {
+			panic(err)
+		}
+		outPkg = strings.TrimPrefix(outPkg, "src/")
+
+		_, cached := metaLookup(api.Metadata, "#cached")
+		if cached {
+			imports = append(imports, codegen.SimpleImport("github.com/patrickmn/go-cache"))
+		}
+
+		err = v.IterateUserTypes(func(res *design.UserTypeDefinition) error {
+			if res.Type.IsObject() {
+				title := fmt.Sprintf("%s: Models", api.Name)
+				name := strings.ToLower(deModel(res.TypeName))
+
+				err := os.MkdirAll(filepath.Join(modelDir(), name), 0755)
+				if err != nil {
+					panic(err)
+				}
+
+				filename := filepath.Join(verdir, name, "model.go")
+				os.Remove(filename)
+				mtw, err := NewImplWriter(filename)
+				if err != nil {
+					panic(err)
+				}
+
+				md := NewImplData(v.Version, res)
+				for k, _ := range md.RequiredPackages {
+					imports = append(imports, codegen.SimpleImport(path.Join(mainimp, "models", k)))
+				}
+
+				mtw.WriteHeader(title, name, imports)
+				if m, ok := metaLookup(res.Metadata, ""); ok && m == "Model" {
+					err = mtw.Execute(&md)
+					if err != nil {
+						fmt.Println("Error executing Gorma: ", err.Error())
+						g.Cleanup()
+						return err
+					}
+				}
+				if err := mtw.FormatCode(); err != nil {
+					fmt.Println("Error executing Gorma: ", err.Error())
+					g.Cleanup()
+
+				}
+				if err == nil {
+					g.genfiles = append(g.genfiles, filename)
+				}
+				return nil
+			}
+
+			return nil
+
+		})
+		return nil
+	})
+
+	return err
 }
 
 // Generate produces the generated model files
