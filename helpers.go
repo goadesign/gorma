@@ -398,6 +398,7 @@ func pkWhere(pks []PrimaryKey) string {
 	}
 
 	pkw := strings.Join(pkwhere, " and ")
+	return pwk
 }
 func pkWhereFields(pks []PrimaryKey) string {
 
@@ -408,6 +409,7 @@ func pkWhereFields(pks []PrimaryKey) string {
 	}
 
 	pkw := strings.Join(pkwhere, ",")
+	return pkw
 }
 
 // setupIDAttribute adds or updates the ID field of a user type definition.
