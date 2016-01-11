@@ -52,7 +52,7 @@ func {{$typename}}FilterBy{{$bt.Parent}}(parentid int, originaldb *gorm.DB) func
 func (m *{{$typename}}DB) ListBy{{$bt.Parent}}(ctx context.Context{{ if $dynamictable }}, tableName string{{ end }}, parentid int) []{{$typename}} {
 
 	var objs []{{$typename}}
-	m.db{{ if $dynamictable }}.Table(tableName){{ end }}.Scopes({{$typename}}FilterBy{{$bt.Parent}}(parentid, &m.db)).Find(&objs)
+	m.Db{{ if $dynamictable }}.Table(tableName){{ end }}.Scopes({{$typename}}FilterBy{{$bt.Parent}}(parentid, &m.Db)).Find(&objs)
 	return objs
 }
 
@@ -65,7 +65,7 @@ func (m *{{$typename}}DB) OneBy{{$bt.Parent}}(ctx context.Context{{ if $dynamict
 	// fallback to database if not found{{ end }}
 	var obj {{$typename}}
 
-	err := m.db{{ if $dynamictable }}.Table(tableName){{ end }}.Scopes({{$typename}}FilterBy{{$bt.Parent}}(parentid, &m.db)).Find(&obj, id).Error
+	err := m.Db{{ if $dynamictable }}.Table(tableName){{ end }}.Scopes({{$typename}}FilterBy{{$bt.Parent}}(parentid, &m.Db)).Find(&obj, id).Error
 	{{ if $cached }} go m.cache.Set(strconv.Itoa(id), obj, cache.DefaultExpiration) {{ end }}
 	return obj, err
 }
@@ -74,7 +74,7 @@ func (m *{{$typename}}DB) OneBy{{$bt.Parent}}(ctx context.Context{{ if $dynamict
 func New{{$typename}}DB(db gorm.DB) *{{$typename}}DB {
 	{{ if $cached }}
 	return &{{$typename}}DB{
-		db: db,
+		Db: db,
 		cache: cache.New(5*time.Minute, 30*time.Second),
 	}
 	{{ else  }}
@@ -90,7 +90,7 @@ func (m *{{$typename}}DB) DB() interface{} {
 func (m *{{$typename}}DB) List(ctx context.Context{{ if $dynamictable }}, tableName string{{ end }}) []{{$typename}} {
 
 	var objs []{{$typename}}
-	m.db{{ if $dynamictable }}.Table(tableName){{ end }}.Find(&objs)
+	m.Db{{ if $dynamictable }}.Table(tableName){{ end }}.Find(&objs)
 	return objs
 }
 
@@ -99,13 +99,13 @@ func (m *{{$typename}}DB) List(ctx context.Context{{ if $dynamictable }}, tableN
 func (m *{{$typename}}DB) ListBy{{title $col.Column}}Equal(ctx context.Context, {{lower $col.Column}} {{$col.Coltype}}{{ if $dynamictable }}, tableName string{{ end }}) []{{$typename}} {
 
 	var objs []{{$typename}}
-	m.db.Where("{{lower $col.Column}} = ?",  {{lower $col.Column}}){{ if $dynamictable }}.Table(tableName){{ end }}.Find(&objs)
+	m.Db.Where("{{lower $col.Column}} = ?",  {{lower $col.Column}}){{ if $dynamictable }}.Table(tableName){{ end }}.Find(&objs)
 	return objs
 }
 func (m *{{$typename}}DB) ListBy{{title $col.Column}}Like(ctx context.Context, {{lower $col.Column}} {{$col.Coltype}}{{ if $dynamictable }}, tableName string{{ end }}) []{{$typename}} {
 
 	var objs []{{$typename}}
-	m.db.Where("{{lower $col.Column}} like ?",  {{lower $col.Column}}){{ if $dynamictable }}.Table(tableName){{ end }}.Find(&objs)
+	m.Db.Where("{{lower $col.Column}} like ?",  {{lower $col.Column}}){{ if $dynamictable }}.Table(tableName){{ end }}.Find(&objs)
 	return objs
 }
 {{ end  }}
@@ -121,16 +121,16 @@ func (m *{{$typename}}DB) One(ctx context.Context{{ if $dynamictable }}, tableNa
 	var obj {{$typename}}
 	{{ $l := len $pks }}
 	{{ if eq $l 1 }}
-	err := m.db{{ if $dynamictable }}.Table(tableName){{ end }}.Find(&obj, id).Error
+	err := m.Db{{ if $dynamictable }}.Table(tableName){{ end }}.Find(&obj, id).Error
 	{{ else  }}
-	err := m.db{{ if $dynamictable }}.Table(tableName){{ end }}.Find(&obj).Where("{{pkwhere $pks}}", {{pkwherefields $pks}}).Error
+	err := m.Db{{ if $dynamictable }}.Table(tableName){{ end }}.Find(&obj).Where("{{pkwhere $pks}}", {{pkwherefields $pks}}).Error
 	{{ end }}
 	{{ if $cached }} go m.cache.Set(strconv.Itoa(id), obj, cache.DefaultExpiration) {{ end }}
 	return obj, err
 }
 
 func (m *{{$typename}}DB) Add(ctx context.Context{{ if $dynamictable }}, tableName string{{ end }}, model {{$typename}}) ({{$typename}}, error) {
-	err := m.db{{ if $dynamictable }}.Table(tableName){{ end }}.Create(&model).Error
+	err := m.Db{{ if $dynamictable }}.Table(tableName){{ end }}.Create(&model).Error
 	{{ if $cached }} go m.cache.Set(strconv.Itoa(model.ID), model, cache.DefaultExpiration) {{ end }}
 	return model, err
 }
@@ -140,7 +140,7 @@ func (m *{{$typename}}DB) Update(ctx context.Context{{ if $dynamictable }}, tabl
 	if err != nil {
 		return  err
 	}
-	err = m.db{{ if $dynamictable }}.Table(tableName){{ end }}.Model(&obj).Updates(model).Error
+	err = m.Db{{ if $dynamictable }}.Table(tableName){{ end }}.Model(&obj).Updates(model).Error
 	{{ if $cached }}
 	go func(){
 	obj, err := m.One(ctx, model.ID)
@@ -158,9 +158,9 @@ func (m *{{$typename}}DB) Delete(ctx context.Context{{ if $dynamictable }}, tabl
 	var obj {{$typename}}
 	{{ $l := len $pks }}
 	{{ if eq $l 1 }}
-	err := m.db{{ if $dynamictable }}.Table(tableName){{ end }}.Delete(&obj, id).Error
+	err := m.Db{{ if $dynamictable }}.Table(tableName){{ end }}.Delete(&obj, id).Error
 	{{ else  }}
-	err := m.db{{ if $dynamictable }}.Table(tableName){{ end }}.Delete(&obj).Where("{{pkwhere $pks}}", {{pkwherefields $pks}}).Error
+	err := m.Db{{ if $dynamictable }}.Table(tableName){{ end }}.Delete(&obj).Where("{{pkwhere $pks}}", {{pkwherefields $pks}}).Error
 	{{ end }}
 	if err != nil {
 		return  err
@@ -179,7 +179,7 @@ func (m *{{$typename}}DB) Delete{{$bt.Relation}}(ctx context.Context{{ if $dynam
 	if err != nil {
 		return err
 	}
-	err = m.db{{ if $dynamictable }}.Table(tableName){{ end }}.Model(&obj).Association("{{$bt.PluralRelation}}").Delete(assoc).Error
+	err = m.Db{{ if $dynamictable }}.Table(tableName){{ end }}.Model(&obj).Association("{{$bt.PluralRelation}}").Delete(assoc).Error
 	if err != nil {
 		return  err
 	}
@@ -190,7 +190,7 @@ func (m *{{$typename}}DB) Add{{$bt.Relation}}(ctx context.Context{{ if $dynamict
 	{{lower $typename}}.ID = {{lower $typename}}ID
 	var assoc {{$bt.LowerRelation}}.{{$bt.Relation}}
 	assoc.ID = {{$bt.LowerRelation}}ID
-	err := m.db{{ if $dynamictable }}.Table(tableName){{ end }}.Model(&{{lower $typename}}).Association("{{$bt.PluralRelation}}").Append(assoc).Error
+	err := m.Db{{ if $dynamictable }}.Table(tableName){{ end }}.Model(&{{lower $typename}}).Association("{{$bt.PluralRelation}}").Append(assoc).Error
 	if err != nil {
 		return  err
 	}
@@ -200,7 +200,7 @@ func (m *{{$typename}}DB) List{{$bt.PluralRelation}}(ctx context.Context{{ if $d
 	var list []{{$bt.LowerRelation}}.{{$bt.Relation}}
 	var obj {{$typename}}
 	obj.ID = {{lower $typename}}ID
-	m.db{{ if $dynamictable }}.Table(tableName){{ end }}.Model(&obj).Association("{{$bt.PluralRelation}}").Find(&list)
+	m.Db{{ if $dynamictable }}.Table(tableName){{ end }}.Model(&obj).Association("{{$bt.PluralRelation}}").Find(&list)
 	return  list
 }
 {{end}}
