@@ -349,6 +349,7 @@ func getPrimaryKeys(res *design.UserTypeDefinition) []PrimaryKey {
 	var pks []PrimaryKey
 	def := res.Definition()
 	t := def.Type
+	fmt.Println(res.TypeName)
 	switch actual := t.(type) {
 	case design.Object:
 
@@ -359,6 +360,7 @@ func getPrimaryKeys(res *design.UserTypeDefinition) []PrimaryKey {
 						Field: n,
 						Type:  "int", // TODO(BJK) support others
 					}
+					fmt.Println("added pk from gormtag")
 					pks = append(pks, pk)
 				}
 			}
@@ -368,6 +370,7 @@ func getPrimaryKeys(res *design.UserTypeDefinition) []PrimaryKey {
 					Type:  "int", //TODO (BJK) support others
 				}
 				pks = append(pks, pk)
+				fmt.Pritnln("added pk from ID definition")
 			}
 		}
 
