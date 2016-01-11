@@ -161,7 +161,7 @@ func (m *{{$typename}}DB) Delete(ctx context.Context{{ if $dynamictable }}, tabl
 	err := m.db{{ if $dynamictable }}.Table(tableName){{ end }}.Delete(&obj, id).Error
 	{{ else  }}
 	err := m.db{{ if $dynamictable }}.Table(tableName){{ end }}.Delete(&obj).Where("{{pkwhere $pks}}", {{pkwherefields $pks}}).Error
-	{{ end }
+	{{ end }}
 	if err != nil {
 		return  err
 	}
