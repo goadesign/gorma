@@ -370,7 +370,7 @@ func getPrimaryKeys(res *design.UserTypeDefinition) []PrimaryKey {
 					Type:  "int", //TODO (BJK) support others
 				}
 				pks = append(pks, pk)
-				fmt.Pritnln("added pk from ID definition")
+				fmt.Println("added pk from ID definition")
 			}
 		}
 
