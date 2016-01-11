@@ -20,6 +20,11 @@ type {{$typename}}Storage interface {
 	{{ storagedef $typedef }}
 }
 
+func New{{.TypeName}}DB(db gorm.DB) *{{.TypeName}}DB {
+
+	return &{{.ModelLower}}.{{.TypeName}}DB{db: db}
+
+}
 type {{.TypeName}} struct {
 	{{.ModelLower}}.{{.TypeName}}
 }
