@@ -206,7 +206,7 @@ func (m *{{$typename}}DB) List{{$bt.PluralRelation}}(ctx context.Context{{ if $d
 {{end}}
 {{ range $idx, $bt := .BelongsTo}}
 func Filter{{$typename}}By{{$bt.Parent}}(parent int, list []{{$typename}}) []{{$typename}} {
-	filtered := make([]{{$typename}},0)
+	var filtered []{{$typename}}
 	for _,o := range list {
 		if o.{{$bt.Parent}}ID == int(parent) {
 			filtered = append(filtered,o)
