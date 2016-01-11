@@ -84,6 +84,7 @@ func NewMediaWriter(filename string) (*MediaWriter, error) {
 	funcMap["metaLookup"] = metaLookupTmpl
 	funcMap["columns"] = GetAttributeColumns
 	funcMap["version"] = versionize
+	funcMap["pkattributes"] = pkAttributes
 
 	modelTmpl, err := template.New("media").Funcs(funcMap).Parse(mediaTmpl)
 	if err != nil {

@@ -378,6 +378,16 @@ func getPrimaryKeys(res *design.UserTypeDefinition) []PrimaryKey {
 	return pks
 }
 
+func pkAttributes(pks []PrimaryKey) string {
+	var pkdefs []string
+	for _, pk := range pks {
+		def := fmt.Sprintf("%s %s", pk.Field, pk.Type)
+		pkdefs = append(pkdefs, def)
+	}
+
+	return strings.Join(pkdefs, ",")
+}
+
 // setupIDAttribute adds or updates the ID field of a user type definition.
 func setupIDAttribute(obj design.Object, res *design.UserTypeDefinition) design.Object {
 	idName := ""

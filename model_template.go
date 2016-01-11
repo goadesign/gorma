@@ -22,10 +22,10 @@ func (m {{$typename}}) GetRole() string {
 type {{$typename}}Storage interface {
 	DB() interface{}
 	List(ctx context.Context{{ if $dynamictable }}, tableName string{{ end }}) []{{$typename}}
-	One(ctx context.Context{{ if $dynamictable }}, tableName string{{ end }}, {{ range $id, $pk := $pks}}{{$pk.Field}} {{$pk.Type }}{{end}}) ({{$typename}}, error)
+	One(ctx context.Context{{ if $dynamictable }}, tableName string{{ end }}, {{ pkattributes $pks  }}) ({{$typename}}, error)
 	Add(ctx context.Context{{ if $dynamictable }}, tableName string{{ end }}, o {{$typename}}) ({{$typename}}, error)
 	Update(ctx context.Context{{ if $dynamictable }}, tableName string{{ end }}, o {{$typename}}) (error)
-	Delete(ctx context.Context{{ if $dynamictable }}, tableName string{{ end }}, id int) (error)
+	Delete(ctx context.Context{{ if $dynamictable }}, tableName string{{ end }}, {{ pkattributes $pks }}) (error)
 {{ range $idx, $bt := .BelongsTo}}
 	ListBy{{$bt.Parent}}(ctx context.Context{{ if $dynamictable }}, tableName string{{ end }}, parentid int) []{{$typename}}
 	OneBy{{$bt.Parent}}(ctx context.Context{{ if $dynamictable }}, tableName string{{ end }}, parentid, id int) ({{$typename}}, error)
@@ -56,7 +56,7 @@ func (m *{{$typename}}DB) ListBy{{$bt.Parent}}(ctx context.Context{{ if $dynamic
 	return objs
 }
 
-func (m *{{$typename}}DB) OneBy{{$bt.Parent}}(ctx context.Context{{ if $dynamictable }}, tableName string{{ end }}, parentid, id int) ({{$typename}}, error) {
+func (m *{{$typename}}DB) OneBy{{$bt.Parent}}(ctx context.Context{{ if $dynamictable }}, tableName string{{ end }}, parentid, {{ pkattributes $pks }}) ({{$typename}}, error) {
 	{{ if $cached }}//first attempt to retrieve from cache
 	o,found := m.cache.Get(strconv.Itoa(id))
 	if found {
@@ -111,7 +111,7 @@ func (m *{{$typename}}DB) ListBy{{title $col.Column}}Like(ctx context.Context, {
 {{ end  }}
 
 
-func (m *{{$typename}}DB) One(ctx context.Context{{ if $dynamictable }}, tableName string{{ end }}, id int) ({{$typename}}, error) {
+func (m *{{$typename}}DB) One(ctx context.Context{{ if $dynamictable }}, tableName string{{ end }}, {{pkattributes $pks}}) ({{$typename}}, error) {
 	{{ if $cached }}//first attempt to retrieve from cache
 	o,found := m.cache.Get(strconv.Itoa(id))
 	if found {
@@ -150,7 +150,7 @@ func (m *{{$typename}}DB) Update(ctx context.Context{{ if $dynamictable }}, tabl
 }
 
 
-func (m *{{$typename}}DB) Delete(ctx context.Context{{ if $dynamictable }}, tableName string{{ end }}, id int)  error {
+func (m *{{$typename}}DB) Delete(ctx context.Context{{ if $dynamictable }}, tableName string{{ end }}, {{pkattributes $pks}})  error {
 	var obj {{$typename}}
 	err := m.db{{ if $dynamictable }}.Table(tableName){{ end }}.Delete(&obj, id).Error
 	if err != nil {
