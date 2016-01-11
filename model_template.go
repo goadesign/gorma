@@ -7,7 +7,7 @@ type {{.TypeName}} {{ modeldef .TypeDef }}
 {{ $dynamictable := .DoDynamicTableName }}
 {{ $typename  := .TypeName }}
 {{ $cached := .DoCache }}
-{{ $pks := .PimaryKeys }}
+{{ $pks := .PrimaryKeys }}
 {{ if .DoCustomTableName }}
 func (m {{$typename}}) TableName() string {
 	return "{{ .CustomTableName}}"
@@ -22,7 +22,7 @@ func (m {{$typename}}) GetRole() string {
 type {{$typename}}Storage interface {
 	DB() interface{}
 	List(ctx context.Context{{ if $dynamictable }}, tableName string{{ end }}) []{{$typename}}
-	One(ctx context.Context{{ if $dynamictable }}, tableName string{{ end }}, id int) ({{$typename}}, error)
+	One(ctx context.Context{{ if $dynamictable }}, tableName string{{ end }}, {{$x, $pk := range $pks}}{{$pk.Field}} {{$pk.Type }}{{end}}) ({{$typename}}, error)
 	Add(ctx context.Context{{ if $dynamictable }}, tableName string{{ end }}, o {{$typename}}) ({{$typename}}, error)
 	Update(ctx context.Context{{ if $dynamictable }}, tableName string{{ end }}, o {{$typename}}) (error)
 	Delete(ctx context.Context{{ if $dynamictable }}, tableName string{{ end }}, id int) (error)
