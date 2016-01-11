@@ -140,7 +140,7 @@ func NewModelWriter(filename string) (*ModelWriter, error) {
 	funcMap["plural"] = plural
 	funcMap["metaLookup"] = metaLookupTmpl
 	funcMap["columns"] = GetAttributeColumns
-
+	funcMap["pkattributes"] = pkAttributes
 	modelTmpl, err := template.New("models").Funcs(funcMap).Parse(modelTmpl)
 	if err != nil {
 		return nil, err
