@@ -136,7 +136,7 @@ func (m *{{$typename}}DB) Add(ctx context.Context{{ if $dynamictable }}, tableNa
 }
 
 func (m *{{$typename}}DB) Update(ctx context.Context{{ if $dynamictable }}, tableName string{{ end }}, model {{$typename}}) error {
-	obj, err := m.One(ctx{{ if $dynamictable }}, tableName{{ end }}, model.ID)
+	obj, err := m.One(ctx{{ if $dynamictable }}, tableName{{ end }}, {{pkupdatefields $pks}})
 	if err != nil {
 		return  err
 	}
@@ -156,7 +156,12 @@ func (m *{{$typename}}DB) Update(ctx context.Context{{ if $dynamictable }}, tabl
 
 func (m *{{$typename}}DB) Delete(ctx context.Context{{ if $dynamictable }}, tableName string{{ end }}, {{pkattributes $pks}})  error {
 	var obj {{$typename}}
+	{{ $l := len $pks }}
+	{{ if eq $l 1 }}
 	err := m.db{{ if $dynamictable }}.Table(tableName){{ end }}.Delete(&obj, id).Error
+	{{ else  }}
+	err := m.db{{ if $dynamictable }}.Table(tableName){{ end }}.Delete(&obj).Where("{{pkwhere $pks}}", {{pkwherefields $pks}}).Error
+	{{ end }
 	if err != nil {
 		return  err
 	}

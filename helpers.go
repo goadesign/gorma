@@ -411,6 +411,17 @@ func pkWhereFields(pks []PrimaryKey) string {
 	pkw := strings.Join(pkwhere, ",")
 	return pkw
 }
+func pkUpdateFields(pks []PrimaryKey) string {
+
+	var pkwhere []string
+	for _, pk := range pks {
+		def := fmt.Sprintf("model.%s", codegen.Goify(pk.Field, true))
+		pkwhere = append(pkwhere, def)
+	}
+
+	pkw := strings.Join(pkwhere, ",")
+	return pkw
+}
 
 // setupIDAttribute adds or updates the ID field of a user type definition.
 func setupIDAttribute(obj design.Object, res *design.UserTypeDefinition) design.Object {

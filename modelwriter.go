@@ -143,6 +143,7 @@ func NewModelWriter(filename string) (*ModelWriter, error) {
 	funcMap["pkattributes"] = pkAttributes
 	funcMap["pkwhere"] = pkWhere
 	funcMap["pkwherefields"] = pkWhereFields
+	funcMap["pkupdatefields"] = pkUpdateFields
 	modelTmpl, err := template.New("models").Funcs(funcMap).Parse(modelTmpl)
 	if err != nil {
 		return nil, err
