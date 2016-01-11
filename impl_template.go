@@ -8,5 +8,4 @@ type {{.TypeName}} struct {
 type {{.TypeName}}DB struct {
 	{{.ModelLower}}.{{.TypeName}}DB
 }
-{{end}}
 `
