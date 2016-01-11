@@ -345,8 +345,8 @@ type PrimaryKey struct {
 	Type  string
 }
 
-func getPrimaryKeys(res *design.UserTypeDefinition) []PrimaryKey {
-	var pks []PrimaryKey
+func getPrimaryKeys(res *design.UserTypeDefinition) map[string]PrimaryKey {
+	pks := make(map[string]PrimaryKey, 0)
 	def := res.Definition()
 	t := def.Type
 	fmt.Println(res.TypeName)
@@ -361,7 +361,7 @@ func getPrimaryKeys(res *design.UserTypeDefinition) []PrimaryKey {
 						Type:  "int", // TODO(BJK) support others
 					}
 					fmt.Println("added pk from gormtag")
-					pks = append(pks, pk)
+					pks[n] = pk
 				}
 			}
 			if n == "ID" || n == "Id" || n == "id" {
@@ -369,7 +369,7 @@ func getPrimaryKeys(res *design.UserTypeDefinition) []PrimaryKey {
 					Field: n,
 					Type:  "int", //TODO (BJK) support others
 				}
-				pks = append(pks, pk)
+				pks[n] = pk
 				fmt.Println("added pk from ID definition")
 			}
 		}
@@ -378,7 +378,7 @@ func getPrimaryKeys(res *design.UserTypeDefinition) []PrimaryKey {
 		panic("gorma bug: expected data structure type")
 	}
 	if len(pks) == 0 {
-		pks = append(pks, PrimaryKey{Field: "id", Type: "int"})
+		pks["id"] = PrimaryKey{Field: "id", Type: "int"}
 	}
 	return pks
 }

@@ -36,7 +36,7 @@ type ModelData struct {
 	ModelLower         string
 	BelongsTo          []BelongsTo
 	M2M                []Many2Many
-	PrimaryKeys        []PrimaryKey
+	PrimaryKeys        map[string]PrimaryKey
 	CustomTableName    string
 	DoMedia            bool
 	DoRoler            bool
