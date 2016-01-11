@@ -21,9 +21,10 @@ type {{$typename}}Storage interface {
 }
 
 func New{{.TypeName}}DB(db gorm.DB) *{{.TypeName}}DB {
-	mdb := {{.ModelLower}}.New{{.TypeName}}DB(db)
 	return &{{.TypeName}}DB{
-		{{.ModelLower}}.{{.TypeName}}DB: mdb,
+		{{.ModelLower}}.{{.TypeName}}DB{
+			Db: db,
+		}
 	}
 
 }

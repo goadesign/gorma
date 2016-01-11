@@ -33,7 +33,7 @@ type {{$typename}}Storage interface {
 	{{ storagedef $typedef }}
 }
 type {{$typename}}DB struct {
-	db gorm.DB
+	Db gorm.DB
 	{{ if .DoCache }}cache *cache.Cache{{end}}
 }
 {{ range $idx, $bt := .BelongsTo}}
@@ -78,7 +78,7 @@ func New{{$typename}}DB(db gorm.DB) *{{$typename}}DB {
 		cache: cache.New(5*time.Minute, 30*time.Second),
 	}
 	{{ else  }}
-	return &{{$typename}}DB{db: db}
+	return &{{$typename}}DB{Db: db}
 
 	{{ end  }}
 }
