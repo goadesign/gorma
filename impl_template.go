@@ -2,6 +2,9 @@ package gorma
 
 const implTmpl = `// {{if .TypeDef.Description}}{{.TypeDef.Description}}{{else}}app.{{ .TypeName}} model type{{end}}
 // Identifier: {{ .TypeName}}
+{{ $dynamictable := .DoDynamicTableName }}
+{{ $typename  := .TypeName }}
+{{ $pks := .PrimaryKeys }}
 type {{$typename}}Storage interface {
 	DB() interface{}
 	List(ctx context.Context{{ if $dynamictable }}, tableName string{{ end }}) []{{$typename}}
