@@ -344,7 +344,15 @@ func ModelDef(res *design.UserTypeDefinition) string {
 func setupIDAttribute(obj design.Object, res *design.UserTypeDefinition) design.Object {
 	idName := ""
 	foundID := false
+	foundPK := false
+	count := 0
 	for n := range obj {
+		if gt, ok := metaLookup(obj[n].Metadata, "#gormtag"); ok {
+			if strings.Contains(gt, "primary_key") {
+				count = count + 1
+				foundPK = true
+			}
+		}
 		if n == "ID" || n == "Id" || n == "id" {
 			idName = n
 			foundID = true
@@ -357,23 +365,30 @@ func setupIDAttribute(obj design.Object, res *design.UserTypeDefinition) design.
 			obj["id"] = obj[idName]
 			delete(obj, idName)
 		}
-	} else {
+	}
+
+	// compound primary key
+	if count > 1 {
+		// compound primary key
+		return obj
+	}
+	if !foundID && !foundPK {
 		obj["id"] = &design.AttributeDefinition{
 			Type:     design.Integer,
 			Metadata: design.MetadataDefinition{},
 		}
-	}
 
-	var gorm string
-	if val, ok := metaLookup(res.Metadata, "#gormpktag"); ok {
-		gorm = val
-	} else {
-		gorm = "primary_key"
-	}
+		var gorm string
+		if val, ok := metaLookup(res.Metadata, "#gormpktag"); ok {
+			gorm = val
+		} else {
+			gorm = "primary_key"
+		}
 
-	// If the user already defined gormtag, leave it alone.
-	if _, ok := metaLookup(obj["id"].Metadata, "#gormtag"); !ok {
-		obj["id"].Metadata[META_NAMESPACE+"#gormtag"] = gorm
+		// If the user already defined gormtag, leave it alone.
+		if _, ok := metaLookup(obj["id"].Metadata, "#gormtag"); !ok {
+			obj["id"].Metadata[META_NAMESPACE+"#gormtag"] = gorm
+		}
 	}
 
 	return obj
