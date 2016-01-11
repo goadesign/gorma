@@ -111,7 +111,7 @@ func (g *Generator) generateModels(api *design.APIDefinition) error {
 				title := fmt.Sprintf("%s: Models", api.Name)
 				name := strings.ToLower(deModel(res.TypeName))
 
-				err := os.MkdirAll(filepath.Join(modelDir(), name), 0755)
+				err := os.MkdirAll(filepath.Join(modelDir(), "generated", name), 0755)
 				if err != nil {
 					panic(err)
 				}
@@ -270,7 +270,7 @@ func (g *Generator) generateResources(api *design.APIDefinition) error {
 			}
 			name := strings.ToLower(codegen.Goify(res.Name, false))
 
-			err := os.MkdirAll(filepath.Join(modelDir(), name), 0755)
+			err := os.MkdirAll(filepath.Join(modelDir(), "generated", name), 0755)
 			if err != nil {
 				panic(err)
 			}
@@ -366,7 +366,7 @@ func (g *Generator) generateMedia(api *design.APIDefinition) error {
 				}
 				name := strings.ToLower(codegen.Goify(res.TypeName, false))
 
-				err := os.MkdirAll(filepath.Join(modelDir(), name), 0755)
+				err := os.MkdirAll(filepath.Join(modelDir(), "generated", name), 0755)
 				if err != nil {
 					panic(err)
 				}
