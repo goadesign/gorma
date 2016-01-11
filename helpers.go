@@ -171,7 +171,7 @@ func StorageDef(res *design.UserTypeDefinition) string {
 
 		for _, child := range children {
 			pieces := strings.Split(child, ":")
-			associations = associations + "List" + pieces[0] + "(context.Context, int) []" + pieces[1] + "\n"
+			associations = associations + "List" + pieces[0] + "(context.Context, int) []" + lower(pieces[1]) + "." + pieces[1] + "\n"
 			associations = associations + "Add" + pieces[1] + "(context.Context, int, int) (error)\n"
 			associations = associations + "Delete" + pieces[1] + "(context.Context, int, int) error \n"
 		}
@@ -207,13 +207,13 @@ func includeChildren(res *design.AttributeDefinition) string {
 		children := strings.Split(assoc, ",")
 
 		for _, child := range children {
-			associations = associations + inflection.Plural(child) + " []" + child + "\n"
+			associations = associations + inflection.Plural(child) + " []" + lower(child) + "." + child + "\n"
 		}
 	}
 	if assoc, ok := metaLookup(res.Metadata, "#hasone"); ok {
 		children := strings.Split(assoc, ",")
 		for _, child := range children {
-			associations = associations + child + " " + child + "\n"
+			associations = associations + child + " " + lower(child) + "." + child + "\n"
 			associations = associations + child + "ID " + "*sql.NullInt64\n"
 		}
 	}
@@ -229,7 +229,7 @@ func includeMany2Many(res *design.AttributeDefinition) string {
 
 		for _, child := range children {
 			pieces := strings.Split(child, ":")
-			associations = associations + pieces[0] + "\t []" + pieces[1] + "\t" + "`gorm:\"many2many:" + pieces[2] + ";\"`\n"
+			associations = associations + pieces[0] + "\t []" + lower(deModel(pieces[1])) + "." + pieces[1] + "\t" + "`gorm:\"many2many:" + pieces[2] + ";\"`\n"
 		}
 	}
 	return associations
