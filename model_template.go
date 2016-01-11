@@ -7,6 +7,7 @@ type {{.TypeName}} {{ modeldef .TypeDef }}
 {{ $dynamictable := .DoDynamicTableName }}
 {{ $typename  := .TypeName }}
 {{ $cached := .DoCache }}
+{{ $pks := .PimaryKeys }}
 {{ if .DoCustomTableName }}
 func (m {{$typename}}) TableName() string {
 	return "{{ .CustomTableName}}"

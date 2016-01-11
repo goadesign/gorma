@@ -36,6 +36,7 @@ type ModelData struct {
 	ModelLower         string
 	BelongsTo          []BelongsTo
 	M2M                []Many2Many
+	PrimaryKeys        []PrimaryKey
 	CustomTableName    string
 	DoMedia            bool
 	DoRoler            bool
@@ -58,7 +59,7 @@ func NewModelData(version string, utd *design.UserTypeDefinition) ModelData {
 	} else {
 		md.APIVersion = "app"
 	}
-
+	md.PrimaryKeys = getPrimaryKeys(utd)
 	belongs := make([]BelongsTo, 0)
 	if bt, ok := metaLookup(utd.Metadata, BELONGSTO); ok {
 		btlist := strings.Split(bt, ",")

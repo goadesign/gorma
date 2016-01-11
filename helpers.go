@@ -340,6 +340,44 @@ func ModelDef(res *design.UserTypeDefinition) string {
 	}
 }
 
+type PrimaryKey struct {
+	Field string
+	Type  string
+}
+
+func getPrimaryKeys(res *design.UserTypeDefinition) []PrimaryKey {
+	var pks []PrimaryKey
+	def := res.Definition()
+	t := def.Type
+	switch actual := t.(type) {
+	case design.Object:
+
+		for n := range actual {
+			if gt, ok := metaLookup(actual[n].Metadata, "#gormtag"); ok {
+				if strings.Contains(gt, "primary_key") {
+					pk := PrimaryKey{
+						Field: n,
+						Type:  "int", // TODO(BJK) support others
+					}
+					pks = append(pks, pk)
+				}
+			}
+			if n == "ID" || n == "Id" || n == "id" {
+				pk := PrimaryKey{
+					Field: n,
+					Type:  "int", //TODO (BJK) support others
+				}
+				pks = append(pks, pk)
+			}
+		}
+
+	default:
+		panic("gorma bug: expected data structure type")
+	}
+
+	return pks
+}
+
 // setupIDAttribute adds or updates the ID field of a user type definition.
 func setupIDAttribute(obj design.Object, res *design.UserTypeDefinition) design.Object {
 	idName := ""
