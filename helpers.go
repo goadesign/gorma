@@ -392,7 +392,7 @@ func pkAttributes(pks map[string]PrimaryKey) string {
 
 	return strings.Join(pkdefs, ",")
 }
-func pkWhere(pks []PrimaryKey) string {
+func pkWhere(pks map[string]PrimaryKey) string {
 
 	var pkwhere []string
 	for _, pk := range pks {
@@ -403,7 +403,7 @@ func pkWhere(pks []PrimaryKey) string {
 	pkw := strings.Join(pkwhere, " and ")
 	return pkw
 }
-func pkWhereFields(pks []PrimaryKey) string {
+func pkWhereFields(pks map[string]PrimaryKey) string {
 
 	var pkwhere []string
 	for _, pk := range pks {
@@ -414,7 +414,7 @@ func pkWhereFields(pks []PrimaryKey) string {
 	pkw := strings.Join(pkwhere, ",")
 	return pkw
 }
-func pkUpdateFields(pks []PrimaryKey) string {
+func pkUpdateFields(pks map[string]PrimaryKey) string {
 
 	var pkwhere []string
 	for _, pk := range pks {
