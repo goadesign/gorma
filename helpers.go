@@ -374,7 +374,9 @@ func getPrimaryKeys(res *design.UserTypeDefinition) []PrimaryKey {
 	default:
 		panic("gorma bug: expected data structure type")
 	}
-
+	if len(pks) == 0 {
+		pks = append(pks, PrimaryKey{Field: "id", Type: "int"})
+	}
 	return pks
 }
 
