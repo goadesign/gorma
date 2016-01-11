@@ -84,7 +84,7 @@ func New{{$typename}}DB(db gorm.DB) *{{$typename}}DB {
 }
 
 func (m *{{$typename}}DB) DB() interface{} {
-	return &m.db
+	return &m.Db
 }
 
 func (m *{{$typename}}DB) List(ctx context.Context{{ if $dynamictable }}, tableName string{{ end }}) []{{$typename}} {
