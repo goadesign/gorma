@@ -5,7 +5,6 @@ const implTmpl = `// {{if .TypeDef.Description}}{{.TypeDef.Description}}{{else}}
 type {{.TypeName}} struct {
 	{{.ModelLower}}.{{.TypeName}}
 }
-{{end}}
 type {{.TypeName}}DB struct {
 	{{.ModelLower}}.{{.TypeName}}DB
 }
