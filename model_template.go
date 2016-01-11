@@ -197,7 +197,7 @@ func (m *{{$typename}}DB) Add{{$bt.Relation}}(ctx context.Context{{ if $dynamict
 	return  nil
 }
 func (m *{{$typename}}DB) List{{$bt.PluralRelation}}(ctx context.Context{{ if $dynamictable }}, tableName string{{ end }}, {{lower $typename}}ID int)  []{{$bt.Relation}} {
-	var list := []{{$bt.Relation}}
+	var list []{{$bt.Relation}}
 	var obj {{$typename}}
 	obj.ID = {{lower $typename}}ID
 	m.db{{ if $dynamictable }}.Table(tableName){{ end }}.Model(&obj).Association("{{$bt.PluralRelation}}").Find(&list)
