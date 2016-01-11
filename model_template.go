@@ -119,7 +119,8 @@ func (m *{{$typename}}DB) One(ctx context.Context{{ if $dynamictable }}, tableNa
 	}
 	// fallback to database if not found{{ end }}
 	var obj {{$typename}}
-	{{ if eq len $pks  1 }}
+	{{ l := len $pks }}
+	{{ if eq l 1 }}
 	err := m.db{{ if $dynamictable }}.Table(tableName){{ end }}.Find(&obj, id).Error
 	{{ else  }}
 	err := m.db{{ if $dynamictable }}.Table(tableName){{ end }}.Find(&obj).Where("{{pkwhere $pks}}", {{pkwherefields $pks}}).Error
