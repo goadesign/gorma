@@ -398,7 +398,7 @@ func pkWhere(pks []PrimaryKey) string {
 	}
 
 	pkw := strings.Join(pkwhere, " and ")
-	return pwk
+	return pkw
 }
 func pkWhereFields(pks []PrimaryKey) string {
 
