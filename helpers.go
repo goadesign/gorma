@@ -383,7 +383,7 @@ func getPrimaryKeys(res *design.UserTypeDefinition) map[string]PrimaryKey {
 	return pks
 }
 
-func pkAttributes(pks []PrimaryKey) string {
+func pkAttributes(pks map[string]PrimaryKey) string {
 	var pkdefs []string
 	for _, pk := range pks {
 		def := fmt.Sprintf("%s %s", pk.Field, pk.Type)
