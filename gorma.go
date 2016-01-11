@@ -130,7 +130,7 @@ func (g *Generator) generateImpls(api *design.APIDefinition) error {
 				for k, _ := range md.RequiredPackages {
 					imports = append(imports, codegen.SimpleImport(path.Join(mainimp, "models", "generated", k)))
 				}
-
+				imports = append(imports, codegen.SimpleImport(path.Join(mainimp, "models", "generated", name)))
 				mtw.WriteHeader(title, name, imports)
 				if m, ok := metaLookup(res.Metadata, ""); ok && m == "Model" {
 					err = mtw.Execute(&md)
