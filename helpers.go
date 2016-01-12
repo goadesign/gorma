@@ -303,7 +303,7 @@ func ModelDef(res *design.UserTypeDefinition) string {
 		for _, name := range keys {
 			codegen.WriteTabs(&buffer, 1)
 			// func GoTypeDef(ds design.DataStructure, versioned bool, defPkg string, tabs int, jsonTags, inner bool) string {
-			typedef := codegen.GoTypeDef(actual[name], false, "app", 1, true, true)
+			typedef := codegen.GoTypeDef(actual[name], false, "app", 1, true)
 			fname := codegen.Goify(name, true)
 			var tags string
 			var omit string
