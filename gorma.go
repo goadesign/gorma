@@ -119,7 +119,7 @@ func (g *Generator) generateImpls(api *design.APIDefinition) error {
 					panic(err)
 				}
 
-				filename := filepath.Join(verdir, name+"_model.go")
+				filename := filepath.Join(verdir, name+".go")
 				os.Remove(filename)
 				mtw, err := NewImplWriter(filename)
 				if err != nil {
@@ -223,7 +223,7 @@ func (g *Generator) generateModels(api *design.APIDefinition) error {
 					panic(err)
 				}
 
-				filename := filepath.Join(verdir, name+"_genmodel.go")
+				filename := filepath.Join(verdir, name+".go")
 				os.Remove(filename)
 				mtw, err := NewModelWriter(filename)
 				if err != nil {
@@ -382,7 +382,7 @@ func (g *Generator) generateResources(api *design.APIDefinition) error {
 				panic(err)
 			}
 
-			mediafilename := filepath.Join(modelDir(), name+"_"+prefix+"_genmodel.go")
+			mediafilename := filepath.Join(modelDir(), name+"_"+prefix+".go")
 			os.Remove(mediafilename)
 
 			resw, err := NewResourceWriter(mediafilename)
@@ -478,7 +478,7 @@ func (g *Generator) generateMedia(api *design.APIDefinition) error {
 					panic(err)
 				}
 
-				mediafilename := filepath.Join(modelDir(), name+"_"+prefix+"_genmodel.go")
+				mediafilename := filepath.Join(modelDir(), name+"_"+prefix+".go")
 
 				os.Remove(mediafilename)
 				resw, err := NewMediaWriter(mediafilename)
