@@ -21,13 +21,13 @@ type {{$typename}}Storage interface {
 }
 
 func New{{.TypeName}}DB(db gorm.DB) *{{.TypeName}}DB {
-	return &{{.TypeName}}DB{ {{.ModelLower}}.{{.TypeName}}DB{Db: db} }
+	return &{{.TypeName}}DB{ gorma.{{.TypeName}}DB{Db: db} }
 
 }
 type {{.TypeName}} struct {
-	{{.ModelLower}}.{{.TypeName}}
+	gorma.{{.TypeName}}
 }
 type {{.TypeName}}DB struct {
-	{{.ModelLower}}.{{.TypeName}}DB
+	gorma.{{.TypeName}}DB
 }
 `
