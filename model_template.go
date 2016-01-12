@@ -170,7 +170,7 @@ func (m *{{$typename}}DB) Delete(ctx context.Context{{ if $dynamictable }}, tabl
 }
 
 {{ range $idx, $bt := .M2M}}
-func (m *{{$typename}}DB) Delete{{$bt.Relation}}(ctx context.Context{{ if $dynamictable }}, tableName string{{ end }}, {{lower $typename}}ID,  {{$bt.LowerRelation}}ID *int)  error {
+func (m *{{$typename}}DB) Delete{{$bt.Relation}}(ctx context.Context{{ if $dynamictable }}, tableName string{{ end }}, {{lower $typename}}ID,  {{$bt.LowerRelation}}ID int)  error {
 	var obj {{$typename}}
 	obj.ID = {{lower $typename}}ID
 	var assoc {{$bt.LowerRelation}}.{{$bt.Relation}}
@@ -185,7 +185,7 @@ func (m *{{$typename}}DB) Delete{{$bt.Relation}}(ctx context.Context{{ if $dynam
 	}
 	return  nil
 }
-func (m *{{$typename}}DB) Add{{$bt.Relation}}(ctx context.Context{{ if $dynamictable }}, tableName string{{ end }}, {{lower $typename}}ID, {{$bt.LowerRelation}}ID *int) error {
+func (m *{{$typename}}DB) Add{{$bt.Relation}}(ctx context.Context{{ if $dynamictable }}, tableName string{{ end }}, {{lower $typename}}ID, {{$bt.LowerRelation}}ID int) error {
 	var {{lower $typename}} {{$typename}}
 	{{lower $typename}}.ID = {{lower $typename}}ID
 	var assoc {{$bt.LowerRelation}}.{{$bt.Relation}}
@@ -196,7 +196,7 @@ func (m *{{$typename}}DB) Add{{$bt.Relation}}(ctx context.Context{{ if $dynamict
 	}
 	return  nil
 }
-func (m *{{$typename}}DB) List{{$bt.PluralRelation}}(ctx context.Context{{ if $dynamictable }}, tableName string{{ end }}, {{lower $typename}}ID *int)  []{{$bt.LowerRelation}}.{{$bt.Relation}} {
+func (m *{{$typename}}DB) List{{$bt.PluralRelation}}(ctx context.Context{{ if $dynamictable }}, tableName string{{ end }}, {{lower $typename}}ID int)  []{{$bt.LowerRelation}}.{{$bt.Relation}} {
 	var list []{{$bt.LowerRelation}}.{{$bt.Relation}}
 	var obj {{$typename}}
 	obj.ID = {{lower $typename}}ID
