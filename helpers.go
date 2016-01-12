@@ -171,9 +171,9 @@ func StorageDef(res *design.UserTypeDefinition) string {
 
 		for _, child := range children {
 			pieces := strings.Split(child, ":")
-			associations = associations + "List" + pieces[0] + "(context.Context, int) []" + lower(pieces[1]) + "." + pieces[1] + "\n"
-			associations = associations + "Add" + pieces[1] + "(context.Context, int, int) (error)\n"
-			associations = associations + "Delete" + pieces[1] + "(context.Context, int, int) error \n"
+			associations = associations + "List" + pieces[0] + "(context.Context, *int) []" + lower(pieces[1]) + "." + pieces[1] + "\n"
+			associations = associations + "Add" + pieces[1] + "(context.Context, *int, *int) (error)\n"
+			associations = associations + "Delete" + pieces[1] + "(context.Context, *int, *int) error \n"
 		}
 	}
 	return associations
@@ -355,13 +355,16 @@ func getPrimaryKeys(res *design.UserTypeDefinition) map[string]PrimaryKey {
 	fmt.Println(res.TypeName)
 	switch actual := t.(type) {
 	case design.Object:
-
 		for n := range actual {
+			typ := "int"
+			if actual[n].Type.IsPrimitive() && def.IsPrimitivePointer(n) {
+				typ = "*int"
+			}
 			if gt, ok := metaLookup(actual[n].Metadata, "#gormtag"); ok {
 				if strings.Contains(gt, "primary_key") {
 					pk := PrimaryKey{
 						Field: n,
-						Type:  "int", // TODO(BJK) support others
+						Type:  typ, // TODO(BJK) support others
 					}
 					fmt.Println("added pk from gormtag")
 					pks[n] = pk
@@ -370,7 +373,7 @@ func getPrimaryKeys(res *design.UserTypeDefinition) map[string]PrimaryKey {
 			if n == "ID" || n == "Id" || n == "id" {
 				pk := PrimaryKey{
 					Field: n,
-					Type:  "int", //TODO (BJK) support others
+					Type:  typ, //TODO (BJK) support others
 				}
 				pks[n] = pk
 				fmt.Println("added pk from ID definition")
@@ -381,7 +384,7 @@ func getPrimaryKeys(res *design.UserTypeDefinition) map[string]PrimaryKey {
 		panic("gorma bug: expected data structure type")
 	}
 	if len(pks) == 0 {
-		pks["id"] = PrimaryKey{Field: "id", Type: "int"}
+		pks["id"] = PrimaryKey{Field: "id", Type: "*int"}
 	}
 	return pks
 }
