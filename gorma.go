@@ -64,7 +64,7 @@ func (g *Generator) generateImpls(api *design.APIDefinition) error {
 	if err != nil {
 		panic(err)
 	}
-	outdir := implDir()
+	outdir := modelDir()
 	gopath := filepath.SplitList(os.Getenv("GOPATH"))[0]
 
 	mainimp, err := filepath.Rel(filepath.Join(gopath, "src"), codegen.OutputDir)
@@ -114,12 +114,12 @@ func (g *Generator) generateImpls(api *design.APIDefinition) error {
 				title := fmt.Sprintf("%s: Models", api.Name)
 				name := strings.ToLower(deModel(res.TypeName))
 
-				err := os.MkdirAll(filepath.Join(implDir()), 0755)
+				err := os.MkdirAll(filepath.Join(modelDir(), name), 0755)
 				if err != nil {
 					panic(err)
 				}
 
-				filename := filepath.Join(verdir, name+".go")
+				filename := filepath.Join(verdir, name, "model.go")
 				os.Remove(filename)
 				mtw, err := NewImplWriter(filename)
 				if err != nil {
@@ -127,11 +127,11 @@ func (g *Generator) generateImpls(api *design.APIDefinition) error {
 				}
 
 				md := NewImplData(v.Version, res)
-				for k := range md.RequiredPackages {
-					imports = append(imports, codegen.SimpleImport(path.Join(mainimp, modelDir(), k)))
+				for k, _ := range md.RequiredPackages {
+					imports = append(imports, codegen.SimpleImport(path.Join(mainimp, "models", "generated", k)))
 				}
-				imports = append(imports, codegen.SimpleImport(path.Join(mainimp, "models")))
-				mtw.WriteHeader(title, "models", imports)
+				imports = append(imports, codegen.SimpleImport(path.Join(mainimp, "models", "generated", name)))
+				mtw.WriteHeader(title, name, imports)
 				if m, ok := metaLookup(res.Metadata, ""); ok && m == "Model" {
 					err = mtw.Execute(&md)
 					if err != nil {
@@ -218,12 +218,12 @@ func (g *Generator) generateModels(api *design.APIDefinition) error {
 				title := fmt.Sprintf("%s: Models", api.Name)
 				name := strings.ToLower(deModel(res.TypeName))
 
-				err := os.MkdirAll(filepath.Join(modelDir()), 0755)
+				err := os.MkdirAll(filepath.Join(modelDir(), "generated", name), 0755)
 				if err != nil {
 					panic(err)
 				}
 
-				filename := filepath.Join(verdir, name+".go")
+				filename := filepath.Join(verdir, "generated", name, "genmodel.go")
 				os.Remove(filename)
 				mtw, err := NewModelWriter(filename)
 				if err != nil {
@@ -232,10 +232,10 @@ func (g *Generator) generateModels(api *design.APIDefinition) error {
 
 				md := NewModelData(v.Version, res)
 				for k, _ := range md.RequiredPackages {
-					imports = append(imports, codegen.SimpleImport(path.Join(mainimp, "gorma", k)))
+					imports = append(imports, codegen.SimpleImport(path.Join(mainimp, "models", k)))
 				}
 
-				mtw.WriteHeader(title, "gorma", imports)
+				mtw.WriteHeader(title, name, imports)
 				if m, ok := metaLookup(res.Metadata, ""); ok && m == "Model" {
 					err = mtw.Execute(&md)
 					if err != nil {
@@ -301,7 +301,7 @@ func (g *Generator) generateRBAC(api *design.APIDefinition) error {
 			fmt.Println("Error executing Gorma: ", err.Error())
 			panic(err)
 		}
-		rbacw.WriteHeader(rbactitle, modelDir(), rbacimports)
+		rbacw.WriteHeader(rbactitle, "models", rbacimports)
 		err = rbacw.Execute(api)
 		if err != nil {
 			fmt.Println("Error executing Gorma: ", err.Error())
@@ -377,12 +377,12 @@ func (g *Generator) generateResources(api *design.APIDefinition) error {
 			}
 			name := strings.ToLower(codegen.Goify(res.Name, false))
 
-			err := os.MkdirAll(filepath.Join(modelDir()), 0755)
+			err := os.MkdirAll(filepath.Join(modelDir(), "generated", name), 0755)
 			if err != nil {
 				panic(err)
 			}
 
-			mediafilename := filepath.Join(modelDir(), name+"_"+prefix+".go")
+			mediafilename := filepath.Join(modelDir(), "generated", name, prefix+"_genmodel.go")
 			os.Remove(mediafilename)
 
 			resw, err := NewResourceWriter(mediafilename)
@@ -393,9 +393,9 @@ func (g *Generator) generateResources(api *design.APIDefinition) error {
 
 			rd := NewResourceData(v.Version, res)
 			for k, _ := range rd.RequiredPackages {
-				imports = append(imports, codegen.SimpleImport(path.Join(mainimp, "gorma", k)))
+				imports = append(imports, codegen.SimpleImport(path.Join(mainimp, "models", k)))
 			}
-			resw.WriteHeader(title, "gorma", imports)
+			resw.WriteHeader(title, name, imports)
 
 			err = resw.Execute(&rd)
 			if err != nil {
@@ -473,12 +473,12 @@ func (g *Generator) generateMedia(api *design.APIDefinition) error {
 				}
 				name := strings.ToLower(codegen.Goify(res.TypeName, false))
 
-				err := os.MkdirAll(filepath.Join(modelDir()), 0755)
+				err := os.MkdirAll(filepath.Join(modelDir(), "generated", name), 0755)
 				if err != nil {
 					panic(err)
 				}
 
-				mediafilename := filepath.Join(modelDir(), name+"_"+prefix+".go")
+				mediafilename := filepath.Join(modelDir(), "generated", name, prefix+"_genmodel.go")
 
 				os.Remove(mediafilename)
 				resw, err := NewMediaWriter(mediafilename)
@@ -489,9 +489,9 @@ func (g *Generator) generateMedia(api *design.APIDefinition) error {
 
 				md := NewMediaData(v.Version, res)
 				for k, _ := range md.RequiredPackages {
-					imports = append(imports, codegen.SimpleImport(path.Join(mainimp, "gorma", k)))
+					imports = append(imports, codegen.SimpleImport(path.Join(mainimp, "models", k)))
 				}
-				resw.WriteHeader(title, "gorma", imports)
+				resw.WriteHeader(title, name, imports)
 
 				err = resw.Execute(&md)
 				if err != nil {
