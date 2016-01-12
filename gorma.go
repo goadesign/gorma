@@ -269,7 +269,7 @@ func (g *Generator) generateResources(api *design.APIDefinition) error {
 			}
 			prefix := "_resource"
 			if v.Version != "" {
-				prefix = prefix + "_v" + codegen.Goify(v.Version, false)
+				prefix = prefix + "_" + codegen.Goify(v.Version, false)
 
 			}
 			name := strings.ToLower(codegen.Goify(res.Name, false))
@@ -365,7 +365,7 @@ func (g *Generator) generateMedia(api *design.APIDefinition) error {
 				}
 				prefix := "_media"
 				if v.Version != "" {
-					prefix = prefix + "_v" + codegen.Goify(v.Version, false)
+					prefix = prefix + "_" + codegen.Goify(v.Version, false)
 
 				}
 				name := strings.ToLower(codegen.Goify(res.TypeName, false))
