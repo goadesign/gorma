@@ -124,6 +124,11 @@ func camelToSnake(s string) string {
 
 // modelDir is the path to the directory where the schema controller is generated.
 func modelDir() string {
+	return filepath.Join(codegen.OutputDir, "gorma")
+}
+
+// modelDir is the path to the directory where the schema controller is generated.
+func implDir() string {
 	return filepath.Join(codegen.OutputDir, "models")
 }
 
