@@ -44,9 +44,10 @@ func (g *Generator) Generate(api *design.APIDefinition) ([]string, error) {
 	if err := g.generateModels(api); err != nil {
 		return nil, err
 	}
-	if err := g.generateImpls(api); err != nil {
-		return nil, err
-	}
+	/*	if err := g.generateImpls(api); err != nil {
+			return nil, err
+		}
+	*/
 	if err := g.generateMedia(api); err != nil {
 		return nil, err
 	}
@@ -128,9 +129,9 @@ func (g *Generator) generateImpls(api *design.APIDefinition) error {
 
 				md := NewImplData(v.Version, res)
 				for k, _ := range md.RequiredPackages {
-					imports = append(imports, codegen.SimpleImport(path.Join(mainimp, "models", "generated", k)))
+					imports = append(imports, codegen.SimpleImport(path.Join(mainimp, "models", k)))
 				}
-				imports = append(imports, codegen.SimpleImport(path.Join(mainimp, "models", "generated", name)))
+				imports = append(imports, codegen.SimpleImport(path.Join(mainimp, "models", name)))
 				mtw.WriteHeader(title, name, imports)
 				if m, ok := metaLookup(res.Metadata, ""); ok && m == "Model" {
 					err = mtw.Execute(&md)
@@ -218,12 +219,12 @@ func (g *Generator) generateModels(api *design.APIDefinition) error {
 				title := fmt.Sprintf("%s: Models", api.Name)
 				name := strings.ToLower(deModel(res.TypeName))
 
-				err := os.MkdirAll(filepath.Join(modelDir(), "generated", name), 0755)
+				err := os.MkdirAll(filepath.Join(modelDir(), name), 0755)
 				if err != nil {
 					panic(err)
 				}
 
-				filename := filepath.Join(verdir, "generated", name, "genmodel.go")
+				filename := filepath.Join(verdir, name, "genmodel.go")
 				os.Remove(filename)
 				mtw, err := NewModelWriter(filename)
 				if err != nil {
@@ -377,12 +378,12 @@ func (g *Generator) generateResources(api *design.APIDefinition) error {
 			}
 			name := strings.ToLower(codegen.Goify(res.Name, false))
 
-			err := os.MkdirAll(filepath.Join(modelDir(), "generated", name), 0755)
+			err := os.MkdirAll(filepath.Join(modelDir(), name), 0755)
 			if err != nil {
 				panic(err)
 			}
 
-			mediafilename := filepath.Join(modelDir(), "generated", name, prefix+"_genmodel.go")
+			mediafilename := filepath.Join(modelDir(), name, prefix+"_genmodel.go")
 			os.Remove(mediafilename)
 
 			resw, err := NewResourceWriter(mediafilename)
@@ -473,12 +474,12 @@ func (g *Generator) generateMedia(api *design.APIDefinition) error {
 				}
 				name := strings.ToLower(codegen.Goify(res.TypeName, false))
 
-				err := os.MkdirAll(filepath.Join(modelDir(), "generated", name), 0755)
+				err := os.MkdirAll(filepath.Join(modelDir(), name), 0755)
 				if err != nil {
 					panic(err)
 				}
 
-				mediafilename := filepath.Join(modelDir(), "generated", name, prefix+"_genmodel.go")
+				mediafilename := filepath.Join(modelDir(), name, prefix+"_genmodel.go")
 
 				os.Remove(mediafilename)
 				resw, err := NewMediaWriter(mediafilename)
