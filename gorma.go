@@ -131,7 +131,7 @@ func (g *Generator) generateImpls(api *design.APIDefinition) error {
 					imports = append(imports, codegen.SimpleImport(path.Join(mainimp, modelDir(), k)))
 				}
 				imports = append(imports, codegen.SimpleImport(path.Join(mainimp, "models")))
-				mtw.WriteHeader(title, implDir(), imports)
+				mtw.WriteHeader(title, filepath.ToSlash(implDir()), imports)
 				if m, ok := metaLookup(res.Metadata, ""); ok && m == "Model" {
 					err = mtw.Execute(&md)
 					if err != nil {
@@ -235,7 +235,7 @@ func (g *Generator) generateModels(api *design.APIDefinition) error {
 					imports = append(imports, codegen.SimpleImport(path.Join(mainimp, "gorma", k)))
 				}
 
-				mtw.WriteHeader(title, modelDir(), imports)
+				mtw.WriteHeader(title, filepath.ToSlash(modelDir()), imports)
 				if m, ok := metaLookup(res.Metadata, ""); ok && m == "Model" {
 					err = mtw.Execute(&md)
 					if err != nil {
@@ -395,7 +395,7 @@ func (g *Generator) generateResources(api *design.APIDefinition) error {
 			for k, _ := range rd.RequiredPackages {
 				imports = append(imports, codegen.SimpleImport(path.Join(mainimp, "gorma", k)))
 			}
-			resw.WriteHeader(title, modelDir(), imports)
+			resw.WriteHeader(title, filepath.ToSlash(modelDir()), imports)
 
 			err = resw.Execute(&rd)
 			if err != nil {
@@ -491,7 +491,7 @@ func (g *Generator) generateMedia(api *design.APIDefinition) error {
 				for k, _ := range md.RequiredPackages {
 					imports = append(imports, codegen.SimpleImport(path.Join(mainimp, "gorma", k)))
 				}
-				resw.WriteHeader(title, modelDir(), imports)
+				resw.WriteHeader(title, filepath.ToSlash(modelDir()), imports)
 
 				err = resw.Execute(&md)
 				if err != nil {
