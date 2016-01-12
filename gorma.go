@@ -131,7 +131,7 @@ func (g *Generator) generateImpls(api *design.APIDefinition) error {
 					imports = append(imports, codegen.SimpleImport(path.Join(mainimp, modelDir(), k)))
 				}
 				imports = append(imports, codegen.SimpleImport(path.Join(mainimp, "models")))
-				mtw.WriteHeader(title, name, imports)
+				mtw.WriteHeader(title, implDir(), imports)
 				if m, ok := metaLookup(res.Metadata, ""); ok && m == "Model" {
 					err = mtw.Execute(&md)
 					if err != nil {
@@ -235,7 +235,7 @@ func (g *Generator) generateModels(api *design.APIDefinition) error {
 					imports = append(imports, codegen.SimpleImport(path.Join(mainimp, "gorma", k)))
 				}
 
-				mtw.WriteHeader(title, name, imports)
+				mtw.WriteHeader(title, modelDir(), imports)
 				if m, ok := metaLookup(res.Metadata, ""); ok && m == "Model" {
 					err = mtw.Execute(&md)
 					if err != nil {
@@ -301,7 +301,7 @@ func (g *Generator) generateRBAC(api *design.APIDefinition) error {
 			fmt.Println("Error executing Gorma: ", err.Error())
 			panic(err)
 		}
-		rbacw.WriteHeader(rbactitle, "models", rbacimports)
+		rbacw.WriteHeader(rbactitle, modelDir(), rbacimports)
 		err = rbacw.Execute(api)
 		if err != nil {
 			fmt.Println("Error executing Gorma: ", err.Error())
@@ -395,7 +395,7 @@ func (g *Generator) generateResources(api *design.APIDefinition) error {
 			for k, _ := range rd.RequiredPackages {
 				imports = append(imports, codegen.SimpleImport(path.Join(mainimp, "gorma", k)))
 			}
-			resw.WriteHeader(title, name, imports)
+			resw.WriteHeader(title, modelDir(), imports)
 
 			err = resw.Execute(&rd)
 			if err != nil {
@@ -491,7 +491,7 @@ func (g *Generator) generateMedia(api *design.APIDefinition) error {
 				for k, _ := range md.RequiredPackages {
 					imports = append(imports, codegen.SimpleImport(path.Join(mainimp, "gorma", k)))
 				}
-				resw.WriteHeader(title, name, imports)
+				resw.WriteHeader(title, modelDir(), imports)
 
 				err = resw.Execute(&md)
 				if err != nil {
