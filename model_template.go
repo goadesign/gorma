@@ -27,8 +27,8 @@ type {{$typename}}Storage interface {
 	Update(ctx context.Context{{ if $dynamictable }}, tableName string{{ end }}, o {{$typename}}) (error)
 	Delete(ctx context.Context{{ if $dynamictable }}, tableName string{{ end }}, {{ pkattributes $pks }}) (error)
 {{ range $idx, $bt := .BelongsTo}}
-	ListBy{{$bt.Parent}}(ctx context.Context{{ if $dynamictable }}, tableName string{{ end }}, parentid *int) []{{$typename}}
-	OneBy{{$bt.Parent}}(ctx context.Context{{ if $dynamictable }}, tableName string{{ end }}, parentid, id *int) ({{$typename}}, error)
+	ListBy{{$bt.Parent}}(ctx context.Context{{ if $dynamictable }}, tableName string{{ end }}, parentid int) []{{$typename}}
+	OneBy{{$bt.Parent}}(ctx context.Context{{ if $dynamictable }}, tableName string{{ end }}, parentid, id int) ({{$typename}}, error)
 {{end}}
 	{{ storagedef $typedef }}
 }
@@ -37,8 +37,8 @@ type {{$typename}}DB struct {
 	{{ if .DoCache }}cache *cache.Cache{{end}}
 }
 {{ range $idx, $bt := .BelongsTo}}
-func {{$typename}}FilterBy{{$bt.Parent}}(parentid *int, originaldb *gorm.DB) func(db *gorm.DB) *gorm.DB {
-	if parentid != nil && *parentid > 0 {
+func {{$typename}}FilterBy{{$bt.Parent}}(parentid int, originaldb *gorm.DB) func(db *gorm.DB) *gorm.DB {
+	if parentid > 0 {
 		return func(db *gorm.DB) *gorm.DB {
 			return db.Where("{{ $bt.DatabaseField }}_id = ?", parentid)
 		}
@@ -49,7 +49,7 @@ func {{$typename}}FilterBy{{$bt.Parent}}(parentid *int, originaldb *gorm.DB) fun
 	}
 }
 
-func (m *{{$typename}}DB) ListBy{{$bt.Parent}}(ctx context.Context{{ if $dynamictable }}, tableName string{{ end }}, parentid *int) []{{$typename}} {
+func (m *{{$typename}}DB) ListBy{{$bt.Parent}}(ctx context.Context{{ if $dynamictable }}, tableName string{{ end }}, parentid int) []{{$typename}} {
 
 	var objs []{{$typename}}
 	m.Db{{ if $dynamictable }}.Table(tableName){{ end }}.Scopes({{$typename}}FilterBy{{$bt.Parent}}(parentid, &m.Db)).Find(&objs)

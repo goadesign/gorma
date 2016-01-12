@@ -171,9 +171,9 @@ func StorageDef(res *design.UserTypeDefinition) string {
 
 		for _, child := range children {
 			pieces := strings.Split(child, ":")
-			associations = associations + "List" + pieces[0] + "(context.Context, *int) []" + lower(pieces[1]) + "." + pieces[1] + "\n"
-			associations = associations + "Add" + pieces[1] + "(context.Context, *int, *int) (error)\n"
-			associations = associations + "Delete" + pieces[1] + "(context.Context, *int, *int) error \n"
+			associations = associations + "List" + pieces[0] + "(context.Context, int) []" + lower(pieces[1]) + "." + pieces[1] + "\n"
+			associations = associations + "Add" + pieces[1] + "(context.Context, int, int) (error)\n"
+			associations = associations + "Delete" + pieces[1] + "(context.Context, int, int) error \n"
 		}
 	}
 	return associations
@@ -316,6 +316,9 @@ func ModelDef(res *design.UserTypeDefinition) string {
 			}
 			if val, ok := metaLookup(actual[name].Metadata, "#gormtag"); ok {
 				gorm = fmt.Sprintf(" gorm:\"%s\"", val)
+				if strings.Contains(gorm, "primary_key") {
+					typedef = strings.Replace(typedef, "*", "", -1)
+				}
 			}
 			if val, ok := metaLookup(actual[name].Metadata, "#sqltag"); ok {
 				sql = fmt.Sprintf(" sql:\"%s\"", val)
@@ -357,9 +360,7 @@ func getPrimaryKeys(res *design.UserTypeDefinition) map[string]PrimaryKey {
 	case design.Object:
 		for n := range actual {
 			typ := "int"
-			if actual[n].Type.IsPrimitive() && def.IsPrimitivePointer(n) {
-				typ = "*int"
-			}
+
 			if gt, ok := metaLookup(actual[n].Metadata, "#gormtag"); ok {
 				if strings.Contains(gt, "primary_key") {
 					pk := PrimaryKey{
@@ -384,7 +385,7 @@ func getPrimaryKeys(res *design.UserTypeDefinition) map[string]PrimaryKey {
 		panic("gorma bug: expected data structure type")
 	}
 	if len(pks) == 0 {
-		pks["id"] = PrimaryKey{Field: "id", Type: "*int"}
+		pks["id"] = PrimaryKey{Field: "id", Type: "int"}
 	}
 	return pks
 }
