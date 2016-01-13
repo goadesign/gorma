@@ -140,7 +140,8 @@ func Cached(seconds string) {
 // Roler annotates the model with the correct
 // metadata to create a Role() function and Role field
 func Roler() {
-	dsl.Metadata(MetaRoler, "true")
+	dsl.Attribute("role", design.String,
+		func() { dsl.Metadata(MetaRoler, "true") })
 }
 
 // PrimaryKey annotates the model with the correct
@@ -152,8 +153,8 @@ func PrimaryKey(field string) {
 }
 
 func ManyToMany(relation, tablename string) {
-
 	val := fmt.Sprintf("%s:%s", relation, tablename)
-	dsl.Metadata(MetaManyToMany, val)
+	dsl.Attribute(inflect.Pluralize(relation),
+		func() { dsl.Metadata(MetaManyToMany, val) })
 
 }

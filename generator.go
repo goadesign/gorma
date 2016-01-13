@@ -308,9 +308,13 @@ func (g *Generator) generateUserTypes(verdir string, api *design.APIDefinition) 
 				}
 				utWr.WriteHeader(title, name, imports)
 				data := &UserTypeTemplateData{
-					UserType:   t,
-					Versioned:  it.Version != "",
-					DefaultPkg: TargetPackage,
+					UserType:    t,
+					Versioned:   it.Version != "",
+					DefaultPkg:  TargetPackage,
+					Options:     modelOptions(t),
+					PrimaryKeys: primaryKeys(t),
+					BelongsTo:   belongsTo(t),
+					Many2Many:   many2Many(t),
 				}
 				err = utWr.Execute(data)
 				if err != nil {
