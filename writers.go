@@ -607,6 +607,38 @@ func (m {{.UserType.TypeName}}) GetRole() string {
 	OneBy{{$bt.Parent}}(ctx context.Context{{ if .Options.DynamicTableName }}, tableName string{{ end }}, parentid, id int) ({{.UserType.TypeName}}, error){{end}}
 }
 
+{{$options := .Options}}{{$typename := .UserType.TypeName}}{{ range $idx, $bt := .BelongsTo}}
+// Belongs To Relationships
+func {{$typename}}FilterBy{{$bt.Parent}}(parentid int, originaldb *gorm.DB) func(db *gorm.DB) *gorm.DB {
+	if parentid > 0 {
+		return func(db *gorm.DB) *gorm.DB {
+			return db.Where("{{ $bt.DatabaseField }}_id = ?", parentid)
+		}
+	} else {
+		return func(db *gorm.DB) *gorm.DB {
+			return db
+		}
+	}
+}
+func (m *{{$typename}}DB) ListBy{{$bt.Parent}}(ctx context.Context{{ if $options.DynamicTableName }}, tableName string{{ end }}, parentid int) []{{$typename}} {
+	var objs []{{$typename}}
+	m.Db{{ if $options.DynamicTableName }}.Table(tableName){{ end }}.Scopes({{$typename}}FilterBy{{$bt.Parent}}(parentid, &m.Db)).Find(&objs)
+	return objs
+}
+func (m *{{$typename}}DB) OneBy{{$bt.Parent}}(ctx context.Context{{ if $options.DynamicTableName }}, tableName string{{ end }}, parentid, {{ pkattributes $pks }}) ({{$typename}}, error) {
+	{{ if $options.Cached }}//first attempt to retrieve from cache
+	o,found := m.cache.Get(strconv.Itoa(id))
+	if found {
+		return o.({{$typename}}), nil
+	}
+	// fallback to database if not found{{ end }}
+	var obj {{$typename}}
+	err := m.Db{{ if $options.DynamicTableName }}.Table(tableName){{ end }}.Scopes({{$typename}}FilterBy{{$bt.Parent}}(parentid, &m.Db)).Find(&obj, id).Error
+	{{ if $options.Cached }} go m.cache.Set(strconv.Itoa(id), obj, cache.DefaultExpiration) {{ end }}
+	return obj, err
+}
+{{end}}
+
 {{$options := .Options}}{{$typeName := .UserType.TypeName}}{{ range $idx, $bt := .Many2Many}}
 // Many To Many Relationships
 func (m *{{$typeName}}DB) Delete{{$bt.Relation}}(ctx context.Context{{ if $options.DynamicTableName }}, tableName string{{ end }}, {{lower $typeName}}ID,  {{$bt.LowerRelation}}ID int)  error {

@@ -128,7 +128,7 @@ func BelongsTo(model string) {
 
 	modelName := fmt.Sprintf("%sID", strings.Title(model))
 	dsl.Attribute(modelName, design.Integer,
-		func() { dsl.Metadata(MetaHasMany, modelName) })
+		func() { dsl.Metadata(MetaBelongsTo, modelName) })
 }
 
 // Cached annotates the model with the correct
