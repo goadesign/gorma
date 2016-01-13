@@ -306,7 +306,7 @@ func (g *Generator) generateUserTypes(verdir string, api *design.APIDefinition) 
 					codegen.SimpleImport("github.com/raphael/goa"),
 					codegen.SimpleImport("fmt"),
 				}
-				utWr.WriteHeader(title, packageName(it), imports)
+				utWr.WriteHeader(title, name, imports)
 				data := &UserTypeTemplateData{
 					UserType:   t,
 					Versioned:  it.Version != "",

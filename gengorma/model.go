@@ -114,7 +114,7 @@ func SoftDelete() {
 
 // HasMany annotates the model with the correct
 // metadata for a HasMany relationship
-func HasMany(model string, array *design.MediaTypeDefinition) {
+func HasMany(model string, array *design.Array) {
 	modelName := strings.Title(model)
 
 	dsl.Attribute(strings.ToLower(inflect.Pluralize(model)), array,
