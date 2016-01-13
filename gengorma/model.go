@@ -17,6 +17,7 @@ const (
 	MetaPrimaryKey       = "github.com/bketelsen/gorma#gormtag"
 	MetaManyToMany       = "github.com/bketelsen/gorma#manytomany"
 	MetaDynamicTableName = "github.com/bketelsen/gorma#dyntablename"
+	MetaRoler            = "github.com/bketelsen/gorma#roler"
 	MetaGormTag          = "github.com/bketelsen/gorma#gormtag"
 	MetaNoMedia          = "github.com/bketelsen/gorma#nomedia"
 	MetaSQLTag           = "github.com/bketelsen/gorma#sqltag"
@@ -134,6 +135,12 @@ func BelongsTo(model string) {
 // metadata to make individual records cached
 func Cached(seconds string) {
 	dsl.Metadata(MetaCached, seconds)
+}
+
+// Roler annotates the model with the correct
+// metadata to create a Role() function and Role field
+func Roler() {
+	dsl.Metadata(MetaRoler, "true")
 }
 
 // PrimaryKey annotates the model with the correct

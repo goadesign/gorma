@@ -73,8 +73,17 @@ type (
 	// media types code.
 	UserTypeTemplateData struct {
 		UserType   *design.UserTypeDefinition
+		Options    ModelOptions
 		Versioned  bool
 		DefaultPkg string
+	}
+
+	ModelOptions struct {
+		Cached           bool
+		TableName        string
+		DynamicTableName bool
+		NoMedia          bool
+		Roler            bool
 	}
 
 	// ControllerTemplateData contains the information required to generate an action handler.
