@@ -152,9 +152,9 @@ func PrimaryKey(field string) {
 		func() { dsl.Metadata(MetaPrimaryKey, "primary_key") })
 }
 
-func ManyToMany(relation, tablename string) {
+func ManyToMany(relation, tablename string, array *design.Array) {
 	val := fmt.Sprintf("%s:%s", relation, tablename)
-	dsl.Attribute(inflect.Pluralize(relation),
+	dsl.Attribute(inflect.Pluralize(relation), array,
 		func() { dsl.Metadata(MetaManyToMany, val) })
 
 }

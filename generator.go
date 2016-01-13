@@ -316,6 +316,7 @@ func (g *Generator) generateUserTypes(verdir string, api *design.APIDefinition) 
 					BelongsTo:   belongsTo(t),
 					Many2Many:   many2Many(t),
 				}
+				//panic(len(many2Many(t)))
 				err = utWr.Execute(data)
 				if err != nil {
 					return err

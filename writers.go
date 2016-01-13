@@ -465,9 +465,10 @@ type {{gotypename .Payload nil 1}} {{gotypedef .Payload .Versioned .DefaultPkg 0
 `
 	// newPayloadT generates the code for the payload factory method.
 	// template input: *ContextTemplateData
-	newPayloadT = `{{.UserType.TypeName := gotypename .Payload nil 0}}// New{{.UserType.TypeName}} instantiates a {{.UserType.TypeName}} from a raw request body.
+	newPayloadT = `{{$typeName := gotypename .Payload nil 0}}// New{{$typeName}} instantiates a {{$typeName}} from a raw request body.
 // It validates each field and returns an error if any validation fails.
-func New{{.UserType.TypeName}}(raw interface{}) (p {{gotyperef .Payload nil 0}}, err error) {
+func New{{$typeName}}(raw interface{}) (p {{gotyperef .Payload nil 0}}, err error) {
+
 {{typeUnmarshaler .Payload false "" "payload" "raw" "p"}}
 	return
 }{{if (not .Payload.IsPrimitive)}}
@@ -514,27 +515,32 @@ func {{.Name}}Href({{if .CanonicalParams}}{{join .CanonicalParams ", "}} interfa
 	// mediaTypeT generates the code for a media type.
 	// template input: MediaTypeTemplateData
 	mediaTypeT = `{{define "Dump"}}` + dumpT + `{{end}}` + `// {{if .MediaType.Description}}{{.MediaType.Description}}{{else}}{{gotypename .MediaType .MediaType.AllRequired 0}} media type{{end}}
-// Identifier: {{.MediaType.Identifier}}{{.UserType.TypeName := gotypename .MediaType .MediaType.AllRequired 0}}
-type {{.UserType.TypeName}} {{gotypedef .MediaType .Versioned .DefaultPkg 0 false}}{{$computedViews := .MediaType.ComputeViews}}{{if gt (len $computedViews) 1}}
+// Identifier: {{.MediaType.Identifier}}{{$typeName := gotypename .MediaType .MediaType.AllRequired 0}}
+type {{$typeName}} {{gotypedef .MediaType .Versioned .DefaultPkg 0 false}}{{$computedViews := .MediaType.ComputeViews}}{{if gt (len $computedViews) 1}}
 
-// {{.UserType.TypeName}} views
-type {{.UserType.TypeName}}ViewEnum string
+// {{$typeName}} views
+type {{$typeName}}ViewEnum string
+
 
 const (
-{{range $name, $view := $computedViews}}// {{if .Description}}{{.Description}}{{else}}{{.UserType.TypeName}} {{.Name}} view{{end}}
-	{{.UserType.TypeName}}{{goify .Name true}}View {{.UserType.TypeName}}ViewEnum = "{{.Name}}"
+{{range $name, $view := $computedViews}}// {{if .Description}}{{.Description}}{{else}}{{$typeName}} {{.Name}} view{{end}}
+       {{$typeName}}{{goify .Name true}}View {{$typeName}}ViewEnum = "{{.Name}}"
+
 {{end}}){{end}}
-// Load{{.UserType.TypeName}} loads raw data into an instance of {{.UserType.TypeName}}
+// Load{{$typeName}} loads raw data into an instance of {{$typeName}}
+
 // into a variable of type interface{}. See https://golang.org/pkg/encoding/json/#Unmarshal for the
 // complete list of supported data types.
-func Load{{.UserType.TypeName}}(raw interface{}) (res {{gotyperef .MediaType .MediaType.AllRequired 1}}, err error) {
+func Load{{$typeName}}(raw interface{}) (res {{gotyperef .MediaType .MediaType.AllRequired 1}}, err error) {
+
 	{{typeUnmarshaler .MediaType .Versioned .DefaultPkg "" "raw" "res"}}
 	return
 }
 
-// Dump produces raw data from an instance of {{.UserType.TypeName}} running all the
-// validations. See Load{{.UserType.TypeName}} for the definition of raw data.
-func (mt {{gotyperef .MediaType .MediaType.AllRequired 0}}) Dump({{if gt (len $computedViews) 1}}view {{.UserType.TypeName}}ViewEnum{{end}}) (res {{gonative .MediaType}}, err error) {
+// Dump produces raw data from an instance of {{$typeName}} running all the
+// validations. See Load{{$typeName}} for the definition of raw data.
+
+func (mt {{gotyperef .MediaType .MediaType.AllRequired 0}}) Dump({{if gt (len $computedViews) 1}}view {{$typeName}}ViewEnum{{end}}) (res {{gonative .MediaType}}, err error) {
 {{$mt := .MediaType}}{{$ctx := .}}{{if gt (len $computedViews) 1}}{{range $computedViews}}	if view == {{gotypename $mt $mt.AllRequired 0}}{{goify .Name true}}View {
 		{{template "Dump" (newDumpData $mt $ctx.Versioned $ctx.DefaultPkg (printf "%s view" .Name) "mt" "res" .Name)}}
 	}
@@ -601,12 +607,8 @@ func (m {{.UserType.TypeName}}) GetRole() string {
 	OneBy{{$bt.Parent}}(ctx context.Context{{ if .Options.DynamicTableName }}, tableName string{{ end }}, parentid, id int) ({{.UserType.TypeName}}, error){{end}}
 }
 
-
-
-// Many To Many Relationships
-
-
 {{ range $idx, $bt := .Many2Many}}
+// Many To Many Relationships
 func (m *{{.UserType.TypeName}}DB) Delete{{$bt.Relation}}(ctx context.Context{{ if .Options.DynamicTableName }}, tableName string{{ end }}, {{lower .UserType.TypeName}}ID,  {{$bt.LowerRelation}}ID int)  error {
 	var obj {{.UserType.TypeName}}
 	obj.ID = {{lower .UserType.TypeName}}ID
@@ -642,5 +644,11 @@ func (m *{{.UserType.TypeName}}DB) List{{$bt.PluralRelation}}(ctx context.Contex
 }
 {{end}}
 
+
 `
 )
+
+/*
+
+
+ */
