@@ -188,7 +188,7 @@ func many2Many(utd *design.UserTypeDefinition) []Many2Many {
 	switch actual := t.(type) {
 	case design.Object:
 		for n := range actual {
-			if bt, ok := metaLookup(actual[n].Metadata, gengorma.MetaBelongsTo); ok {
+			if bt, ok := metaLookup(actual[n].Metadata, gengorma.MetaManyToMany); ok {
 				vals := strings.Split(bt, ":")
 				if len(vals) < 2 {
 					panic("Invalid ManyToMany Definition")

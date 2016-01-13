@@ -607,39 +607,39 @@ func (m {{.UserType.TypeName}}) GetRole() string {
 	OneBy{{$bt.Parent}}(ctx context.Context{{ if .Options.DynamicTableName }}, tableName string{{ end }}, parentid, id int) ({{.UserType.TypeName}}, error){{end}}
 }
 
-{{ range $idx, $bt := .Many2Many}}
+{{$options := .Options}}{{$typeName := .UserType.TypeName}}{{ range $idx, $bt := .Many2Many}}
 // Many To Many Relationships
-func (m *{{.UserType.TypeName}}DB) Delete{{$bt.Relation}}(ctx context.Context{{ if .Options.DynamicTableName }}, tableName string{{ end }}, {{lower .UserType.TypeName}}ID,  {{$bt.LowerRelation}}ID int)  error {
-	var obj {{.UserType.TypeName}}
-	obj.ID = {{lower .UserType.TypeName}}ID
+func (m *{{$typeName}}DB) Delete{{$bt.Relation}}(ctx context.Context{{ if $options.DynamicTableName }}, tableName string{{ end }}, {{lower $typeName}}ID,  {{$bt.LowerRelation}}ID int)  error {
+	var obj {{$typeName}}
+	obj.ID = {{lower $typeName}}ID
 	var assoc {{$bt.LowerRelation}}.{{$bt.Relation}}
 	var err error
 	assoc.ID = {{$bt.LowerRelation}}ID
 	if err != nil {
 		return err
 	}
-	err = m.Db{{ if .Options.DynamicTableName }}.Table(tableName){{ end }}.Model(&obj).Association("{{$bt.PluralRelation}}").Delete(assoc).Error
+	err = m.Db{{ if $options.DynamicTableName }}.Table(tableName){{ end }}.Model(&obj).Association("{{$bt.PluralRelation}}").Delete(assoc).Error
 	if err != nil {
 		return  err
 	}
 	return  nil
 }
-func (m *{{.UserType.TypeName}}DB) Add{{$bt.Relation}}(ctx context.Context{{ if .Options.DynamicTableName }}, tableName string{{ end }}, {{lower .UserType.TypeName}}ID, {{$bt.LowerRelation}}ID int) error {
-	var {{lower .UserType.TypeName}} {{.UserType.TypeName}}
-	{{lower .UserType.TypeName}}.ID = {{lower .UserType.TypeName}}ID
+func (m *{{$typeName}}DB) Add{{$bt.Relation}}(ctx context.Context{{ if $options.DynamicTableName }}, tableName string{{ end }}, {{lower $typeName}}ID, {{$bt.LowerRelation}}ID int) error {
+	var {{lower $typeName}} {{$typeName}}
+	{{lower $typeName}}.ID = {{lower $typeName}}ID
 	var assoc {{$bt.LowerRelation}}.{{$bt.Relation}}
 	assoc.ID = {{$bt.LowerRelation}}ID
-	err := m.Db{{ if .Options.DynamicTableName }}.Table(tableName){{ end }}.Model(&{{lower .UserType.TypeName}}).Association("{{$bt.PluralRelation}}").Append(assoc).Error
+	err := m.Db{{ if $options.DynamicTableName }}.Table(tableName){{ end }}.Model(&{{lower $typeName}}).Association("{{$bt.PluralRelation}}").Append(assoc).Error
 	if err != nil {
 		return  err
 	}
 	return  nil
 }
-func (m *{{.UserType.TypeName}}DB) List{{$bt.PluralRelation}}(ctx context.Context{{ if .Options.DynamicTableName }}, tableName string{{ end }}, {{lower .UserType.TypeName}}ID int)  []{{$bt.LowerRelation}}.{{$bt.Relation}} {
+func (m *{{$typeName}}DB) List{{$bt.PluralRelation}}(ctx context.Context{{ if $options.DynamicTableName }}, tableName string{{ end }}, {{lower $typeName}}ID int)  []{{$bt.LowerRelation}}.{{$bt.Relation}} {
 	var list []{{$bt.LowerRelation}}.{{$bt.Relation}}
-	var obj {{.UserType.TypeName}}
-	obj.ID = {{lower .UserType.TypeName}}ID
-	m.Db{{ if .Options.DynamicTableName }}.Table(tableName){{ end }}.Model(&obj).Association("{{$bt.PluralRelation}}").Find(&list)
+	var obj {{$typeName}}
+	obj.ID = {{lower $typeName}}ID
+	m.Db{{ if $options.DynamicTableName }}.Table(tableName){{ end }}.Model(&obj).Association("{{$bt.PluralRelation}}").Find(&list)
 	return  list
 }
 {{end}}
