@@ -209,3 +209,25 @@ func many2Many(utd *design.UserTypeDefinition) []Many2Many {
 	//md.RequiredPackages[lower(deModel(parms[1]))] = true
 	return m2m
 }
+
+func storageDef(res *design.UserTypeDefinition) string {
+	var associations string
+	def := res.Definition()
+	t := def.Type
+	switch actual := t.(type) {
+	case design.Object:
+		for n := range actual {
+			if assoc, ok := metaLookup(actual[n].Metadata, gengorma.MetaManyToMany); ok {
+				vals := strings.Split(assoc, ":")
+				if len(vals) < 2 {
+					panic("Invalid ManyToMany Definition")
+				}
+				associations = associations + "List" + n + "(context.Context, int) []" + lower(vals[1]) + "." + vals[1] + "\n"
+				associations = associations + "Add" + vals[0] + "(context.Context, int, int) (error)\n"
+				associations = associations + "Delete" + vals[0] + "(context.Context, int, int) error \n"
+			}
+		}
+	}
+
+	return associations
+}

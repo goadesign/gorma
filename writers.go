@@ -301,6 +301,7 @@ func NewUserTypesWriter(filename string) (*UserTypesWriter, error) {
 	funcMap["pkwherefields"] = pkWhereFields
 	funcMap["pkupdatefields"] = pkUpdateFields
 	funcMap["lower"] = lower
+	funcMap["storagedef"] = storageDef
 	userTypeTmpl, err := template.New("user type").Funcs(funcMap).Parse(userTypeT)
 	if err != nil {
 		return nil, err
@@ -604,7 +605,8 @@ func (m {{.UserType.TypeName}}) GetRole() string {
 	Update(ctx context.Context{{ if .Options.DynamicTableName }}, tableName string{{ end }}, o {{.UserType.TypeName}}) (error)
 	Delete(ctx context.Context{{ if .Options.DynamicTableName }}, tableName string{{ end }}, {{ pkattributes $pks }}) (error)
 	{{$typename:= .UserType.TypeName}}{{$options:=.Options}}{{ range $idx, $bt := .BelongsTo}}ListBy{{$bt.Parent}}(ctx context.Context{{ if $options.DynamicTableName }}, tableName string{{ end }}, parentid int) []{{$typename}}
-	OneBy{{$bt.Parent}}(ctx context.Context{{ if $options.DynamicTableName }}, tableName string{{ end }}, parentid, id int) ({{$typename}}, error){{end}}
+	OneBy{{$bt.Parent}}(ctx context.Context{{ if $options.DynamicTableName }}, tableName string{{ end }}, parentid, id int) ({{$typename}}, error)
+	{{end}}{{storagedef .UserType}}
 }
 
 {{$options := .Options}}{{$typename := .UserType.TypeName}}{{ range $idx, $bt := .BelongsTo}}
