@@ -8,28 +8,13 @@ import (
 	"github.com/raphael/goa/goagen/codegen"
 )
 
-// ModelWriter generate code for a goa application media types.
+// ImplWriter generate code for a goa application media types.
 // Media types are data structures used to render the response bodies.
-type ModelWriter struct {
+type ImplWriter struct {
 	*codegen.GoGenerator
-	ModelTmpl *template.Template
+	ImplTmpl *template.Template
 }
-type Field struct {
-	Column  string
-	Coltype string
-}
-type BelongsTo struct {
-	Parent        string
-	DatabaseField string
-}
-type Many2Many struct {
-	Relation            string
-	LowerRelation       string
-	PluralRelation      string
-	LowerPluralRelation string
-	TableName           string
-}
-type ModelData struct {
+type ImplData struct {
 	TypeDef            *design.UserTypeDefinition
 	TypeName           string
 	ModelUpper         string
@@ -47,13 +32,12 @@ type ModelData struct {
 	RequiredPackages   map[string]bool
 }
 
-func NewModelData(version string, utd *design.UserTypeDefinition) ModelData {
-	md := ModelData{
+func NewImplData(version string, utd *design.UserTypeDefinition) ImplData {
+	md := ImplData{
 		TypeDef:          utd,
 		RequiredPackages: make(map[string]bool, 0),
 	}
 	tn := deModel(codegen.GoTypeName(utd, 0))
-	//	def := utd.Definition()
 	md.TypeName = tn
 	md.ModelUpper = upper(tn)
 	md.ModelLower = lower(tn)
@@ -136,9 +120,9 @@ func NewModelData(version string, utd *design.UserTypeDefinition) ModelData {
 	return md
 }
 
-// NewModelWriter returns a contexts code writer.
+// NewImplWriter returns a contexts code writer.
 // Media types contain the data used to render response bodies.
-func NewModelWriter(filename string) (*ModelWriter, error) {
+func NewImplWriter(filename string) (*ImplWriter, error) {
 	cw := codegen.NewGoGenerator(filename)
 	funcMap := cw.FuncMap
 	funcMap["gotypedef"] = codegen.GoTypeDef
@@ -164,18 +148,18 @@ func NewModelWriter(filename string) (*ModelWriter, error) {
 	funcMap["pkwhere"] = pkWhere
 	funcMap["pkwherefields"] = pkWhereFields
 	funcMap["pkupdatefields"] = pkUpdateFields
-	modelTmpl, err := template.New("models").Funcs(funcMap).Parse(modelTmpl)
+	implTmpl, err := template.New("implementations").Funcs(funcMap).Parse(implTmpl)
 	if err != nil {
 		return nil, err
 	}
-	w := ModelWriter{
+	w := ImplWriter{
 		GoGenerator: cw,
-		ModelTmpl:   modelTmpl,
+		ImplTmpl:    implTmpl,
 	}
 	return &w, nil
 }
 
 // Execute writes the code for the context types to the writer.
-func (w *ModelWriter) Execute(md *ModelData) error {
-	return w.ModelTmpl.Execute(w, md)
+func (w *ImplWriter) Execute(md *ImplData) error {
+	return w.ImplTmpl.Execute(w, md)
 }

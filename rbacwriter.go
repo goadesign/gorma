@@ -28,11 +28,11 @@ func NewRbacWriter(filename string) (*RbacWriter, error) {
 	funcMap["typeMarshaler"] = codegen.MediaTypeMarshaler
 	funcMap["recursiveValidate"] = codegen.RecursiveChecker
 	funcMap["tempvar"] = codegen.Tempvar
-	funcMap["demodel"] = DeModel
-	funcMap["modeldef"] = MakeModelDef
-	funcMap["snake"] = CamelToSnake
-	funcMap["lower"] = Lower
-	funcMap["upper"] = Upper
+	funcMap["demodel"] = deModel
+	funcMap["modeldef"] = ModelDef
+	funcMap["snake"] = camelToSnake
+	funcMap["lower"] = lower
+	funcMap["upper"] = upper
 
 	rbacTmpl, err := template.New("rbac").Funcs(funcMap).Parse(rbacTmpl)
 	if err != nil {
