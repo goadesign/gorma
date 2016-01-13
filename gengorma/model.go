@@ -138,8 +138,8 @@ func Cached(seconds string) {
 // PrimaryKey annotates the model with the correct
 // gorm tag to make the model a primary key in the database
 func PrimaryKey(field string) {
-	fieldId := fmt.Sprintf("%s_id", field)
-	dsl.Attribute(fieldId,
+	dsl.Required("id")
+	dsl.Attribute(field,
 		func() { dsl.Metadata(MetaPrimaryKey, "primary_key") })
 }
 

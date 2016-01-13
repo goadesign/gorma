@@ -538,14 +538,5 @@ func (mt {{gotyperef .MediaType .MediaType.AllRequired 0}}) Validate() (err erro
 	userTypeT = `// {{if .UserType.Description}}{{.UserType.Description}}{{else}}{{gotypename .UserType .UserType.AllRequired 0}} type{{end}}
 type {{gotypename .UserType .UserType.AllRequired 0}} {{gotypedef .UserType .Versioned .DefaultPkg 0 false}}
 
-{{$validation := recursiveValidate .UserType.AttributeDefinition false false "ut" "response" 1}}{{if $validation}}// Validate validates the type instance.
-func (ut {{gotyperef .UserType .UserType.AllRequired 0}}) Validate() (err error) {
-{{$validation}}
-	return
-}
-
-{{end}}{{userTypeMarshalerImpl .UserType .Versioned .DefaultPkg}}
-
-{{userTypeUnmarshalerImpl .UserType .Versioned .DefaultPkg "load"}}
 `
 )
