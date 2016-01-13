@@ -614,7 +614,7 @@ func (m {{.UserType.TypeName}}) GetRole() string {
 func {{$typename}}FilterBy{{$bt.Parent}}(parentid int, originaldb *gorm.DB) func(db *gorm.DB) *gorm.DB {
 	if parentid > 0 {
 		return func(db *gorm.DB) *gorm.DB {
-			return db.Where("{{ $bt.DatabaseField }}_id = ?", parentid)
+			return db.Where("{{ $bt.DatabaseField }} = ?", parentid)
 		}
 	} else {
 		return func(db *gorm.DB) *gorm.DB {
