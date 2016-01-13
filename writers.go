@@ -23,15 +23,6 @@ type (
 		NewPayloadTmpl *template.Template
 	}
 
-	// ControllersWriter generate code for a goa application handlers.
-	// Handlers receive a HTTP request, create the action context, call the action code and send the
-	// resulting HTTP response.
-	ControllersWriter struct {
-		*codegen.GoGenerator
-		CtrlTmpl  *template.Template
-		MountTmpl *template.Template
-	}
-
 	// ResourcesWriter generate code for a goa application resources.
 	// Resources are data structures initialized by the application handlers and passed to controller
 	// actions.
@@ -209,41 +200,6 @@ func (w *ContextsWriter) Execute(data *ContextTemplateData) error {
 	}
 	if len(data.Responses) > 0 {
 		if err := w.CtxRespTmpl.Execute(w, data); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-// NewControllersWriter returns a handlers code writer.
-// Handlers provide the glue between the underlying request data and the user controller.
-func NewControllersWriter(filename string) (*ControllersWriter, error) {
-	cw := codegen.NewGoGenerator(filename)
-	funcMap := cw.FuncMap
-	funcMap["add"] = func(a, b int) int { return a + b }
-	ctrlTmpl, err := template.New("controller").Funcs(funcMap).Parse(ctrlT)
-	if err != nil {
-		return nil, err
-	}
-	mountTmpl, err := template.New("mount").Funcs(funcMap).Parse(mountT)
-	if err != nil {
-		return nil, err
-	}
-	w := ControllersWriter{
-		GoGenerator: cw,
-		CtrlTmpl:    ctrlTmpl,
-		MountTmpl:   mountTmpl,
-	}
-	return &w, nil
-}
-
-// Execute writes the handlers GoGenerator
-func (w *ControllersWriter) Execute(data []*ControllerTemplateData) error {
-	for _, d := range data {
-		if err := w.CtrlTmpl.Execute(w, d); err != nil {
-			return err
-		}
-		if err := w.MountTmpl.Execute(w, d); err != nil {
 			return err
 		}
 	}

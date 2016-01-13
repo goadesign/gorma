@@ -39,7 +39,6 @@ func NewGenerator() (*Generator, error) {
 			err, strings.Join(os.Args, " "))
 	}
 	outdir := ModelOutputDir()
-	os.RemoveAll(outdir)
 	if err = os.MkdirAll(outdir, 0777); err != nil {
 		return nil, err
 	}
@@ -85,6 +84,13 @@ func (g *Generator) Generate(api *design.APIDefinition) (_ []string, err error) 
 	}()
 
 	outdir := ModelOutputDir()
+	if err := os.MkdirAll(outdir, 0755); err != nil {
+		return g.genfiles, err
+	}
+	// models are unversioned - outside the loop
+	if err := g.generateUserTypes(outdir, api); err != nil {
+		return g.genfiles, err
+	}
 	err = api.IterateVersions(func(v *design.APIVersionDefinition) error {
 		verdir := outdir
 		if v.Version != "" {
@@ -93,9 +99,17 @@ func (g *Generator) Generate(api *design.APIDefinition) (_ []string, err error) 
 		if err := os.MkdirAll(verdir, 0755); err != nil {
 			return err
 		}
-		if err := g.generateUserTypes(verdir, v); err != nil {
+
+		//		if err := g.generateContexts(verdir, api, v); err != nil {
+		//			return err
+		//		}
+		//		if err := g.generateHrefs(verdir, v); err != nil {
+		//			return err
+		//		}
+		if err := g.generateMediaTypes(verdir, v); err != nil {
 			return err
 		}
+
 		return nil
 	})
 	if err != nil {
@@ -109,7 +123,6 @@ func (g *Generator) Cleanup() {
 	if len(g.genfiles) == 0 {
 		return
 	}
-	os.RemoveAll(ModelOutputDir())
 	g.genfiles = nil
 }
 
@@ -186,59 +199,6 @@ func (g *Generator) generateContexts(verdir string, api *design.APIDefinition, v
 		return err
 	}
 	return ctxWr.FormatCode()
-}
-
-// generateControllers iterates through the version resources and generates the low level
-// controllers.
-func (g *Generator) generateControllers(verdir string, version *design.APIVersionDefinition) error {
-	ctlFile := filepath.Join(verdir, "controllers.go")
-	ctlWr, err := NewControllersWriter(ctlFile)
-	if err != nil {
-		panic(err) // bug
-	}
-	title := fmt.Sprintf("%s: Application Controllers", version.Context())
-	imports := []*codegen.ImportSpec{
-		codegen.SimpleImport("github.com/julienschmidt/httprouter"),
-		codegen.SimpleImport("github.com/raphael/goa"),
-	}
-	if !version.IsDefault() {
-		appPkg, err := ModelPackagePath()
-		if err != nil {
-			return err
-		}
-		imports = append(imports, codegen.SimpleImport(appPkg))
-	}
-	ctlWr.WriteHeader(title, packageName(version), imports)
-	var controllersData []*ControllerTemplateData
-	version.IterateResources(func(r *design.ResourceDefinition) error {
-		if !r.SupportsVersion(version.Version) {
-			return nil
-		}
-		data := &ControllerTemplateData{Resource: codegen.Goify(r.Name, true)}
-		err := r.IterateActions(func(a *design.ActionDefinition) error {
-			context := fmt.Sprintf("%s%sContext", codegen.Goify(a.Name, true), codegen.Goify(r.Name, true))
-			action := map[string]interface{}{
-				"Name":    codegen.Goify(a.Name, true),
-				"Routes":  a.Routes,
-				"Context": context,
-			}
-			data.Actions = append(data.Actions, action)
-			return nil
-		})
-		if err != nil {
-			return err
-		}
-		if len(data.Actions) > 0 {
-			data.Version = version
-			controllersData = append(controllersData, data)
-		}
-		return nil
-	})
-	g.genfiles = append(g.genfiles, ctlFile)
-	if err = ctlWr.Execute(controllersData); err != nil {
-		return err
-	}
-	return ctlWr.FormatCode()
 }
 
 // generateHrefs iterates through the version resources and generates the href factory methods.
@@ -321,29 +281,49 @@ func (g *Generator) generateMediaTypes(verdir string, version *design.APIVersion
 
 // generateUserTypes iterates through the user types and generates the data structures and
 // marshaling code.
-func (g *Generator) generateUserTypes(verdir string, version *design.APIVersionDefinition) error {
-	utFile := filepath.Join(verdir, "user_types.go")
-	utWr, err := NewUserTypesWriter(utFile)
-	if err != nil {
-		panic(err) // bug
-	}
-	title := fmt.Sprintf("%s: Application User Types", version.Context())
-	imports := []*codegen.ImportSpec{
-		codegen.SimpleImport("github.com/raphael/goa"),
-		codegen.SimpleImport("fmt"),
-	}
-	utWr.WriteHeader(title, packageName(version), imports)
-	err = version.IterateUserTypes(func(t *design.UserTypeDefinition) error {
-		data := &UserTypeTemplateData{
-			UserType:   t,
-			Versioned:  version.Version != "",
-			DefaultPkg: TargetPackage,
+func (g *Generator) generateUserTypes(verdir string, api *design.APIDefinition) error {
+	err := api.IterateVersions(func(it *design.APIVersionDefinition) error {
+		if it.Version != "" {
+			return nil
 		}
-		return utWr.Execute(data)
-	})
-	g.genfiles = append(g.genfiles, utFile)
-	if err != nil {
+		err := it.IterateUserTypes(func(t *design.UserTypeDefinition) error {
+			if t.Type.IsObject() {
+				name := strings.ToLower(deModel(t.TypeName))
+				fmt.Println("working on ", name)
+				err := os.MkdirAll(filepath.Join(verdir, name), 0755)
+				if err != nil {
+					return err
+				}
+				_ = os.Remove(filepath.Join(verdir, name, name+"_gen.go"))
+				utFile := filepath.Join(verdir, name, name+"_gen.go")
+				fmt.Println(utFile)
+				utWr, err := NewUserTypesWriter(utFile)
+				if err != nil {
+					panic(err) // bug
+				}
+				title := fmt.Sprintf("%s: Generated Models", it.Context())
+				imports := []*codegen.ImportSpec{
+					codegen.SimpleImport("github.com/raphael/goa"),
+					codegen.SimpleImport("fmt"),
+				}
+				utWr.WriteHeader(title, packageName(it), imports)
+				data := &UserTypeTemplateData{
+					UserType:   t,
+					Versioned:  it.Version != "",
+					DefaultPkg: TargetPackage,
+				}
+				err = utWr.Execute(data)
+				if err != nil {
+					return err
+				}
+				g.genfiles = append(g.genfiles, utFile)
+				return err
+				//return utWr.FormatCode()
+			}
+			return nil
+		})
 		return err
-	}
-	return utWr.FormatCode()
+	})
+
+	return err
 }
