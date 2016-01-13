@@ -12,6 +12,8 @@ import (
 	"github.com/raphael/goa/goagen/codegen"
 )
 
+const META_NAMESPACE = "github.com/bketelsen/gorma"
+
 // deModel removes the word "Model" from the string.
 func deModel(s string) string {
 	return strings.Replace(s, "Model", "", -1)
@@ -62,6 +64,19 @@ func metaLookup(md design.MetadataDefinition, hashtag string) (result string, ok
 	}
 
 	return
+}
+func modelMetadata(ad *design.AttributeDefinition) bool {
+	needle := strings.ToLower(META_NAMESPACE)
+	for k, v := range ad.Metadata {
+		k = strings.ToLower(k)
+		v = strings.ToLower(v)
+		if k == needle {
+			if v == "model" {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 type PrimaryKey struct {
@@ -269,6 +284,26 @@ func storageDef(res *design.UserTypeDefinition) string {
 	}
 
 	return associations
+}
+func hasUserType(action *design.ActionDefinition) bool {
+	if action.Payload != nil {
+		a := action.Payload.Definition()
+		return modelMetadata(a)
+	}
+	return false
+}
+
+func versionize(s string) string {
+	if s == "app" {
+		return "Default"
+	}
+	return strings.Title(s)
+
+}
+
+// titleCase converts a string to Title case.
+func titleCase(s string) string {
+	return strings.Title(s)
 }
 
 // startsWithInitialism returns the initialism if the given string begins with it

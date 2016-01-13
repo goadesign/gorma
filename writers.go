@@ -21,6 +21,7 @@ type (
 		CtxRespTmpl    *template.Template
 		PayloadTmpl    *template.Template
 		NewPayloadTmpl *template.Template
+		ConversionTmpl *template.Template
 	}
 
 	// ResourcesWriter generate code for a goa application resources.
@@ -116,11 +117,57 @@ type (
 		CanonicalTemplate string                      // CanonicalFormat represents the resource canonical path in the form of a fmt.Sprintf format.
 		CanonicalParams   []string                    // CanonicalParams is the list of parameter names that appear in the resource canonical path in order.
 	}
+
+	ConversionData struct {
+		TypeDef          *design.ResourceDefinition
+		TypeName         string
+		MediaUpper       string
+		MediaLower       string
+		BelongsTo        []BelongsTo
+		DoMedia          bool
+		APIVersion       string
+		RequiredPackages map[string]bool
+	}
 )
 
 // Versioned returns true if the context was built from an API version.
 func (c *ContextTemplateData) Versioned() bool {
 	return !c.Version.IsDefault()
+}
+func NewConversionData(version string, utd *design.ResourceDefinition) ConversionData {
+	md := ConversionData{
+		TypeDef:          utd,
+		RequiredPackages: make(map[string]bool, 0),
+	}
+	md.TypeName = codegen.Goify(utd.Name, true)
+	md.MediaUpper = strings.Title(utd.Name)
+	md.MediaLower = lower(utd.Name)
+	if version != "" {
+		md.APIVersion = codegen.VersionPackage(version)
+	} else {
+		// import the default package instead of nothing
+		md.APIVersion = "app"
+	}
+
+	var belongs []BelongsTo
+	if bt, ok := metaLookup(utd.Metadata, "#belongsto"); ok {
+		btlist := strings.Split(bt, ",")
+		for _, s := range btlist {
+			binst := BelongsTo{
+				Parent:        s,
+				DatabaseField: camelToSnake(s),
+			}
+			belongs = append(belongs, binst)
+
+			md.RequiredPackages[lower(s)] = true
+		}
+	}
+	md.BelongsTo = belongs
+	md.DoMedia = true
+	if _, ok := metaLookup(utd.Metadata, "#nomedia"); ok {
+		md.DoMedia = !ok
+	}
+	return md
 }
 
 // IsPathParam returns true if the given parameter name corresponds to a path parameter for all
@@ -168,6 +215,9 @@ func NewContextsWriter(filename string) (*ContextsWriter, error) {
 	funcMap["tabs"] = codegen.Tabs
 	funcMap["add"] = func(a, b int) int { return a + b }
 	funcMap["gopkgtyperef"] = codegen.GoPackageTypeRef
+	funcMap["hasusertype"] = hasUserType
+	funcMap["version"] = versionize
+	funcMap["title"] = titleCase
 	ctxTmpl, err := template.New("context").Funcs(funcMap).Parse(ctxT)
 	if err != nil {
 		return nil, err
@@ -190,6 +240,11 @@ func NewContextsWriter(filename string) (*ContextsWriter, error) {
 	if err != nil {
 		return nil, err
 	}
+	conversionTmpl, err := template.New("conversion").Funcs(funcMap).Parse(resourceT)
+	if err != nil {
+		return nil, err
+	}
+
 	newPayloadTmpl, err := template.New("newpayload").Funcs(cw.FuncMap).Parse(newPayloadT)
 	if err != nil {
 		return nil, err
@@ -201,31 +256,37 @@ func NewContextsWriter(filename string) (*ContextsWriter, error) {
 		CtxRespTmpl:    ctxRespTmpl,
 		PayloadTmpl:    payloadTmpl,
 		NewPayloadTmpl: newPayloadTmpl,
+		ConversionTmpl: conversionTmpl,
 	}
 	return &w, nil
 }
 
 // Execute writes the code for the context types to the writer.
-func (w *ContextsWriter) Execute(data *ContextTemplateData) error {
-	if err := w.CtxTmpl.Execute(w, data); err != nil {
+func (w *ContextsWriter) Execute(data *ConversionData) error {
+
+	if err := w.ConversionTmpl.Execute(w, data); err != nil {
 		return err
 	}
-	if err := w.CtxNewTmpl.Execute(w, data); err != nil {
-		return err
-	}
-	if data.Payload != nil {
-		if err := w.PayloadTmpl.Execute(w, data); err != nil {
-			return err
+	/*
+		if data.Payload != nil {
+			//	if err := w.PayloadTmpl.Execute(w, data); err != nil {
+			//		return err
+			//	}
+			if err := w.NewPayloadTmpl.Execute(w, data); err != nil {
+				return err
+			}
 		}
-		if err := w.NewPayloadTmpl.Execute(w, data); err != nil {
-			return err
-		}
-	}
-	if len(data.Responses) > 0 {
-		if err := w.CtxRespTmpl.Execute(w, data); err != nil {
-			return err
-		}
-	}
+
+			if len(data.Responses) > 0 {
+				if err := w.CtxRespTmpl.Execute(w, data); err != nil {
+					return err
+				}
+			}
+	*/
+
+	// Where we are going here:
+	// one function for every version of every context/Payload to convert it into a Model
+	// Cheat and use the Marshal and Unmarshal types.  Because they're already there
 	return nil
 }
 
@@ -466,13 +527,7 @@ type {{gotypename .Payload nil 1}} {{gotypedef .Payload .Versioned .DefaultPkg 0
 `
 	// newPayloadT generates the code for the payload factory method.
 	// template input: *ContextTemplateData
-	newPayloadT = `{{$typeName := gotypename .Payload nil 0}}// New{{$typeName}} instantiates a {{$typeName}} from a raw request body.
-// It validates each field and returns an error if any validation fails.
-func New{{$typeName}}(raw interface{}) (p {{gotyperef .Payload nil 0}}, err error) {
-
-{{typeUnmarshaler .Payload false "" "payload" "raw" "p"}}
-	return
-}{{if (not .Payload.IsPrimitive)}}
+	newPayloadT = `{{$typeName := gotypename .Payload nil 0}}{{if (not .Payload.IsPrimitive)}}
 
 {{userTypeUnmarshalerImpl .Payload .Versioned .DefaultPkg "payload"}}{{end}}
 `
@@ -507,17 +562,27 @@ func Mount{{.Resource}}Controller(service goa.Service, ctrl {{.Resource}}Control
 
 	// resourceT generates the code for a resource.
 	// template input: *ResourceData
-	resourceT = `{{if .CanonicalTemplate}}// {{.Name}}Href returns the resource href.
-func {{.Name}}Href({{if .CanonicalParams}}{{join .CanonicalParams ", "}} interface{}{{end}}) string {
-	return fmt.Sprintf("{{.CanonicalTemplate}}", {{join .CanonicalParams ", "}})
+	resourceT = `{{ $typename  := .TypeName }}
+{{ $belongs := .BelongsTo }}
+{{ if .DoMedia }}
+{{ $version := .APIVersion }}
+{{ range $idx, $action := .TypeDef.Actions  }}
+{{ if hasusertype $action }}
+func {{$typename}}From{{version $version}}{{title $action.Name}}Payload(ctx *{{$version}}.{{title $action.Name}}{{$typename}}Context) {{$typename}} {
+	payload := ctx.Payload
+	m := {{$typename}}{}
+	copier.Copy(&m, payload)
+{{ range $idx, $bt := $belongs }}
+	m.{{ $bt.Parent}}ID=int(ctx.{{ $bt.Parent}}ID){{end}}
+	return m
 }
-{{end}}`
+{{ end }}{{end}}{{end}}
+`
 
 	// mediaTypeT generates the code for a media type.
 	// template input: MediaTypeTemplateData
-	mediaTypeT = `{{define "Dump"}}` + dumpT + `{{end}}` + `// {{if .MediaType.Description}}{{.MediaType.Description}}{{else}}{{gotypename .MediaType .MediaType.AllRequired 0}} media type{{end}}
-// Identifier: {{.MediaType.Identifier}}{{$typeName := gotypename .MediaType .MediaType.AllRequired 0}}
-type {{$typeName}} {{gotypedef .MediaType .Versioned .DefaultPkg 0 false}}{{$computedViews := .MediaType.ComputeViews}}{{if gt (len $computedViews) 1}}
+	mediaTypeT = `{{define "Dump"}}` + dumpT + `{{end}}` + `{{$typeName := gotypename .MediaType .MediaType.AllRequired 0}}
+{{$computedViews := .MediaType.ComputeViews}}{{if gt (len $computedViews) 1}}
 
 // {{$typeName}} views
 type {{$typeName}}ViewEnum string
@@ -529,11 +594,9 @@ const (
 
 {{end}}){{end}}
 // Load{{$typeName}} loads raw data into an instance of {{$typeName}}
-
 // into a variable of type interface{}. See https://golang.org/pkg/encoding/json/#Unmarshal for the
 // complete list of supported data types.
 func Load{{$typeName}}(raw interface{}) (res {{gotyperef .MediaType .MediaType.AllRequired 1}}, err error) {
-
 	{{typeUnmarshaler .MediaType .Versioned .DefaultPkg "" "raw" "res"}}
 	return
 }
@@ -549,12 +612,7 @@ func (mt {{gotyperef .MediaType .MediaType.AllRequired 0}}) Dump({{if gt (len $c
 {{end}}{{end}}	return
 }
 
-{{$validation := recursiveValidate .MediaType.AttributeDefinition false false "mt" "response" 1}}{{if $validation}}// Validate validates the media type instance.
-func (mt {{gotyperef .MediaType .MediaType.AllRequired 0}}) Validate() (err error) {
-{{$validation}}
-	return
-}
-{{end}}{{range $computedViews}}
+{{range $computedViews}}
 {{mediaTypeMarshalerImpl $mt $ctx.Versioned $ctx.DefaultPkg .Name}}
 {{end}}
 {{userTypeUnmarshalerImpl .MediaType.UserTypeDefinition .Versioned .DefaultPkg "load"}}
@@ -742,6 +800,23 @@ func Filter{{$typename}}By{{$bt.Parent}}(parent *int, list []{{$typename}}) []{{
 
 `
 )
+const resourceTmpl = `
+{{ $typename  := .TypeName }}
+{{ $belongs := .BelongsTo }}
+{{ if .DoMedia }}
+{{ $version := .APIVersion }}
+{{ range $idx, $action := .TypeDef.Actions  }}
+{{ if hasusertype $action }}
+func {{$typename}}From{{version $version}}{{title $action.Name}}Payload(ctx *{{$version}}.{{title $action.Name}}{{$typename}}Context) {{$typename}} {
+	payload := ctx.Payload
+	m := {{$typename}}{}
+	copier.Copy(&m, payload)
+{{ range $idx, $bt := $belongs }}
+	m.{{ $bt.Parent}}ID=int(ctx.{{ $bt.Parent}}ID){{end}}
+	return m
+}
+{{ end }}{{end}}{{end}}
+`
 
 /*
 
