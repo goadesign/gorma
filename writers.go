@@ -603,8 +603,8 @@ func (m {{.UserType.TypeName}}) GetRole() string {
 	Add(ctx context.Context{{ if .Options.DynamicTableName }}, tableName string{{ end }}, o {{.UserType.TypeName}}) ({{.UserType.TypeName}}, error)
 	Update(ctx context.Context{{ if .Options.DynamicTableName }}, tableName string{{ end }}, o {{.UserType.TypeName}}) (error)
 	Delete(ctx context.Context{{ if .Options.DynamicTableName }}, tableName string{{ end }}, {{ pkattributes $pks }}) (error)
-{{ range $idx, $bt := .BelongsTo}}ListBy{{$bt.Parent}}(ctx context.Context{{ if .Options.DynamicTableName }}, tableName string{{ end }}, parentid int) []{{.UserType.TypeName}}
-	OneBy{{$bt.Parent}}(ctx context.Context{{ if .Options.DynamicTableName }}, tableName string{{ end }}, parentid, id int) ({{.UserType.TypeName}}, error){{end}}
+	{{$typename:= .UserType.TypeName}}{{$options:=.Options}}{{ range $idx, $bt := .BelongsTo}}ListBy{{$bt.Parent}}(ctx context.Context{{ if $options.DynamicTableName }}, tableName string{{ end }}, parentid int) []{{$typename}}
+	OneBy{{$bt.Parent}}(ctx context.Context{{ if $options.DynamicTableName }}, tableName string{{ end }}, parentid, id int) ({{$typename}}, error){{end}}
 }
 
 {{$options := .Options}}{{$typename := .UserType.TypeName}}{{ range $idx, $bt := .BelongsTo}}
