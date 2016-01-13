@@ -114,18 +114,19 @@ func SoftDelete() {
 
 // HasMany annotates the model with the correct
 // metadata for a HasMany relationship
-func HasMany(model string) {
+func HasMany(model string, array *design.MediaTypeDefinition) {
 	modelName := strings.Title(model)
 
-	dsl.Attribute(strings.ToLower(inflect.Pluralize(model)), dsl.ArrayOf(design.Design.Types[modelName]),
+	dsl.Attribute(strings.ToLower(inflect.Pluralize(model)), array,
 		func() { dsl.Metadata(MetaHasMany, modelName) })
 }
 
 //BelongsTo annotates the model with the correct
 // metadata for a BelongsTO relationship
 func BelongsTo(model string) {
-	modelName := strings.Title(model)
-	dsl.Attribute(model,
+
+	modelName := fmt.Sprintf("%sID", strings.Title(model))
+	dsl.Attribute(modelName, design.Integer,
 		func() { dsl.Metadata(MetaHasMany, modelName) })
 }
 
