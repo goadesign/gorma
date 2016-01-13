@@ -608,7 +608,58 @@ func (m {{.UserType.TypeName}}) GetRole() string {
 	OneBy{{$bt.Parent}}(ctx context.Context{{ if $options.DynamicTableName }}, tableName string{{ end }}, parentid, id int) ({{$typename}}, error)
 	{{end}}{{storagedef .UserType}}
 }
-
+func (m *{{$typename}}DB) One(ctx context.Context{{ if .Options.DynamicTableName }}, tableName string{{ end }}, {{pkattributes $pks}}) ({{$typename}}, error) {
+	{{ if .Options.Cached }}//first attempt to retrieve from cache
+	o,found := m.cache.Get(strconv.Itoa(id))
+	if found {
+		return o.({{$typename}}), nil
+	}
+	// fallback to database if not found{{ end }}
+	var obj {{$typename}}
+	{{ $l := len $pks }}
+	{{ if eq $l 1 }}
+	err := m.Db{{ if .Options.DynamicTableName }}.Table(tableName){{ end }}.Find(&obj, id).Error
+	{{ else  }}
+	err := m.Db{{ if .Options.DynamicTableName }}.Table(tableName){{ end }}.Find(&obj).Where("{{pkwhere $pks}}", {{pkwherefields $pks}}).Error
+	{{ end }}
+	{{ if .Options.Cached }} go m.cache.Set(strconv.Itoa(id), obj, cache.DefaultExpiration) {{ end }}
+	return obj, err
+}
+func (m *{{$typename}}DB) Add(ctx context.Context{{ if .Options.DynamicTableName }}, tableName string{{ end }}, model {{$typename}}) ({{$typename}}, error) {
+	err := m.Db{{ if .Options.DynamicTableName }}.Table(tableName){{ end }}.Create(&model).Error
+	{{ if .Options.Cached }} go m.cache.Set(strconv.Itoa(model.ID), model, cache.DefaultExpiration) {{ end }}
+	return model, err
+}
+func (m *{{$typename}}DB) Update(ctx context.Context{{ if .Options.DynamicTableName }}, tableName string{{ end }}, model {{$typename}}) error {
+	obj, err := m.One(ctx{{ if .Options.DynamicTableName }}, tableName{{ end }}, {{pkupdatefields $pks}})
+	if err != nil {
+		return  err
+	}
+	err = m.Db{{ if .Options.DynamicTableName }}.Table(tableName){{ end }}.Model(&obj).Updates(model).Error
+	{{ if .Options.Cached }}
+	go func(){
+	obj, err := m.One(ctx, model.ID)
+	if err == nil {
+		m.cache.Set(strconv.Itoa(model.ID), obj, cache.DefaultExpiration)
+	}
+	}()
+	{{ end }}
+	return err
+}
+func (m *{{$typename}}DB) Delete(ctx context.Context{{ if .Options.DynamicTableName }}, tableName string{{ end }}, {{pkattributes $pks}})  error {
+	var obj {{$typename}}
+	{{ $l := len $pks }}
+	{{ if eq $l 1 }}
+	err := m.Db{{ if .Options.DynamicTableName }}.Table(tableName){{ end }}.Delete(&obj, id).Error
+	{{ else  }}
+	err := m.Db{{ if .Options.DynamicTableName }}.Table(tableName){{ end }}.Delete(&obj).Where("{{pkwhere $pks}}", {{pkwherefields $pks}}).Error
+	{{ end }}
+	if err != nil {
+		return  err
+	}
+	{{ if .Options.Cached }} go m.cache.Delete(strconv.Itoa(id)) {{ end }}
+	return  nil
+}
 {{$options := .Options}}{{$typename := .UserType.TypeName}}{{ range $idx, $bt := .BelongsTo}}
 // Belongs To Relationships
 func {{$typename}}FilterBy{{$bt.Parent}}(parentid int, originaldb *gorm.DB) func(db *gorm.DB) *gorm.DB {
@@ -677,7 +728,17 @@ func (m *{{$typeName}}DB) List{{$bt.PluralRelation}}(ctx context.Context{{ if $o
 	return  list
 }
 {{end}}
-
+{{ range $idx, $bt := .BelongsTo}}
+func Filter{{$typename}}By{{$bt.Parent}}(parent *int, list []{{$typename}}) []{{$typename}} {
+	var filtered []{{$typename}}
+	for _,o := range list {
+		if o.{{$bt.Parent}}ID == int(*parent) {
+			filtered = append(filtered,o)
+		}
+	}
+	return filtered
+}
+{{end}}
 
 `
 )
