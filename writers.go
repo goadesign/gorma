@@ -267,26 +267,7 @@ func (w *ContextsWriter) Execute(data *ConversionData) error {
 	if err := w.ConversionTmpl.Execute(w, data); err != nil {
 		return err
 	}
-	/*
-		if data.Payload != nil {
-			//	if err := w.PayloadTmpl.Execute(w, data); err != nil {
-			//		return err
-			//	}
-			if err := w.NewPayloadTmpl.Execute(w, data); err != nil {
-				return err
-			}
-		}
 
-			if len(data.Responses) > 0 {
-				if err := w.CtxRespTmpl.Execute(w, data); err != nil {
-					return err
-				}
-			}
-	*/
-
-	// Where we are going here:
-	// one function for every version of every context/Payload to convert it into a Model
-	// Cheat and use the Marshal and Unmarshal types.  Because they're already there
 	return nil
 }
 
