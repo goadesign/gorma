@@ -36,6 +36,35 @@ func (f *RelationalModel) PKAttributes() string {
 	}
 	return strings.Join(attr, ",")
 }
+
+func (f *RelationalModel) PKWhere() string {
+	var pkwhere []string
+	for _, pk := range f.PrimaryKeys {
+		def := fmt.Sprintf("%s = ?", pk.DatabaseFieldName)
+		pkwhere = append(pkwhere, def)
+	}
+	return strings.Join(pkwhere, "and")
+}
+func (f *RelationalModel) PKWhereFields() string {
+	var pkwhere []string
+	for _, pk := range f.PrimaryKeys {
+		def := fmt.Sprintf("%s", pk.DatabaseFieldName)
+		pkwhere = append(pkwhere, def)
+	}
+	return strings.Join(pkwhere, ",")
+}
+func (f *RelationalModel) PKUpdateFields() string {
+
+	var pkwhere []string
+	for _, pk := range f.PrimaryKeys {
+		def := fmt.Sprintf("model.%s", codegen.Goify(pk.Name, true))
+		pkwhere = append(pkwhere, def)
+	}
+
+	pkw := strings.Join(pkwhere, ",")
+	return pkw
+}
+
 func (rm *RelationalModel) Definition() string {
 	header := fmt.Sprintf("type %s struct {\n", rm.Name)
 	var output string

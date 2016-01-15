@@ -21,36 +21,6 @@ func deModel(s string) string {
 func modifyModelDefinition(res *design.UserTypeDefinition) error {
 	return nil
 }
-func modelOptions(res *design.UserTypeDefinition) ModelOptions {
-	var options ModelOptions
-	def := res.Definition()
-	t := def.Type
-	switch t.(type) {
-	case design.Object:
-		if _, ok := metaLookup(res.Metadata, gengorma.MetaCached); ok {
-			options.Cached = true
-		}
-		if val, ok := metaLookup(res.Metadata, gengorma.MetaSQLTag); ok {
-			options.SQLTag = val
-		}
-		if _, ok := metaLookup(res.Metadata, gengorma.MetaDynamicTableName); ok {
-			options.DynamicTableName = true
-		}
-		if _, ok := metaLookup(res.Metadata, gengorma.MetaRoler); ok {
-			options.Roler = true
-		}
-		if _, ok := metaLookup(res.Metadata, gengorma.MetaNoMedia); ok {
-			options.NoMedia = true
-		}
-		if val, ok := metaLookup(res.Metadata, gengorma.MetaTableName); ok {
-			options.TableName = val
-		}
-
-		return options
-	default:
-		panic("gorma bug: unexpected data structure type")
-	}
-}
 
 // metaLookup is a helper function to lookup gorma-namespaced metadata keys in a
 // case-insensitive way.
