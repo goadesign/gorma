@@ -9,7 +9,7 @@
 // The content of this file is auto-generated, DO NOT MODIFY
 //************************************************************************//
 
-package User
+package user
 
 import (
 	"strconv"
@@ -23,14 +23,14 @@ import (
 // User type
 type User struct {
 	ID        int `gorm:"primary_key"`
-	Role      string
-	State     string
 	Bio       string
+	Email     string
+	State     string
+	LastName  string
+	Role      string
 	City      string
 	Country   string
-	Email     string
 	FirstName string `sql:"index"` //First name Description
-	LastName  string
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }

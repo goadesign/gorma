@@ -9,7 +9,7 @@
 // The content of this file is auto-generated, DO NOT MODIFY
 //************************************************************************//
 
-package Proposal
+package proposal
 
 import (
 	"strconv"
@@ -23,16 +23,16 @@ import (
 // Proposal type
 type Proposal struct {
 	ID        int `gorm:"primary_key"`
-	UserID    int
+	Title     string
+	Withdrawn bool
+	Abstract  string
 	Detail    string
+	UserID    int
 	FirstName string `gorm:"column:person_name"`
 	M2reviews string
 	Reviews   []review.Review
-	Title     string
-	Abstract  string
-	Withdrawn bool
-	CreatedAt time.Time
 	UpdatedAt time.Time
+	CreatedAt time.Time
 	DeletedAt *time.Time
 }
 

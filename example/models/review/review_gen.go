@@ -9,7 +9,7 @@
 // The content of this file is auto-generated, DO NOT MODIFY
 //************************************************************************//
 
-package Review
+package review
 
 import (
 	"os/user"
@@ -21,11 +21,11 @@ import (
 // Review type
 type Review struct {
 	ID         int `gorm:"primary_key"`
-	ProposalID int
-	User       User
 	Comment    string
 	Rating     int
 	Reviewers  []user.User
+	ProposalID int
+	User       User
 }
 
 // ReviewDB is the implementation of the storage interface for Review
