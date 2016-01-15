@@ -21,11 +21,11 @@ import (
 // Review type
 type Review struct {
 	ID         int `gorm:"primary_key"`
-	Rating     int
-	Reviewers  []user.User
-	ProposalID int
 	User       User
 	Comment    string
+	ProposalID int
+	Rating     int
+	Reviewers  []user.User
 }
 
 // ReviewDB is the implementation of the storage interface for Review
@@ -137,4 +137,13 @@ func FilterReviewByProposal(parent *int, list []Review) []Review {
 		}
 	}
 	return filtered
+}
+
+// LoadReview loads raw data into an instance of Review
+// into a variable of type interface{}. See https://golang.org/pkg/encoding/json/#Unmarshal for the
+// complete list of supported data types.
+// func LoadUser(raw interface{}) (res *User, err error) {
+func LoadReview(raw interface{}) (res *Review, err error) {
+	res, err = UnmarshalReview(raw, err)
+	return
 }

@@ -23,16 +23,16 @@ import (
 // User type
 type User struct {
 	ID        int `gorm:"primary_key"`
+	Country   string
 	Email     string
-	LastName  string
-	Role      string
-	State     string
 	FirstName string `sql:"index"` //First name Description
 	Bio       string
+	Role      string
+	LastName  string
+	State     string
 	City      string
-	Country   string
-	UpdatedAt time.Time
 	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 // UserDB is the implementation of the storage interface for User
@@ -122,4 +122,13 @@ func (m *UserDB) Delete(ctx context.Context, id int) error {
 	}
 	go m.cache.Delete(strconv.Itoa(id))
 	return nil
+}
+
+// LoadUser loads raw data into an instance of User
+// into a variable of type interface{}. See https://golang.org/pkg/encoding/json/#Unmarshal for the
+// complete list of supported data types.
+// func LoadUser(raw interface{}) (res *User, err error) {
+func LoadUser(raw interface{}) (res *User, err error) {
+	res, err = UnmarshalUser(raw, err)
+	return
 }

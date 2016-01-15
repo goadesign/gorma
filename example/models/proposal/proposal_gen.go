@@ -24,16 +24,16 @@ import (
 // Proposal type
 type Proposal struct {
 	ID        int `gorm:"primary_key"`
-	Detail    string
-	FirstName string `gorm:"column:person_name"`
-	Title     string
-	Reviews   []review.Review
-	Withdrawn bool
-	M2reviews string
 	UserID    int
+	Withdrawn bool
 	Abstract  string
-	DeletedAt *time.Time
+	FirstName string `gorm:"column:person_name"`
+	M2reviews string
+	Reviews   []review.Review
+	Detail    string
+	Title     string
 	UpdatedAt time.Time
+	DeletedAt *time.Time
 	CreatedAt time.Time
 }
 
@@ -217,4 +217,13 @@ func FilterProposalByUser(parent *int, list []Proposal) []Proposal {
 		}
 	}
 	return filtered
+}
+
+// LoadProposal loads raw data into an instance of Proposal
+// into a variable of type interface{}. See https://golang.org/pkg/encoding/json/#Unmarshal for the
+// complete list of supported data types.
+// func LoadUser(raw interface{}) (res *User, err error) {
+func LoadProposal(raw interface{}) (res *Proposal, err error) {
+	res, err = UnmarshalProposal(raw, err)
+	return
 }

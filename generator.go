@@ -95,33 +95,25 @@ func (g *Generator) Generate(api *design.APIDefinition) (_ []string, err error) 
 	}
 
 	// models are unversioned - outside the loop
-	if err := g.generateUserTypes(outdir); err != nil {
+	if err := g.generateUserTypes(outdir, api); err != nil {
 		return g.genfiles, err
 	}
-	/*
-		err = api.IterateVersions(func(v *design.APIVersionDefinition) error {
-			verdir := outdir
-			if err := os.MkdirAll(verdir, 0755); err != nil {
-				return err
-			}
 
-			if err := g.generatePayloadHelpers(verdir, api, v); err != nil {
-				return err
-			}
-			//		if err := g.generateHrefs(verdir, v); err != nil {
-			//			return err
-			//		}
-			if err := g.generateMediaTypes(verdir, v); err != nil {
-				return err
-			}
-
-			return nil
-		})
-		if err != nil {
-			return nil, err
+	err = api.IterateVersions(func(v *design.APIVersionDefinition) error {
+		if err := g.generatePayloadHelpers(outdir, storageGroup, api, v); err != nil {
+			return err
 		}
-		return g.genfiles, nil
-	*/
+		if err := g.generateMediaTypes(outdir, storageGroup, v); err != nil {
+			return err
+		}
+
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return g.genfiles, nil
+
 	return []string{}, nil
 }
 
@@ -159,7 +151,7 @@ func packageName(version *design.APIVersionDefinition) (pack string) {
 
 // generateContexts iterates through the version resources and actions and generates the action
 // contexts.
-func (g *Generator) generatePayloadHelpers(verdir string, api *design.APIDefinition, version *design.APIVersionDefinition) error {
+func (g *Generator) generatePayloadHelpers(verdir string, sg *StorageGroup, api *design.APIDefinition, version *design.APIVersionDefinition) error {
 
 	err := version.IterateResources(func(r *design.ResourceDefinition) error {
 		actionable := false
@@ -204,7 +196,7 @@ func (g *Generator) generatePayloadHelpers(verdir string, api *design.APIDefinit
 		os.Remove(ctxFile)
 		fmt.Println("writing header")
 		ctxWr.WriteHeader(title, name, imports)
-		ctxData := NewConversionData(version.Version, r)
+		ctxData := NewConversionData(version, r)
 		err = ctxWr.Execute(&ctxData)
 		if err != nil {
 			return err
@@ -215,55 +207,9 @@ func (g *Generator) generatePayloadHelpers(verdir string, api *design.APIDefinit
 	return err
 }
 
-// generateHrefs iterates through the version resources and generates the href factory methods.
-func (g *Generator) generateHrefs(verdir string, version *design.APIVersionDefinition) error {
-	hrefFile := filepath.Join(verdir, "hrefs.go")
-	resWr, err := NewResourcesWriter(hrefFile)
-	if err != nil {
-		panic(err) // bug
-	}
-	title := fmt.Sprintf("%s: Application Resource Href Factories", version.Context())
-	resWr.WriteHeader(title, packageName(version), nil)
-	err = version.IterateResources(func(r *design.ResourceDefinition) error {
-		if !r.SupportsVersion(version.Version) {
-			return nil
-		}
-		m := design.Design.MediaTypeWithIdentifier(r.MediaType)
-		var identifier string
-		if m != nil {
-			identifier = m.Identifier
-		} else {
-			identifier = "plain/text"
-		}
-		canoTemplate := r.URITemplate(version)
-		canoTemplate = design.WildcardRegex.ReplaceAllLiteralString(canoTemplate, "/%v")
-		var canoParams []string
-		if ca := r.CanonicalAction(); ca != nil {
-			if len(ca.Routes) > 0 {
-				canoParams = ca.Routes[0].Params(version)
-			}
-		}
-
-		data := ResourceData{
-			Name:              codegen.Goify(r.Name, true),
-			Identifier:        identifier,
-			Description:       r.Description,
-			Type:              m,
-			CanonicalTemplate: canoTemplate,
-			CanonicalParams:   canoParams,
-		}
-		return resWr.Execute(&data)
-	})
-	g.genfiles = append(g.genfiles, hrefFile)
-	if err != nil {
-		return err
-	}
-	return resWr.FormatCode()
-}
-
 // generateMediaTypes iterates through the media types and generate the data structures and
 // marshaling code.
-func (g *Generator) generateMediaTypes(verdir string, version *design.APIVersionDefinition) error {
+func (g *Generator) generateMediaTypes(verdir string, sg *StorageGroup, version *design.APIVersionDefinition) error {
 	err := version.IterateMediaTypes(func(mt *design.MediaTypeDefinition) error {
 		if !mt.SupportsVersion(version.Version) {
 			return nil
@@ -311,7 +257,7 @@ func (g *Generator) generateMediaTypes(verdir string, version *design.APIVersion
 
 // generateUserTypes iterates through the user types and generates the data structures and
 // marshaling code.
-func (g *Generator) generateUserTypes(verdir string) error {
+func (g *Generator) generateUserTypes(verdir string, api *design.APIDefinition) error {
 	err := storageGroup.RelationalStore.IterateModels(func(m *RelationalModel) error {
 
 		pkgName := strings.ToLower(m.Name)
@@ -332,9 +278,20 @@ func (g *Generator) generateUserTypes(verdir string) error {
 			codegen.SimpleImport("github.com/patrickmn/go-cache"),
 			codegen.SimpleImport("fmt"),
 		}
+
+		var utd *design.UserTypeDefinition
+		// find the right UserTypeDefinition for this RelationalModel
+		err = api.IterateUserTypes(func(ut *design.UserTypeDefinition) error {
+			fmt.Println(ut.TypeName, m.Name)
+			if deModel(ut.TypeName) == m.Name {
+				utd = ut
+			}
+			return nil
+		})
 		utWr.WriteHeader(title, codegen.Goify(m.Name, false), imports)
 		data := &UserTypeTemplateData{
 			UserType:   m,
+			BaseType:   utd,
 			DefaultPkg: TargetPackage,
 		}
 		err = utWr.Execute(data)

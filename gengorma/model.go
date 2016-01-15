@@ -97,9 +97,9 @@ func HasOne(model *design.UserTypeDefinition) {
 // Timestamps creates the created_at and  updated_at
 // fields
 func Timestamps() {
-	dsl.Attribute("created_at", design.Any,
+	dsl.Attribute("created_at", design.String,
 		func() { dsl.Metadata(MetaTimestampCreated, "true") })
-	dsl.Attribute("updated_at", design.Any,
+	dsl.Attribute("updated_at", design.String,
 		func() { dsl.Metadata(MetaTimestampUpdated, "true") })
 
 }
@@ -107,7 +107,7 @@ func Timestamps() {
 // SoftDelete creates the deleted_at
 // field, and informs gorm that it should use soft-deletes
 func SoftDelete() {
-	dsl.Attribute("deleted_at", design.Any,
+	dsl.Attribute("deleted_at", design.String,
 		func() { dsl.Metadata(MetaTimestampDeleted, "true") })
 }
 
@@ -122,7 +122,7 @@ func HasMany(model string, rel *design.UserTypeDefinition) {
 // metadata for a BelongsTO relationship
 func BelongsTo(model string) {
 
-	modelName := fmt.Sprintf("%s_id", model)
+	modelName := fmt.Sprintf("%s_id", strings.ToLower(model))
 	dsl.Attribute(modelName, design.Integer,
 		func() { dsl.Metadata(MetaBelongsTo, strings.Title(model)) })
 }

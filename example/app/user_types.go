@@ -16,25 +16,22 @@ import "github.com/raphael/goa"
 
 // ProposalModel type
 type ProposalModel struct {
-	UserID    *int
 	Abstract  *string
-	CreatedAt *interface{}
-	DeletedAt *interface{}
+	CreatedAt *string
+	DeletedAt *string
 	Detail    *string
-	Firstname *string
-	ID        string
-	M2reviews []*ReviewModel
-	Reviews   []*ReviewModel
+	FirstName *string
+	ID        int
+	M2reviews *string
+	Reviews   *string
 	Title     *string
-	UpdatedAt *interface{}
+	UpdatedAt *string
+	UserId    *int
 	Withdrawn *bool
 }
 
 // Validate validates the type instance.
 func (ut *ProposalModel) Validate() (err error) {
-	if ut.ID == "" {
-		err = goa.MissingAttributeError(`response`, "id", err)
-	}
 
 	if ut.Abstract != nil {
 		if len(*ut.Abstract) < 50 {
@@ -56,77 +53,9 @@ func (ut *ProposalModel) Validate() (err error) {
 			err = goa.InvalidLengthError(`response.detail`, *ut.Detail, len(*ut.Detail), 2000, false, err)
 		}
 	}
-	if ut.Firstname != nil {
-		if len(*ut.Firstname) < 2 {
-			err = goa.InvalidLengthError(`response.firstname`, *ut.Firstname, len(*ut.Firstname), 2, true, err)
-		}
-	}
-	for _, e := range ut.M2reviews {
-		if e.Comment != nil {
-			if len(*e.Comment) < 10 {
-				err = goa.InvalidLengthError(`response.m2reviews[*].comment`, *e.Comment, len(*e.Comment), 10, true, err)
-			}
-		}
-		if e.Comment != nil {
-			if len(*e.Comment) > 200 {
-				err = goa.InvalidLengthError(`response.m2reviews[*].comment`, *e.Comment, len(*e.Comment), 200, false, err)
-			}
-		}
-		if e.Rating != nil {
-			if *e.Rating < 1 {
-				err = goa.InvalidRangeError(`response.m2reviews[*].rating`, *e.Rating, 1, true, err)
-			}
-		}
-		if e.Rating != nil {
-			if *e.Rating > 5 {
-				err = goa.InvalidRangeError(`response.m2reviews[*].rating`, *e.Rating, 5, false, err)
-			}
-		}
-		for _, e := range e.Reviewers {
-			if e.Bio != nil {
-				if len(*e.Bio) > 500 {
-					err = goa.InvalidLengthError(`response.m2reviews[*].reviewers[*].bio`, *e.Bio, len(*e.Bio), 500, false, err)
-				}
-			}
-			if e.Email != nil {
-				if err2 := goa.ValidateFormat(goa.FormatEmail, *e.Email); err2 != nil {
-					err = goa.InvalidFormatError(`response.m2reviews[*].reviewers[*].email`, *e.Email, goa.FormatEmail, err2, err)
-				}
-			}
-		}
-	}
-	for _, e := range ut.Reviews {
-		if e.Comment != nil {
-			if len(*e.Comment) < 10 {
-				err = goa.InvalidLengthError(`response.reviews[*].comment`, *e.Comment, len(*e.Comment), 10, true, err)
-			}
-		}
-		if e.Comment != nil {
-			if len(*e.Comment) > 200 {
-				err = goa.InvalidLengthError(`response.reviews[*].comment`, *e.Comment, len(*e.Comment), 200, false, err)
-			}
-		}
-		if e.Rating != nil {
-			if *e.Rating < 1 {
-				err = goa.InvalidRangeError(`response.reviews[*].rating`, *e.Rating, 1, true, err)
-			}
-		}
-		if e.Rating != nil {
-			if *e.Rating > 5 {
-				err = goa.InvalidRangeError(`response.reviews[*].rating`, *e.Rating, 5, false, err)
-			}
-		}
-		for _, e := range e.Reviewers {
-			if e.Bio != nil {
-				if len(*e.Bio) > 500 {
-					err = goa.InvalidLengthError(`response.reviews[*].reviewers[*].bio`, *e.Bio, len(*e.Bio), 500, false, err)
-				}
-			}
-			if e.Email != nil {
-				if err2 := goa.ValidateFormat(goa.FormatEmail, *e.Email); err2 != nil {
-					err = goa.InvalidFormatError(`response.reviews[*].reviewers[*].email`, *e.Email, goa.FormatEmail, err2, err)
-				}
-			}
+	if ut.FirstName != nil {
+		if len(*ut.FirstName) < 2 {
+			err = goa.InvalidLengthError(`response.first_name`, *ut.FirstName, len(*ut.FirstName), 2, true, err)
 		}
 	}
 	if ut.Title != nil {
@@ -150,30 +79,18 @@ func MarshalProposalModel(source *ProposalModel, inErr error) (target map[string
 		return
 	}
 	tmp15 := map[string]interface{}{
-		"UserID":     source.UserID,
 		"abstract":   source.Abstract,
 		"created_at": source.CreatedAt,
 		"deleted_at": source.DeletedAt,
 		"detail":     source.Detail,
-		"firstname":  source.Firstname,
+		"first_name": source.FirstName,
 		"id":         source.ID,
+		"m2reviews":  source.M2reviews,
+		"reviews":    source.Reviews,
 		"title":      source.Title,
 		"updated_at": source.UpdatedAt,
+		"user_id":    source.UserId,
 		"withdrawn":  source.Withdrawn,
-	}
-	if source.M2reviews != nil {
-		tmp16 := make([]map[string]interface{}, len(source.M2reviews))
-		for tmp17, tmp18 := range source.M2reviews {
-			tmp16[tmp17], err = MarshalReviewModel(tmp18, err)
-		}
-		tmp15["m2reviews"] = tmp16
-	}
-	if source.Reviews != nil {
-		tmp19 := make([]map[string]interface{}, len(source.Reviews))
-		for tmp20, tmp21 := range source.Reviews {
-			tmp19[tmp20], err = MarshalReviewModel(tmp21, err)
-		}
-		tmp15["reviews"] = tmp19
 	}
 	target = tmp15
 	return
@@ -184,109 +101,115 @@ func UnmarshalProposalModel(source interface{}, inErr error) (target *ProposalMo
 	err = inErr
 	if val, ok := source.(map[string]interface{}); ok {
 		target = new(ProposalModel)
-		if v, ok := val["UserID"]; ok {
-			var tmp22 int
-			if f, ok := v.(float64); ok {
-				tmp22 = int(f)
-			} else {
-				err = goa.InvalidAttributeTypeError(`load.UserID`, v, "int", err)
-			}
-			target.UserID = &tmp22
-		}
 		if v, ok := val["abstract"]; ok {
-			var tmp23 string
+			var tmp16 string
 			if val, ok := v.(string); ok {
-				tmp23 = val
+				tmp16 = val
 			} else {
 				err = goa.InvalidAttributeTypeError(`load.Abstract`, v, "string", err)
 			}
-			target.Abstract = &tmp23
+			target.Abstract = &tmp16
 		}
 		if v, ok := val["created_at"]; ok {
-			var tmp24 interface{}
-			tmp24 = v
-			target.CreatedAt = &tmp24
+			var tmp17 string
+			if val, ok := v.(string); ok {
+				tmp17 = val
+			} else {
+				err = goa.InvalidAttributeTypeError(`load.CreatedAt`, v, "string", err)
+			}
+			target.CreatedAt = &tmp17
 		}
 		if v, ok := val["deleted_at"]; ok {
-			var tmp25 interface{}
-			tmp25 = v
-			target.DeletedAt = &tmp25
+			var tmp18 string
+			if val, ok := v.(string); ok {
+				tmp18 = val
+			} else {
+				err = goa.InvalidAttributeTypeError(`load.DeletedAt`, v, "string", err)
+			}
+			target.DeletedAt = &tmp18
 		}
 		if v, ok := val["detail"]; ok {
-			var tmp26 string
+			var tmp19 string
 			if val, ok := v.(string); ok {
-				tmp26 = val
+				tmp19 = val
 			} else {
 				err = goa.InvalidAttributeTypeError(`load.Detail`, v, "string", err)
 			}
-			target.Detail = &tmp26
+			target.Detail = &tmp19
 		}
-		if v, ok := val["firstname"]; ok {
-			var tmp27 string
+		if v, ok := val["first_name"]; ok {
+			var tmp20 string
 			if val, ok := v.(string); ok {
-				tmp27 = val
+				tmp20 = val
 			} else {
-				err = goa.InvalidAttributeTypeError(`load.Firstname`, v, "string", err)
+				err = goa.InvalidAttributeTypeError(`load.FirstName`, v, "string", err)
 			}
-			target.Firstname = &tmp27
+			target.FirstName = &tmp20
 		}
 		if v, ok := val["id"]; ok {
-			var tmp28 string
-			if val, ok := v.(string); ok {
-				tmp28 = val
+			var tmp21 int
+			if f, ok := v.(float64); ok {
+				tmp21 = int(f)
 			} else {
-				err = goa.InvalidAttributeTypeError(`load.ID`, v, "string", err)
+				err = goa.InvalidAttributeTypeError(`load.ID`, v, "int", err)
 			}
-			target.ID = tmp28
+			target.ID = tmp21
 		} else {
 			err = goa.MissingAttributeError(`load`, "id", err)
 		}
 		if v, ok := val["m2reviews"]; ok {
-			var tmp29 []*ReviewModel
-			if val, ok := v.([]interface{}); ok {
-				tmp29 = make([]*ReviewModel, len(val))
-				for tmp30, v := range val {
-					tmp29[tmp30], err = UnmarshalReviewModel(v, err)
-				}
+			var tmp22 string
+			if val, ok := v.(string); ok {
+				tmp22 = val
 			} else {
-				err = goa.InvalidAttributeTypeError(`load.M2reviews`, v, "array", err)
+				err = goa.InvalidAttributeTypeError(`load.M2reviews`, v, "string", err)
 			}
-			target.M2reviews = tmp29
+			target.M2reviews = &tmp22
 		}
 		if v, ok := val["reviews"]; ok {
-			var tmp31 []*ReviewModel
-			if val, ok := v.([]interface{}); ok {
-				tmp31 = make([]*ReviewModel, len(val))
-				for tmp32, v := range val {
-					tmp31[tmp32], err = UnmarshalReviewModel(v, err)
-				}
+			var tmp23 string
+			if val, ok := v.(string); ok {
+				tmp23 = val
 			} else {
-				err = goa.InvalidAttributeTypeError(`load.Reviews`, v, "array", err)
+				err = goa.InvalidAttributeTypeError(`load.Reviews`, v, "string", err)
 			}
-			target.Reviews = tmp31
+			target.Reviews = &tmp23
 		}
 		if v, ok := val["title"]; ok {
-			var tmp33 string
+			var tmp24 string
 			if val, ok := v.(string); ok {
-				tmp33 = val
+				tmp24 = val
 			} else {
 				err = goa.InvalidAttributeTypeError(`load.Title`, v, "string", err)
 			}
-			target.Title = &tmp33
+			target.Title = &tmp24
 		}
 		if v, ok := val["updated_at"]; ok {
-			var tmp34 interface{}
-			tmp34 = v
-			target.UpdatedAt = &tmp34
+			var tmp25 string
+			if val, ok := v.(string); ok {
+				tmp25 = val
+			} else {
+				err = goa.InvalidAttributeTypeError(`load.UpdatedAt`, v, "string", err)
+			}
+			target.UpdatedAt = &tmp25
+		}
+		if v, ok := val["user_id"]; ok {
+			var tmp26 int
+			if f, ok := v.(float64); ok {
+				tmp26 = int(f)
+			} else {
+				err = goa.InvalidAttributeTypeError(`load.UserId`, v, "int", err)
+			}
+			target.UserId = &tmp26
 		}
 		if v, ok := val["withdrawn"]; ok {
-			var tmp35 bool
+			var tmp27 bool
 			if val, ok := v.(bool); ok {
-				tmp35 = val
+				tmp27 = val
 			} else {
 				err = goa.InvalidAttributeTypeError(`load.Withdrawn`, v, "bool", err)
 			}
-			target.Withdrawn = &tmp35
+			target.Withdrawn = &tmp27
 		}
 	} else {
 		err = goa.InvalidAttributeTypeError(`load`, source, "dictionary", err)
@@ -299,19 +222,16 @@ func UnmarshalProposalModel(source interface{}, inErr error) (target *ProposalMo
 
 // ReviewModel type
 type ReviewModel struct {
-	ProposalID *int
-	UserID     *int
+	User       *string
 	Comment    *string
-	ID         string
+	ID         int
+	ProposalId *int
 	Rating     *int
-	Reviewers  []*UserModel
+	Reviewers  *string
 }
 
 // Validate validates the type instance.
 func (ut *ReviewModel) Validate() (err error) {
-	if ut.ID == "" {
-		err = goa.MissingAttributeError(`response`, "id", err)
-	}
 
 	if ut.Comment != nil {
 		if len(*ut.Comment) < 10 {
@@ -333,18 +253,6 @@ func (ut *ReviewModel) Validate() (err error) {
 			err = goa.InvalidRangeError(`response.rating`, *ut.Rating, 5, false, err)
 		}
 	}
-	for _, e := range ut.Reviewers {
-		if e.Bio != nil {
-			if len(*e.Bio) > 500 {
-				err = goa.InvalidLengthError(`response.reviewers[*].bio`, *e.Bio, len(*e.Bio), 500, false, err)
-			}
-		}
-		if e.Email != nil {
-			if err2 := goa.ValidateFormat(goa.FormatEmail, *e.Email); err2 != nil {
-				err = goa.InvalidFormatError(`response.reviewers[*].email`, *e.Email, goa.FormatEmail, err2, err)
-			}
-		}
-	}
 	return
 }
 
@@ -355,21 +263,15 @@ func MarshalReviewModel(source *ReviewModel, inErr error) (target map[string]int
 		err = goa.ReportError(err, err2)
 		return
 	}
-	tmp36 := map[string]interface{}{
-		"ProposalID": source.ProposalID,
-		"UserID":     source.UserID,
-		"comment":    source.Comment,
-		"id":         source.ID,
-		"rating":     source.Rating,
+	tmp28 := map[string]interface{}{
+		"User":        source.User,
+		"comment":     source.Comment,
+		"id":          source.ID,
+		"proposal_id": source.ProposalId,
+		"rating":      source.Rating,
+		"reviewers":   source.Reviewers,
 	}
-	if source.Reviewers != nil {
-		tmp37 := make([]map[string]interface{}, len(source.Reviewers))
-		for tmp38, tmp39 := range source.Reviewers {
-			tmp37[tmp38], err = MarshalUserModel(tmp39, err)
-		}
-		tmp36["reviewers"] = tmp37
-	}
-	target = tmp36
+	target = tmp28
 	return
 }
 
@@ -378,64 +280,61 @@ func UnmarshalReviewModel(source interface{}, inErr error) (target *ReviewModel,
 	err = inErr
 	if val, ok := source.(map[string]interface{}); ok {
 		target = new(ReviewModel)
-		if v, ok := val["ProposalID"]; ok {
-			var tmp40 int
-			if f, ok := v.(float64); ok {
-				tmp40 = int(f)
+		if v, ok := val["User"]; ok {
+			var tmp29 string
+			if val, ok := v.(string); ok {
+				tmp29 = val
 			} else {
-				err = goa.InvalidAttributeTypeError(`load.ProposalID`, v, "int", err)
+				err = goa.InvalidAttributeTypeError(`load.User`, v, "string", err)
 			}
-			target.ProposalID = &tmp40
-		}
-		if v, ok := val["UserID"]; ok {
-			var tmp41 int
-			if f, ok := v.(float64); ok {
-				tmp41 = int(f)
-			} else {
-				err = goa.InvalidAttributeTypeError(`load.UserID`, v, "int", err)
-			}
-			target.UserID = &tmp41
+			target.User = &tmp29
 		}
 		if v, ok := val["comment"]; ok {
-			var tmp42 string
+			var tmp30 string
 			if val, ok := v.(string); ok {
-				tmp42 = val
+				tmp30 = val
 			} else {
 				err = goa.InvalidAttributeTypeError(`load.Comment`, v, "string", err)
 			}
-			target.Comment = &tmp42
+			target.Comment = &tmp30
 		}
 		if v, ok := val["id"]; ok {
-			var tmp43 string
-			if val, ok := v.(string); ok {
-				tmp43 = val
+			var tmp31 int
+			if f, ok := v.(float64); ok {
+				tmp31 = int(f)
 			} else {
-				err = goa.InvalidAttributeTypeError(`load.ID`, v, "string", err)
+				err = goa.InvalidAttributeTypeError(`load.ID`, v, "int", err)
 			}
-			target.ID = tmp43
+			target.ID = tmp31
 		} else {
 			err = goa.MissingAttributeError(`load`, "id", err)
 		}
-		if v, ok := val["rating"]; ok {
-			var tmp44 int
+		if v, ok := val["proposal_id"]; ok {
+			var tmp32 int
 			if f, ok := v.(float64); ok {
-				tmp44 = int(f)
+				tmp32 = int(f)
+			} else {
+				err = goa.InvalidAttributeTypeError(`load.ProposalId`, v, "int", err)
+			}
+			target.ProposalId = &tmp32
+		}
+		if v, ok := val["rating"]; ok {
+			var tmp33 int
+			if f, ok := v.(float64); ok {
+				tmp33 = int(f)
 			} else {
 				err = goa.InvalidAttributeTypeError(`load.Rating`, v, "int", err)
 			}
-			target.Rating = &tmp44
+			target.Rating = &tmp33
 		}
 		if v, ok := val["reviewers"]; ok {
-			var tmp45 []*UserModel
-			if val, ok := v.([]interface{}); ok {
-				tmp45 = make([]*UserModel, len(val))
-				for tmp46, v := range val {
-					tmp45[tmp46], err = UnmarshalUserModel(v, err)
-				}
+			var tmp34 string
+			if val, ok := v.(string); ok {
+				tmp34 = val
 			} else {
-				err = goa.InvalidAttributeTypeError(`load.Reviewers`, v, "array", err)
+				err = goa.InvalidAttributeTypeError(`load.Reviewers`, v, "string", err)
 			}
-			target.Reviewers = tmp45
+			target.Reviewers = &tmp34
 		}
 	} else {
 		err = goa.InvalidAttributeTypeError(`load`, source, "dictionary", err)
@@ -451,18 +350,22 @@ type UserModel struct {
 	Bio       *string
 	City      *string
 	Country   *string
+	CreatedAt *string
 	Email     *string
-	Firstname *string
-	ID        string
-	Lastname  *string
-	Role      *string
+	// First name Description
+	FirstName *string
+	ID        int
+	LastName  *string
+	Role      string
 	State     *string
+	UpdatedAt *string
 }
 
 // Validate validates the type instance.
 func (ut *UserModel) Validate() (err error) {
-	if ut.ID == "" {
-		err = goa.MissingAttributeError(`response`, "id", err)
+
+	if ut.Role == "" {
+		err = goa.MissingAttributeError(`response`, "role", err)
 	}
 
 	if ut.Bio != nil {
@@ -485,18 +388,20 @@ func MarshalUserModel(source *UserModel, inErr error) (target map[string]interfa
 		err = goa.ReportError(err, err2)
 		return
 	}
-	tmp47 := map[string]interface{}{
-		"bio":       source.Bio,
-		"city":      source.City,
-		"country":   source.Country,
-		"email":     source.Email,
-		"firstname": source.Firstname,
-		"id":        source.ID,
-		"lastname":  source.Lastname,
-		"role":      source.Role,
-		"state":     source.State,
+	tmp35 := map[string]interface{}{
+		"bio":        source.Bio,
+		"city":       source.City,
+		"country":    source.Country,
+		"created_at": source.CreatedAt,
+		"email":      source.Email,
+		"first_name": source.FirstName,
+		"id":         source.ID,
+		"last_name":  source.LastName,
+		"role":       source.Role,
+		"state":      source.State,
+		"updated_at": source.UpdatedAt,
 	}
-	target = tmp47
+	target = tmp35
 	return
 }
 
@@ -506,87 +411,107 @@ func UnmarshalUserModel(source interface{}, inErr error) (target *UserModel, err
 	if val, ok := source.(map[string]interface{}); ok {
 		target = new(UserModel)
 		if v, ok := val["bio"]; ok {
-			var tmp48 string
+			var tmp36 string
 			if val, ok := v.(string); ok {
-				tmp48 = val
+				tmp36 = val
 			} else {
 				err = goa.InvalidAttributeTypeError(`load.Bio`, v, "string", err)
 			}
-			target.Bio = &tmp48
+			target.Bio = &tmp36
 		}
 		if v, ok := val["city"]; ok {
-			var tmp49 string
+			var tmp37 string
 			if val, ok := v.(string); ok {
-				tmp49 = val
+				tmp37 = val
 			} else {
 				err = goa.InvalidAttributeTypeError(`load.City`, v, "string", err)
 			}
-			target.City = &tmp49
+			target.City = &tmp37
 		}
 		if v, ok := val["country"]; ok {
-			var tmp50 string
+			var tmp38 string
 			if val, ok := v.(string); ok {
-				tmp50 = val
+				tmp38 = val
 			} else {
 				err = goa.InvalidAttributeTypeError(`load.Country`, v, "string", err)
 			}
-			target.Country = &tmp50
+			target.Country = &tmp38
+		}
+		if v, ok := val["created_at"]; ok {
+			var tmp39 string
+			if val, ok := v.(string); ok {
+				tmp39 = val
+			} else {
+				err = goa.InvalidAttributeTypeError(`load.CreatedAt`, v, "string", err)
+			}
+			target.CreatedAt = &tmp39
 		}
 		if v, ok := val["email"]; ok {
-			var tmp51 string
+			var tmp40 string
 			if val, ok := v.(string); ok {
-				tmp51 = val
+				tmp40 = val
 			} else {
 				err = goa.InvalidAttributeTypeError(`load.Email`, v, "string", err)
 			}
-			target.Email = &tmp51
+			target.Email = &tmp40
 		}
-		if v, ok := val["firstname"]; ok {
-			var tmp52 string
+		if v, ok := val["first_name"]; ok {
+			var tmp41 string
 			if val, ok := v.(string); ok {
-				tmp52 = val
+				tmp41 = val
 			} else {
-				err = goa.InvalidAttributeTypeError(`load.Firstname`, v, "string", err)
+				err = goa.InvalidAttributeTypeError(`load.FirstName`, v, "string", err)
 			}
-			target.Firstname = &tmp52
+			target.FirstName = &tmp41
 		}
 		if v, ok := val["id"]; ok {
-			var tmp53 string
-			if val, ok := v.(string); ok {
-				tmp53 = val
+			var tmp42 int
+			if f, ok := v.(float64); ok {
+				tmp42 = int(f)
 			} else {
-				err = goa.InvalidAttributeTypeError(`load.ID`, v, "string", err)
+				err = goa.InvalidAttributeTypeError(`load.ID`, v, "int", err)
 			}
-			target.ID = tmp53
+			target.ID = tmp42
 		} else {
 			err = goa.MissingAttributeError(`load`, "id", err)
 		}
-		if v, ok := val["lastname"]; ok {
-			var tmp54 string
+		if v, ok := val["last_name"]; ok {
+			var tmp43 string
 			if val, ok := v.(string); ok {
-				tmp54 = val
+				tmp43 = val
 			} else {
-				err = goa.InvalidAttributeTypeError(`load.Lastname`, v, "string", err)
+				err = goa.InvalidAttributeTypeError(`load.LastName`, v, "string", err)
 			}
-			target.Lastname = &tmp54
+			target.LastName = &tmp43
 		}
 		if v, ok := val["role"]; ok {
-			var tmp55 string
+			var tmp44 string
 			if val, ok := v.(string); ok {
-				tmp55 = val
+				tmp44 = val
 			} else {
 				err = goa.InvalidAttributeTypeError(`load.Role`, v, "string", err)
 			}
-			target.Role = &tmp55
+			target.Role = tmp44
+		} else {
+			err = goa.MissingAttributeError(`load`, "role", err)
 		}
 		if v, ok := val["state"]; ok {
-			var tmp56 string
+			var tmp45 string
 			if val, ok := v.(string); ok {
-				tmp56 = val
+				tmp45 = val
 			} else {
 				err = goa.InvalidAttributeTypeError(`load.State`, v, "string", err)
 			}
-			target.State = &tmp56
+			target.State = &tmp45
+		}
+		if v, ok := val["updated_at"]; ok {
+			var tmp46 string
+			if val, ok := v.(string); ok {
+				tmp46 = val
+			} else {
+				err = goa.InvalidAttributeTypeError(`load.UpdatedAt`, v, "string", err)
+			}
+			target.UpdatedAt = &tmp46
 		}
 	} else {
 		err = goa.InvalidAttributeTypeError(`load`, source, "dictionary", err)

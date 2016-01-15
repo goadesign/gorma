@@ -1,6 +1,7 @@
 package gorma
 
 import (
+	"fmt"
 	"regexp"
 	"strings"
 	"text/template"
@@ -11,6 +12,22 @@ import (
 
 // WildcardRegex is the regex used to capture path parameters.
 var WildcardRegex = regexp.MustCompile("(?:[^/]*/:([^/]+))+")
+var mUserImplT *template.Template
+
+func init() {
+	var err error
+	fm := template.FuncMap{
+		"gotypename":   codegen.GoTypeName,
+		"gotyperef":    GoTypeRef,
+		"gopkgtyperef": GoPackageTypeRef,
+		"goify":        codegen.Goify,
+		"gonative":     codegen.GoNativeType,
+		"add":          func(a, b int) int { return a + b },
+	}
+	if mUserImplT, err = template.New("user marshaler").Funcs(fm).Parse(mUserImplTmpl); err != nil {
+		panic(err)
+	}
+}
 
 type (
 	// ContextsWriter generate codes for a goa application contexts.
@@ -74,6 +91,7 @@ type (
 	// media types code.
 	UserTypeTemplateData struct {
 		UserType   *RelationalModel
+		BaseType   *design.UserTypeDefinition
 		DefaultPkg string
 	}
 
@@ -114,23 +132,31 @@ type (
 		DoMedia          bool
 		APIVersion       string
 		RequiredPackages map[string]bool
+		Version          *design.APIVersionDefinition
+		DefaultPkg       string
 	}
 )
+
+// Versioned returns true if the context was built from an API version.
+func (c *ConversionData) Versioned() bool {
+	return !c.Version.IsDefault()
+}
 
 // Versioned returns true if the context was built from an API version.
 func (c *ContextTemplateData) Versioned() bool {
 	return !c.Version.IsDefault()
 }
-func NewConversionData(version string, utd *design.ResourceDefinition) ConversionData {
+func NewConversionData(version *design.APIVersionDefinition, utd *design.ResourceDefinition) ConversionData {
 	md := ConversionData{
 		TypeDef:          utd,
 		RequiredPackages: make(map[string]bool, 0),
 	}
+	md.Version = version
 	md.TypeName = codegen.Goify(utd.Name, true)
 	md.MediaUpper = strings.Title(utd.Name)
 	md.MediaLower = lower(utd.Name)
-	if version != "" {
-		md.APIVersion = codegen.VersionPackage(version)
+	if version.Version != "" {
+		md.APIVersion = codegen.VersionPackage(version.Version)
 	} else {
 		// import the default package instead of nothing
 		md.APIVersion = "app"
@@ -191,13 +217,14 @@ func (c *ContextTemplateData) MustValidate(name string) bool {
 func NewContextsWriter(filename string) (*ContextsWriter, error) {
 	cw := codegen.NewGoGenerator(filename)
 	funcMap := cw.FuncMap
-	funcMap["gotyperef"] = codegen.GoTypeRef
+	funcMap["gotyperef"] = GoTypeRef
 	funcMap["gotypedef"] = codegen.GoTypeDef
 	funcMap["goify"] = codegen.Goify
 	funcMap["gotypename"] = codegen.GoTypeName
 	funcMap["gopkgtypename"] = codegen.GoPackageTypeName
 	funcMap["typeUnmarshaler"] = codegen.TypeUnmarshaler
 	funcMap["userTypeUnmarshalerImpl"] = codegen.UserTypeUnmarshalerImpl
+	funcMap["userTypeMarshalerImpl"] = UserTypeMarshalerImpl
 	funcMap["validationChecker"] = codegen.ValidationChecker
 	funcMap["tabs"] = codegen.Tabs
 	funcMap["add"] = func(a, b int) int { return a + b }
@@ -330,6 +357,8 @@ func NewUserTypesWriter(filename string) (*UserTypesWriter, error) {
 	funcMap["pkwherefields"] = pkWhereFields
 	funcMap["pkupdatefields"] = pkUpdateFields
 	funcMap["lower"] = lower
+	funcMap["demodel"] = deModel
+	funcMap["typeUnmarshaler"] = codegen.TypeUnmarshaler
 	funcMap["storagedef"] = storageDef
 	userTypeTmpl, err := template.New("user type").Funcs(funcMap).Parse(userTypeT)
 	if err != nil {
@@ -377,7 +406,126 @@ func arrayAttribute(a *design.AttributeDefinition) *design.AttributeDefinition {
 	return a.Type.(*design.Array).ElemType
 }
 
+// UserTypeMarshalerImpl returns the Go code for a function that marshals and validates instances
+// of the given user type into raw values using the given view to render the attributes.
+func UserTypeMarshalerImpl(u *design.UserTypeDefinition, versioned bool, defaultPkg string) string {
+	var impl string
+	impl = codegen.AttributeMarshaler(u.AttributeDefinition, versioned, defaultPkg, "", "source", "target")
+	data := map[string]interface{}{
+		"Name":           userTypeMarshalerFuncName(u),
+		"Type":           u,
+		"Impl":           impl,
+		"Versioned":      versioned,
+		"DefaultPackage": defaultPkg,
+	}
+	return codegen.RunTemplate(mUserImplT, data)
+}
+
+// userTypeMarshalerFuncName returns the name for the given media type marshaler function.
+func userTypeMarshalerFuncName(u *design.UserTypeDefinition) string {
+	return fmt.Sprintf("Marshal%s", codegen.GoTypeName(u, u.AllRequired(), 0))
+}
+
+// GoTypeRef returns the Go code that refers to the Go type which matches the given data type
+// (the part that comes after `var foo`)
+// required only applies when referring to a user type that is an object defined inline. In this
+// case the type (Object) does not carry the required field information defined in the parent
+// (anonymous) attribute.
+// tabs is used to properly tabulate the object struct fields and only applies to this case.
+// This function assumes the type is in the same package as the code accessing it.
+func GoTypeRef(t design.DataType, required []string, versioned bool, defaultPkg string, tabs int) string {
+	return GoPackageTypeRef(t, required, versioned, defaultPkg, tabs)
+}
+
+// GoPackageTypeRef returns the Go code that refers to the Go type which matches the given data type.
+// versioned indicates whether the type is being referenced from a version package (true) or the
+// default package defPkg (false).
+// required only applies when referring to a user type that is an object defined inline. In this
+// case the type (Object) does not carry the required field information defined in the parent
+// (anonymous) attribute.
+// tabs is used to properly tabulate the object struct fields and only applies to this case.
+func GoPackageTypeRef(t design.DataType, required []string, versioned bool, defPkg string, tabs int) string {
+	switch t.(type) {
+	case *design.UserTypeDefinition, *design.MediaTypeDefinition:
+		var prefix string
+		if t.IsObject() {
+			prefix = "*"
+		}
+		return prefix + GoPackageTypeName(t, required, versioned, defPkg, tabs)
+	case design.Object:
+		return "*" + GoPackageTypeName(t, required, versioned, defPkg, tabs)
+	default:
+		return GoPackageTypeName(t, required, versioned, defPkg, tabs)
+	}
+}
+
+// GoPackageTypeName returns the Go type name for a data type.
+// versioned indicates whether the type is being referenced from a version package (true) or the
+// default package defPkg (false).
+// required only applies when referring to a user type that is an object defined inline. In this
+// case the type (Object) does not carry the required field information defined in the parent
+// (anonymous) attribute.
+// tabs is used to properly tabulate the object struct fields and only applies to this case.
+func GoPackageTypeName(t design.DataType, required []string, versioned bool, defPkg string, tabs int) string {
+	switch actual := t.(type) {
+	case design.Primitive:
+		return codegen.GoNativeType(t)
+	case *design.Array:
+		return "[]" + GoPackageTypeRef(actual.ElemType.Type, actual.ElemType.AllRequired(), versioned, defPkg, tabs+1)
+	case design.Object:
+		att := &design.AttributeDefinition{Type: actual}
+		if len(required) > 0 {
+			requiredVal := &design.RequiredValidationDefinition{Names: required}
+			att.Validations = append(att.Validations, requiredVal)
+		}
+		return codegen.GoTypeDef(att, versioned, defPkg, tabs, false)
+	case *design.Hash:
+		return fmt.Sprintf(
+			"map[%s]%s",
+			GoPackageTypeRef(actual.KeyType.Type, actual.KeyType.AllRequired(), versioned, defPkg, tabs+1),
+			GoPackageTypeRef(actual.ElemType.Type, actual.ElemType.AllRequired(), versioned, defPkg, tabs+1),
+		)
+	case *design.UserTypeDefinition:
+		pkgPrefix := PackagePrefix(actual, versioned, defPkg)
+		return pkgPrefix + codegen.Goify(actual.TypeName, true)
+	case *design.MediaTypeDefinition:
+		pkgPrefix := PackagePrefix(actual.UserTypeDefinition, versioned, defPkg)
+		return pkgPrefix + codegen.Goify(actual.TypeName, true)
+	default:
+		panic(fmt.Sprintf("goa bug: unknown type %#v", actual))
+	}
+}
+
+// PackagePrefix returns the package prefix to use to access ut from ver given it lives in the
+// package pkg.
+func PackagePrefix(ut *design.UserTypeDefinition, versioned bool, pkg string) string {
+	fmt.Println(versioned, pkg)
+	if !versioned {
+		// If the version is the default version then the user type is in the same package
+		// (otherwise the DSL would not be valid).
+		fmt.Println("returning nothing")
+		return ""
+	}
+	if len(ut.APIVersions) == 0 {
+		// If the type is not versioned but we are accessing it from the non-default version
+		// then we need to qualify it with the default version package.
+		fmt.Println("returning pkg")
+		return pkg + "."
+	}
+	// If the type is versioned then we must be accessing it from the current version
+	// (unversioned definitions cannot use versioned definitions)
+	fmt.Println("returning pkg fallthrough")
+	return pkg
+}
+
 const (
+	mUserImplTmpl = `// {{.Name}} validates and renders an instance of {{gotypename .Type nil 0}} into a interface{}{{if .View}}
+// using view "{{.View}}".{{end}}
+func {{.Name}}(source {{gotyperef .Type .Type.AllRequired .Versioned .DefaultPackage 0}}, inErr error) (target {{gonative .Type}}, err error) {
+	err = inErr
+{{.Impl}}
+	return
+}`
 	// ctxT generates the code for the context data type.
 	// template input: *ContextTemplateData
 	ctxT = `// {{.Name}} provides the {{.ResourceName}} {{.ActionName}} action context.
@@ -534,17 +682,21 @@ func Mount{{.Resource}}Controller(service goa.Service, ctrl {{.Resource}}Control
 {{ $belongs := .BelongsTo }}
 {{ if .DoMedia }}
 {{ $version := .APIVersion }}
+{{ $keep := . }}
 {{ range $idx, $action := .TypeDef.Actions  }}
 {{ if hasusertype $action }}
 func {{$typename}}From{{version $version}}{{title $action.Name}}Payload(ctx *{{$version}}.{{title $action.Name}}{{$typename}}Context) {{$typename}} {
 	payload := ctx.Payload
-	m := {{$typename}}{}
-	copier.Copy(&m, payload)
-{{ range $idx, $bt := $belongs }}
-	m.{{ $bt.Parent}}ID=int(ctx.{{ $bt.Parent}}ID){{end}}
-	return m
+	var err error
+	target, _ := Marshal{{title $action.Name}}{{$typename}}Payload(payload, err)
+	
+	return target
 }
-{{ end }}{{end}}{{end}}
+{{userTypeMarshalerImpl $action.Payload $keep.Versioned $version}}
+
+{{ end }}{{end}}
+
+{{end}}
 `
 
 	// mediaTypeT generates the code for a media type.
@@ -788,7 +940,14 @@ func Filter{{$typename}}By{{$bt.Name}}(parent *int, list []{{$typename}}) []{{$t
 	return filtered
 }
 {{end}}
-
+// Load{{$typename}} loads raw data into an instance of {{$typename}}
+// into a variable of type interface{}. See https://golang.org/pkg/encoding/json/#Unmarshal for the
+// complete list of supported data types.
+// func LoadUser(raw interface{}) (res *User, err error) {
+func Load{{$typeName}}(raw interface{}) (res *{{$typename}}, err error) {
+	res, err = Unmarshal{{$typename}}(raw, err)
+	return
+}
 `
 )
 const resourceTmpl = `
@@ -800,11 +959,10 @@ const resourceTmpl = `
 {{ if hasusertype $action }}
 func {{$typename}}From{{version $version}}{{title $action.Name}}Payload(ctx *{{$version}}.{{title $action.Name}}{{$typename}}Context) {{$typename}} {
 	payload := ctx.Payload
-	m := {{$typename}}{}
-	copier.Copy(&m, payload)
-{{ range $idx, $bt := $belongs }}
-	m.{{ $bt.Parent}}ID=int(ctx.{{ $bt.Parent}}ID){{end}}
-	return m
+	var err error
+	target, _ := Marshal{{title $action.Name}}{{$typename}}Payload(payload, err)
+	
+	return target
 }
 {{ end }}{{end}}{{end}}
 `
