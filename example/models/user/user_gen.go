@@ -11,6 +11,19 @@
 
 package User
 
+import "time"
+
 // User type
 type User struct {
+	ID        int `gorm:"primary_key"`
+	Bio       string
+	Email     string
+	State     string
+	City      string
+	Country   string
+	Firstname string `sql:"blue"` //First name Description
+	Role      string
+	Lastname  string
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }

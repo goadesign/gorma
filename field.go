@@ -78,7 +78,7 @@ func (f *RelationalField) Definition() string {
 	if f.Description != "" {
 		desc = fmt.Sprintf("//%s", f.Description)
 	}
-	return fmt.Sprintf("%s \t %s%s %s %s", fieldName, pointer, fieldType, f.Tags(), desc)
+	return fmt.Sprintf("%s \t %s%s %s %s\n", fieldName, pointer, fieldType, f.Tags(), desc)
 
 }
 

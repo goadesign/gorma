@@ -1,6 +1,0 @@
-Iterating a Model! Proposal
-models/proposal/proposal_gen.go
-Iterating a Model! Review
-models/review/review_gen.go
-Iterating a Model! User
-models/user/user_gen.go

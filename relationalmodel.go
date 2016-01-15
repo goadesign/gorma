@@ -28,10 +28,15 @@ func NewRelationalModel(name string, t *design.UserTypeDefinition) (*RelationalM
 	return rm, err
 }
 
-func (m *RelationalModel) Definition() string {
-	header := fmt.Sprintf("type %s struct {\n", m.Name)
+func (rm *RelationalModel) Definition() string {
+	header := fmt.Sprintf("type %s struct {\n", rm.Name)
+	var output string
+	rm.IterateFields(func(f *RelationalField) error {
+		output = output + f.Definition()
+		return nil
+	})
 	footer := "}\n"
-	return header + footer
+	return header + output + footer
 
 }
 
@@ -129,4 +134,57 @@ func (rm *RelationalModel) ParseOptions() error {
 	default:
 		return errors.New("gorma bug: unexpected data structure type")
 	}
+}
+
+func (rm *RelationalModel) IterateFields(it FieldIterator) error {
+
+	names := make(map[string]string)
+	pks := make(map[string]string)
+	dates := make(map[string]string)
+	for n := range rm.Fields {
+		if rm.Fields[n].PrimaryKey {
+			//	names[i] = n
+			pks[n] = n
+		}
+	}
+
+	for n := range rm.Fields {
+		if !rm.Fields[n].PrimaryKey && !rm.Fields[n].Timestamp {
+			names[n] = n
+		}
+	}
+	for n := range rm.Fields {
+		if rm.Fields[n].Timestamp {
+			//	names[i] = n
+			dates[n] = n
+		}
+	}
+
+	j := 0
+	sortfields := make([]string, len(names))
+	for n := range names {
+		sortfields[j] = n
+	}
+	sort.Strings(sortfields)
+	j = 0
+	i := len(pks) + len(names) + len(dates)
+	fields := make([]string, i)
+	for _, pk := range pks {
+		fields[j] = pk
+		j++
+	}
+	for _, name := range names {
+		fields[j] = name
+		j++
+	}
+	for _, date := range dates {
+		fields[j] = date
+		j++
+	}
+	for _, n := range fields {
+		if err := it(rm.Fields[n]); err != nil {
+			return err
+		}
+	}
+	return nil
 }

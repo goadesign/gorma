@@ -11,6 +11,14 @@
 
 package Review
 
+import "github.com/gopheracademy/congo/models/user"
+
 // Review type
 type Review struct {
+	ID         int `gorm:"primary_key"`
+	Reviewers  []user.UserModel
+	ProposalID int
+	User       UserModel
+	Comment    string
+	Rating     int
 }

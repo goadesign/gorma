@@ -117,3 +117,4 @@ type KVModel struct {
 }
 
 type ModelIterator func(m *RelationalModel) error
+type FieldIterator func(m *RelationalField) error
