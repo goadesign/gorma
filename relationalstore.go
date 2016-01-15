@@ -1,6 +1,9 @@
 package gorma
 
-import "strings"
+import (
+	"sort"
+	"strings"
+)
 
 // NewRelationalStore returns an initialzed RelationalStore
 func NewRelationalStore() *RelationalStore {
@@ -21,7 +24,6 @@ func (rs *RelationalStore) ResolveRelationships() error {
 				}
 			}
 		}
-
 		if len(model.hasone) > 0 {
 			for _, one := range model.hasone {
 				one = strings.Title(one)
@@ -32,7 +34,6 @@ func (rs *RelationalStore) ResolveRelationships() error {
 				}
 			}
 		}
-
 		if len(model.hasmany) > 0 {
 			for _, many := range model.hasmany {
 				many = strings.Title(many)
@@ -42,6 +43,22 @@ func (rs *RelationalStore) ResolveRelationships() error {
 					}
 				}
 			}
+		}
+	}
+	return nil
+}
+
+func (rs *RelationalStore) IterateModels(it ModelIterator) error {
+	names := make([]string, len(rs.Models))
+	i := 0
+	for n := range rs.Models {
+		names[i] = n
+		i++
+	}
+	sort.Strings(names)
+	for _, n := range names {
+		if err := it(rs.Models[n]); err != nil {
+			return err
 		}
 	}
 	return nil

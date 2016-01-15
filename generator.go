@@ -13,6 +13,8 @@ import (
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
+var storageGroup *StorageGroup
+
 // Generator is the application code generator.
 type Generator struct {
 	*codegen.GoGenerator
@@ -82,35 +84,21 @@ func (g *Generator) Generate(api *design.APIDefinition) (_ []string, err error) 
 			g.Cleanup()
 		}
 	}()
-
-	sg, err := NewStorageGroup(api)
+	storageGroup, err = NewStorageGroup(api)
 	if err != nil {
 		fmt.Println("Error Parsing API: ", err)
 	}
-	for i, m := range sg.RelationalStore.Models {
-		fmt.Printf("Model : %s\n", i)
-		for j := range m.BelongsTo {
-			fmt.Printf("\t Belongs To: %s\n", j)
-		}
-		for k := range m.HasOne {
-			fmt.Printf("\t Has One: %s\n", k)
-		}
-		for l := range m.HasMany {
-			fmt.Printf("\t Has Many: %s\n", l)
-		}
-		for name, field := range m.Fields {
-			fmt.Printf("\t\t%s Definition: %s\n", name, field.Definition())
-		}
+	// create the output directory
+	outdir := ModelOutputDir()
+	if err := os.MkdirAll(outdir, 0755); err != nil {
+		return g.genfiles, err
+	}
+
+	// models are unversioned - outside the loop
+	if err := g.generateUserTypes(outdir); err != nil {
+		return g.genfiles, err
 	}
 	/*
-		outdir := ModelOutputDir()
-		if err := os.MkdirAll(outdir, 0755); err != nil {
-			return g.genfiles, err
-		}
-			// models are unversioned - outside the loop
-		if err := g.generateUserTypes(outdir, api); err != nil {
-			return g.genfiles, err
-		}
 		err = api.IterateVersions(func(v *design.APIVersionDefinition) error {
 			verdir := outdir
 			if err := os.MkdirAll(verdir, 0755); err != nil {
@@ -323,51 +311,41 @@ func (g *Generator) generateMediaTypes(verdir string, version *design.APIVersion
 
 // generateUserTypes iterates through the user types and generates the data structures and
 // marshaling code.
-func (g *Generator) generateUserTypes(verdir string, api *design.APIDefinition) error {
-	err := api.IterateVersions(func(it *design.APIVersionDefinition) error {
-		if it.Version != "" {
-			return nil
+func (g *Generator) generateUserTypes(verdir string) error {
+	err := storageGroup.RelationalStore.IterateModels(func(m *RelationalModel) error {
+
+		fmt.Println("Iterating a Model!", m.Name)
+		pkgName := strings.ToLower(m.Name)
+		err := os.MkdirAll(filepath.Join(verdir, pkgName), 0755)
+		if err != nil {
+			return err
 		}
-		err := it.IterateUserTypes(func(t *design.UserTypeDefinition) error {
-			if t.Type.IsObject() {
-				name := strings.ToLower(deModel(t.TypeName))
-				err := os.MkdirAll(filepath.Join(verdir, name), 0755)
-				if err != nil {
-					return err
-				}
-				_ = os.Remove(filepath.Join(verdir, name, name+"_gen.go"))
-				utFile := filepath.Join(verdir, name, name+"_gen.go")
-				fmt.Println(utFile)
-				utWr, err := NewUserTypesWriter(utFile)
-				if err != nil {
-					panic(err) // bug
-				}
-				title := fmt.Sprintf("%s: Generated Models", it.Context())
-				imports := []*codegen.ImportSpec{
-					codegen.SimpleImport("github.com/raphael/goa"),
-					codegen.SimpleImport("fmt"),
-				}
-				utWr.WriteHeader(title, name, imports)
-				data := &UserTypeTemplateData{
-					UserType:    t,
-					Versioned:   it.Version != "",
-					DefaultPkg:  TargetPackage,
-					Options:     modelOptions(t),
-					PrimaryKeys: primaryKeys(t),
-					BelongsTo:   belongsTo(t),
-					Many2Many:   many2Many(t),
-				}
-				err = utWr.Execute(data)
-				if err != nil {
-					return err
-				}
-				g.genfiles = append(g.genfiles, utFile)
-				//return err
-				return utWr.FormatCode()
-			}
-			return nil
-		})
-		return err
+		filename := fmt.Sprintf("%s_gen.go", codegen.Goify(m.Name, false))
+		_ = os.Remove(filepath.Join(verdir, pkgName, filename))
+		utFile := filepath.Join(verdir, pkgName, filename)
+		fmt.Println(utFile)
+		utWr, err := NewUserTypesWriter(utFile)
+		if err != nil {
+			panic(err) // bug
+		}
+		title := fmt.Sprintf("Generated Models")
+		imports := []*codegen.ImportSpec{
+			codegen.SimpleImport("github.com/raphael/goa"),
+			codegen.SimpleImport("fmt"),
+		}
+		utWr.WriteHeader(title, m.Name, imports)
+		data := &UserTypeTemplateData{
+			UserType:   m,
+			DefaultPkg: TargetPackage,
+		}
+		err = utWr.Execute(data)
+		if err != nil {
+			return err
+		}
+		g.genfiles = append(g.genfiles, utFile)
+		//return err
+		return utWr.FormatCode()
+
 	})
 
 	return err

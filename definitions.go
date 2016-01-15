@@ -64,9 +64,11 @@ type RelationalField struct {
 	Datatype          string
 	SQLTag            string
 	DatabaseFieldName string
+	Description       string
 	Nullable          bool
 	PrimaryKey        bool
 	Timestamp         bool
+	Aliased           bool
 	BelongsTo         string
 	HasOne            string
 	HasMany           string
@@ -92,6 +94,7 @@ type RelationalModel struct {
 	TableName        string
 	Name             string
 	Alias            string
+	Description      string
 	Cached           bool
 	CacheDuration    int
 	NoMedia          bool
@@ -112,3 +115,5 @@ type KVModel struct {
 	HasOne     map[string]*KVModel
 	ManyToMany map[string]*ManyToMany
 }
+
+type ModelIterator func(m *RelationalModel) error

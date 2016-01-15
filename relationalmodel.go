@@ -2,6 +2,7 @@ package gorma
 
 import (
 	"errors"
+	"fmt"
 	"sort"
 	"strconv"
 
@@ -14,8 +15,8 @@ import (
 func NewRelationalModel(name string, t *design.UserTypeDefinition) (*RelationalModel, error) {
 	rm := &RelationalModel{
 		utd:         t,
-		TableName:   deModel(name), // may be overridden later
-		Name:        codegen.Goify(name, true),
+		TableName:   codegen.Goify(deModel(name), false), // may be overridden later
+		Name:        codegen.Goify(deModel(name), true),
 		Fields:      make(map[string]*RelationalField),
 		HasMany:     make(map[string]*RelationalModel),
 		HasOne:      make(map[string]*RelationalModel),
@@ -25,6 +26,13 @@ func NewRelationalModel(name string, t *design.UserTypeDefinition) (*RelationalM
 	}
 	err := rm.Parse()
 	return rm, err
+}
+
+func (m *RelationalModel) Definition() string {
+	header := fmt.Sprintf("type %s struct {\n", m.Name)
+	footer := "}\n"
+	return header + footer
+
 }
 
 // Parse populates the RelationalModel based on the defintions in the DSL

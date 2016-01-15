@@ -73,13 +73,8 @@ type (
 	// UserTypeTemplateData contains all the information used by the template to redner the
 	// media types code.
 	UserTypeTemplateData struct {
-		UserType    *design.UserTypeDefinition
-		PrimaryKeys map[string]PrimaryKey
-		BelongsTo   []BelongsTo
-		Many2Many   []Many2Many
-		Options     ModelOptions
-		Versioned   bool
-		DefaultPkg  string
+		UserType   *RelationalModel
+		DefaultPkg string
 	}
 
 	ModelOptions struct {
@@ -356,8 +351,8 @@ func NewUserTypesWriter(filename string) (*UserTypesWriter, error) {
 }
 
 // Execute writes the code for the context types to the writer.
-func (w *UserTypesWriter) Execute(data *UserTypeTemplateData) error {
-	return w.UserTypeTmpl.Execute(w, data)
+func (w *UserTypesWriter) Execute(model *UserTypeTemplateData) error {
+	return w.UserTypeTmpl.Execute(w, model)
 }
 
 // newCoerceData is a helper function that creates a map that can be given to the "Coerce" template.
@@ -609,7 +604,10 @@ func (mt {{gotyperef .MediaType .MediaType.AllRequired 0}}) Dump({{if gt (len $c
 
 	// userTypeT generates the code for a user type.
 	// template input: UserTypeTemplateData
-	userTypeT = `// {{if .UserType.Description}}{{.UserType.Description}}{{else}}{{gotypename .UserType .UserType.AllRequired 0}} type{{end}}
+	userTypeT = `// {{if .UserType.Description}}{{.UserType.Description}}{{else}}{{.UserType.Name }} type{{end}}
+	{{.UserType.Definition}}
+	`
+	blue = `
 type {{gotypename .UserType .UserType.AllRequired 0}} {{gotypedef .UserType .Versioned .DefaultPkg 0 false}}
 {{ if ne .Options.TableName "" }}
 func (m {{.UserType.TypeName}}) TableName() string {

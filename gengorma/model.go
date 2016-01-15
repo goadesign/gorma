@@ -14,7 +14,7 @@ const (
 	MetaHasMany          = "github.com/bketelsen/gorma#hasmany"
 	MetaBelongsTo        = "github.com/bketelsen/gorma#belongsto"
 	MetaCached           = "github.com/bketelsen/gorma#cached"
-	MetaPrimaryKey       = "github.com/bketelsen/gorma#gormtag"
+	MetaPrimaryKey       = "github.com/bketelsen/gorma#primarykey"
 	MetaManyToMany       = "github.com/bketelsen/gorma#manytomany"
 	MetaDynamicTableName = "github.com/bketelsen/gorma#dyntablename"
 	MetaRoler            = "github.com/bketelsen/gorma#roler"
@@ -69,7 +69,7 @@ func NoMedia() {
 	dsl.Metadata(MetaNoMedia, "true")
 }
 
-// As annotates the model with the correct
+// As annotates the field with the correct
 // metadata for a custom column name in the database
 func As(alias string) {
 	dsl.Metadata(MetaGormTag, alias)

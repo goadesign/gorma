@@ -27,63 +27,86 @@ func NewRelationalField(name string, a *design.AttributeDefinition) (*Relational
 
 // Parse populates all the attributes of the Field
 func (f *RelationalField) Parse() error {
-	err := f.ParsePrimaryKey()
-	if err != nil {
+	if err := f.ParsePrimaryKey(); err != nil {
 		return err
 	}
-	err = f.ParseSQLTag()
-	if err != nil {
+	if err := f.ParseSQLTag(); err != nil {
 		return err
 	}
-	err = f.ParseTimestamps()
-	if err != nil {
+	if err := f.ParseTimestamps(); err != nil {
 		return err
 	}
-	err = f.ParseAlias()
-	if err != nil {
+	if err := f.ParseAlias(); err != nil {
 		return err
 	}
-	err = f.ParseBelongsTo()
-	if err != nil {
+	if err := f.ParseBelongsTo(); err != nil {
 		return err
 	}
-	err = f.ParseHasOne()
-	if err != nil {
+	if err := f.ParseHasOne(); err != nil {
 		return err
 	}
-	err = f.ParseHasMany()
-	if err != nil {
+	if err := f.ParseHasMany(); err != nil {
 		return err
 	}
-	return err
+	if err := f.ParseDescription(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (f *RelationalField) ParseDescription() error {
+	if f.a.Description != "" {
+		f.Description = f.a.Description
+	}
+	return nil
 }
 
 func (f *RelationalField) Definition() string {
 
-	var fieldType, fieldName, pointer string
-	fieldType = codegen.GoTypeName(f.a.Definition().Type, []string{}, 1)
+	var desc, fieldType, fieldName, pointer string
+	fieldType = f.Datatype
 	if f.HasOne != "" {
 		fieldType = f.HasOne
 	}
-
+	if f.HasMany != "" {
+		fieldType = fmt.Sprintf("[]%s.%s", strings.ToLower(deModel(f.HasMany)), f.HasMany)
+	}
 	fieldName = f.Name
 	if f.Nullable {
 		pointer = "*"
 	}
-	return fmt.Sprintf("%s \t %s%s %s", fieldName, pointer, fieldType, f.Tags())
+	if f.Description != "" {
+		desc = fmt.Sprintf("//%s", f.Description)
+	}
+	return fmt.Sprintf("%s \t %s%s %s %s", fieldName, pointer, fieldType, f.Tags(), desc)
 
 }
 
 func (f *RelationalField) Tags() string {
 	var sqltags, gormtags, jsontags string
+	var dirty bool
 	if f.SQLTag != "" {
-		sqltags = "sql:\"f.SQLTag\""
+		sqltags = fmt.Sprintf("sql:\"%s\"", f.SQLTag)
+		dirty = true
 	}
-
 	if f.PrimaryKey {
-		gormtags = "primary_key"
+		if f.Aliased {
+			gormtags = fmt.Sprintf("gorm:\"%s,column:%s\"", "primary_key", f.DatabaseFieldName)
+		} else {
+			gormtags = fmt.Sprintf("gorm:\"%s\"", "primary_key")
+		}
+		dirty = true
+	} else {
+		if f.Aliased {
+			gormtags = fmt.Sprintf("gorm:\"column:%s\"", f.DatabaseFieldName)
+			dirty = true
+		}
 	}
-	return fmt.Sprintf("`json: %s sql: %s gorm: %s`", jsontags, sqltags, gormtags)
+	if dirty {
+		tags := strings.TrimSpace(strings.Join([]string{jsontags, sqltags, gormtags}, " "))
+		return fmt.Sprintf("`%s`", tags)
+	}
+	return ""
 }
 
 //ParseTimestamps populates the timestamps field
@@ -91,15 +114,17 @@ func (f *RelationalField) ParseTimestamps() error {
 	if _, ok := metaLookup(f.a.Metadata, gengorma.MetaTimestampCreated); ok {
 		f.Timestamp = true
 		f.Datatype = "time.Time"
+		f.Nullable = false
 	}
 	if _, ok := metaLookup(f.a.Metadata, gengorma.MetaTimestampUpdated); ok {
 		f.Timestamp = true
 		f.Datatype = "time.Time"
+		f.Nullable = false
 	}
 	if _, ok := metaLookup(f.a.Metadata, gengorma.MetaTimestampDeleted); ok {
 		f.Timestamp = true
+		f.Datatype = "time.Time"
 		f.Nullable = true
-		f.Datatype = "*time.Time"
 	}
 
 	return nil
@@ -145,7 +170,9 @@ func (f *RelationalField) ParseHasMany() error {
 
 //ParseAlias populates the DatabaseFieldName field
 func (f *RelationalField) ParseAlias() error {
+
 	if gt, ok := metaLookup(f.a.Metadata, gengorma.MetaGormTag); ok {
+		f.Aliased = true
 		f.DatabaseFieldName = gt
 	}
 	return nil

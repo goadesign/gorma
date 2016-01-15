@@ -16,8 +16,10 @@ var UserModel = Model("UserModel", func() {
 	PrimaryKey("id")
 	Roler()
 	Cached("60")
+	Timestamps()
 	Attribute("firstname", func() {
 		SQLTag("blue")
+		Description("First name Description")
 	})
 	Attribute("lastname", func() {
 	})
