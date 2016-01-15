@@ -59,8 +59,13 @@ func (f *RelationalField) Parse() error {
 }
 
 func (f *RelationalField) Definition() string {
+
 	var fieldType, fieldName, pointer string
 	fieldType = codegen.GoTypeName(f.a.Definition().Type, []string{}, 1)
+	if f.HasOne != "" {
+		fieldType = f.HasOne
+	}
+
 	fieldName = f.Name
 	if f.Nullable {
 		pointer = "*"

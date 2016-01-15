@@ -1,35 +1,35 @@
 Model : ProposalModel
 	 Belongs To: UserModel
 	 Has Many: ReviewModel
-		created_at Definition: CreatedAt 	 interface{} `json:  sql:  gorm: `
 		deleted_at Definition: DeletedAt 	 *interface{} `json:  sql:  gorm: `
-		detail Definition: Detail 	 string `json:  sql:  gorm: `
-		firstname Definition: Firstname 	 string `json:  sql:  gorm: `
-		id Definition: ID 	 int `json:  sql:  gorm: primary_key`
 		m2reviews Definition: M2reviews 	 string `json:  sql:  gorm: `
-		reviews Definition: Reviews 	 string `json:  sql:  gorm: `
-		title Definition: Title 	 string `json:  sql:  gorm: `
 		updated_at Definition: UpdatedAt 	 interface{} `json:  sql:  gorm: `
+		withdrawn Definition: Withdrawn 	 bool `json:  sql:  gorm: `
 		User_id Definition: UserID 	 int `json:  sql:  gorm: `
 		abstract Definition: Abstract 	 string `json:  sql:  gorm: `
-		withdrawn Definition: Withdrawn 	 bool `json:  sql:  gorm: `
+		firstname Definition: Firstname 	 string `json:  sql:  gorm: `
+		id Definition: ID 	 int `json:  sql:  gorm: primary_key`
+		reviews Definition: Reviews 	 string `json:  sql:  gorm: `
+		title Definition: Title 	 string `json:  sql:  gorm: `
+		created_at Definition: CreatedAt 	 interface{} `json:  sql:  gorm: `
+		detail Definition: Detail 	 string `json:  sql:  gorm: `
 Model : ReviewModel
 	 Belongs To: ProposalModel
 	 Has One: UserModel
 	 Has Many: UserModel
-		User Definition: User 	 string `json:  sql:  gorm: `
+		Proposal_id Definition: ProposalID 	 int `json:  sql:  gorm: `
+		User Definition: User 	 UserModel `json:  sql:  gorm: `
 		comment Definition: Comment 	 string `json:  sql:  gorm: `
 		id Definition: ID 	 int `json:  sql:  gorm: primary_key`
 		rating Definition: Rating 	 int `json:  sql:  gorm: `
 		reviewers Definition: Reviewers 	 string `json:  sql:  gorm: `
-		Proposal_id Definition: ProposalID 	 int `json:  sql:  gorm: `
 Model : UserModel
+		bio Definition: Bio 	 string `json:  sql:  gorm: `
+		firstname Definition: Firstname 	 string `json:  sql: sql:"f.SQLTag" gorm: `
+		id Definition: ID 	 int `json:  sql:  gorm: primary_key`
+		city Definition: City 	 string `json:  sql:  gorm: `
 		country Definition: Country 	 string `json:  sql:  gorm: `
 		email Definition: Email 	 string `json:  sql:  gorm: `
 		lastname Definition: Lastname 	 string `json:  sql:  gorm: `
-		state Definition: State 	 string `json:  sql:  gorm: `
-		bio Definition: Bio 	 string `json:  sql:  gorm: `
-		city Definition: City 	 string `json:  sql:  gorm: `
-		firstname Definition: Firstname 	 string `json:  sql:  gorm: `
-		id Definition: ID 	 int `json:  sql:  gorm: primary_key`
 		role Definition: Role 	 string `json:  sql:  gorm: `
+		state Definition: State 	 string `json:  sql:  gorm: `
