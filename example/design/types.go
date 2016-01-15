@@ -6,9 +6,6 @@ import (
 	. "github.com/raphael/goa/design/dsl"
 )
 
-var Users = ArrayOf(UserModel)
-var Reviews = ArrayOf(ReviewModel)
-
 // UserModel defines the data structure used in the create user request body.
 // It is also the base type for the user media type used to render users.
 var UserModel = Model("UserModel", func() {
@@ -18,7 +15,9 @@ var UserModel = Model("UserModel", func() {
 	//	HasMany("Review")
 	PrimaryKey("id")
 	Roler()
+	Cached("60")
 	Attribute("firstname", func() {
+		SQLTag("blue")
 	})
 	Attribute("lastname", func() {
 	})
@@ -43,8 +42,8 @@ var ProposalModel = Model("ProposalModel", func() {
 	PrimaryKey("id")
 	TableName("proposals")
 	BelongsTo("User")
-	HasMany("reviews", Reviews)
-	ManyToMany("m2review", "proposal_review", Reviews)
+	HasMany("reviews", ReviewModel)
+	ManyToMany("m2review", "proposal_review", ReviewModel)
 	Cached("60") // manage in-memory cache with 60 second TTL
 	Timestamps() // created_at and updated_at
 	SoftDelete() // deleted_at as pointer for soft deletes
@@ -72,8 +71,8 @@ var ProposalModel = Model("ProposalModel", func() {
 var ReviewModel = Model("ReviewModel", func() {
 	PrimaryKey("id")
 	BelongsTo("Proposal")
-	BelongsTo("User")
-	HasMany("reviewers", Users)
+	HasOne(UserModel)
+	HasMany("reviewers", UserModel)
 	Attribute("comment", func() {
 		MinLength(10)
 		MaxLength(200)

@@ -1,0 +1,8 @@
+Model : ProposalModel
+	 Belongs To: UserModel
+	 Has Many: ReviewModel
+Model : ReviewModel
+	 Belongs To: ProposalModel
+	 Has One: UserModel
+	 Has Many: UserModel
+Model : UserModel

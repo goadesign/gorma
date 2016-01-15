@@ -83,36 +83,55 @@ func (g *Generator) Generate(api *design.APIDefinition) (_ []string, err error) 
 		}
 	}()
 
-	outdir := ModelOutputDir()
-	if err := os.MkdirAll(outdir, 0755); err != nil {
-		return g.genfiles, err
-	}
-	// models are unversioned - outside the loop
-	if err := g.generateUserTypes(outdir, api); err != nil {
-		return g.genfiles, err
-	}
-	err = api.IterateVersions(func(v *design.APIVersionDefinition) error {
-		verdir := outdir
-		if err := os.MkdirAll(verdir, 0755); err != nil {
-			return err
-		}
-
-		if err := g.generatePayloadHelpers(verdir, api, v); err != nil {
-			return err
-		}
-		//		if err := g.generateHrefs(verdir, v); err != nil {
-		//			return err
-		//		}
-		if err := g.generateMediaTypes(verdir, v); err != nil {
-			return err
-		}
-
-		return nil
-	})
+	sg, err := NewStorageGroup(api)
 	if err != nil {
-		return nil, err
+		fmt.Println("Error Parsing API: ", err)
 	}
-	return g.genfiles, nil
+	for i, m := range sg.RelationalStore.Models {
+		fmt.Printf("Model : %s\n", i)
+		for j := range m.BelongsTo {
+			fmt.Printf("\t Belongs To: %s\n", j)
+		}
+		for k := range m.HasOne {
+			fmt.Printf("\t Has One: %s\n", k)
+		}
+		for l := range m.HasMany {
+			fmt.Printf("\t Has Many: %s\n", l)
+		}
+	}
+	/*
+		outdir := ModelOutputDir()
+		if err := os.MkdirAll(outdir, 0755); err != nil {
+			return g.genfiles, err
+		}
+			// models are unversioned - outside the loop
+		if err := g.generateUserTypes(outdir, api); err != nil {
+			return g.genfiles, err
+		}
+		err = api.IterateVersions(func(v *design.APIVersionDefinition) error {
+			verdir := outdir
+			if err := os.MkdirAll(verdir, 0755); err != nil {
+				return err
+			}
+
+			if err := g.generatePayloadHelpers(verdir, api, v); err != nil {
+				return err
+			}
+			//		if err := g.generateHrefs(verdir, v); err != nil {
+			//			return err
+			//		}
+			if err := g.generateMediaTypes(verdir, v); err != nil {
+				return err
+			}
+
+			return nil
+		})
+		if err != nil {
+			return nil, err
+		}
+		return g.genfiles, nil
+	*/
+	return []string{}, nil
 }
 
 // Cleanup removes the entire "app" directory if it was created by this generator.

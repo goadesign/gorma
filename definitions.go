@@ -1,7 +1,10 @@
 package gorma
 
+import "github.com/raphael/goa/design"
+
 // StorageGroup is the parent configuration structure for Gorma definitions
 type StorageGroup struct {
+	api             *design.APIDefinition
 	RelationalStore *RelationalStore
 	KVStore         *KVStore
 }
@@ -40,14 +43,15 @@ type ManyToMany struct {
 type Field interface {
 	Name() string
 	Datatype() string
+	Nullable() bool // use pointer
 }
 
-// RelationalStorage is the parent configuration structure for Gorm relational model definitions
+// RelationalStore is the parent configuration structure for Gorm relational model definitions
 type RelationalStore struct {
 	Models map[string]*RelationalModel
 }
 
-// KVStorage is the parent configuration structure for Gorm KV model definitions
+// KVStore is the parent configuration structure for Gorm KV model definitions
 type KVStore struct {
 	Models map[string]*KVModel
 }
@@ -55,9 +59,17 @@ type KVStore struct {
 // RelationalField implements the Field interface and represents
 // a field in a relational database
 type RelationalField struct {
-	Name     string
-	Datatype string
-	SQLTag   string
+	a                 *design.AttributeDefinition
+	Name              string
+	Datatype          string
+	SQLTag            string
+	DatabaseFieldName string
+	Nullable          bool
+	PrimaryKey        bool
+	Timestamp         bool
+	BelongsTo         string
+	HasOne            string
+	HasMany           string
 }
 
 // KVField implements the Field interface and represents
@@ -71,15 +83,25 @@ type KVField struct {
 // implements the storage of a domain model into a
 // table in a relational database
 type RelationalModel struct {
-	BelongsTo  map[string]*RelationalModel
-	HasMany    map[string]*RelationalModel
-	HasOne     map[string]*RelationalModel
-	HanyToMany map[string]*ManyToMany
-	Fields     map[string]*RelationalField
-	TableName  string
-	Alias      string
-	Cached     bool
-	Media      bool
+	utd              *design.UserTypeDefinition
+	BelongsTo        map[string]*RelationalModel
+	HasMany          map[string]*RelationalModel
+	HasOne           map[string]*RelationalModel
+	ManyToMany       map[string]*ManyToMany
+	Fields           map[string]*RelationalField
+	TableName        string
+	Name             string
+	Alias            string
+	Cached           bool
+	CacheDuration    int
+	NoMedia          bool
+	Roler            bool
+	DynamicTableName bool
+	SQLTag           string
+	PrimaryKeys      []*RelationalField
+	belongsto        []string
+	hasmany          []string
+	hasone           []string
 }
 
 // KVModel implements the Model interface and represents

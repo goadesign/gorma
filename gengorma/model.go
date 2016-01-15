@@ -89,11 +89,9 @@ func SQLTag(tag string) {
 
 // HasOne annotates the model with the correct
 // metadata for a HasOne relationship
-func HasOne(model string) {
-	modelName := strings.Title(model)
-	modelId := fmt.Sprintf("%s_id", model)
-	dsl.Attribute(modelId,
-		func() { dsl.Metadata(MetaHasOne, modelName) })
+func HasOne(model *design.UserTypeDefinition) {
+	dsl.Attribute(deModel(model.TypeName),
+		func() { dsl.Metadata(MetaHasOne, model.TypeName) })
 }
 
 // Timestamps creates the created_at and  updated_at
@@ -115,20 +113,18 @@ func SoftDelete() {
 
 // HasMany annotates the model with the correct
 // metadata for a HasMany relationship
-func HasMany(model string, array *design.Array) {
-	modelName := strings.Title(model)
-
-	dsl.Attribute(strings.ToLower(inflect.Pluralize(model)), array,
-		func() { dsl.Metadata(MetaHasMany, modelName) })
+func HasMany(model string, rel *design.UserTypeDefinition) {
+	dsl.Attribute(strings.ToLower(inflect.Pluralize(model)), design.String,
+		func() { dsl.Metadata(MetaHasMany, rel.TypeName) })
 }
 
 //BelongsTo annotates the model with the correct
 // metadata for a BelongsTO relationship
 func BelongsTo(model string) {
 
-	modelName := fmt.Sprintf("%sID", strings.Title(model))
+	modelName := fmt.Sprintf("%s_id", model)
 	dsl.Attribute(modelName, design.Integer,
-		func() { dsl.Metadata(MetaBelongsTo, modelName) })
+		func() { dsl.Metadata(MetaBelongsTo, strings.Title(model)) })
 }
 
 // Cached annotates the model with the correct
@@ -140,21 +136,29 @@ func Cached(seconds string) {
 // Roler annotates the model with the correct
 // metadata to create a Role() function and Role field
 func Roler() {
-	dsl.Attribute("role", design.String,
-		func() { dsl.Metadata(MetaRoler, "true") })
+	dsl.Attribute("role", design.String)
+	dsl.Metadata(MetaRoler, "true")
 }
 
 // PrimaryKey annotates the model with the correct
 // gorm tag to make the model a primary key in the database
 func PrimaryKey(field string) {
 	dsl.Required("id")
-	dsl.Attribute(field,
+	dsl.Attribute(field, design.Integer,
 		func() { dsl.Metadata(MetaPrimaryKey, "primary_key") })
 }
 
-func ManyToMany(relation, tablename string, array *design.Array) {
+func ManyToMany(relation, tablename string, array *design.UserTypeDefinition) {
 	val := fmt.Sprintf("%s:%s", relation, tablename)
-	dsl.Attribute(inflect.Pluralize(relation), array,
-		func() { dsl.Metadata(MetaManyToMany, val) })
 
+	dsl.Attribute(inflect.Pluralize(relation), design.String,
+		func() { dsl.Metadata("GORMA:M2M:"+relation, val) })
+
+}
+
+// Temp - refactor later
+
+// deModel removes the word "Model" from the string.
+func deModel(s string) string {
+	return strings.Replace(s, "Model", "", -1)
 }
