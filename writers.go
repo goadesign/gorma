@@ -606,34 +606,32 @@ func (mt {{gotyperef .MediaType .MediaType.AllRequired 0}}) Dump({{if gt (len $c
 	// template input: UserTypeTemplateData
 	userTypeT = `// {{if .UserType.Description}}{{.UserType.Description}}{{else}}{{.UserType.Name }} type{{end}}
 	{{.UserType.Definition}}
-	`
-	blue = `
-type {{gotypename .UserType .UserType.AllRequired 0}} {{gotypedef .UserType .Versioned .DefaultPkg 0 false}}
-{{ if ne .Options.TableName "" }}
-func (m {{.UserType.TypeName}}) TableName() string {
-	return "{{ .Options.TableName}}"
+{{ if ne .UserType.TableName "" }}
+func (m {{.UserType.Name}}) TableName() string {
+	return "{{ .UserType.TableName}}"
 }{{end}}
-type {{.UserType.TypeName}}DB struct {
+type {{.UserType.Name}}DB struct {
 	Db gorm.DB
-	{{ if .Options.Cached }}cache *cache.Cache{{end}}
+	{{ if .UserType.Cached }}cache *cache.Cache{{end}}
 }
-func New{{.UserType.TypeName}}DB(db gorm.DB) *{{.UserType.TypeName}}DB {
-	{{ if .Options.Cached }}return &{{.UserType.TypeName}}DB{
+func New{{.UserType.Name}}DB(db gorm.DB) *{{.UserType.Name}}DB {
+	{{ if .UserType.Cached }}return &{{.UserType.Name}}DB{
 		Db: db,
 		cache: cache.New(5*time.Minute, 30*time.Second),
 	}
-	{{ else  }}return &{{.UserType.TypeName}}DB{Db: db}{{ end  }}
+	{{ else  }}return &{{.UserType.Name}}DB{Db: db}{{ end  }}
 }
 
-func (m *{{.UserType.TypeName}}DB) DB() interface{} {
+func (m *{{.UserType.Name}}DB) DB() interface{} {
 	return &m.Db
 }
-{{ if .Options.Roler }}
-func (m {{.UserType.TypeName}}) GetRole() string {
+{{ if .UserType.Roler }}
+func (m {{.UserType.Name}}) GetRole() string {
 	return *m.Role
 }
 {{end}}
-
+`
+	blue = `
 {{$pks := .PrimaryKeys }}type {{.UserType.TypeName}}Storage interface {
 	DB() interface{}
 	List(ctx context.Context{{ if .Options.DynamicTableName}}, tableName string{{ end }}) []{{.UserType.TypeName}}

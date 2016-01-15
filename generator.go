@@ -331,6 +331,7 @@ func (g *Generator) generateUserTypes(verdir string) error {
 		title := fmt.Sprintf("Generated Models")
 		imports := []*codegen.ImportSpec{
 			codegen.SimpleImport("github.com/raphael/goa"),
+			codegen.SimpleImport("github.com/patrickmn/go-cache"),
 			codegen.SimpleImport("fmt"),
 		}
 		utWr.WriteHeader(title, m.Name, imports)

@@ -11,14 +11,30 @@
 
 package Review
 
-import "github.com/gopheracademy/congo/models/user"
+import (
+	"os/user"
+
+	"github.com/jinzhu/gorm"
+)
 
 // Review type
 type Review struct {
 	ID         int `gorm:"primary_key"`
-	Reviewers  []user.UserModel
 	ProposalID int
-	User       UserModel
+	User       User
 	Comment    string
 	Rating     int
+	Reviewers  []user.User
+}
+
+type ReviewDB struct {
+	Db gorm.DB
+}
+
+func NewReviewDB(db gorm.DB) *ReviewDB {
+	return &ReviewDB{Db: db}
+}
+
+func (m *ReviewDB) DB() interface{} {
+	return &m.Db
 }

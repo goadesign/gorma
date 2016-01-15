@@ -14,8 +14,8 @@ import (
 // NewRelationalModel instantiates and populates a new relational model structure
 func NewRelationalModel(name string, t *design.UserTypeDefinition) (*RelationalModel, error) {
 	rm := &RelationalModel{
-		utd:         t,
-		TableName:   codegen.Goify(deModel(name), false), // may be overridden later
+		utd: t,
+		//TableName:   codegen.Goify(deModel(name), false), // may be overridden later
 		Name:        codegen.Goify(deModel(name), true),
 		Fields:      make(map[string]*RelationalField),
 		HasMany:     make(map[string]*RelationalModel),
@@ -141,13 +141,14 @@ func (rm *RelationalModel) IterateFields(it FieldIterator) error {
 	names := make(map[string]string)
 	pks := make(map[string]string)
 	dates := make(map[string]string)
+
+	// Break out each type of fields
 	for n := range rm.Fields {
 		if rm.Fields[n].PrimaryKey {
 			//	names[i] = n
 			pks[n] = n
 		}
 	}
-
 	for n := range rm.Fields {
 		if !rm.Fields[n].PrimaryKey && !rm.Fields[n].Timestamp {
 			names[n] = n
@@ -160,12 +161,15 @@ func (rm *RelationalModel) IterateFields(it FieldIterator) error {
 		}
 	}
 
+	// Sort only the fields that aren't pk or date
 	j := 0
 	sortfields := make([]string, len(names))
 	for n := range names {
 		sortfields[j] = n
 	}
 	sort.Strings(sortfields)
+
+	// Put them back together
 	j = 0
 	i := len(pks) + len(names) + len(dates)
 	fields := make([]string, i)
@@ -181,6 +185,8 @@ func (rm *RelationalModel) IterateFields(it FieldIterator) error {
 		fields[j] = date
 		j++
 	}
+
+	// Iterate them
 	for _, n := range fields {
 		if err := it(rm.Fields[n]); err != nil {
 			return err
