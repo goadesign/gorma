@@ -98,6 +98,9 @@ func (g *Generator) Generate(api *design.APIDefinition) (_ []string, err error) 
 		for l := range m.HasMany {
 			fmt.Printf("\t Has Many: %s\n", l)
 		}
+		for name, field := range m.Fields {
+			fmt.Printf("\t\t%s Definition: %s\n", name, field.Definition())
+		}
 	}
 	/*
 		outdir := ModelOutputDir()

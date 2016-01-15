@@ -1,6 +1,7 @@
 package gorma
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/bketelsen/gorma/gengorma"
@@ -15,6 +16,10 @@ func NewRelationalField(name string, a *design.AttributeDefinition) (*Relational
 	t := a.Definition().Type
 	f.Datatype = codegen.GoNativeType(t)
 	f.Name = codegen.Goify(name, true)
+	if strings.HasSuffix(f.Name, "Id") {
+		f.Name = f.Name[:len(f.Name)-2] + "ID"
+	}
+	f.DatabaseFieldName = f.Name
 	err := f.Parse()
 	return f, err
 
@@ -51,6 +56,29 @@ func (f *RelationalField) Parse() error {
 		return err
 	}
 	return err
+}
+
+func (f *RelationalField) Definition() string {
+	var fieldType, fieldName, pointer string
+	fieldType = codegen.GoTypeName(f.a.Definition().Type, []string{}, 1)
+	fieldName = f.Name
+	if f.Nullable {
+		pointer = "*"
+	}
+	return fmt.Sprintf("%s \t %s%s %s", fieldName, pointer, fieldType, f.Tags())
+
+}
+
+func (f *RelationalField) Tags() string {
+	var sqltags, gormtags, jsontags string
+	if f.SQLTag != "" {
+		sqltags = "sql:\"f.SQLTag\""
+	}
+
+	if f.PrimaryKey {
+		gormtags = "primary_key"
+	}
+	return fmt.Sprintf("`json: %s sql: %s gorm: %s`", jsontags, sqltags, gormtags)
 }
 
 //ParseTimestamps populates the timestamps field
@@ -122,7 +150,7 @@ func (f *RelationalField) ParseAlias() error {
 //ParsePrimaryKey populates the primary key tag
 func (f *RelationalField) ParsePrimaryKey() error {
 	// is it a primary key?
-	if gt, ok := metaLookup(f.a.Metadata, gengorma.MetaGormTag); ok {
+	if gt, ok := metaLookup(f.a.Metadata, gengorma.MetaPrimaryKey); ok {
 		if strings.Contains(gt, "primary_key") {
 			f.PrimaryKey = true
 		}

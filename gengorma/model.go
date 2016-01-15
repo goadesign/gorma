@@ -156,7 +156,7 @@ func ManyToMany(relation, tablename string, array *design.UserTypeDefinition) {
 
 }
 
-// Temp - refactor later
+// Temp - refactor later?
 
 // deModel removes the word "Model" from the string.
 func deModel(s string) string {
