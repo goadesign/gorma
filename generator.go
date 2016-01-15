@@ -334,7 +334,7 @@ func (g *Generator) generateUserTypes(verdir string) error {
 			codegen.SimpleImport("github.com/patrickmn/go-cache"),
 			codegen.SimpleImport("fmt"),
 		}
-		utWr.WriteHeader(title, m.Name, imports)
+		utWr.WriteHeader(title, codegen.Goify(m.Name, false), imports)
 		for z, field := range m.PrimaryKeys {
 			fmt.Println(z, field)
 		}
