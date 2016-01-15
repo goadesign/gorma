@@ -314,7 +314,6 @@ func (g *Generator) generateMediaTypes(verdir string, version *design.APIVersion
 func (g *Generator) generateUserTypes(verdir string) error {
 	err := storageGroup.RelationalStore.IterateModels(func(m *RelationalModel) error {
 
-		fmt.Println("Iterating a Model!", m.Name)
 		pkgName := strings.ToLower(m.Name)
 		err := os.MkdirAll(filepath.Join(verdir, pkgName), 0755)
 		if err != nil {
@@ -323,7 +322,6 @@ func (g *Generator) generateUserTypes(verdir string) error {
 		filename := fmt.Sprintf("%s_gen.go", codegen.Goify(m.Name, false))
 		_ = os.Remove(filepath.Join(verdir, pkgName, filename))
 		utFile := filepath.Join(verdir, pkgName, filename)
-		fmt.Println(utFile)
 		utWr, err := NewUserTypesWriter(utFile)
 		if err != nil {
 			panic(err) // bug
@@ -335,9 +333,6 @@ func (g *Generator) generateUserTypes(verdir string) error {
 			codegen.SimpleImport("fmt"),
 		}
 		utWr.WriteHeader(title, codegen.Goify(m.Name, false), imports)
-		for z, field := range m.PrimaryKeys {
-			fmt.Println(z, field)
-		}
 		data := &UserTypeTemplateData{
 			UserType:   m,
 			DefaultPkg: TargetPackage,

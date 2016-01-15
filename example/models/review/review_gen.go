@@ -21,11 +21,11 @@ import (
 // Review type
 type Review struct {
 	ID         int `gorm:"primary_key"`
-	Comment    string
 	Rating     int
 	Reviewers  []user.User
 	ProposalID int
 	User       User
+	Comment    string
 }
 
 // ReviewDB is the implementation of the storage interface for Review
@@ -103,7 +103,7 @@ func (m *ReviewDB) Delete(ctx context.Context, id int) error {
 func ReviewFilterByProposal(parentid int, originaldb *gorm.DB) func(db *gorm.DB) *gorm.DB {
 	if parentid > 0 {
 		return func(db *gorm.DB) *gorm.DB {
-			return db.Where("id = ?", parentid)
+			return db.Where("proposal_id", parentid)
 		}
 	} else {
 		return func(db *gorm.DB) *gorm.DB {

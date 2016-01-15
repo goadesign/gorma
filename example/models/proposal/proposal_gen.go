@@ -15,6 +15,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/bketelsen/gorma/example/models/review"
 	"github.com/jinzhu/gorm"
 	"github.com/patrickmn/go-cache"
 	"golang.org/x/net/context"
@@ -23,17 +24,17 @@ import (
 // Proposal type
 type Proposal struct {
 	ID        int `gorm:"primary_key"`
-	Title     string
-	Withdrawn bool
-	Abstract  string
 	Detail    string
-	UserID    int
 	FirstName string `gorm:"column:person_name"`
-	M2reviews string
+	Title     string
 	Reviews   []review.Review
+	Withdrawn bool
+	M2reviews string
+	UserID    int
+	Abstract  string
+	DeletedAt *time.Time
 	UpdatedAt time.Time
 	CreatedAt time.Time
-	DeletedAt *time.Time
 }
 
 // TableName overrides the table name settings in gorm
@@ -136,7 +137,7 @@ func (m *ProposalDB) Delete(ctx context.Context, id int) error {
 func ProposalFilterByUser(parentid int, originaldb *gorm.DB) func(db *gorm.DB) *gorm.DB {
 	if parentid > 0 {
 		return func(db *gorm.DB) *gorm.DB {
-			return db.Where("id = ?", parentid)
+			return db.Where("user_id", parentid)
 		}
 	} else {
 		return func(db *gorm.DB) *gorm.DB {
