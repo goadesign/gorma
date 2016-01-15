@@ -3,6 +3,8 @@ package gorma
 import (
 	"sort"
 	"strings"
+
+	"bitbucket.org/pkg/inflect"
 )
 
 // NewRelationalStore returns an initialzed RelationalStore
@@ -40,6 +42,28 @@ func (rs *RelationalStore) ResolveRelationships() error {
 				for i, m := range rs.Models {
 					if i == many {
 						rs.Models[name].HasMany[i] = m
+					}
+				}
+			}
+		}
+		if len(model.many2many) > 0 {
+			for _, many := range model.many2many {
+				s := strings.Split(many, ":")
+				// 0 = field name
+				// 1 = table name
+				// 2 = Relation Model
+				n := strings.Title(s[2])
+				for i, m := range rs.Models {
+					if i == n {
+						m2m := &ManyToMany{
+							LeftNamePlural:   inflect.Pluralize(model.Name),
+							RightNamePlural:  inflect.Pluralize(m.Name),
+							LeftName:         model.Name,
+							RightName:        m.Name,
+							RelationshipName: s[0],
+							DatabaseField:    s[1],
+						}
+						rs.Models[name].ManyToMany[i] = m2m
 					}
 				}
 			}

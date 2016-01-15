@@ -137,22 +137,23 @@ func Cached(seconds string) {
 // metadata to create a Role() function and Role field
 func Roler() {
 	dsl.Attribute("role", design.String)
+	dsl.Required("role")
 	dsl.Metadata(MetaRoler, "true")
 }
 
 // PrimaryKey annotates the model with the correct
 // gorm tag to make the model a primary key in the database
 func PrimaryKey(field string) {
-	dsl.Required("id")
+	dsl.Required(field)
 	dsl.Attribute(field, design.Integer,
 		func() { dsl.Metadata(MetaPrimaryKey, "primary_key") })
 }
 
-func ManyToMany(relation, tablename string, array *design.UserTypeDefinition) {
-	val := fmt.Sprintf("%s:%s", relation, tablename)
+func ManyToMany(relation, tablename string, rel *design.UserTypeDefinition) {
+	val := fmt.Sprintf("%s:%s:%s", relation, tablename, rel.TypeName)
 
 	dsl.Attribute(inflect.Pluralize(relation), design.String,
-		func() { dsl.Metadata("GORMA:M2M:"+relation, val) })
+		func() { dsl.Metadata(MetaManyToMany, val) })
 
 }
 

@@ -15,16 +15,17 @@ import (
 	"os/user"
 
 	"github.com/jinzhu/gorm"
+	"golang.org/x/net/context"
 )
 
 // Review type
 type Review struct {
 	ID         int `gorm:"primary_key"`
-	ProposalID int
-	User       User
 	Comment    string
 	Rating     int
 	Reviewers  []user.User
+	ProposalID int
+	User       User
 }
 
 type ReviewDB struct {
@@ -37,4 +38,15 @@ func NewReviewDB(db gorm.DB) *ReviewDB {
 
 func (m *ReviewDB) DB() interface{} {
 	return &m.Db
+}
+
+type ReviewStorage interface {
+	DB() interface{}
+	List(ctx context.Context) []Review
+	One(ctx context.Context, id int) (Review, error)
+	Add(ctx context.Context, o Review) (Review, error)
+	Update(ctx context.Context, o Review) error
+	Delete(ctx context.Context, id int) error
+	ListByProposal(ctx context.Context, proposal_id int) []Review
+	OneByProposal(ctx context.Context, proposal_id, id int) (Review, error)
 }

@@ -627,22 +627,26 @@ func (m *{{.UserType.Name}}DB) DB() interface{} {
 }
 {{ if .UserType.Roler }}
 func (m {{.UserType.Name}}) GetRole() string {
-	return *m.Role
+	return {{$f := .UserType.Fields.role}}{{if $f.Nullable}}*{{end}}m.Role
 }
 {{end}}
-`
-	blue = `
-{{$pks := .PrimaryKeys }}type {{.UserType.TypeName}}Storage interface {
+
+type {{.UserType.Name}}Storage interface {
 	DB() interface{}
-	List(ctx context.Context{{ if .Options.DynamicTableName}}, tableName string{{ end }}) []{{.UserType.TypeName}}
-	One(ctx context.Context{{ if .Options.DynamicTableName }}, tableName string{{ end }}, {{ pkattributes $pks  }}) ({{.UserType.TypeName}}, error)
-	Add(ctx context.Context{{ if .Options.DynamicTableName }}, tableName string{{ end }}, o {{.UserType.TypeName}}) ({{.UserType.TypeName}}, error)
-	Update(ctx context.Context{{ if .Options.DynamicTableName }}, tableName string{{ end }}, o {{.UserType.TypeName}}) (error)
-	Delete(ctx context.Context{{ if .Options.DynamicTableName }}, tableName string{{ end }}, {{ pkattributes $pks }}) (error)
-	{{$typename:= .UserType.TypeName}}{{$options:=.Options}}{{ range $idx, $bt := .BelongsTo}}ListBy{{$bt.Parent}}(ctx context.Context{{ if $options.DynamicTableName }}, tableName string{{ end }}, parentid int) []{{$typename}}
-	OneBy{{$bt.Parent}}(ctx context.Context{{ if $options.DynamicTableName }}, tableName string{{ end }}, parentid, id int) ({{$typename}}, error)
-	{{end}}{{storagedef .UserType}}
-}
+	List(ctx context.Context{{ if .UserType.DynamicTableName}}, tableName string{{ end }}) []{{.UserType.Name}}
+	One(ctx context.Context{{ if .UserType.DynamicTableName }}, tableName string{{ end }}, {{.UserType.PKAttributes}}) ({{.UserType.Name}}, error)
+	Add(ctx context.Context{{ if .UserType.DynamicTableName }}, tableName string{{ end }}, o {{.UserType.Name}}) ({{.UserType.Name}}, error)
+	Update(ctx context.Context{{ if .UserType.DynamicTableName }}, tableName string{{ end }}, o {{.UserType.Name}}) (error)
+	Delete(ctx context.Context{{ if .UserType.DynamicTableName }}, tableName string{{ end }}, {{ .UserType.PKAttributes}}) (error) 
+	{{$typename:= .UserType.Name}}{{$dtn:=.UserType.DynamicTableName}}{{ range $idx, $bt := .UserType.BelongsTo}}ListBy{{$bt.Name}}(ctx context.Context{{ if $dtn}}, tableName string{{ end }},{{lower $bt.Name}}_id int) []{{$typename}}
+	OneBy{{$bt.Name}}(ctx context.Context{{ if $dtn}}, tableName string{{ end }}, {{lower $bt.Name}}_id, id int) ({{$typename}}, error){{end}}
+	{{range $i, $m2m := .UserType.ManyToMany}}List{{$m2m.RightNamePlural}}(context.Context, int) []{{lower $m2m.RightName}}.{{$m2m.RightName}}
+	Add{{$m2m.RightNamePlural}}(context.Context, int, int) (error)
+	Delete{{$m2m.RightNamePlural}}(context.Context, int, int) error{{end}}
+
+
+}`
+	blue = `
 func (m *{{$typename}}DB) One(ctx context.Context{{ if .Options.DynamicTableName }}, tableName string{{ end }}, {{pkattributes $pks}}) ({{$typename}}, error) {
 	{{ if .Options.Cached }}//first attempt to retrieve from cache
 	o,found := m.cache.Get(strconv.Itoa(id))

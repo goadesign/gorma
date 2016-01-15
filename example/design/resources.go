@@ -100,8 +100,8 @@ var _ = Resource("user", func() {
 		)
 		Description("Record new user")
 		Payload(UserModel, func() {
-			Required("firstname")
-			Required("lastname")
+			Required("first_name")
+			Required("last_name")
 			Required("email")
 		})
 		Response(Created, "^/accounts/[0-9]+/users/[0-9]+$")

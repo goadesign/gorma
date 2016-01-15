@@ -48,6 +48,9 @@ func (f *RelationalField) Parse() error {
 	if err := f.ParseHasMany(); err != nil {
 		return err
 	}
+	if err := f.ParseManyToMany(); err != nil {
+		return err
+	}
 	if err := f.ParseDescription(); err != nil {
 		return err
 	}
@@ -148,6 +151,14 @@ func (f *RelationalField) ParseBelongsTo() error {
 	}
 	return nil
 
+}
+
+//ParseManyToMany populates the ManyToMany relationships
+func (f *RelationalField) ParseManyToMany() error {
+	if gt, ok := metaLookup(f.a.Metadata, gengorma.MetaManyToMany); ok {
+		f.Many2Many = gt
+	}
+	return nil
 }
 
 //ParseHasOne populates the SQLTag field

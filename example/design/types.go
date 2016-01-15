@@ -17,11 +17,11 @@ var UserModel = Model("UserModel", func() {
 	Roler()
 	Cached("60")
 	Timestamps()
-	Attribute("firstname", func() {
-		SQLTag("blue")
+	Attribute("first_name", func() {
+		SQLTag("index")
 		Description("First name Description")
 	})
-	Attribute("lastname", func() {
+	Attribute("last_name", func() {
 	})
 	Attribute("city", func() {
 	})
@@ -45,12 +45,12 @@ var ProposalModel = Model("ProposalModel", func() {
 	TableName("proposals")
 	BelongsTo("User")
 	HasMany("reviews", ReviewModel)
-	ManyToMany("m2review", "proposal_review", ReviewModel)
+	ManyToMany("m2reviews", "proposal_review", ReviewModel)
 	Cached("60") // manage in-memory cache with 60 second TTL
 	Timestamps() // created_at and updated_at
 	SoftDelete() // deleted_at as pointer for soft deletes
-	Attribute("firstname", func() {
-		As("first_name") // sql column name
+	Attribute("first_name", func() {
+		As("person_name") // sql column name
 		MinLength(2)
 	})
 	Attribute("title", func() {

@@ -32,11 +32,14 @@ type Model interface {
 // ManyToMany stores information about a ManyToMany
 // relationship between two domain objects
 type ManyToMany struct {
-	Left             Model
-	Right            Model
-	LeftKeyField     Field
-	RightKeyField    Field
+	Left             *RelationalModel
+	Right            *RelationalModel
+	LeftNamePlural   string
+	RightNamePlural  string
+	LeftName         string
+	RightName        string
 	RelationshipName string
+	DatabaseField    string
 }
 
 // Field is an abstraction of a field in a data store
@@ -72,6 +75,7 @@ type RelationalField struct {
 	BelongsTo         string
 	HasOne            string
 	HasMany           string
+	Many2Many         string
 }
 
 // KVField implements the Field interface and represents
@@ -105,6 +109,7 @@ type RelationalModel struct {
 	belongsto        []string
 	hasmany          []string
 	hasone           []string
+	many2many        []string
 }
 
 // KVModel implements the Model interface and represents

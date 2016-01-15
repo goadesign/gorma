@@ -166,6 +166,13 @@ func pkUpdateFields(pks map[string]PrimaryKey) string {
 func lower(s string) string {
 	return strings.ToLower(s)
 }
+func snakeToCamel(s string) string {
+	words := strings.Split(s, "_")
+	for _, w := range words {
+		w = strings.Title(w)
+	}
+	return strings.Join(words, "")
+}
 
 // camelToSnake converts a given string to snake case.
 func camelToSnake(s string) string {

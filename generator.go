@@ -335,6 +335,9 @@ func (g *Generator) generateUserTypes(verdir string) error {
 			codegen.SimpleImport("fmt"),
 		}
 		utWr.WriteHeader(title, m.Name, imports)
+		for z, field := range m.PrimaryKeys {
+			fmt.Println(z, field)
+		}
 		data := &UserTypeTemplateData{
 			UserType:   m,
 			DefaultPkg: TargetPackage,

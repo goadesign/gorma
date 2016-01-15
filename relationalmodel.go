@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"sort"
 	"strconv"
+	"strings"
 
 	"github.com/bketelsen/gorma/gengorma"
 	"github.com/raphael/goa/design"
@@ -13,6 +14,7 @@ import (
 
 // NewRelationalModel instantiates and populates a new relational model structure
 func NewRelationalModel(name string, t *design.UserTypeDefinition) (*RelationalModel, error) {
+	var pks []*RelationalField
 	rm := &RelationalModel{
 		utd: t,
 		//TableName:   codegen.Goify(deModel(name), false), // may be overridden later
@@ -22,12 +24,18 @@ func NewRelationalModel(name string, t *design.UserTypeDefinition) (*RelationalM
 		HasOne:      make(map[string]*RelationalModel),
 		ManyToMany:  make(map[string]*ManyToMany),
 		BelongsTo:   make(map[string]*RelationalModel),
-		PrimaryKeys: make([]*RelationalField, 1),
+		PrimaryKeys: pks,
 	}
 	err := rm.Parse()
 	return rm, err
 }
-
+func (f *RelationalModel) PKAttributes() string {
+	var attr []string
+	for _, pk := range f.PrimaryKeys {
+		attr = append(attr, fmt.Sprintf("%s %s", strings.ToLower(pk.Name), pk.Datatype))
+	}
+	return strings.Join(attr, ",")
+}
 func (rm *RelationalModel) Definition() string {
 	header := fmt.Sprintf("type %s struct {\n", rm.Name)
 	var output string
@@ -75,6 +83,9 @@ func (rm *RelationalModel) ParseFields() error {
 			if err != nil {
 				return err
 			}
+			if rm.utd.IsRequired(name) {
+				field.Nullable = false
+			}
 			rm.Fields[name] = field
 			if field.PrimaryKey {
 				rm.PrimaryKeys = append(rm.PrimaryKeys, field)
@@ -87,6 +98,9 @@ func (rm *RelationalModel) ParseFields() error {
 			}
 			if field.HasMany != "" {
 				rm.hasmany = append(rm.hasmany, field.HasMany)
+			}
+			if field.Many2Many != "" {
+				rm.many2many = append(rm.many2many, field.Many2Many)
 			}
 		}
 

@@ -16,21 +16,22 @@ import (
 
 	"github.com/jinzhu/gorm"
 	"github.com/patrickmn/go-cache"
+	"golang.org/x/net/context"
 )
 
 // User type
 type User struct {
-	ID        int    `gorm:"primary_key"`
-	Firstname string `sql:"blue"` //First name Description
-	Lastname  string
+	ID        int `gorm:"primary_key"`
+	LastName  string
 	Role      string
 	Bio       string
 	City      string
-	Email     string
 	State     string
 	Country   string
-	UpdatedAt time.Time
+	Email     string
+	FirstName string `sql:"index"` //First name Description
 	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 type UserDB struct {
@@ -51,5 +52,14 @@ func (m *UserDB) DB() interface{} {
 }
 
 func (m User) GetRole() string {
-	return *m.Role
+	return m.Role
+}
+
+type UserStorage interface {
+	DB() interface{}
+	List(ctx context.Context) []User
+	One(ctx context.Context, id int) (User, error)
+	Add(ctx context.Context, o User) (User, error)
+	Update(ctx context.Context, o User) error
+	Delete(ctx context.Context, id int) error
 }
