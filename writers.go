@@ -41,14 +41,6 @@ type (
 		ConversionTmpl *template.Template
 	}
 
-	// ResourcesWriter generate code for a goa application resources.
-	// Resources are data structures initialized by the application handlers and passed to controller
-	// actions.
-	ResourcesWriter struct {
-		*codegen.GoGenerator
-		ResourceTmpl *template.Template
-	}
-
 	// MediaTypesWriter generate code for a goa application media types.
 	// Media types are data structures used to render the response bodies.
 	MediaTypesWriter struct {
@@ -233,44 +225,13 @@ func NewContextsWriter(filename string) (*ContextsWriter, error) {
 	funcMap["hasusertype"] = hasUserType
 	funcMap["version"] = versionize
 	funcMap["title"] = titleCase
-	ctxTmpl, err := template.New("context").Funcs(funcMap).Parse(ctxT)
-	if err != nil {
-		return nil, err
-	}
-	ctxNewTmpl, err := template.New("new").
-		Funcs(cw.FuncMap).
-		Funcs(template.FuncMap{
-		"newCoerceData":  newCoerceData,
-		"arrayAttribute": arrayAttribute,
-		"tempvar":        codegen.Tempvar,
-	}).Parse(ctxNewT)
-	if err != nil {
-		return nil, err
-	}
-	ctxRespTmpl, err := template.New("response").Funcs(cw.FuncMap).Parse(ctxRespT)
-	if err != nil {
-		return nil, err
-	}
-	payloadTmpl, err := template.New("payload").Funcs(funcMap).Parse(payloadT)
-	if err != nil {
-		return nil, err
-	}
 	conversionTmpl, err := template.New("conversion").Funcs(funcMap).Parse(resourceT)
 	if err != nil {
 		return nil, err
 	}
 
-	newPayloadTmpl, err := template.New("newpayload").Funcs(cw.FuncMap).Parse(newPayloadT)
-	if err != nil {
-		return nil, err
-	}
 	w := ContextsWriter{
 		GoGenerator:    cw,
-		CtxTmpl:        ctxTmpl,
-		CtxNewTmpl:     ctxNewTmpl,
-		CtxRespTmpl:    ctxRespTmpl,
-		PayloadTmpl:    payloadTmpl,
-		NewPayloadTmpl: newPayloadTmpl,
 		ConversionTmpl: conversionTmpl,
 	}
 	return &w, nil
@@ -284,28 +245,6 @@ func (w *ContextsWriter) Execute(data *ConversionData) error {
 	}
 
 	return nil
-}
-
-// NewResourcesWriter returns a contexts code writer.
-// Resources provide the glue between the underlying request data and the user controller.
-func NewResourcesWriter(filename string) (*ResourcesWriter, error) {
-	cw := codegen.NewGoGenerator(filename)
-	funcMap := cw.FuncMap
-	funcMap["join"] = strings.Join
-	resourceTmpl, err := template.New("resource").Funcs(cw.FuncMap).Parse(resourceT)
-	if err != nil {
-		return nil, err
-	}
-	w := ResourcesWriter{
-		GoGenerator:  cw,
-		ResourceTmpl: resourceTmpl,
-	}
-	return &w, nil
-}
-
-// Execute writes the code for the context types to the writer.
-func (w *ResourcesWriter) Execute(data *ResourceData) error {
-	return w.ResourceTmpl.Execute(w, data)
 }
 
 // NewMediaTypesWriter returns a contexts code writer.
@@ -500,22 +439,18 @@ func GoPackageTypeName(t design.DataType, required []string, versioned bool, def
 // PackagePrefix returns the package prefix to use to access ut from ver given it lives in the
 // package pkg.
 func PackagePrefix(ut *design.UserTypeDefinition, versioned bool, pkg string) string {
-	fmt.Println(versioned, pkg)
 	if !versioned {
 		// If the version is the default version then the user type is in the same package
 		// (otherwise the DSL would not be valid).
-		fmt.Println("returning nothing")
 		return ""
 	}
 	if len(ut.APIVersions) == 0 {
 		// If the type is not versioned but we are accessing it from the non-default version
 		// then we need to qualify it with the default version package.
-		fmt.Println("returning pkg")
 		return pkg + "."
 	}
 	// If the type is versioned then we must be accessing it from the current version
 	// (unversioned definitions cannot use versioned definitions)
-	fmt.Println("returning pkg fallthrough")
 	return pkg
 }
 

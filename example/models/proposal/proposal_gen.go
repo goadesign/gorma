@@ -26,15 +26,15 @@ type Proposal struct {
 	ID        int `gorm:"primary_key"`
 	UserID    int
 	Withdrawn bool
+	Detail    string
+	Reviews   []review.Review
+	Title     string
 	Abstract  string
 	FirstName string `gorm:"column:person_name"`
 	M2reviews string
-	Reviews   []review.Review
-	Detail    string
-	Title     string
-	UpdatedAt time.Time
-	DeletedAt *time.Time
 	CreatedAt time.Time
+	DeletedAt *time.Time
+	UpdatedAt time.Time
 }
 
 // TableName overrides the table name settings in gorm

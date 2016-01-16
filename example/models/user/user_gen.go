@@ -23,16 +23,16 @@ import (
 // User type
 type User struct {
 	ID        int `gorm:"primary_key"`
+	City      string
+	FirstName string `sql:"index"` //First name Description
+	LastName  string
+	Bio       string
 	Country   string
 	Email     string
-	FirstName string `sql:"index"` //First name Description
-	Bio       string
 	Role      string
-	LastName  string
 	State     string
-	City      string
-	CreatedAt time.Time
 	UpdatedAt time.Time
+	CreatedAt time.Time
 }
 
 // UserDB is the implementation of the storage interface for User

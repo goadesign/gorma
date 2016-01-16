@@ -21,11 +21,11 @@ import (
 // Review type
 type Review struct {
 	ID         int `gorm:"primary_key"`
-	User       User
 	Comment    string
 	ProposalID int
 	Rating     int
 	Reviewers  []user.User
+	User       User
 }
 
 // ReviewDB is the implementation of the storage interface for Review

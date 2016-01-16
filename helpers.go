@@ -58,7 +58,6 @@ func primaryKeys(res *design.UserTypeDefinition) map[string]PrimaryKey {
 	pks := make(map[string]PrimaryKey, 0)
 	def := res.Definition()
 	t := def.Type
-	fmt.Println(res.TypeName)
 	switch actual := t.(type) {
 	case design.Object:
 		for n := range actual {

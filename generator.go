@@ -141,7 +141,6 @@ func (g *Generator) generatePayloadHelpers(verdir string, sg *StorageGroup, api 
 		actionable := false
 		err := r.IterateActions(func(ad *design.ActionDefinition) error {
 			if hasUserType(ad) {
-				fmt.Printf("Version %s has actions\n", version.Version)
 				actionable = true
 			}
 			return nil
@@ -178,7 +177,6 @@ func (g *Generator) generatePayloadHelpers(verdir string, sg *StorageGroup, api 
 			imports = append(imports, codegen.SimpleImport(appPkg))
 		}
 		os.Remove(ctxFile)
-		fmt.Println("writing header")
 		ctxWr.WriteHeader(title, name, imports)
 		ctxData := NewConversionData(version, r)
 		err = ctxWr.Execute(&ctxData)
@@ -266,7 +264,6 @@ func (g *Generator) generateUserTypes(verdir string, api *design.APIDefinition) 
 		var utd *design.UserTypeDefinition
 		// find the right UserTypeDefinition for this RelationalModel
 		err = api.IterateUserTypes(func(ut *design.UserTypeDefinition) error {
-			fmt.Println(ut.TypeName, m.Name)
 			if deModel(ut.TypeName) == m.Name {
 				utd = ut
 			}
