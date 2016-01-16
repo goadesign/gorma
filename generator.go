@@ -50,12 +50,12 @@ func NewGenerator() (*Generator, error) {
 	}, nil
 }
 
-// AppOutputDir returns the directory containing the generated files.
+// ModelOutputDir returns the directory containing the generated files.
 func ModelOutputDir() string {
 	return filepath.Join(codegen.OutputDir, TargetPackage)
 }
 
-// AppPackagePath returns the Go package path to the generated package.
+// ModelPackagePath returns the Go package path to the generated package.
 func ModelPackagePath() (string, error) {
 	outputDir := ModelOutputDir()
 	gopaths := filepath.SplitList(os.Getenv("GOPATH"))
@@ -114,30 +114,14 @@ func (g *Generator) Generate(api *design.APIDefinition) (_ []string, err error) 
 	}
 	return g.genfiles, nil
 
-	return []string{}, nil
 }
 
-// Cleanup removes the entire "app" directory if it was created by this generator.
+// Cleanup doesn't do anything here.  Move along
 func (g *Generator) Cleanup() {
 	if len(g.genfiles) == 0 {
 		return
 	}
 	g.genfiles = nil
-}
-
-// MergeResponses merge the response maps overriding the first argument map entries with the
-// second argument map entries in case of collision.
-func MergeResponses(l, r map[string]*design.ResponseDefinition) map[string]*design.ResponseDefinition {
-	if l == nil {
-		return r
-	}
-	if r == nil {
-		return l
-	}
-	for n, r := range r {
-		l[n] = r
-	}
-	return l
 }
 
 // Generated package name for resources supporting the given version.

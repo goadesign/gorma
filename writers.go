@@ -214,6 +214,7 @@ func (c *ContextTemplateData) MustValidate(name string) bool {
 
 // NewContextsWriter returns a contexts code writer.
 // Contexts provide the glue between the underlying request data and the user controller.
+// Used
 func NewContextsWriter(filename string) (*ContextsWriter, error) {
 	cw := codegen.NewGoGenerator(filename)
 	funcMap := cw.FuncMap
