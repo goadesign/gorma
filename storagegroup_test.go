@@ -1,7 +1,6 @@
 package gorma_test
 
 import (
-	. "github.com/bketelsen/gorma/gengorma"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	. "github.com/raphael/goa/design"

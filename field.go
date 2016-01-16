@@ -25,6 +25,60 @@ func NewRelationalField(name string, a *design.AttributeDefinition) (*Relational
 
 }
 
+// Generating fields
+
+// Definition returns the field's struct definition
+func (f *RelationalField) Definition() string {
+
+	var desc, fieldType, fieldName, pointer string
+	fieldType = f.Datatype
+	if f.HasOne != "" {
+		fieldType = deModel(f.HasOne)
+	}
+	if f.HasMany != "" {
+		fieldType = fmt.Sprintf("[]%s.%s", strings.ToLower(deModel(f.HasMany)), deModel(f.HasMany))
+	}
+	fieldName = f.Name
+	if f.Nullable {
+		pointer = "*"
+	}
+	if f.Description != "" {
+		desc = fmt.Sprintf("//%s", f.Description)
+	}
+	return fmt.Sprintf("%s \t %s%s %s %s\n", fieldName, pointer, fieldType, f.Tags(), desc)
+
+}
+
+// Tags returns teh sql and gorm struct tags for the Definition
+func (f *RelationalField) Tags() string {
+	var sqltags, gormtags, jsontags string
+	var dirty bool
+	if f.SQLTag != "" {
+		sqltags = fmt.Sprintf("sql:\"%s\"", f.SQLTag)
+		dirty = true
+	}
+	if f.PrimaryKey {
+		if f.Aliased {
+			gormtags = fmt.Sprintf("gorm:\"%s,column:%s\"", "primary_key", f.DatabaseFieldName)
+		} else {
+			gormtags = fmt.Sprintf("gorm:\"%s\"", "primary_key")
+		}
+		dirty = true
+	} else {
+		if f.Aliased {
+			gormtags = fmt.Sprintf("gorm:\"column:%s\"", f.DatabaseFieldName)
+			dirty = true
+		}
+	}
+	if dirty {
+		tags := strings.TrimSpace(strings.Join([]string{jsontags, sqltags, gormtags}, " "))
+		return fmt.Sprintf("`%s`", tags)
+	}
+	return ""
+}
+
+// Parsing Methods
+
 // Parse populates all the attributes of the Field
 func (f *RelationalField) Parse() error {
 	if err := f.ParsePrimaryKey(); err != nil {
@@ -62,54 +116,6 @@ func (f *RelationalField) ParseDescription() error {
 		f.Description = f.a.Description
 	}
 	return nil
-}
-
-func (f *RelationalField) Definition() string {
-
-	var desc, fieldType, fieldName, pointer string
-	fieldType = f.Datatype
-	if f.HasOne != "" {
-		fieldType = deModel(f.HasOne)
-	}
-	if f.HasMany != "" {
-		fieldType = fmt.Sprintf("[]%s.%s", strings.ToLower(deModel(f.HasMany)), deModel(f.HasMany))
-	}
-	fieldName = f.Name
-	if f.Nullable {
-		pointer = "*"
-	}
-	if f.Description != "" {
-		desc = fmt.Sprintf("//%s", f.Description)
-	}
-	return fmt.Sprintf("%s \t %s%s %s %s\n", fieldName, pointer, fieldType, f.Tags(), desc)
-
-}
-
-func (f *RelationalField) Tags() string {
-	var sqltags, gormtags, jsontags string
-	var dirty bool
-	if f.SQLTag != "" {
-		sqltags = fmt.Sprintf("sql:\"%s\"", f.SQLTag)
-		dirty = true
-	}
-	if f.PrimaryKey {
-		if f.Aliased {
-			gormtags = fmt.Sprintf("gorm:\"%s,column:%s\"", "primary_key", f.DatabaseFieldName)
-		} else {
-			gormtags = fmt.Sprintf("gorm:\"%s\"", "primary_key")
-		}
-		dirty = true
-	} else {
-		if f.Aliased {
-			gormtags = fmt.Sprintf("gorm:\"column:%s\"", f.DatabaseFieldName)
-			dirty = true
-		}
-	}
-	if dirty {
-		tags := strings.TrimSpace(strings.Join([]string{jsontags, sqltags, gormtags}, " "))
-		return fmt.Sprintf("`%s`", tags)
-	}
-	return ""
 }
 
 //ParseTimestamps populates the timestamps field

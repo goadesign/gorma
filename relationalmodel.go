@@ -29,6 +29,9 @@ func NewRelationalModel(name string, t *design.UserTypeDefinition) (*RelationalM
 	err := rm.Parse()
 	return rm, err
 }
+
+// PKAttributes constructs a pair of field + definition strings
+// useful for method parameters
 func (f *RelationalModel) PKAttributes() string {
 	var attr []string
 	for _, pk := range f.PrimaryKeys {
@@ -37,6 +40,8 @@ func (f *RelationalModel) PKAttributes() string {
 	return strings.Join(attr, ",")
 }
 
+// PKWhere returns an array of strings representing the where clause
+// of a retrieval by primary key(s) -- x = ? and y = ?
 func (f *RelationalModel) PKWhere() string {
 	var pkwhere []string
 	for _, pk := range f.PrimaryKeys {
@@ -53,6 +58,9 @@ func (f *RelationalModel) PKWhereFields() string {
 	}
 	return strings.Join(pkwhere, ",")
 }
+
+// PKUpdateFields returns something?  This function doesn't look useful in
+// current form.  Perhaps it isnt.
 func (f *RelationalModel) PKUpdateFields() string {
 
 	var pkwhere []string
@@ -92,6 +100,10 @@ func (rm *RelationalModel) Parse() error {
 
 }
 
+//  Parsing functions
+
+// ParseFields iterates through the design datastructure and creates a list
+// of database fields for this model.
 func (rm *RelationalModel) ParseFields() error {
 
 	var ds design.DataStructure
@@ -140,6 +152,7 @@ func (rm *RelationalModel) ParseFields() error {
 	return nil
 }
 
+// ParseOptions parses table level options
 func (rm *RelationalModel) ParseOptions() error {
 
 	def := rm.utd.Definition()
@@ -179,6 +192,8 @@ func (rm *RelationalModel) ParseOptions() error {
 	}
 }
 
+// IterateFields returns an iterator function useful for iterating through
+// this model's field list
 func (rm *RelationalModel) IterateFields(it FieldIterator) error {
 
 	names := make(map[string]string)

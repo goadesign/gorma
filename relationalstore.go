@@ -14,6 +14,9 @@ func NewRelationalStore() *RelationalStore {
 	}
 }
 
+// ResolveRelationships should be run after parsing the full
+// Goa DSL, it correctly identifies foreign keys and other relationships that
+// are stubbed out during initial parsing.
 func (rs *RelationalStore) ResolveRelationships() error {
 	for name, model := range rs.Models {
 		if len(model.belongsto) > 0 {
@@ -72,6 +75,7 @@ func (rs *RelationalStore) ResolveRelationships() error {
 	return nil
 }
 
+// IterateModels runs an iterator function once per Model in the Store's model list.
 func (rs *RelationalStore) IterateModels(it ModelIterator) error {
 	names := make([]string, len(rs.Models))
 	i := 0

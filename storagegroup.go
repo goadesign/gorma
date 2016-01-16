@@ -12,6 +12,8 @@ func NewStorageGroup(a *design.APIDefinition) (*StorageGroup, error) {
 	return sg, err
 }
 
+// Parse is the function that should be called to parse a full Goa API definition.
+// It populates the StorageGroup and recursively all children objects
 func (sg *StorageGroup) Parse() error {
 
 	err := sg.api.IterateVersions(func(v *design.APIVersionDefinition) error {
