@@ -373,6 +373,7 @@ func userTypeMarshalerFuncName(u *design.UserTypeDefinition) string {
 // (anonymous) attribute.
 // tabs is used to properly tabulate the object struct fields and only applies to this case.
 // This function assumes the type is in the same package as the code accessing it.
+// copied in from goa so we can override package versioning
 func GoTypeRef(t design.DataType, required []string, versioned bool, defaultPkg string, tabs int) string {
 	return GoPackageTypeRef(t, required, versioned, defaultPkg, tabs)
 }
@@ -384,6 +385,7 @@ func GoTypeRef(t design.DataType, required []string, versioned bool, defaultPkg 
 // case the type (Object) does not carry the required field information defined in the parent
 // (anonymous) attribute.
 // tabs is used to properly tabulate the object struct fields and only applies to this case.
+// copied in from goa so we can override package versioning
 func GoPackageTypeRef(t design.DataType, required []string, versioned bool, defPkg string, tabs int) string {
 	switch t.(type) {
 	case *design.UserTypeDefinition, *design.MediaTypeDefinition:
@@ -406,6 +408,7 @@ func GoPackageTypeRef(t design.DataType, required []string, versioned bool, defP
 // case the type (Object) does not carry the required field information defined in the parent
 // (anonymous) attribute.
 // tabs is used to properly tabulate the object struct fields and only applies to this case.
+// Copied in from Goa so we can override package versioning functionality
 func GoPackageTypeName(t design.DataType, required []string, versioned bool, defPkg string, tabs int) string {
 	switch actual := t.(type) {
 	case design.Primitive:
