@@ -74,7 +74,7 @@ type (
 	// MediaTypeTemplateData contains all the information used by the template to redner the
 	// media types code.
 	MediaTypeTemplateData struct {
-		MediaType  *design.MediaTypeDefinition
+		MediaType  *design.UserTypeDefinition
 		Versioned  bool
 		DefaultPkg string
 	}
@@ -263,7 +263,7 @@ func NewMediaTypesWriter(filename string) (*MediaTypesWriter, error) {
 	funcMap["tempvar"] = codegen.Tempvar
 	funcMap["newDumpData"] = newDumpData
 	funcMap["userTypeUnmarshalerImpl"] = codegen.UserTypeUnmarshalerImpl
-	funcMap["mediaTypeMarshalerImpl"] = codegen.MediaTypeMarshalerImpl
+	funcMap["userTypeMarshalerImpl"] = UserTypeMarshalerImpl
 	mediaTypeTmpl, err := template.New("media type").Funcs(funcMap).Parse(mediaTypeT)
 	if err != nil {
 		return nil, err
@@ -277,6 +277,7 @@ func NewMediaTypesWriter(filename string) (*MediaTypesWriter, error) {
 
 // Execute writes the code for the context types to the writer.
 func (w *MediaTypesWriter) Execute(data *MediaTypeTemplateData) error {
+	data.MediaType.TypeName = deModel(data.MediaType.TypeName)
 	return w.MediaTypeTmpl.Execute(w, data)
 }
 
@@ -363,7 +364,7 @@ func UserTypeMarshalerImpl(u *design.UserTypeDefinition, versioned bool, default
 
 // userTypeMarshalerFuncName returns the name for the given media type marshaler function.
 func userTypeMarshalerFuncName(u *design.UserTypeDefinition) string {
-	return fmt.Sprintf("Marshal%s", codegen.GoTypeName(u, u.AllRequired(), 0))
+	return fmt.Sprintf("Marshal%s", deModel(codegen.GoTypeName(u, u.AllRequired(), 0)))
 }
 
 // GoTypeRef returns the Go code that refers to the Go type which matches the given data type
@@ -624,12 +625,12 @@ func Mount{{.Resource}}Controller(service goa.Service, ctrl {{.Resource}}Control
 {{ $keep := . }}
 {{ range $idx, $action := .TypeDef.Actions  }}
 {{ if hasusertype $action }}
-func {{$typename}}From{{version $version}}{{title $action.Name}}Payload(ctx *{{$version}}.{{title $action.Name}}{{$typename}}Context) {{$typename}} {
+func {{$typename}}From{{version $version}}{{title $action.Name}}Payload(ctx *{{$version}}.{{title $action.Name}}{{$typename}}Context) (*{{$typename}}, error) {
 	payload := ctx.Payload
 	var err error
-	target, _ := Marshal{{title $action.Name}}{{$typename}}Payload(payload, err)
-	
-	return target
+	middle,err  := Marshal{{title $action.Name}}{{$typename}}Payload(payload, err)
+	target, err := Unmarshal{{$typename}}(middle)
+	return target, err
 }
 {{userTypeMarshalerImpl $action.Payload $keep.Versioned $version}}
 
@@ -641,17 +642,6 @@ func {{$typename}}From{{version $version}}{{title $action.Name}}Payload(ctx *{{$
 	// mediaTypeT generates the code for a media type.
 	// template input: MediaTypeTemplateData
 	mediaTypeT = `{{define "Dump"}}` + dumpT + `{{end}}` + `{{$typeName := gotypename .MediaType .MediaType.AllRequired 0}}
-{{$computedViews := .MediaType.ComputeViews}}{{if gt (len $computedViews) 1}}
-
-// {{$typeName}} views
-type {{$typeName}}ViewEnum string
-
-
-const (
-{{range $name, $view := $computedViews}}// {{if .Description}}{{.Description}}{{else}}{{$typeName}} {{.Name}} view{{end}}
-       {{$typeName}}{{goify .Name true}}View {{$typeName}}ViewEnum = "{{.Name}}"
-
-{{end}}){{end}}
 // Load{{$typeName}} loads raw data into an instance of {{$typeName}}
 // into a variable of type interface{}. See https://golang.org/pkg/encoding/json/#Unmarshal for the
 // complete list of supported data types.
@@ -660,21 +650,8 @@ func Load{{$typeName}}(raw interface{}) (res {{gotyperef .MediaType .MediaType.A
 	return
 }
 
-// Dump produces raw data from an instance of {{$typeName}} running all the
-// validations. See Load{{$typeName}} for the definition of raw data.
-
-func (mt {{gotyperef .MediaType .MediaType.AllRequired 0}}) Dump({{if gt (len $computedViews) 1}}view {{$typeName}}ViewEnum{{end}}) (res {{gonative .MediaType}}, err error) {
-{{$mt := .MediaType}}{{$ctx := .}}{{if gt (len $computedViews) 1}}{{range $computedViews}}	if view == {{gotypename $mt $mt.AllRequired 0}}{{goify .Name true}}View {
-		{{template "Dump" (newDumpData $mt $ctx.Versioned $ctx.DefaultPkg (printf "%s view" .Name) "mt" "res" .Name)}}
-	}
-{{end}}{{else}}{{range $mt.ComputeViews}}{{template "Dump" (newDumpData $mt $ctx.Versioned $ctx.DefaultPkg (printf "%s view" .Name) "mt" "res" .Name)}}{{/* ranges over the one element */}}
-{{end}}{{end}}	return
-}
-
-{{range $computedViews}}
-{{mediaTypeMarshalerImpl $mt $ctx.Versioned $ctx.DefaultPkg .Name}}
-{{end}}
-{{userTypeUnmarshalerImpl .MediaType.UserTypeDefinition .Versioned .DefaultPkg "load"}}
+{{userTypeMarshalerImpl .MediaType .Versioned .DefaultPkg }}
+{{userTypeUnmarshalerImpl .MediaType .Versioned .DefaultPkg "load"}}
 `
 
 	// dumpT generates the code for dumping a media type or media type collection element.
@@ -732,6 +709,10 @@ type {{.UserType.Name}}Storage interface {
 	Delete{{$m2m.RightNamePlural}}(context.Context, int, int) error{{end}}
 }
 
+// stub for marshal/unmarshal functions
+func (m *{{$typename}}) Validate() error {
+	return nil
+}
 // CRUD Functions
 
 // One returns a single record by ID
@@ -879,14 +860,6 @@ func Filter{{$typename}}By{{$bt.Name}}(parent *int, list []{{$typename}}) []{{$t
 	return filtered
 }
 {{end}}
-// Load{{$typename}} loads raw data into an instance of {{$typename}}
-// into a variable of type interface{}. See https://golang.org/pkg/encoding/json/#Unmarshal for the
-// complete list of supported data types.
-// func LoadUser(raw interface{}) (res *User, err error) {
-func Load{{$typeName}}(raw interface{}) (res *{{$typename}}, err error) {
-	res, err = Unmarshal{{$typename}}(raw, err)
-	return
-}
 `
 )
 const resourceTmpl = `

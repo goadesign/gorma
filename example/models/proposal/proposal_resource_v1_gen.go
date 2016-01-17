@@ -16,12 +16,12 @@ import (
 	"github.com/raphael/goa"
 )
 
-func ProposalFromV1CreatePayload(ctx *v1.CreateProposalContext) Proposal {
+func ProposalFromV1CreatePayload(ctx *v1.CreateProposalContext) (*Proposal, error) {
 	payload := ctx.Payload
 	var err error
-	target, _ := MarshalCreateProposalPayload(payload, err)
-
-	return target
+	middle, err := MarshalCreateProposalPayload(payload, err)
+	target, err := UnmarshalProposal(middle)
+	return target, err
 }
 
 // MarshalCreateProposalPayload validates and renders an instance of CreateProposalPayload into a interface{}
@@ -31,7 +31,7 @@ func MarshalCreateProposalPayload(source *v1.CreateProposalPayload, inErr error)
 		err = goa.ReportError(err, err2)
 		return
 	}
-	tmp9 := map[string]interface{}{
+	tmp33 := map[string]interface{}{
 		"abstract":   source.Abstract,
 		"created_at": source.CreatedAt,
 		"deleted_at": source.DeletedAt,
@@ -45,16 +45,16 @@ func MarshalCreateProposalPayload(source *v1.CreateProposalPayload, inErr error)
 		"user_id":    source.UserId,
 		"withdrawn":  source.Withdrawn,
 	}
-	target = tmp9
+	target = tmp33
 	return
 }
 
-func ProposalFromV1UpdatePayload(ctx *v1.UpdateProposalContext) Proposal {
+func ProposalFromV1UpdatePayload(ctx *v1.UpdateProposalContext) (*Proposal, error) {
 	payload := ctx.Payload
 	var err error
-	target, _ := MarshalUpdateProposalPayload(payload, err)
-
-	return target
+	middle, err := MarshalUpdateProposalPayload(payload, err)
+	target, err := UnmarshalProposal(middle)
+	return target, err
 }
 
 // MarshalUpdateProposalPayload validates and renders an instance of UpdateProposalPayload into a interface{}
@@ -64,7 +64,7 @@ func MarshalUpdateProposalPayload(source *v1.UpdateProposalPayload, inErr error)
 		err = goa.ReportError(err, err2)
 		return
 	}
-	tmp10 := map[string]interface{}{
+	tmp34 := map[string]interface{}{
 		"abstract":   source.Abstract,
 		"created_at": source.CreatedAt,
 		"deleted_at": source.DeletedAt,
@@ -78,6 +78,6 @@ func MarshalUpdateProposalPayload(source *v1.UpdateProposalPayload, inErr error)
 		"user_id":    source.UserId,
 		"withdrawn":  source.Withdrawn,
 	}
-	target = tmp10
+	target = tmp34
 	return
 }

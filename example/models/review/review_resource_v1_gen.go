@@ -16,12 +16,12 @@ import (
 	"github.com/raphael/goa"
 )
 
-func ReviewFromV1CreatePayload(ctx *v1.CreateReviewContext) Review {
+func ReviewFromV1CreatePayload(ctx *v1.CreateReviewContext) (*Review, error) {
 	payload := ctx.Payload
 	var err error
-	target, _ := MarshalCreateReviewPayload(payload, err)
-
-	return target
+	middle, err := MarshalCreateReviewPayload(payload, err)
+	target, err := UnmarshalReview(middle)
+	return target, err
 }
 
 // MarshalCreateReviewPayload validates and renders an instance of CreateReviewPayload into a interface{}
@@ -31,7 +31,7 @@ func MarshalCreateReviewPayload(source *v1.CreateReviewPayload, inErr error) (ta
 		err = goa.ReportError(err, err2)
 		return
 	}
-	tmp11 := map[string]interface{}{
+	tmp35 := map[string]interface{}{
 		"User":        source.User,
 		"comment":     source.Comment,
 		"id":          source.ID,
@@ -39,16 +39,16 @@ func MarshalCreateReviewPayload(source *v1.CreateReviewPayload, inErr error) (ta
 		"rating":      source.Rating,
 		"reviewers":   source.Reviewers,
 	}
-	target = tmp11
+	target = tmp35
 	return
 }
 
-func ReviewFromV1UpdatePayload(ctx *v1.UpdateReviewContext) Review {
+func ReviewFromV1UpdatePayload(ctx *v1.UpdateReviewContext) (*Review, error) {
 	payload := ctx.Payload
 	var err error
-	target, _ := MarshalUpdateReviewPayload(payload, err)
-
-	return target
+	middle, err := MarshalUpdateReviewPayload(payload, err)
+	target, err := UnmarshalReview(middle)
+	return target, err
 }
 
 // MarshalUpdateReviewPayload validates and renders an instance of UpdateReviewPayload into a interface{}
@@ -58,7 +58,7 @@ func MarshalUpdateReviewPayload(source *v1.UpdateReviewPayload, inErr error) (ta
 		err = goa.ReportError(err, err2)
 		return
 	}
-	tmp12 := map[string]interface{}{
+	tmp36 := map[string]interface{}{
 		"User":        source.User,
 		"comment":     source.Comment,
 		"id":          source.ID,
@@ -66,6 +66,6 @@ func MarshalUpdateReviewPayload(source *v1.UpdateReviewPayload, inErr error) (ta
 		"rating":      source.Rating,
 		"reviewers":   source.Reviewers,
 	}
-	target = tmp12
+	target = tmp36
 	return
 }

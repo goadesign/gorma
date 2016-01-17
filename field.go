@@ -33,7 +33,8 @@ func (f *RelationalField) Definition() string {
 	var desc, fieldType, fieldName, pointer string
 	fieldType = f.Datatype
 	if f.HasOne != "" {
-		fieldType = deModel(f.HasOne)
+		fieldType = fmt.Sprintf("%s.%s", strings.ToLower(deModel(f.HasOne)),
+			deModel(f.HasOne))
 	}
 	if f.HasMany != "" {
 		fieldType = fmt.Sprintf("[]%s.%s", strings.ToLower(deModel(f.HasMany)), deModel(f.HasMany))

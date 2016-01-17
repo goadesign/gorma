@@ -98,15 +98,14 @@ func (g *Generator) Generate(api *design.APIDefinition) (_ []string, err error) 
 	if err := g.generateUserTypes(outdir, api); err != nil {
 		return g.genfiles, err
 	}
+	if err := g.generateMediaTypes(outdir, storageGroup, api); err != nil {
+		return g.genfiles, err
+	}
 
 	err = api.IterateVersions(func(v *design.APIVersionDefinition) error {
 		if err := g.generatePayloadHelpers(outdir, storageGroup, api, v); err != nil {
 			return err
 		}
-		if err := g.generateMediaTypes(outdir, storageGroup, v); err != nil {
-			return err
-		}
-
 		return nil
 	})
 	if err != nil {
@@ -191,17 +190,11 @@ func (g *Generator) generatePayloadHelpers(verdir string, sg *StorageGroup, api 
 
 // generateMediaTypes iterates through the media types and generate the data structures and
 // marshaling code.
-func (g *Generator) generateMediaTypes(verdir string, sg *StorageGroup, version *design.APIVersionDefinition) error {
-	err := version.IterateMediaTypes(func(mt *design.MediaTypeDefinition) error {
-		if !mt.SupportsVersion(version.Version) {
-			return nil
-		}
-		prefix := "_media"
-		if version.Version != "" {
-			prefix = prefix + "_" + codegen.Goify(version.Version, false)
+func (g *Generator) generateMediaTypes(verdir string, sg *StorageGroup, version *design.APIDefinition) error {
+	err := version.IterateUserTypes(func(mt *design.UserTypeDefinition) error {
 
-		}
-		name := strings.ToLower(codegen.Goify(mt.TypeName, false))
+		prefix := "_media"
+		name := strings.ToLower(deModel(codegen.Goify(mt.TypeName, false)))
 		dirname := strings.Replace(name, "collection", "", -1)
 		err := os.MkdirAll(filepath.Join(verdir, dirname), 0755)
 		if err != nil {

@@ -16,12 +16,12 @@ import (
 	"github.com/raphael/goa"
 )
 
-func UserFromV1CreatePayload(ctx *v1.CreateUserContext) User {
+func UserFromV1CreatePayload(ctx *v1.CreateUserContext) (*User, error) {
 	payload := ctx.Payload
 	var err error
-	target, _ := MarshalCreateUserPayload(payload, err)
-
-	return target
+	middle, err := MarshalCreateUserPayload(payload, err)
+	target, err := UnmarshalUser(middle)
+	return target, err
 }
 
 // MarshalCreateUserPayload validates and renders an instance of CreateUserPayload into a interface{}
@@ -31,7 +31,7 @@ func MarshalCreateUserPayload(source *v1.CreateUserPayload, inErr error) (target
 		err = goa.ReportError(err, err2)
 		return
 	}
-	tmp13 := map[string]interface{}{
+	tmp37 := map[string]interface{}{
 		"bio":        source.Bio,
 		"city":       source.City,
 		"country":    source.Country,
@@ -44,16 +44,16 @@ func MarshalCreateUserPayload(source *v1.CreateUserPayload, inErr error) (target
 		"state":      source.State,
 		"updated_at": source.UpdatedAt,
 	}
-	target = tmp13
+	target = tmp37
 	return
 }
 
-func UserFromV1UpdatePayload(ctx *v1.UpdateUserContext) User {
+func UserFromV1UpdatePayload(ctx *v1.UpdateUserContext) (*User, error) {
 	payload := ctx.Payload
 	var err error
-	target, _ := MarshalUpdateUserPayload(payload, err)
-
-	return target
+	middle, err := MarshalUpdateUserPayload(payload, err)
+	target, err := UnmarshalUser(middle)
+	return target, err
 }
 
 // MarshalUpdateUserPayload validates and renders an instance of UpdateUserPayload into a interface{}
@@ -63,7 +63,7 @@ func MarshalUpdateUserPayload(source *v1.UpdateUserPayload, inErr error) (target
 		err = goa.ReportError(err, err2)
 		return
 	}
-	tmp14 := map[string]interface{}{
+	tmp38 := map[string]interface{}{
 		"bio":        source.Bio,
 		"city":       source.City,
 		"country":    source.Country,
@@ -76,6 +76,6 @@ func MarshalUpdateUserPayload(source *v1.UpdateUserPayload, inErr error) (target
 		"state":      source.State,
 		"updated_at": source.UpdatedAt,
 	}
-	target = tmp14
+	target = tmp38
 	return
 }

@@ -23,14 +23,14 @@ import (
 // User type
 type User struct {
 	ID        int `gorm:"primary_key"`
-	City      string
-	FirstName string `sql:"index"` //First name Description
 	LastName  string
-	Bio       string
-	Country   string
 	Email     string
+	FirstName string `sql:"index"` //First name Description
 	Role      string
 	State     string
+	Bio       string
+	City      string
+	Country   string
 	UpdatedAt time.Time
 	CreatedAt time.Time
 }
@@ -68,6 +68,11 @@ type UserStorage interface {
 	Add(ctx context.Context, o User) (User, error)
 	Update(ctx context.Context, o User) error
 	Delete(ctx context.Context, id int) error
+}
+
+// stub for marshal/unmarshal functions
+func (m *User) Validate() error {
+	return nil
 }
 
 // CRUD Functions
@@ -122,13 +127,4 @@ func (m *UserDB) Delete(ctx context.Context, id int) error {
 	}
 	go m.cache.Delete(strconv.Itoa(id))
 	return nil
-}
-
-// LoadUser loads raw data into an instance of User
-// into a variable of type interface{}. See https://golang.org/pkg/encoding/json/#Unmarshal for the
-// complete list of supported data types.
-// func LoadUser(raw interface{}) (res *User, err error) {
-func LoadUser(raw interface{}) (res *User, err error) {
-	res, err = UnmarshalUser(raw, err)
-	return
 }
