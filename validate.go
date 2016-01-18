@@ -28,7 +28,9 @@ func (a *RelationalStoreDefinition) Validate() *design.ValidationErrors {
 func (a *RelationalModelDefinition) Validate() *design.ValidationErrors {
 
 	verr := new(goa.ValidationErrors)
-
+	if a.Name == "" {
+		verr.Add(a, "model name not defined")
+	}
 	a.IterateFields(func(field *RelationalFieldDefinition) error {
 		verr.Merge(field.Validate())
 	})
