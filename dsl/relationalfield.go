@@ -1,12 +1,8 @@
 package dsl
 
-import (
-	"fmt"
+import "github.com/bketelsen/gorma"
 
-	"github.com/bketelsen/gorma"
-)
-
-// StorageGroup implements the top level Gorma DSL
+// RelationalField is a DSL definition for a field in a Relational Model
 // Examples and more docs here later
 func RelationalField(name string, dsl func()) {
 	// We can't rely on this being run first, any of the top level DSL could run
@@ -19,7 +15,7 @@ func RelationalField(name string, dsl func()) {
 		}
 		store, ok := s.RelationalFields[name]
 		if !ok {
-			store := &RelationalFieldDefinition{
+			store := &gorma.RelationalFieldDefinition{
 				Name: name,
 				DSL:  dsl,
 			}
@@ -30,12 +26,4 @@ func RelationalField(name string, dsl func()) {
 		s.RelationalFields[name] = store
 	}
 
-}
-
-// Context returns the generic definition name used in error messages.
-func (a *RelationalFieldDefinition) Context() string {
-	if a.Name != "" {
-		return fmt.Sprintf("RelationalField %#v", a.Name)
-	}
-	return "unnamed RelationalField"
 }

@@ -8,6 +8,14 @@ import (
 	"github.com/raphael/goa/goagen/codegen"
 )
 
+// Context returns the generic definition name used in error messages.
+func (a *RelationalModelDefinition) Context() string {
+	if a.Name != "" {
+		return fmt.Sprintf("RelationalModel %#v", a.Name)
+	}
+	return "unnamed RelationalModel"
+}
+
 // PKAttributes constructs a pair of field + definition strings
 // useful for method parameters
 func (f *RelationalModelDefinition) PKAttributes() string {

@@ -1,10 +1,6 @@
 package dsl
 
-import (
-	"fmt"
-
-	"github.com/bketelsen/gorma"
-)
+import "github.com/bketelsen/gorma"
 
 // StorageGroup implements the top level Gorma DSL
 // Examples and more docs here later
@@ -19,7 +15,7 @@ func RelationalStore(name string, dsl func()) {
 		}
 		store, ok := s.RelationalStores[name]
 		if !ok {
-			store := &RelationalStoreDefinition{
+			store := &gorma.RelationalStoreDefinition{
 				Name: name,
 				DSL:  dsl,
 			}
@@ -30,12 +26,4 @@ func RelationalStore(name string, dsl func()) {
 		s.RelationalStores[name] = store
 	}
 
-}
-
-// Context returns the generic definition name used in error messages.
-func (a *RelationalStoreDefinition) Context() string {
-	if a.Name != "" {
-		return fmt.Sprintf("RelationalStore %#v", a.Name)
-	}
-	return "unnamed RelationalStore"
 }

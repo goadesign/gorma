@@ -43,6 +43,7 @@ type RelationalModelDefinition struct {
 	Roler            bool
 	DynamicTableName bool
 	SQLTag           string
+	RelationalFields map[string]*RelationalFieldDefinition
 	PrimaryKeys      []*RelationalFieldDefinition
 	belongsto        []string
 	hasmany          []string

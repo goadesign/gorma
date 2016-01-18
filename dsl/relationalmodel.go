@@ -1,12 +1,8 @@
 package dsl
 
-import (
-	"fmt"
+import "github.com/bketelsen/gorma"
 
-	"github.com/bketelsen/gorma"
-)
-
-// StorageGroup implements the top level Gorma DSL
+// RelationalModel is the DSL that represents a Relational Model
 // Examples and more docs here later
 func RelationalModel(name string, dsl func()) {
 	// We can't rely on this being run first, any of the top level DSL could run
@@ -19,7 +15,7 @@ func RelationalModel(name string, dsl func()) {
 		}
 		store, ok := s.RelationalModels[name]
 		if !ok {
-			store := &RelationalModelDefinition{
+			store := &gorma.RelationalModelDefinition{
 				Name: name,
 				DSL:  dsl,
 			}
@@ -30,12 +26,4 @@ func RelationalModel(name string, dsl func()) {
 		s.RelationalModels[name] = store
 	}
 
-}
-
-// Context returns the generic definition name used in error messages.
-func (a *RelationalModelDefinition) Context() string {
-	if a.Name != "" {
-		return fmt.Sprintf("RelationalModel %#v", a.Name)
-	}
-	return "unnamed RelationalModel"
 }

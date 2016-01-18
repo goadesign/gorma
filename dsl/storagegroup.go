@@ -1,42 +1,32 @@
 package dsl
 
 import (
-	"fmt"
-
 	"github.com/bketelsen/gorma"
-	"github.com/raphael/goa/design"
+	"github.com/raphael/goa/design/dsl"
 )
 
 // StorageGroup implements the top level Gorma DSL
 // Examples and more docs here later
-func StorageGroup(name string, dsl func()) *gorma.StorageGroupDefinition {
+func StorageGroup(name string, dsli func()) *gorma.StorageGroupDefinition {
 	// We can't rely on this being run first, any of the top level DSL could run
 	// in any order. The top level DSLs are API, Version, Resource, MediaType and Type.
 	// The first one to be called executes InitDesign.
 
 	checkInit()
 
-	sg := &StorageGroupDefinition{
+	sg := &gorma.StorageGroupDefinition{
 		Name:             name,
-		RelationalStores: make(map[string]*RelationalStoreDefinition),
-		DSL:              dsl,
+		RelationalStores: make(map[string]*gorma.RelationalStoreDefinition),
+		DSL:              dsli,
 	}
 
 	if !topLevelDefinition(true) {
 		return nil
 	}
 	if name == "" {
-		design.ReportError("Storage Group name cannot be empty")
+		dsl.ReportError("Storage Group name cannot be empty")
 	}
 
 	gorma.Design = sg
 	return gorma.Design
-}
-
-// Context returns the generic definition name used in error messages.
-func (a *StorageGroupDefinition) Context() string {
-	if a.Name != "" {
-		return fmt.Sprintf("StorageGroup %#v", a.Name)
-	}
-	return "unnamed Storage Group"
 }

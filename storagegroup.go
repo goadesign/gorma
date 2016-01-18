@@ -1,6 +1,9 @@
 package gorma
 
-import "sort"
+import (
+	"fmt"
+	"sort"
+)
 
 // IterateStores runs an iterator function once per Relational Store in the StorageGroup's Store list
 func (sd *StorageGroupDefinition) IterateStores(it StoreIterator) error {
@@ -17,4 +20,12 @@ func (sd *StorageGroupDefinition) IterateStores(it StoreIterator) error {
 		}
 	}
 	return nil
+}
+
+// Context returns the generic definition name used in error messages.
+func (a *StorageGroupDefinition) Context() string {
+	if a.Name != "" {
+		return fmt.Sprintf("StorageGroup %#v", a.Name)
+	}
+	return "unnamed Storage Group"
 }

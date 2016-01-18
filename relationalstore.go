@@ -1,11 +1,20 @@
 package gorma
 
 import (
+	"fmt"
 	"sort"
 	"strings"
 
 	"bitbucket.org/pkg/inflect"
 )
+
+// Context returns the generic definition name used in error messages.
+func (a *RelationalStoreDefinition) Context() string {
+	if a.Name != "" {
+		return fmt.Sprintf("RelationalStore %#v", a.Name)
+	}
+	return "unnamed RelationalStore"
+}
 
 // ResolveRelationships should be run after parsing the full
 // Goa DSL, it correctly identifies foreign keys and other relationships that
