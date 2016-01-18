@@ -11,10 +11,7 @@
 
 package proposal
 
-import (
-	"github.com/gopheracademy/congo/app/v1"
-	"github.com/raphael/goa"
-)
+import "github.com/gopheracademy/congo/app/v1"
 
 func ProposalFromV1CreatePayload(ctx *v1.CreateProposalContext) (*Proposal, error) {
 	payload := ctx.Payload
@@ -24,60 +21,10 @@ func ProposalFromV1CreatePayload(ctx *v1.CreateProposalContext) (*Proposal, erro
 	return target, err
 }
 
-// MarshalCreateProposalPayload validates and renders an instance of CreateProposalPayload into a interface{}
-func MarshalCreateProposalPayload(source *v1.CreateProposalPayload, inErr error) (target map[string]interface{}, err error) {
-	err = inErr
-	if err2 := source.Validate(); err2 != nil {
-		err = goa.ReportError(err, err2)
-		return
-	}
-	tmp33 := map[string]interface{}{
-		"abstract":   source.Abstract,
-		"created_at": source.CreatedAt,
-		"deleted_at": source.DeletedAt,
-		"detail":     source.Detail,
-		"first_name": source.FirstName,
-		"id":         source.ID,
-		"m2reviews":  source.M2reviews,
-		"reviews":    source.Reviews,
-		"title":      source.Title,
-		"updated_at": source.UpdatedAt,
-		"user_id":    source.UserId,
-		"withdrawn":  source.Withdrawn,
-	}
-	target = tmp33
-	return
-}
-
 func ProposalFromV1UpdatePayload(ctx *v1.UpdateProposalContext) (*Proposal, error) {
 	payload := ctx.Payload
 	var err error
 	middle, err := MarshalUpdateProposalPayload(payload, err)
 	target, err := UnmarshalProposal(middle)
 	return target, err
-}
-
-// MarshalUpdateProposalPayload validates and renders an instance of UpdateProposalPayload into a interface{}
-func MarshalUpdateProposalPayload(source *v1.UpdateProposalPayload, inErr error) (target map[string]interface{}, err error) {
-	err = inErr
-	if err2 := source.Validate(); err2 != nil {
-		err = goa.ReportError(err, err2)
-		return
-	}
-	tmp34 := map[string]interface{}{
-		"abstract":   source.Abstract,
-		"created_at": source.CreatedAt,
-		"deleted_at": source.DeletedAt,
-		"detail":     source.Detail,
-		"first_name": source.FirstName,
-		"id":         source.ID,
-		"m2reviews":  source.M2reviews,
-		"reviews":    source.Reviews,
-		"title":      source.Title,
-		"updated_at": source.UpdatedAt,
-		"user_id":    source.UserId,
-		"withdrawn":  source.Withdrawn,
-	}
-	target = tmp34
-	return
 }

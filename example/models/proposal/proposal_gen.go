@@ -24,16 +24,16 @@ import (
 // Proposal type
 type Proposal struct {
 	ID        int `gorm:"primary_key"`
-	Reviews   []review.Review
-	UserID    int
-	FirstName string `gorm:"column:person_name"`
-	M2reviews string
-	Title     string
 	Withdrawn bool
 	Abstract  string
+	FirstName string `gorm:"column:person_name"`
+	M2reviews string
 	Detail    string
-	DeletedAt *time.Time
+	Title     string
+	Reviews   []review.Review
+	UserID    int
 	CreatedAt time.Time
+	DeletedAt *time.Time
 	UpdatedAt time.Time
 }
 

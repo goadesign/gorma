@@ -632,10 +632,7 @@ func {{$typename}}From{{version $version}}{{title $action.Name}}Payload(ctx *{{$
 	target, err := Unmarshal{{$typename}}(middle)
 	return target, err
 }
-{{userTypeMarshalerImpl $action.Payload $keep.Versioned $version}}
-
 {{ end }}{{end}}
-
 {{end}}
 `
 
