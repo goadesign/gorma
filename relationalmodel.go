@@ -7,7 +7,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/bketelsen/gorma/gengorma"
 	"github.com/raphael/goa/design"
 	"github.com/raphael/goa/goagen/codegen"
 )
