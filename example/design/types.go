@@ -26,22 +26,22 @@ var UserModel = RelationalModel("UserModel", func() {
 	Roler()
 	Cached("60")
 	Timestamps()
-	Attribute("first_name", func() {
+	Field("first_name", func() {
 		SQLTag("index")
 		Description("First name Description")
 	})
-	Attribute("last_name", func() {
+	Field("last_name", func() {
 	})
-	Attribute("city", func() {
+	Field("city", func() {
 	})
-	Attribute("state", func() {
+	Field("state", func() {
 	})
-	Attribute("country", func() {
+	Field("country", func() {
 	})
-	Attribute("email", func() {
+	Field("email", func() {
 		Format("email")
 	})
-	Attribute("bio", func() {
+	Field("bio", func() {
 		MaxLength(500)
 	})
 
@@ -58,23 +58,23 @@ var ProposalModel = Model("ProposalModel", func() {
 	Cached("60") // manage in-memory cache with 60 second TTL
 	Timestamps() // created_at and updated_at
 	SoftDelete() // deleted_at as pointer for soft deletes
-	Attribute("first_name", func() {
+	Field("first_name", func() {
 		As("person_name") // sql column name
 		MinLength(2)
 	})
-	Attribute("title", func() {
+	Field("title", func() {
 		MinLength(10)
 		MaxLength(200)
 	})
-	Attribute("abstract", func() {
+	Field("abstract", func() {
 		MinLength(50)
 		MaxLength(500)
 	})
-	Attribute("detail", func() {
+	Field("detail", func() {
 		MinLength(100)
 		MaxLength(2000)
 	})
-	Attribute("withdrawn", Boolean)
+	Field("withdrawn", Boolean)
 })
 
 // ReviewModel defines the data structure used to create a review request body
@@ -84,11 +84,11 @@ var ReviewModel = Model("ReviewModel", func() {
 	BelongsTo("Proposal")
 	HasOne(UserModel)
 	HasMany("reviewers", UserModel)
-	Attribute("comment", func() {
+	Field("comment", func() {
 		MinLength(10)
 		MaxLength(200)
 	})
-	Attribute("rating", Integer, func() {
+	Field("rating", Integer, func() {
 		Minimum(1)
 		Maximum(5)
 	})
