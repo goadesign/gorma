@@ -20,9 +20,7 @@ func RelationalModel(name string, dsl func()) {
 				DSL:  dsl,
 			}
 		}
-		if !executeDSL(dsl, store) { // @raphael - who is executing this?
-			return
-		}
+
 		s.RelationalModels[name] = store
 	}
 
