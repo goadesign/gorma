@@ -13,15 +13,15 @@ func RelationalModel(name string, dsl func()) {
 		if s.RelationalModels == nil {
 			s.RelationalModels = make(map[string]*gorma.RelationalModelDefinition)
 		}
-		store, ok := s.RelationalModels[name]
+		models, ok := s.RelationalModels[name]
 		if !ok {
-			store := &gorma.RelationalModelDefinition{
+			models = &gorma.RelationalModelDefinition{
 				Name: name,
 				DSL:  dsl,
 			}
 		}
 
-		s.RelationalModels[name] = store
+		s.RelationalModels[name] = models
 	}
 
 }
