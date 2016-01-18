@@ -1,7 +1,7 @@
 package design
 
 import (
-	. "github.com/bketelsen/gorma/gengorma"
+	. "github.com/bketelsen/gorma/dsl"
 	. "github.com/raphael/goa/design"
 	. "github.com/raphael/goa/design/dsl"
 )

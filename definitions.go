@@ -68,7 +68,7 @@ type UserTypeAdapterDefinition struct {
 	DSL         func()
 	Name        string
 	Description string
-	Left        *design.UserTypeDefinition
+	Left        *RelationalModelDefinition
 	Right       *RelationalModelDefinition
 }
 

@@ -3,6 +3,8 @@ package gorma
 import (
 	"runtime"
 	"strings"
+
+	"github.com/raphael/goa/design/dsl"
 )
 
 // topLevelDefinition returns true if the currently evaluated DSL is a root
@@ -59,7 +61,7 @@ func relationalFieldDefinition(failIfNotSD bool) (*RelationalFieldDefinition, bo
 // invoked in an incorrect context (e.g. "Params" in "Resource").
 func incompatibleDSL(dslFunc string) {
 	elems := strings.Split(dslFunc, ".")
-	ReportError("invalid use of %s", elems[len(elems)-1])
+	dsl.ReportError("invalid use of %s", elems[len(elems)-1])
 }
 
 // Name of calling function.
