@@ -26,6 +26,7 @@ func (a *RelationalStoreDefinition) Validate() *design.ValidationErrors {
 
 // Validate tests whether the RelationalModel definition is consistent
 func (a *RelationalModelDefinition) Validate() *design.ValidationErrors {
+
 	verr := new(goa.ValidationErrors)
 
 	a.IterateFields(func(field *RelationalFieldDefinition) error {
@@ -38,6 +39,8 @@ func (a *RelationalModelDefinition) Validate() *design.ValidationErrors {
 // Validate tests whether the RelationalField definition is consistent
 func (a *RelationalFieldDefinition) Validate() *design.ValidationErrors {
 	verr := new(goa.ValidationErrors)
-
+	if field.Name == "" {
+		verr.Add(a, "field name not defined")
+	}
 	return verr.AsError()
 }
