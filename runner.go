@@ -25,6 +25,36 @@ func storageGroupDefinition(failIfNotSD bool) (*StorageGroupDefinition, bool) {
 	return a, ok
 }
 
+// relationalStoreDefinition returns true and current context if it is an RelationalStoreDefinition,
+// nil and false otherwise.
+func relationalStoreDefinition(failIfNotSD bool) (*RelationalStoreDefinition, bool) {
+	a, ok := dsl.Current().(*RelationalStoreDefinition)
+	if !ok && failIfNotSD {
+		incompatibleDSL(caller())
+	}
+	return a, ok
+}
+
+// relationalModelDefinition returns true and current context if it is an RelationalModelDefinition,
+// nil and false otherwise.
+func relationalModelDefinition(failIfNotSD bool) (*RelationalModelDefinition, bool) {
+	a, ok := dsl.Current().(*RelationalModelDefinition)
+	if !ok && failIfNotSD {
+		incompatibleDSL(caller())
+	}
+	return a, ok
+}
+
+// relationalFieldDefinition returns true and current context if it is an RelationalFieldDefinition,
+// nil and false otherwise.
+func relationalFieldDefinition(failIfNotSD bool) (*RelationalFieldDefinition, bool) {
+	a, ok := dsl.Current().(*RelationalFieldDefinition)
+	if !ok && failIfNotSD {
+		incompatibleDSL(caller())
+	}
+	return a, ok
+}
+
 // incompatibleDSL should be called by DSL functions when they are
 // invoked in an incorrect context (e.g. "Params" in "Resource").
 func incompatibleDSL(dslFunc string) {

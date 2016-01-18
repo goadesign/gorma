@@ -7,16 +7,21 @@ import (
 )
 
 var UserModelAdapter = ModelAdapter("UserModel", "v1.CreateUserPayload", func() {
+	Transform("created_at", design.String, design.ISO9201Date)
+	TransformFunc("created_at", func() {
+		out.created_at = datetime.Parse(in.CreatedAt, "blah Format")
+	})
+})
 
+var XORStorage = StorageGroup("XOR", func() {
+	RelationalStore("mysql", func() {
+		RelationalModel(UserModel)
+	})
 })
 
 // UserModel defines the data structure used in the create user request body.
 // It is also the base type for the user media type used to render users.
-var UserModel = Model("UserModel", func() {
-	Metadata("github.com/bketelsen/gorma#authboss", "All")
-	Metadata("github.com/bketelsen/gorma#roler", "true")
-	//	HasMany("Proposal")
-	//	HasMany("Review")
+var UserModel = RelationalModel("UserModel", func() {
 	PrimaryKey("id")
 	Roler()
 	Cached("60")

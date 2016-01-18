@@ -8,9 +8,9 @@ import (
 	"github.com/raphael/goa/goagen/codegen"
 )
 
-// NewRelationalField creates and parses a field from the design attributes
-func NewRelationalField(name string, a *design.AttributeDefinition) (*RelationalField, error) {
-	f := &RelationalField{}
+// NewRelationalFieldDefinition creates and parses a field from the design attributes
+func NewRelationalFieldDefinition(name string, a *design.AttributeDefinition) (*RelationalFieldDefinition, error) {
+	f := &RelationalFieldDefinition{}
 	f.a = a
 	t := a.Definition().Type
 	f.Datatype = codegen.GoNativeType(t)
@@ -27,7 +27,7 @@ func NewRelationalField(name string, a *design.AttributeDefinition) (*Relational
 // Generating fields
 
 // Definition returns the field's struct definition
-func (f *RelationalField) Definition() string {
+func (f *RelationalFieldDefinition) Definition() string {
 
 	var desc, fieldType, fieldName, pointer string
 	fieldType = f.Datatype
@@ -50,7 +50,7 @@ func (f *RelationalField) Definition() string {
 }
 
 // Tags returns teh sql and gorm struct tags for the Definition
-func (f *RelationalField) Tags() string {
+func (f *RelationalFieldDefinition) Tags() string {
 	var sqltags, gormtags, jsontags string
 	var dirty bool
 	if f.SQLTag != "" {
@@ -80,7 +80,7 @@ func (f *RelationalField) Tags() string {
 // Parsing Methods
 
 // Parse populates all the attributes of the Field
-func (f *RelationalField) Parse() error {
+func (f *RelationalFieldDefinition) Parse() error {
 	if err := f.ParsePrimaryKey(); err != nil {
 		return err
 	}
@@ -111,7 +111,7 @@ func (f *RelationalField) Parse() error {
 	return nil
 }
 
-func (f *RelationalField) ParseDescription() error {
+func (f *RelationalFieldDefinition) ParseDescription() error {
 	if f.a.Description != "" {
 		f.Description = f.a.Description
 	}
@@ -119,7 +119,7 @@ func (f *RelationalField) ParseDescription() error {
 }
 
 //ParseTimestamps populates the timestamps field
-func (f *RelationalField) ParseTimestamps() error {
+func (f *RelationalFieldDefinition) ParseTimestamps() error {
 	if _, ok := metaLookup(f.a.Metadata, gengorma.MetaTimestampCreated); ok {
 		f.Timestamp = true
 		f.Datatype = "time.Time"
@@ -141,7 +141,7 @@ func (f *RelationalField) ParseTimestamps() error {
 }
 
 //ParseSQLTag populates the SQLTag field
-func (f *RelationalField) ParseSQLTag() error {
+func (f *RelationalFieldDefinition) ParseSQLTag() error {
 	// is it a primary key?
 	if gt, ok := metaLookup(f.a.Metadata, gengorma.MetaSQLTag); ok {
 		f.SQLTag = gt
@@ -151,7 +151,7 @@ func (f *RelationalField) ParseSQLTag() error {
 }
 
 //ParseBelongsTo populates the SQLTag field
-func (f *RelationalField) ParseBelongsTo() error {
+func (f *RelationalFieldDefinition) ParseBelongsTo() error {
 	if gt, ok := metaLookup(f.a.Metadata, gengorma.MetaBelongsTo); ok {
 		f.BelongsTo = gt
 	}
@@ -160,7 +160,7 @@ func (f *RelationalField) ParseBelongsTo() error {
 }
 
 //ParseManyToMany populates the ManyToMany relationships
-func (f *RelationalField) ParseManyToMany() error {
+func (f *RelationalFieldDefinition) ParseManyToMany() error {
 	if gt, ok := metaLookup(f.a.Metadata, gengorma.MetaManyToMany); ok {
 		f.Many2Many = gt
 	}
@@ -168,7 +168,7 @@ func (f *RelationalField) ParseManyToMany() error {
 }
 
 //ParseHasOne populates the SQLTag field
-func (f *RelationalField) ParseHasOne() error {
+func (f *RelationalFieldDefinition) ParseHasOne() error {
 	if gt, ok := metaLookup(f.a.Metadata, gengorma.MetaHasOne); ok {
 		f.HasOne = gt
 	}
@@ -177,7 +177,7 @@ func (f *RelationalField) ParseHasOne() error {
 }
 
 //ParseHasMany populates the SQLTag field
-func (f *RelationalField) ParseHasMany() error {
+func (f *RelationalFieldDefinition) ParseHasMany() error {
 	if gt, ok := metaLookup(f.a.Metadata, gengorma.MetaHasMany); ok {
 		f.HasMany = gt
 	}
@@ -186,7 +186,7 @@ func (f *RelationalField) ParseHasMany() error {
 }
 
 //ParseAlias populates the DatabaseFieldName field
-func (f *RelationalField) ParseAlias() error {
+func (f *RelationalFieldDefinition) ParseAlias() error {
 
 	if gt, ok := metaLookup(f.a.Metadata, gengorma.MetaGormTag); ok {
 		f.Aliased = true
@@ -197,7 +197,7 @@ func (f *RelationalField) ParseAlias() error {
 }
 
 //ParsePrimaryKey populates the primary key tag
-func (f *RelationalField) ParsePrimaryKey() error {
+func (f *RelationalFieldDefinition) ParsePrimaryKey() error {
 	// is it a primary key?
 	if gt, ok := metaLookup(f.a.Metadata, gengorma.MetaPrimaryKey); ok {
 		if strings.Contains(gt, "primary_key") {

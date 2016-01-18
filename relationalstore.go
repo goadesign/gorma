@@ -7,17 +7,17 @@ import (
 	"bitbucket.org/pkg/inflect"
 )
 
-// NewRelationalStore returns an initialzed RelationalStore
-func NewRelationalStore() *RelationalStore {
-	return &RelationalStore{
-		Models: make(map[string]*RelationalModel),
+// NewRelationalStoreDefinition returns an initialzed RelationalStoreDefinition
+func NewRelationalStoreDefinition() *RelationalStoreDefinition {
+	return &RelationalStoreDefinition{
+		Models: make(map[string]*RelationalModelDefinition),
 	}
 }
 
 // ResolveRelationships should be run after parsing the full
 // Goa DSL, it correctly identifies foreign keys and other relationships that
 // are stubbed out during initial parsing.
-func (rs *RelationalStore) ResolveRelationships() error {
+func (rs *RelationalStoreDefinition) ResolveRelationships() error {
 	for name, model := range rs.Models {
 		if len(model.belongsto) > 0 {
 			for _, belong := range model.belongsto {
@@ -76,7 +76,7 @@ func (rs *RelationalStore) ResolveRelationships() error {
 }
 
 // IterateModels runs an iterator function once per Model in the Store's model list.
-func (rs *RelationalStore) IterateModels(it ModelIterator) error {
+func (rs *RelationalStoreDefinition) IterateModels(it ModelIterator) error {
 	names := make([]string, len(rs.Models))
 	i := 0
 	for n := range rs.Models {

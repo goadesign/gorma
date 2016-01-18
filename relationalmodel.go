@@ -11,18 +11,18 @@ import (
 	"github.com/raphael/goa/goagen/codegen"
 )
 
-// NewRelationalModel instantiates and populates a new relational model structure
-func NewRelationalModel(name string, t *design.UserTypeDefinition) (*RelationalModel, error) {
-	var pks []*RelationalField
-	rm := &RelationalModel{
+// NewRelationalModelDefinition instantiates and populates a new relational model structure
+func NewRelationalModelDefinition(name string, t *design.UserTypeDefinition) (*RelationalModelDefinition, error) {
+	var pks []*RelationalFieldDefinition
+	rm := &RelationalModelDefinition{
 		utd: t,
 		//TableName:   codegen.Goify(deModel(name), false), // may be overridden later
 		Name:        codegen.Goify(deModel(name), true),
-		Fields:      make(map[string]*RelationalField),
-		HasMany:     make(map[string]*RelationalModel),
-		HasOne:      make(map[string]*RelationalModel),
+		Fields:      make(map[string]*RelationalFieldDefinition),
+		HasMany:     make(map[string]*RelationalModelDefinition),
+		HasOne:      make(map[string]*RelationalModelDefinition),
 		ManyToMany:  make(map[string]*ManyToMany),
-		BelongsTo:   make(map[string]*RelationalModel),
+		BelongsTo:   make(map[string]*RelationalModelDefinition),
 		PrimaryKeys: pks,
 	}
 	err := rm.Parse()
@@ -31,7 +31,7 @@ func NewRelationalModel(name string, t *design.UserTypeDefinition) (*RelationalM
 
 // PKAttributes constructs a pair of field + definition strings
 // useful for method parameters
-func (f *RelationalModel) PKAttributes() string {
+func (f *RelationalModelDefinition) PKAttributes() string {
 	var attr []string
 	for _, pk := range f.PrimaryKeys {
 		attr = append(attr, fmt.Sprintf("%s %s", strings.ToLower(pk.Name), pk.Datatype))
@@ -41,7 +41,7 @@ func (f *RelationalModel) PKAttributes() string {
 
 // PKWhere returns an array of strings representing the where clause
 // of a retrieval by primary key(s) -- x = ? and y = ?
-func (f *RelationalModel) PKWhere() string {
+func (f *RelationalModelDefinition) PKWhere() string {
 	var pkwhere []string
 	for _, pk := range f.PrimaryKeys {
 		def := fmt.Sprintf("%s = ?", pk.DatabaseFieldName)
@@ -49,7 +49,7 @@ func (f *RelationalModel) PKWhere() string {
 	}
 	return strings.Join(pkwhere, "and")
 }
-func (f *RelationalModel) PKWhereFields() string {
+func (f *RelationalModelDefinition) PKWhereFields() string {
 	var pkwhere []string
 	for _, pk := range f.PrimaryKeys {
 		def := fmt.Sprintf("%s", pk.DatabaseFieldName)
@@ -60,7 +60,7 @@ func (f *RelationalModel) PKWhereFields() string {
 
 // PKUpdateFields returns something?  This function doesn't look useful in
 // current form.  Perhaps it isnt.
-func (f *RelationalModel) PKUpdateFields() string {
+func (f *RelationalModelDefinition) PKUpdateFields() string {
 
 	var pkwhere []string
 	for _, pk := range f.PrimaryKeys {
@@ -72,10 +72,10 @@ func (f *RelationalModel) PKUpdateFields() string {
 	return pkw
 }
 
-func (rm *RelationalModel) Definition() string {
+func (rm *RelationalModelDefinition) Definition() string {
 	header := fmt.Sprintf("type %s struct {\n", rm.Name)
 	var output string
-	rm.IterateFields(func(f *RelationalField) error {
+	rm.IterateFields(func(f *RelationalFieldDefinition) error {
 		output = output + f.Definition()
 		return nil
 	})
@@ -84,8 +84,8 @@ func (rm *RelationalModel) Definition() string {
 
 }
 
-// Parse populates the RelationalModel based on the defintions in the DSL
-func (rm *RelationalModel) Parse() error {
+// Parse populates the RelationalModelDefinition based on the defintions in the DSL
+func (rm *RelationalModelDefinition) Parse() error {
 	err := rm.ParseOptions()
 	if err != nil {
 		return err
@@ -103,7 +103,7 @@ func (rm *RelationalModel) Parse() error {
 
 // ParseFields iterates through the design datastructure and creates a list
 // of database fields for this model.
-func (rm *RelationalModel) ParseFields() error {
+func (rm *RelationalModelDefinition) ParseFields() error {
 
 	var ds design.DataStructure
 	ds = rm.utd
@@ -119,7 +119,7 @@ func (rm *RelationalModel) ParseFields() error {
 		}
 		sort.Strings(keys)
 		for _, name := range keys {
-			field, err := NewRelationalField(name, actual[name])
+			field, err := NewRelationalFieldDefinition(name, actual[name])
 			if err != nil {
 				return err
 			}
@@ -152,7 +152,7 @@ func (rm *RelationalModel) ParseFields() error {
 }
 
 // ParseOptions parses table level options
-func (rm *RelationalModel) ParseOptions() error {
+func (rm *RelationalModelDefinition) ParseOptions() error {
 
 	def := rm.utd.Definition()
 	t := def.Type
@@ -193,7 +193,7 @@ func (rm *RelationalModel) ParseOptions() error {
 
 // IterateFields returns an iterator function useful for iterating through
 // this model's field list
-func (rm *RelationalModel) IterateFields(it FieldIterator) error {
+func (rm *RelationalModelDefinition) IterateFields(it FieldIterator) error {
 
 	names := make(map[string]string)
 	pks := make(map[string]string)

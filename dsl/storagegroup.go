@@ -1,6 +1,8 @@
 package dsl
 
 import (
+	"fmt"
+
 	"github.com/bketelsen/gorma"
 	"github.com/raphael/goa/design"
 )
@@ -11,24 +13,30 @@ func StorageGroup(name string, dsl func()) *gorma.StorageGroupDefinition {
 	// We can't rely on this being run first, any of the top level DSL could run
 	// in any order. The top level DSLs are API, Version, Resource, MediaType and Type.
 	// The first one to be called executes InitDesign.
-	if design.Design == nil {
-		design.InitDesign()
+
+	checkInit()
+
+	sg := &StorageGroupDefinition{
+		Name:             name,
+		RelationalStores: make(map[string]*RelationalStoreDefinition),
+		DSL:              dsl,
 	}
 
-	// check to see if this type is registered
-	set, ok := design.Design.ConstructSet["gorma"]
-	if !ok {
-		// There is no registered gorma construct set
-	} else {
-		// There is a registered construct set
-	}
 	if !topLevelDefinition(true) {
 		return nil
 	}
 	if name == "" {
 		design.ReportError("Storage Group name cannot be empty")
 	}
-	design.Design.Name = name
-	design.Design.DSL = dsl
-	return design.Design
+
+	gorma.Design = sg
+	return gorma.Design
+}
+
+// Context returns the generic definition name used in error messages.
+func (a *StorageGroupDefinition) Context() string {
+	if a.Name != "" {
+		return fmt.Sprintf("StorageGroup %#v", a.Name)
+	}
+	return "unnamed Storage Group"
 }

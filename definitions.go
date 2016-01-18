@@ -8,16 +8,17 @@ type StorageGroupDefinition struct {
 	DSL              func()
 	Name             string
 	Description      string
-	RelationalStores []*RelationalStoreDefinition
+	RelationalStores map[string]*RelationalStoreDefinition
 }
 
 // RelationalStoreDefinition is the parent configuration structure for Gorm relational model definitions
 type RelationalStoreDefinition struct {
 	design.DSLDefinition
-	DSL         func()
-	Name        string
-	Description string
-	Models      map[string]*RelationalModelDefinition
+	DSL              func()
+	Name             string
+	Description      string
+	Parent           *StorageGroupDefinition
+	RelationalModels map[string]*RelationalModelDefinition
 }
 
 // RelationalModelDefinition implements the storage of a domain model into a
@@ -27,6 +28,7 @@ type RelationalModelDefinition struct {
 	DSL              func()
 	Name             string
 	Description      string
+	Parent           *RelationalStoreDefinition
 	BelongsTo        map[string]*RelationalModelDefinition
 	HasMany          map[string]*RelationalModelDefinition
 	HasOne           map[string]*RelationalModelDefinition
@@ -34,16 +36,14 @@ type RelationalModelDefinition struct {
 	Fields           map[string]*RelationalFieldDefinition
 	Adapters         map[string]func()
 	TableName        string
-	Name             string
 	Alias            string
-	Description      string
 	Cached           bool
 	CacheDuration    int
 	NoMedia          bool
 	Roler            bool
 	DynamicTableName bool
 	SQLTag           string
-	PrimaryKeys      []*RelationalField
+	PrimaryKeys      []*RelationalFieldDefinition
 	belongsto        []string
 	hasmany          []string
 	hasone           []string
@@ -89,6 +89,7 @@ type PayloadAdapterDefinition struct {
 type RelationalFieldDefinition struct {
 	design.DSLDefinition
 	DSL               func()
+	Parent            *RelationalModelDefinition
 	a                 *design.AttributeDefinition
 	Name              string
 	Datatype          string
@@ -119,6 +120,10 @@ type ManyToManyDefinition struct {
 	RelationshipName string
 	DatabaseField    string
 }
+
+// StoreIterator is a function that iterates over Relational Stores in a
+// StorageGroup
+type StoreIterator func(m *RelationalStoreDefinition) error
 
 // ModelIterator is a function that iterates over Models in a
 // RelationalStore
