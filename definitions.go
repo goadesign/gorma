@@ -95,6 +95,7 @@ type RelationalModel struct {
 	HasOne           map[string]*RelationalModel
 	ManyToMany       map[string]*ManyToMany
 	Fields           map[string]*RelationalField
+	Adapters         map[string]func()
 	TableName        string
 	Name             string
 	Alias            string

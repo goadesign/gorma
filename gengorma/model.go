@@ -27,6 +27,10 @@ const (
 	MetaTimestampDeleted = "github.com/bketelsen/gorma#deleted"
 )
 
+func ModelAdapter(from, to interface{}, dsl func(){
+
+})
+
 // Model is the function that makes models happen.  Witty comment here
 // This function returns the model definition so it can be referred to throughout the DSL.
 func Model(name string, dsla func()) *design.UserTypeDefinition {
