@@ -6,6 +6,7 @@ import (
 	"github.com/bketelsen/gorma"
 	"github.com/raphael/goa/design"
 	"github.com/raphael/goa/design/dsl"
+	"github.com/raphael/goa/goagen/codegen"
 )
 
 // RelationalModel is the DSL that represents a Relational Model
@@ -28,11 +29,43 @@ func RelationalModel(name string, modeledType *design.UserTypeDefinition, dsl fu
 				ModeledType:      modeledType,
 				RelationalFields: make(map[string]*gorma.RelationalFieldDefinition),
 			}
+		} else {
+			models.ModeledType = modeledType
+			models.DefinitionDSL = dsl
 		}
 		models.PopulateFromModeledType()
 		s.RelationalModels[name] = models
 	}
 
+}
+
+// BelongsTo signifies a relationship between this model and a
+// Parent.  The Parent has the child, and the Child belongs
+// to the Parent
+func BelongsTo(parent string) {
+	if r, ok := relationalModelDefinition(false); ok {
+		// Uh oh - we may have a parsing order problem
+
+		field := &gorma.RelationalFieldDefinition{
+			Name:   codegen.Goify(parent, true) + "ID",
+			Parent: r,
+		}
+		r.RelationalFields[field.Name] = field
+		bt, ok := r.Parent.RelationalModels[parent]
+		if ok {
+			// wow!
+			r.BelongsTo[parent] = bt
+		} else {
+
+			models := &gorma.RelationalModelDefinition{
+				Name:             parent,
+				Parent:           r.Parent,
+				RelationalFields: make(map[string]*gorma.RelationalFieldDefinition),
+			}
+
+			r.BelongsTo[parent] = models
+		}
+	}
 }
 
 // TableName creates a TableName() function that returns
