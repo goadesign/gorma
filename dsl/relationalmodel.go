@@ -50,8 +50,6 @@ func RelationalModel(name string, modeledType *design.UserTypeDefinition, dsl fu
 // to the Parent
 func BelongsTo(parent string) {
 	if r, ok := relationalModelDefinition(false); ok {
-		// Uh oh - we may have a parsing order problem
-
 		field := &gorma.RelationalFieldDefinition{
 			Name:   codegen.Goify(inflect.Singularize(parent), true) + "ID",
 			Parent: r,
@@ -59,16 +57,13 @@ func BelongsTo(parent string) {
 		r.RelationalFields[field.Name] = field
 		bt, ok := r.Parent.RelationalModels[parent]
 		if ok {
-			// wow!
 			r.BelongsTo[parent] = bt
 		} else {
-
 			models := &gorma.RelationalModelDefinition{
 				Name:             parent,
 				Parent:           r.Parent,
 				RelationalFields: make(map[string]*gorma.RelationalFieldDefinition),
 			}
-
 			r.BelongsTo[parent] = models
 		}
 		pretty.Println(r)
@@ -80,8 +75,6 @@ func BelongsTo(parent string) {
 // to the Parent
 func HasOne(child string) {
 	if r, ok := relationalModelDefinition(false); ok {
-		// Uh oh - we may have a parsing order problem
-
 		field := &gorma.RelationalFieldDefinition{
 			Name:   codegen.Goify(inflect.Singularize(child), true),
 			Parent: r,
@@ -92,13 +85,11 @@ func HasOne(child string) {
 			// wow!
 			r.HasOne[child] = bt
 		} else {
-
 			models := &gorma.RelationalModelDefinition{
 				Name:             child,
 				Parent:           r.Parent,
 				RelationalFields: make(map[string]*gorma.RelationalFieldDefinition),
 			}
-
 			r.HasOne[child] = models
 		}
 		pretty.Println(r)
@@ -110,8 +101,6 @@ func HasOne(child string) {
 // to the Parent
 func HasMany(name, child string) {
 	if r, ok := relationalModelDefinition(false); ok {
-		// Uh oh - we may have a parsing order problem
-
 		field := &gorma.RelationalFieldDefinition{
 			Name:   name,
 			Parent: r,
@@ -120,16 +109,13 @@ func HasMany(name, child string) {
 		var model *gorma.RelationalModelDefinition
 		model, ok := r.Parent.RelationalModels[child]
 		if ok {
-			// wow!
 			r.HasMany[child] = model
 		} else {
-
 			model = &gorma.RelationalModelDefinition{
 				Name:             child,
 				Parent:           r.Parent,
 				RelationalFields: make(map[string]*gorma.RelationalFieldDefinition),
 			}
-
 			r.HasMany[child] = model
 		}
 
