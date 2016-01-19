@@ -2,6 +2,8 @@ package gorma
 
 import "github.com/raphael/goa/design"
 
+type RelationalStorageType string
+
 // StorageGroupDefinition is the parent configuration structure for Gorma definitions
 type StorageGroupDefinition struct {
 	design.DSLDefinition
@@ -18,6 +20,7 @@ type RelationalStoreDefinition struct {
 	Name             string
 	Description      string
 	Parent           *StorageGroupDefinition
+	Type             RelationalStorageType
 	RelationalModels map[string]*RelationalModelDefinition
 }
 

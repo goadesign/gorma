@@ -21,4 +21,7 @@ func TestRelationalStore(t *testing.T) {
 	if msql == nil {
 		t.Errorf("expected %s relational store, got nil", "mysql")
 	}
+	if msql.Type != gorma.MySQL {
+		t.Errorf("expected type to be %s, got %s", gorma.MySQL, msql.Type)
+	}
 }

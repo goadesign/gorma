@@ -8,7 +8,9 @@ var GormaConstructs design.Construct
 const (
 	// StorageGroup is the constant string used as the index in the
 	// GormaConstructs map
-	StorageGroup = "storagegroup"
+	StorageGroup                       = "storagegroup"
+	MySQL        RelationalStorageType = "mysql"
+	Postgres     RelationalStorageType = "postgres"
 )
 
 // Init creates the necessary data structures for parsing a DSL
