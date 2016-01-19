@@ -29,7 +29,7 @@ func RelationalModel(name string, modeledType *design.UserTypeDefinition, dsl fu
 				RelationalFields: make(map[string]*gorma.RelationalFieldDefinition),
 			}
 		}
-
+		models.PopulateFromModeledType()
 		s.RelationalModels[name] = models
 	}
 
@@ -44,7 +44,7 @@ func TableName(d string) {
 	}
 }
 
-// Alias overrides the name of the sql store's table
+// Alias overrides the name of the sql store's table or field
 func Alias(d string) {
 	if r, ok := relationalModelDefinition(false); ok {
 		r.Alias = d
@@ -97,5 +97,7 @@ func DynamicTableName() {
 func SQLTag(d string) {
 	if r, ok := relationalModelDefinition(false); ok {
 		r.SQLTag = d
+	} else if f, ok := relationalFieldDefinition(false); ok {
+		f.SQLTag = d
 	}
 }

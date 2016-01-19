@@ -150,3 +150,25 @@ func (f *RelationalModelDefinition) IterateFields(it FieldIterator) error {
 	}
 	return nil
 }
+
+// PopulateFromModeledType creates fields for the model
+// based on the goa UserTypeDefinition it models
+// This happens before fields are processed, so it's
+// ok to just assign without testing
+func (f *RelationalModelDefinition) PopulateFromModeledType() {
+	if f.ModeledType == nil {
+		fmt.Println("is nil")
+		return
+	}
+	obj := f.ModeledType.ToObject()
+
+	obj.IterateAttributes(func(name string, att *design.AttributeDefinition) error {
+		rf := &RelationalFieldDefinition{}
+		rf.Parent = f
+		rf.Name = codegen.Goify(name, true)
+		f.RelationalFields[rf.Name] = rf
+		return nil
+	})
+	return
+
+}

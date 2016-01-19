@@ -3,6 +3,7 @@ package gorma
 import "github.com/raphael/goa/design"
 
 type RelationalStorageType string
+type FieldType string
 
 // StorageGroupDefinition is the parent configuration structure for Gorma definitions
 type StorageGroupDefinition struct {
@@ -30,7 +31,7 @@ type RelationalModelDefinition struct {
 	design.DSLDefinition
 	DefinitionDSL    func()
 	Name             string
-	Description      string
+	Description      string //
 	Parent           *RelationalStoreDefinition
 	ModeledType      *design.UserTypeDefinition
 	BelongsTo        map[string]*RelationalModelDefinition
@@ -39,7 +40,7 @@ type RelationalModelDefinition struct {
 	ManyToMany       map[string]*ManyToManyDefinition
 	Adapters         map[string]func()
 	TableName        string
-	Alias            string
+	Alias            string // gorm:tablename
 	Cached           bool
 	CacheDuration    int
 	NoMedia          bool
@@ -96,13 +97,14 @@ type RelationalFieldDefinition struct {
 	Parent            *RelationalModelDefinition
 	a                 *design.AttributeDefinition
 	Name              string
-	Datatype          string
-	SQLTag            string
+	Datatype          FieldType
+	SQLTag            string //
 	DatabaseFieldName string
 	Description       string
 	Nullable          bool
 	PrimaryKey        bool
 	Timestamp         bool
+	Size              int // string field size
 	Alias             string
 	BelongsTo         string
 	HasOne            string

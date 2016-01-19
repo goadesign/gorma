@@ -11,9 +11,9 @@ import (
 
 var _ = Describe("RelationalField", func() {
 	var sgname, storename, modelname, name string
+	var ft gorma.FieldType
 	var dsl func()
-
-	var UserPayload = Type("UserPayload", dsl)
+	var RandomPayload *UserTypeDefinition
 	BeforeEach(func() {
 		Design = nil
 		Errors = nil
@@ -22,15 +22,20 @@ var _ = Describe("RelationalField", func() {
 		storename = "mysql"
 		modelname = "Users"
 		name = ""
+		ft = gorma.String
 		gorma.GormaConstructs = nil
+		RandomPayload = Type("UserPayload", func() {
+			Attribute("first_name", String)
+			Attribute("last_name", String)
+		})
 
 	})
 
 	JustBeforeEach(func() {
 		gdsl.StorageGroup(sgname, func() {
 			gdsl.RelationalStore(storename, gorma.MySQL, func() {
-				gdsl.RelationalModel(modelname, UserPayload, func() {
-					gdsl.RelationalField(name, dsl)
+				gdsl.RelationalModel(modelname, RandomPayload, func() {
+					gdsl.RelationalField(name, ft, dsl)
 				})
 			})
 		})
@@ -61,8 +66,8 @@ var _ = Describe("RelationalField", func() {
 		It("produces an error", func() {
 			gdsl.StorageGroup(sgname, func() {
 				gdsl.RelationalStore(storename, gorma.MySQL, func() {
-					gdsl.RelationalModel(modelname, UserPayload, func() {
-						gdsl.RelationalField(name, dsl)
+					gdsl.RelationalModel(modelname, RandomPayload, func() {
+						gdsl.RelationalField(name, ft, dsl)
 					})
 				})
 			})
@@ -86,7 +91,7 @@ var _ = Describe("RelationalField", func() {
 				}
 			})
 
-			It("sets the relational store description", func() {
+			It("sets the relational field description", func() {
 				sg := gorma.GormaConstructs[gorma.StorageGroup].(*gorma.StorageGroupDefinition)
 				rs := sg.RelationalStores[storename]
 				rm := rs.RelationalModels[modelname]

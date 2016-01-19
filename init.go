@@ -11,9 +11,24 @@ const (
 	Gorma = "gorma"
 	// StorageGroup is the constant string used as the index in the
 	// GormaConstructs map
-	StorageGroup                       = "storagegroup"
-	MySQL        RelationalStorageType = "mysql"
-	Postgres     RelationalStorageType = "postgres"
+	StorageGroup                            = "storagegroup"
+	MySQL             RelationalStorageType = "mysql"
+	Postgres          RelationalStorageType = "postgres"
+	Boolean           FieldType             = "bool"
+	Integer           FieldType             = "integer"
+	BigInteger        FieldType             = "biginteger"
+	AutoInteger       FieldType             = "auto_integer"
+	AutoBigInteger    FieldType             = "auto_biginteger"
+	Decimal           FieldType             = "decimal"
+	BigDecimal        FieldType             = "bigdecimal"
+	String            FieldType             = "string"
+	Text              FieldType             = "text"
+	UUID              FieldType             = "uuid"
+	PKInteger         FieldType             = "pkinteger"
+	PKBigInteger      FieldType             = "pkbiginteger"
+	PKUUID            FieldType             = "pkuuid"
+	Timestamp         FieldType             = "timestamp"
+	NullableTimestamp FieldType             = "nulltimestamp"
 )
 
 // Init creates the necessary data structures for parsing a DSL

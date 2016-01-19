@@ -12,8 +12,7 @@ import (
 var _ = Describe("RelationalModel", func() {
 	var sgname, storename, name string
 	var dsl func()
-
-	var UserPayload = Type("UserPayload", dsl)
+	var RandomPayload *UserTypeDefinition
 	BeforeEach(func() {
 		Design = nil
 		Errors = nil
@@ -23,12 +22,17 @@ var _ = Describe("RelationalModel", func() {
 		name = ""
 		gorma.GormaConstructs = nil
 
+		RandomPayload = Type("RandomPayload", func() {
+			Attribute("first_name", String)
+			Attribute("last_name", String)
+		})
+
 	})
 
 	JustBeforeEach(func() {
 		gdsl.StorageGroup(sgname, func() {
 			gdsl.RelationalStore(storename, gorma.MySQL, func() {
-				gdsl.RelationalModel(name, UserPayload, dsl)
+				gdsl.RelationalModel(name, RandomPayload, dsl)
 			})
 		})
 
@@ -57,7 +61,7 @@ var _ = Describe("RelationalModel", func() {
 		It("produces an error", func() {
 			gdsl.StorageGroup(sgname, func() {
 				gdsl.RelationalStore(storename, gorma.MySQL, func() {
-					gdsl.RelationalModel(name, UserPayload, dsl)
+					gdsl.RelationalModel(name, RandomPayload, dsl)
 				})
 			})
 			Ω(Errors).Should(HaveOccurred())
@@ -72,7 +76,7 @@ var _ = Describe("RelationalModel", func() {
 		It("returns an error", func() {
 			gdsl.StorageGroup(sgname, func() {
 				gdsl.RelationalStore(storename, gorma.MySQL, func() {
-					gdsl.RelationalModel(name, UserPayload, dsl)
+					gdsl.RelationalModel(name, RandomPayload, dsl)
 				})
 			})
 			Ω(Errors).Should(HaveOccurred())
