@@ -1,6 +1,10 @@
 package dsl
 
-import "github.com/bketelsen/gorma"
+import (
+	"fmt"
+
+	"github.com/bketelsen/gorma"
+)
 
 // RelationalModel is the DSL that represents a Relational Model
 // Examples and more docs here later
@@ -10,6 +14,7 @@ func RelationalModel(name string, dsl func()) {
 	// The first one to be called executes InitDesign.
 	checkInit()
 	if s, ok := relationalStoreDefinition(true); ok {
+		fmt.Println("Got a relational store")
 		if s.RelationalModels == nil {
 			s.RelationalModels = make(map[string]*gorma.RelationalModelDefinition)
 		}
@@ -18,6 +23,7 @@ func RelationalModel(name string, dsl func()) {
 			models = &gorma.RelationalModelDefinition{
 				Name:          name,
 				DefinitionDSL: dsl,
+				Parent:        s,
 			}
 		}
 
