@@ -6,7 +6,6 @@ import (
 	"bitbucket.org/pkg/inflect"
 
 	"github.com/bketelsen/gorma"
-	"github.com/kr/pretty"
 	"github.com/raphael/goa/design"
 	"github.com/raphael/goa/design/dsl"
 	"github.com/raphael/goa/goagen/codegen"
@@ -66,7 +65,7 @@ func BelongsTo(parent string) {
 			}
 			r.BelongsTo[parent] = models
 		}
-		pretty.Println(r)
+
 	}
 }
 
@@ -92,7 +91,6 @@ func HasOne(child string) {
 			}
 			r.HasOne[child] = models
 		}
-		pretty.Println(r)
 	}
 }
 
