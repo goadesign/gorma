@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/raphael/goa/design"
+	"github.com/raphael/goa/design/dsl"
 	"github.com/raphael/goa/goagen/codegen"
 )
 
@@ -166,6 +167,18 @@ func (f *RelationalModelDefinition) PopulateFromModeledType() {
 		rf := &RelationalFieldDefinition{}
 		rf.Parent = f
 		rf.Name = codegen.Goify(name, true)
+		switch att.Type.Kind() {
+		case design.BooleanKind:
+			rf.Datatype = Boolean
+		case design.IntegerKind:
+			rf.Datatype = Integer
+		case design.NumberKind:
+			rf.Datatype = Decimal
+		case design.StringKind:
+			rf.Datatype = String
+		default:
+			dsl.ReportError("Unsupported type: %#v ", att.Type.Kind())
+		}
 		f.RelationalFields[rf.Name] = rf
 		return nil
 	})
