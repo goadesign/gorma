@@ -5,6 +5,8 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/raphael/goa/design"
+
 	"bitbucket.org/pkg/inflect"
 )
 
@@ -19,6 +21,15 @@ func (a *RelationalStoreDefinition) Context() string {
 // DSL returns this object's DSL
 func (sd *RelationalStoreDefinition) DSL() func() {
 	return sd.DefinitionDSL
+}
+
+// Children returnsa slice of this objects children
+func (sd RelationalStoreDefinition) Children() []design.ExternalDSLDefinition {
+	var stores []design.ExternalDSLDefinition
+	for _, s := range sd.RelationalModels {
+		stores = append(stores, s)
+	}
+	return stores
 }
 
 // ResolveRelationships should be run after parsing the full

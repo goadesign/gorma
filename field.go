@@ -1,6 +1,10 @@
 package gorma
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/raphael/goa/design"
+)
 
 // Context returns the generic definition name used in error messages.
 func (f *RelationalFieldDefinition) Context() string {
@@ -13,6 +17,12 @@ func (f *RelationalFieldDefinition) Context() string {
 // DSL returns this object's DSL
 func (f *RelationalFieldDefinition) DSL() func() {
 	return f.DefinitionDSL
+}
+
+// Children returnsa slice of this objects children
+func (sd RelationalFieldDefinition) Children() []design.ExternalDSLDefinition {
+	// no children yet
+	return []design.ExternalDSLDefinition{}
 }
 
 // Definition returns the field's struct definition

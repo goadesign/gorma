@@ -5,6 +5,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/raphael/goa/design"
 	"github.com/raphael/goa/goagen/codegen"
 )
 
@@ -19,6 +20,15 @@ func (f *RelationalModelDefinition) Context() string {
 // DSL returns this object's DSL
 func (sd *RelationalModelDefinition) DSL() func() {
 	return sd.DefinitionDSL
+}
+
+// Children returnsa slice of this objects children
+func (sd RelationalModelDefinition) Children() []design.ExternalDSLDefinition {
+	var stores []design.ExternalDSLDefinition
+	for _, s := range sd.RelationalFields {
+		stores = append(stores, s)
+	}
+	return stores
 }
 
 // PKAttributes constructs a pair of field + definition strings
