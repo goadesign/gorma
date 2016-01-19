@@ -14,6 +14,8 @@ var _ = Describe("RelationalModel", func() {
 	var dsl func()
 	var RandomPayload *UserTypeDefinition
 	var ChildPayload *UserTypeDefinition
+	var HasOnePayload *UserTypeDefinition
+	var HasManyPayload *UserTypeDefinition
 
 	BeforeEach(func() {
 		Design = nil
@@ -33,6 +35,15 @@ var _ = Describe("RelationalModel", func() {
 			Attribute("first_name", String)
 			Attribute("last_name", String)
 		})
+		HasOnePayload = Type("HasOnePayload", func() {
+			Attribute("first_name", String)
+			Attribute("last_name", String)
+		})
+
+		HasManyPayload = Type("HasManyPayload", func() {
+			Attribute("first_name", String)
+			Attribute("last_name", String)
+		})
 
 	})
 
@@ -42,6 +53,12 @@ var _ = Describe("RelationalModel", func() {
 				gdsl.RelationalModel(name, RandomPayload, dsl)
 				gdsl.RelationalModel("Child", ChildPayload, func() {
 					gdsl.BelongsTo(name)
+				})
+				gdsl.RelationalModel("HasOne", HasOnePayload, func() {
+					gdsl.HasOne("Child")
+				})
+				gdsl.RelationalModel("HasMany", HasOnePayload, func() {
+					gdsl.HasMany("Children", "Child")
 				})
 
 			})

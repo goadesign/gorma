@@ -75,6 +75,67 @@ func BelongsTo(parent string) {
 	}
 }
 
+// HasOne signifies a relationship between this model and a
+// Child.  The Parent has the child, and the Child belongs
+// to the Parent
+func HasOne(child string) {
+	if r, ok := relationalModelDefinition(false); ok {
+		// Uh oh - we may have a parsing order problem
+
+		field := &gorma.RelationalFieldDefinition{
+			Name:   codegen.Goify(inflect.Singularize(child), true),
+			Parent: r,
+		}
+		r.RelationalFields[field.Name] = field
+		bt, ok := r.Parent.RelationalModels[child]
+		if ok {
+			// wow!
+			r.HasOne[child] = bt
+		} else {
+
+			models := &gorma.RelationalModelDefinition{
+				Name:             child,
+				Parent:           r.Parent,
+				RelationalFields: make(map[string]*gorma.RelationalFieldDefinition),
+			}
+
+			r.HasOne[child] = models
+		}
+		pretty.Println(r)
+	}
+}
+
+// HasMany signifies a relationship between this model and a
+// set of Children.  The Parent has the children, and the Children belong
+// to the Parent
+func HasMany(name, child string) {
+	if r, ok := relationalModelDefinition(false); ok {
+		// Uh oh - we may have a parsing order problem
+
+		field := &gorma.RelationalFieldDefinition{
+			Name:   name,
+			Parent: r,
+		}
+		r.RelationalFields[field.Name] = field
+		var model *gorma.RelationalModelDefinition
+		model, ok := r.Parent.RelationalModels[child]
+		if ok {
+			// wow!
+			r.HasMany[child] = model
+		} else {
+
+			model = &gorma.RelationalModelDefinition{
+				Name:             child,
+				Parent:           r.Parent,
+				RelationalFields: make(map[string]*gorma.RelationalFieldDefinition),
+			}
+
+			r.HasMany[child] = model
+		}
+
+	}
+}
+
 // TableName creates a TableName() function that returns
 // the name of the table to query. Useful for pre-existing
 // schemas
