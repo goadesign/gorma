@@ -2,7 +2,10 @@ package gorma
 
 import "github.com/raphael/goa/design"
 
+// RelationalStorageType is the type of database
 type RelationalStorageType string
+
+// FieldType is the storage type for a database field
 type FieldType string
 
 // StorageGroupDefinition is the parent configuration structure for Gorma definitions
@@ -49,9 +52,6 @@ type RelationalModelDefinition struct {
 	SQLTag           string
 	RelationalFields map[string]*RelationalFieldDefinition
 	PrimaryKeys      []*RelationalFieldDefinition
-	belongsto        []string
-	hasmany          []string
-	hasone           []string
 	many2many        []string
 }
 
