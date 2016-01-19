@@ -16,6 +16,11 @@ func (f *RelationalModelDefinition) Context() string {
 	return "unnamed RelationalModel"
 }
 
+// DSL returns this object's DSL
+func (sd *RelationalModelDefinition) DSL() func() {
+	return sd.DefinitionDSL
+}
+
 // PKAttributes constructs a pair of field + definition strings
 // useful for method parameters
 func (f *RelationalModelDefinition) PKAttributes() string {

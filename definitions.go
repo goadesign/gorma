@@ -5,7 +5,7 @@ import "github.com/raphael/goa/design"
 // StorageGroupDefinition is the parent configuration structure for Gorma definitions
 type StorageGroupDefinition struct {
 	design.DSLDefinition
-	DSL              func()
+	DefinitionDSL    func()
 	Name             string
 	Description      string
 	RelationalStores map[string]*RelationalStoreDefinition
@@ -14,7 +14,7 @@ type StorageGroupDefinition struct {
 // RelationalStoreDefinition is the parent configuration structure for Gorm relational model definitions
 type RelationalStoreDefinition struct {
 	design.DSLDefinition
-	DSL              func()
+	DefinitionDSL    func()
 	Name             string
 	Description      string
 	Parent           *StorageGroupDefinition
@@ -25,7 +25,7 @@ type RelationalStoreDefinition struct {
 // table in a relational database
 type RelationalModelDefinition struct {
 	design.DSLDefinition
-	DSL              func()
+	DefinitionDSL    func()
 	Name             string
 	Description      string
 	Parent           *RelationalStoreDefinition
@@ -55,22 +55,22 @@ type RelationalModelDefinition struct {
 // Goa media type into a Gorma Model
 type MediaTypeAdapterDefinition struct {
 	design.DSLDefinition
-	DSL         func()
-	Name        string
-	Description string
-	Left        *design.MediaTypeDefinition
-	Right       *RelationalModelDefinition
+	DefinitionDSL func()
+	Name          string
+	Description   string
+	Left          *design.MediaTypeDefinition
+	Right         *RelationalModelDefinition
 }
 
 // UserTypeAdapterDefinition represents the transformation of a Goa
 // user type into a Gorma Model
 type UserTypeAdapterDefinition struct {
 	design.DSLDefinition
-	DSL         func()
-	Name        string
-	Description string
-	Left        *RelationalModelDefinition
-	Right       *RelationalModelDefinition
+	DefinitionDSL func()
+	Name          string
+	Description   string
+	Left          *RelationalModelDefinition
+	Right         *RelationalModelDefinition
 }
 
 // PayloadAdapterDefinition represents the transformation of a Goa
@@ -78,18 +78,18 @@ type UserTypeAdapterDefinition struct {
 // into a Gorma model
 type PayloadAdapterDefinition struct {
 	design.DSLDefinition
-	DSL         func()
-	Name        string
-	Description string
-	Left        *design.UserTypeDefinition
-	Right       *RelationalModelDefinition
+	DefinitionDSL func()
+	Name          string
+	Description   string
+	Left          *design.UserTypeDefinition
+	Right         *RelationalModelDefinition
 }
 
 // RelationalFieldDefinition implements the Field interface and represents
 // a field in a relational database
 type RelationalFieldDefinition struct {
 	design.DSLDefinition
-	DSL               func()
+	DefinitionDSL     func()
 	Parent            *RelationalModelDefinition
 	a                 *design.AttributeDefinition
 	Name              string
@@ -111,7 +111,7 @@ type RelationalFieldDefinition struct {
 // relationship between two domain objects
 type ManyToManyDefinition struct {
 	design.DSLDefinition
-	DSL              func()
+	DefinitionDSL    func()
 	Left             *RelationalModelDefinition
 	Right            *RelationalModelDefinition
 	LeftNamePlural   string

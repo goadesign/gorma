@@ -16,8 +16,8 @@ func RelationalModel(name string, dsl func()) {
 		models, ok := s.RelationalModels[name]
 		if !ok {
 			models = &gorma.RelationalModelDefinition{
-				Name: name,
-				DSL:  dsl,
+				Name:          name,
+				DefinitionDSL: dsl,
 			}
 		}
 

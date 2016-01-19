@@ -16,8 +16,8 @@ func RelationalField(name string, dsl func()) {
 		fields, ok := s.RelationalFields[name]
 		if !ok {
 			fields = &gorma.RelationalFieldDefinition{
-				Name: name,
-				DSL:  dsl,
+				Name:          name,
+				DefinitionDSL: dsl,
 			}
 		}
 

@@ -16,7 +16,7 @@ func checkInit() {
 	}
 	// check to see if this type is registered
 	//set, ok := design.Design.ConstructSet["gorma"] // later!
-	if gorma.Design == nil {
+	if gorma.GormaConstructs == nil {
 		//if !ok {
 		// There is no registered gorma construct set
 		gorma.Init()

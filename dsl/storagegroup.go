@@ -17,7 +17,7 @@ func StorageGroup(name string, dsli func()) *gorma.StorageGroupDefinition {
 	sg := &gorma.StorageGroupDefinition{
 		Name:             name,
 		RelationalStores: make(map[string]*gorma.RelationalStoreDefinition),
-		DSL:              dsli,
+		DefinitionDSL:    dsli,
 	}
 
 	if !topLevelDefinition(true) {
@@ -27,6 +27,6 @@ func StorageGroup(name string, dsli func()) *gorma.StorageGroupDefinition {
 		dsl.ReportError("Storage Group name cannot be empty")
 	}
 
-	gorma.Design = sg
-	return gorma.Design
+	gorma.GormaConstructs[gorma.StorageGroup] = sg
+	return sg
 }

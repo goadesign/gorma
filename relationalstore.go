@@ -16,6 +16,11 @@ func (a *RelationalStoreDefinition) Context() string {
 	return "unnamed RelationalStore"
 }
 
+// DSL returns this object's DSL
+func (sd *RelationalStoreDefinition) DSL() func() {
+	return sd.DefinitionDSL
+}
+
 // ResolveRelationships should be run after parsing the full
 // Goa DSL, it correctly identifies foreign keys and other relationships that
 // are stubbed out during initial parsing.

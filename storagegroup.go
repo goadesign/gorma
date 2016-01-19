@@ -23,9 +23,14 @@ func (sd *StorageGroupDefinition) IterateStores(it StoreIterator) error {
 }
 
 // Context returns the generic definition name used in error messages.
-func (a *StorageGroupDefinition) Context() string {
-	if a.Name != "" {
-		return fmt.Sprintf("StorageGroup %#v", a.Name)
+func (sd StorageGroupDefinition) Context() string {
+	if sd.Name != "" {
+		return fmt.Sprintf("StorageGroup %#v", sd.Name)
 	}
 	return "unnamed Storage Group"
+}
+
+// DSL returns this object's DSL
+func (sd StorageGroupDefinition) DSL() func() {
+	return sd.DefinitionDSL
 }

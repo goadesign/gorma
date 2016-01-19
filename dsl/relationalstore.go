@@ -16,8 +16,8 @@ func RelationalStore(name string, dsl func()) {
 		store, ok := s.RelationalStores[name]
 		if !ok {
 			store = &gorma.RelationalStoreDefinition{
-				Name: name,
-				DSL:  dsl,
+				Name:          name,
+				DefinitionDSL: dsl,
 			}
 		}
 

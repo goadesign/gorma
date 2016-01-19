@@ -10,6 +10,11 @@ func (f *RelationalFieldDefinition) Context() string {
 	return "unnamed RelationalField"
 }
 
+// DSL returns this object's DSL
+func (f *RelationalFieldDefinition) DSL() func() {
+	return f.DefinitionDSL
+}
+
 // Definition returns the field's struct definition
 func (f *RelationalFieldDefinition) Definition() string {
 
