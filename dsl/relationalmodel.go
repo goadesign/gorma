@@ -16,9 +16,10 @@ func RelationalModel(name string, dsl func()) {
 		models, ok := s.RelationalModels[name]
 		if !ok {
 			models = &gorma.RelationalModelDefinition{
-				Name:          name,
-				DefinitionDSL: dsl,
-				Parent:        s,
+				Name:             name,
+				DefinitionDSL:    dsl,
+				Parent:           s,
+				RelationalFields: make(map[string]*gorma.RelationalFieldDefinition),
 			}
 		}
 

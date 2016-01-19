@@ -40,7 +40,7 @@ func Description(d string) {
 		v.Description = d
 	} else if r, ok := relationalModelDefinition(false); ok {
 		r.Description = d
-	} else if a, ok := relationalFieldDefinition(false); ok {
-		a.Description = d
+	} else if f, ok := relationalFieldDefinition(false); ok {
+		f.Description = d
 	}
 }

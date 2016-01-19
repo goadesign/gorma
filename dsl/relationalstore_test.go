@@ -1,6 +1,7 @@
 package dsl_test
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/bketelsen/gorma"
@@ -26,5 +27,8 @@ func TestRelationalStore(t *testing.T) {
 	}
 	if msql.Parent == nil || msql.Parent != sd {
 		t.Errorf("expected parent to be set")
+	}
+	if !strings.Contains(msql.Description, "relational") {
+		t.Errorf("expected description, got ", msql.Description)
 	}
 }

@@ -13,15 +13,16 @@ func RelationalField(name string, dsl func()) {
 		if s.RelationalFields == nil {
 			s.RelationalFields = make(map[string]*gorma.RelationalFieldDefinition)
 		}
-		fields, ok := s.RelationalFields[name]
+		field, ok := s.RelationalFields[name]
 		if !ok {
-			fields = &gorma.RelationalFieldDefinition{
+			field = &gorma.RelationalFieldDefinition{
 				Name:          name,
 				DefinitionDSL: dsl,
+				Parent:        s,
 			}
 		}
 
-		s.RelationalFields[name] = fields
+		s.RelationalFields[name] = field
 	}
 
 }

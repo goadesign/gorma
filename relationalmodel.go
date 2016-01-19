@@ -99,19 +99,19 @@ func (f *RelationalModelDefinition) IterateFields(it FieldIterator) error {
 	dates := make(map[string]string)
 
 	// Break out each type of fields
-	for n := range f.Fields {
-		if f.Fields[n].PrimaryKey {
+	for n := range f.RelationalFields {
+		if f.RelationalFields[n].PrimaryKey {
 			//	names[i] = n
 			pks[n] = n
 		}
 	}
-	for n := range f.Fields {
-		if !f.Fields[n].PrimaryKey && !f.Fields[n].Timestamp {
+	for n := range f.RelationalFields {
+		if !f.RelationalFields[n].PrimaryKey && !f.RelationalFields[n].Timestamp {
 			names[n] = n
 		}
 	}
-	for n := range f.Fields {
-		if f.Fields[n].Timestamp {
+	for n := range f.RelationalFields {
+		if f.RelationalFields[n].Timestamp {
 			//	names[i] = n
 			dates[n] = n
 		}
@@ -144,7 +144,7 @@ func (f *RelationalModelDefinition) IterateFields(it FieldIterator) error {
 
 	// Iterate them
 	for _, n := range fields {
-		if err := it(f.Fields[n]); err != nil {
+		if err := it(f.RelationalFields[n]); err != nil {
 			return err
 		}
 	}

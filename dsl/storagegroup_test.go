@@ -38,7 +38,7 @@ func TestBadStorageGroup(t *testing.T) {
 		t.Errorf("Expected errors with bad Storage Group Definition, got none")
 	} else {
 		if len(err.Errors) != 1 {
-			t.Errorf("Expected 1 error, got %d", len(err.Errors))
+			t.Errorf("Expected 1 error, got %d: %s", len(err.Errors), err)
 		}
 	}
 

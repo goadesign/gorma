@@ -16,10 +16,11 @@ func RelationalStore(name string, storeType gorma.RelationalStorageType, dsl fun
 		store, ok := s.RelationalStores[name]
 		if !ok {
 			store = &gorma.RelationalStoreDefinition{
-				Name:          name,
-				DefinitionDSL: dsl,
-				Parent:        s,
-				Type:          storeType,
+				Name:             name,
+				DefinitionDSL:    dsl,
+				Parent:           s,
+				Type:             storeType,
+				RelationalModels: make(map[string]*gorma.RelationalModelDefinition),
 			}
 		}
 		s.RelationalStores[name] = store

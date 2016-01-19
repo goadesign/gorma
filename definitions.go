@@ -36,7 +36,6 @@ type RelationalModelDefinition struct {
 	HasMany          map[string]*RelationalModelDefinition
 	HasOne           map[string]*RelationalModelDefinition
 	ManyToMany       map[string]*ManyToManyDefinition
-	Fields           map[string]*RelationalFieldDefinition
 	Adapters         map[string]func()
 	TableName        string
 	Alias            string
