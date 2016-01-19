@@ -30,14 +30,17 @@ func RelationalField(name string, fieldType gorma.FieldType, dsl func()) {
 
 		if fieldType == gorma.PKUUID || fieldType == gorma.PKInteger || fieldType == gorma.PKBigInteger {
 			field.PrimaryKey = true
+			field.Description = "primary key"
 		}
 
 		if fieldType == gorma.Timestamp {
 			field.Timestamp = true
+			field.Description = "timestamp"
 		}
 		if fieldType == gorma.NullableTimestamp {
 			field.Timestamp = true
 			field.Nullable = true
+			field.Description = "nullable timestamp (soft delete)"
 		}
 
 		s.RelationalFields[name] = field
