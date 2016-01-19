@@ -1,4 +1,4 @@
-package modelgen
+package gorma
 
 import (
 	"regexp"

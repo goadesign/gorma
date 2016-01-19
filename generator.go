@@ -1,4 +1,4 @@
-package modelgen
+package gorma
 
 import (
 	"fmt"
@@ -37,7 +37,7 @@ func NewGenerator() (*Generator, error) {
 		return nil, fmt.Errorf(`invalid command line: %s. Command line was "%s"`,
 			err, strings.Join(os.Args, " "))
 	}
-	outdir := AppOutputDir()
+	outdir := ModelOutputDir()
 	os.RemoveAll(outdir)
 	if err = os.MkdirAll(outdir, 0777); err != nil {
 		return nil, err
@@ -47,14 +47,14 @@ func NewGenerator() (*Generator, error) {
 	}, nil
 }
 
-// AppOutputDir returns the directory containing the generated files.
-func AppOutputDir() string {
+// ModelOutputDir returns the directory containing the generated files.
+func ModelOutputDir() string {
 	return filepath.Join(codegen.OutputDir, TargetPackage)
 }
 
-// AppPackagePath returns the Go package path to the generated package.
-func AppPackagePath() (string, error) {
-	outputDir := AppOutputDir()
+// ModelPackagePath returns the Go package path to the generated package.
+func ModelPackagePath() (string, error) {
+	outputDir := ModelOutputDir()
 	gopaths := filepath.SplitList(os.Getenv("GOPATH"))
 	for _, gopath := range gopaths {
 		if strings.HasPrefix(outputDir, gopath) {
@@ -82,7 +82,7 @@ func (g *Generator) Generate(api *design.APIDefinition) (_ []string, err error) 
 		}
 	}()
 
-	outdir := AppOutputDir()
+	outdir := ModelOutputDir()
 	err = api.IterateVersions(func(v *design.APIVersionDefinition) error {
 		verdir := outdir
 		if v.Version != "" {
@@ -120,7 +120,7 @@ func (g *Generator) Cleanup() {
 	if len(g.genfiles) == 0 {
 		return
 	}
-	os.RemoveAll(AppOutputDir())
+	os.RemoveAll(ModelOutputDir())
 	g.genfiles = nil
 }
 
@@ -163,7 +163,7 @@ func (g *Generator) generateContexts(verdir string, api *design.APIDefinition, v
 		codegen.SimpleImport("github.com/raphael/goa"),
 	}
 	if !version.IsDefault() {
-		appPkg, err := AppPackagePath()
+		appPkg, err := ModelPackagePath()
 		if err != nil {
 			return err
 		}
@@ -213,7 +213,7 @@ func (g *Generator) generateControllers(verdir string, version *design.APIVersio
 		codegen.SimpleImport("github.com/raphael/goa"),
 	}
 	if !version.IsDefault() {
-		appPkg, err := AppPackagePath()
+		appPkg, err := ModelPackagePath()
 		if err != nil {
 			return err
 		}
