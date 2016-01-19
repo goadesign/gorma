@@ -67,7 +67,7 @@ func setup() *gorma.StorageGroupDefinition {
 		gdsl.Description("This is the global storage group")
 		gdsl.RelationalStore("mysql", gorma.MySQL, func() {
 			gdsl.Description("This is the mysql relational store")
-			gdsl.RelationalModel("Users", func() {
+			gdsl.RelationalModel("Users", UserType, func() {
 				gdsl.Description("This is the Users model")
 				gdsl.RelationalField("FirstName", func() {
 					gdsl.Description("This is the FirstName field")
@@ -80,9 +80,10 @@ func setup() *gorma.StorageGroupDefinition {
 }
 
 func badSetup() *gorma.StorageGroupDefinition {
+
 	sg := gdsl.StorageGroup("", func() {
 		gdsl.RelationalStore("mysql", gorma.MySQL, func() {
-			gdsl.RelationalModel("Users", func() {
+			gdsl.RelationalModel("Users", UserType, func() {
 				gdsl.RelationalField("FirstName", func() {
 
 				})
@@ -91,3 +92,8 @@ func badSetup() *gorma.StorageGroupDefinition {
 	})
 	return sg
 }
+
+var UserType = dsl.Type("User", func() {
+	dsl.Attribute("first_name", func() {
+	})
+})

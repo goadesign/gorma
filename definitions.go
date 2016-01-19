@@ -32,6 +32,7 @@ type RelationalModelDefinition struct {
 	Name             string
 	Description      string
 	Parent           *RelationalStoreDefinition
+	Represents       *design.UserTypeDefinition
 	BelongsTo        map[string]*RelationalModelDefinition
 	HasMany          map[string]*RelationalModelDefinition
 	HasOne           map[string]*RelationalModelDefinition

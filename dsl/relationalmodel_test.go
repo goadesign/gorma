@@ -26,6 +26,9 @@ func TestRelationalModel(t *testing.T) {
 	if user.Parent == nil || user.Parent != msql {
 		t.Errorf("expected parent to be set")
 	}
+	if user.Represents == nil {
+		t.Errorf("expected representative type to be set")
+	}
 	if !strings.Contains(user.Description, "Users") {
 		t.Errorf("expected description, got ", user.Description)
 	}

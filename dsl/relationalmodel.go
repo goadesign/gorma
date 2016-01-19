@@ -1,10 +1,13 @@
 package dsl
 
-import "github.com/bketelsen/gorma"
+import (
+	"github.com/bketelsen/gorma"
+	"github.com/raphael/goa/design"
+)
 
 // RelationalModel is the DSL that represents a Relational Model
 // Examples and more docs here later
-func RelationalModel(name string, dsl func()) {
+func RelationalModel(name string, represents *design.UserTypeDefinition, dsl func()) {
 	// We can't rely on this being run first, any of the top level DSL could run
 	// in any order. The top level DSLs are API, Version, Resource, MediaType and Type.
 	// The first one to be called executes InitDesign.
@@ -19,6 +22,7 @@ func RelationalModel(name string, dsl func()) {
 				Name:             name,
 				DefinitionDSL:    dsl,
 				Parent:           s,
+				Represents:       represents,
 				RelationalFields: make(map[string]*gorma.RelationalFieldDefinition),
 			}
 		}
