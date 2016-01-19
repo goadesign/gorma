@@ -21,6 +21,23 @@ func TestStorageGroup(t *testing.T) {
 	}
 
 }
+func TestBadStorageGroup(t *testing.T) {
+
+	sg := badSetup()
+	design := design.Design
+	sd, ok := design.Constructs["gorma"][gorma.StorageGroup].(*gorma.StorageGroupDefinition)
+	if !ok {
+		t.Errorf("expected %#v to be %#v ", sd, sg)
+	}
+	if err := sg.Validate(); err == nil {
+		t.Errorf("Expected errors with bad Storage Group Definition, got none")
+	} else {
+		if len(err.Errors) != 1 {
+			t.Errorf("Expected 1 error, got %d", len(err.Errors))
+		}
+	}
+
+}
 
 func TestStorageGroupChildren(t *testing.T) {
 
@@ -39,6 +56,19 @@ func TestStorageGroupChildren(t *testing.T) {
 
 func setup() *gorma.StorageGroupDefinition {
 	sg := gdsl.StorageGroup("MyStorageGroup", func() {
+		gdsl.RelationalStore("mysql", func() {
+			gdsl.RelationalModel("Users", func() {
+				gdsl.RelationalField("FirstName", func() {
+
+				})
+			})
+		})
+	})
+	return sg
+}
+
+func badSetup() *gorma.StorageGroupDefinition {
+	sg := gdsl.StorageGroup("", func() {
 		gdsl.RelationalStore("mysql", func() {
 			gdsl.RelationalModel("Users", func() {
 				gdsl.RelationalField("FirstName", func() {
