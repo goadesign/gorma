@@ -1,6 +1,7 @@
 package dsl_test
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/bketelsen/gorma"
@@ -51,6 +52,9 @@ func TestStorageGroupChildren(t *testing.T) {
 	sd, ok := des.Constructs["gorma"][gorma.StorageGroup].(*gorma.StorageGroupDefinition)
 	if !ok {
 		t.Errorf("expected %#v to be %#v ", sd, sg)
+	}
+	if !strings.Contains(sd.Description, "global") {
+		t.Errorf("expected description, got %s", sd.Description)
 	}
 	if len(sd.RelationalStores) != 1 {
 		t.Errorf("expected %d relational store, got %d", 1, len(sd.RelationalStores))
