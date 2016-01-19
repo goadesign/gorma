@@ -4,19 +4,13 @@ import (
 	"testing"
 
 	"github.com/bketelsen/gorma"
-	gdsl "github.com/bketelsen/gorma/dsl"
 	"github.com/raphael/goa/design"
 	"github.com/raphael/goa/design/dsl"
 )
 
 func TestRelationalModel(t *testing.T) {
 
-	var sg = gdsl.StorageGroup("MyStorageGroup", func() {
-		gdsl.RelationalStore("mysql", func() {
-			gdsl.RelationalModel("Users", func() {
-			})
-		})
-	})
+	sg := setup()
 	des := design.Design
 	dsl.RunDSL()
 	sd, ok := des.Constructs["gorma"][gorma.StorageGroup].(*gorma.StorageGroupDefinition)

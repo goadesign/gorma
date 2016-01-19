@@ -9,9 +9,11 @@ import (
 	"github.com/raphael/goa/design/dsl"
 )
 
+var SG *gorma.StorageGroupDefinition
+
 func TestStorageGroup(t *testing.T) {
 
-	var sg = gdsl.StorageGroup("MyStorageGroup", func() {})
+	sg := setup()
 	design := design.Design
 	sd, ok := design.Constructs["gorma"][gorma.StorageGroup].(*gorma.StorageGroupDefinition)
 	if !ok {
@@ -22,10 +24,7 @@ func TestStorageGroup(t *testing.T) {
 
 func TestStorageGroupChildren(t *testing.T) {
 
-	var sg = gdsl.StorageGroup("MyStorageGroup", func() {
-		gdsl.RelationalStore("mysql", func() {
-		})
-	})
+	sg := setup()
 	des := design.Design
 	dsl.RunDSL()
 	sd, ok := des.Constructs["gorma"][gorma.StorageGroup].(*gorma.StorageGroupDefinition)
@@ -36,4 +35,17 @@ func TestStorageGroupChildren(t *testing.T) {
 		t.Errorf("expected %d relational store, got %d", 1, len(sd.RelationalStores))
 	}
 
+}
+
+func setup() *gorma.StorageGroupDefinition {
+	sg := gdsl.StorageGroup("MyStorageGroup", func() {
+		gdsl.RelationalStore("mysql", func() {
+			gdsl.RelationalModel("Users", func() {
+				gdsl.RelationalField("FirstName", func() {
+
+				})
+			})
+		})
+	})
+	return sg
 }
