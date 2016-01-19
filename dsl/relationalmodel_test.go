@@ -13,6 +13,8 @@ var _ = Describe("RelationalModel", func() {
 	var sgname, storename, name string
 	var dsl func()
 	var RandomPayload *UserTypeDefinition
+	var ChildPayload *UserTypeDefinition
+
 	BeforeEach(func() {
 		Design = nil
 		Errors = nil
@@ -27,12 +29,21 @@ var _ = Describe("RelationalModel", func() {
 			Attribute("last_name", String)
 		})
 
+		ChildPayload = Type("ChildPayload", func() {
+			Attribute("first_name", String)
+			Attribute("last_name", String)
+		})
+
 	})
 
 	JustBeforeEach(func() {
 		gdsl.StorageGroup(sgname, func() {
 			gdsl.RelationalStore(storename, gorma.MySQL, func() {
 				gdsl.RelationalModel(name, RandomPayload, dsl)
+				gdsl.RelationalModel("Child", ChildPayload, func() {
+					gdsl.BelongsTo(name)
+				})
+
 			})
 		})
 

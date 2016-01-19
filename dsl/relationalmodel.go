@@ -3,7 +3,10 @@ package dsl
 import (
 	"strconv"
 
+	"bitbucket.org/pkg/inflect"
+
 	"github.com/bketelsen/gorma"
+	"github.com/kr/pretty"
 	"github.com/raphael/goa/design"
 	"github.com/raphael/goa/design/dsl"
 	"github.com/raphael/goa/goagen/codegen"
@@ -28,6 +31,9 @@ func RelationalModel(name string, modeledType *design.UserTypeDefinition, dsl fu
 				Parent:           s,
 				ModeledType:      modeledType,
 				RelationalFields: make(map[string]*gorma.RelationalFieldDefinition),
+				BelongsTo:        make(map[string]*gorma.RelationalModelDefinition),
+				HasMany:          make(map[string]*gorma.RelationalModelDefinition),
+				HasOne:           make(map[string]*gorma.RelationalModelDefinition),
 			}
 		} else {
 			models.ModeledType = modeledType
@@ -47,7 +53,7 @@ func BelongsTo(parent string) {
 		// Uh oh - we may have a parsing order problem
 
 		field := &gorma.RelationalFieldDefinition{
-			Name:   codegen.Goify(parent, true) + "ID",
+			Name:   codegen.Goify(inflect.Singularize(parent), true) + "ID",
 			Parent: r,
 		}
 		r.RelationalFields[field.Name] = field
@@ -65,6 +71,7 @@ func BelongsTo(parent string) {
 
 			r.BelongsTo[parent] = models
 		}
+		pretty.Println(r)
 	}
 }
 
