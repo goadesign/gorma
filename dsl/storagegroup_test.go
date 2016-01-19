@@ -60,9 +60,13 @@ func TestStorageGroupChildren(t *testing.T) {
 
 func setup() *gorma.StorageGroupDefinition {
 	sg := gdsl.StorageGroup("MyStorageGroup", func() {
+		gdsl.Description("This is the global storage group")
 		gdsl.RelationalStore("mysql", gorma.MySQL, func() {
+			gdsl.Description("This is the mysql relational store")
 			gdsl.RelationalModel("Users", func() {
+				gdsl.Description("This is the Users model")
 				gdsl.RelationalField("FirstName", func() {
+					gdsl.Description("This is the FirstName field")
 
 				})
 			})

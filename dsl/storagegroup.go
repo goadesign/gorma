@@ -30,3 +30,17 @@ func StorageGroup(name string, dsli func()) *gorma.StorageGroupDefinition {
 	gorma.GormaConstructs[gorma.StorageGroup] = sg
 	return sg
 }
+
+// Description sets the definition description.
+// Description can be called inside StorageGroup, RelationalStore, RelationalModel, RelationalField
+func Description(d string) {
+	if a, ok := storageGroupDefinition(false); ok {
+		a.Description = d
+	} else if v, ok := relationalStoreDefinition(false); ok {
+		v.Description = d
+	} else if r, ok := relationalModelDefinition(false); ok {
+		r.Description = d
+	} else if a, ok := relationalFieldDefinition(false); ok {
+		a.Description = d
+	}
+}
