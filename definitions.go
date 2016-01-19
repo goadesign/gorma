@@ -103,7 +103,7 @@ type RelationalFieldDefinition struct {
 	Nullable          bool
 	PrimaryKey        bool
 	Timestamp         bool
-	Aliased           bool
+	Alias             string
 	BelongsTo         string
 	HasOne            string
 	HasMany           string

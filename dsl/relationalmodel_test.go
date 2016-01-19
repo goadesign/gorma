@@ -89,7 +89,7 @@ var _ = Describe("RelationalModel", func() {
 			const description = "description"
 
 			BeforeEach(func() {
-				name = "mysql"
+				name = "Users"
 				dsl = func() {
 					gdsl.Description(description)
 				}
@@ -99,6 +99,120 @@ var _ = Describe("RelationalModel", func() {
 				sg := gorma.GormaConstructs[gorma.StorageGroup].(*gorma.StorageGroupDefinition)
 				rs := sg.RelationalStores[storename]
 				Ω(rs.RelationalModels[name].Description).Should(Equal(description))
+			})
+		})
+		Context("with a table name", func() {
+			const tablename = "user_table"
+
+			BeforeEach(func() {
+				name = "Users"
+				dsl = func() {
+					gdsl.TableName(tablename)
+				}
+			})
+
+			It("sets the relational store table name", func() {
+				sg := gorma.GormaConstructs[gorma.StorageGroup].(*gorma.StorageGroupDefinition)
+				rs := sg.RelationalStores[storename]
+				Ω(rs.RelationalModels[name].TableName).Should(Equal(tablename))
+			})
+		})
+		Context("with an alias", func() {
+			const alias = "user_table"
+
+			BeforeEach(func() {
+				name = "Users"
+				dsl = func() {
+					gdsl.Alias(alias)
+				}
+			})
+
+			It("sets the relational store alias", func() {
+				sg := gorma.GormaConstructs[gorma.StorageGroup].(*gorma.StorageGroupDefinition)
+				rs := sg.RelationalStores[storename]
+				Ω(rs.RelationalModels[name].Alias).Should(Equal(alias))
+			})
+		})
+
+		Context("cached", func() {
+			const duration = "50"
+
+			BeforeEach(func() {
+				name = "Users"
+				dsl = func() {
+					gdsl.Cached(duration)
+				}
+			})
+
+			It("sets the relational store cache values", func() {
+				sg := gorma.GormaConstructs[gorma.StorageGroup].(*gorma.StorageGroupDefinition)
+				rs := sg.RelationalStores[storename]
+				Ω(rs.RelationalModels[name].Cached).Should(Equal(true))
+				Ω(rs.RelationalModels[name].CacheDuration).Should(Equal(50))
+
+			})
+		})
+		Context("with nomedia", func() {
+
+			BeforeEach(func() {
+				name = "Users"
+				dsl = func() {
+					gdsl.NoMedia()
+				}
+			})
+
+			It("sets the relational store alias", func() {
+				sg := gorma.GormaConstructs[gorma.StorageGroup].(*gorma.StorageGroupDefinition)
+				rs := sg.RelationalStores[storename]
+				Ω(rs.RelationalModels[name].NoMedia).Should(Equal(true))
+			})
+		})
+
+		Context("with roler", func() {
+
+			BeforeEach(func() {
+				name = "Users"
+				dsl = func() {
+					gdsl.Roler()
+				}
+			})
+
+			It("sets the relational store alias", func() {
+				sg := gorma.GormaConstructs[gorma.StorageGroup].(*gorma.StorageGroupDefinition)
+				rs := sg.RelationalStores[storename]
+				Ω(rs.RelationalModels[name].Roler).Should(Equal(true))
+			})
+		})
+
+		Context("with dynamic table name", func() {
+
+			BeforeEach(func() {
+				name = "Users"
+				dsl = func() {
+					gdsl.DynamicTableName()
+				}
+			})
+
+			It("sets the relational store alias", func() {
+				sg := gorma.GormaConstructs[gorma.StorageGroup].(*gorma.StorageGroupDefinition)
+				rs := sg.RelationalStores[storename]
+				Ω(rs.RelationalModels[name].DynamicTableName).Should(Equal(true))
+			})
+		})
+		Context("with an sql tag", func() {
+			const tag = "unique"
+
+			BeforeEach(func() {
+				name = "Users"
+				dsl = func() {
+					gdsl.SQLTag(tag)
+				}
+			})
+
+			It("sets the relational store alias", func() {
+				sg := gorma.GormaConstructs[gorma.StorageGroup].(*gorma.StorageGroupDefinition)
+				rs := sg.RelationalStores[storename]
+				Ω(rs.RelationalModels[name].SQLTag).Should(Equal(tag))
 			})
 		})
 

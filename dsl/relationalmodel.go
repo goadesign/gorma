@@ -1,8 +1,11 @@
 package dsl
 
 import (
+	"strconv"
+
 	"github.com/bketelsen/gorma"
 	"github.com/raphael/goa/design"
+	"github.com/raphael/goa/design/dsl"
 )
 
 // RelationalModel is the DSL that represents a Relational Model
@@ -30,4 +33,69 @@ func RelationalModel(name string, modeledType *design.UserTypeDefinition, dsl fu
 		s.RelationalModels[name] = models
 	}
 
+}
+
+// TableName creates a TableName() function that returns
+// the name of the table to query. Useful for pre-existing
+// schemas
+func TableName(d string) {
+	if r, ok := relationalModelDefinition(false); ok {
+		r.TableName = d
+	}
+}
+
+// Alias overrides the name of the sql store's table
+func Alias(d string) {
+	if r, ok := relationalModelDefinition(false); ok {
+		r.Alias = d
+	} else if f, ok := relationalFieldDefinition(false); ok {
+		f.Alias = d
+	}
+}
+
+// Cached caches the models for `duration` seconds
+func Cached(d string) {
+	if r, ok := relationalModelDefinition(false); ok {
+		r.Cached = true
+		dur, err := strconv.Atoi(d)
+		if err != nil {
+			dsl.ReportError("Duration %s couldn't be parsed as integer", d)
+		}
+		r.CacheDuration = dur
+	}
+}
+
+// NoMedia sets a boolean flag that prevents the generation
+// of media helpers
+func NoMedia() {
+	if r, ok := relationalModelDefinition(false); ok {
+		r.NoMedia = true
+	}
+}
+
+// Roler sets a boolean flag that cause the generation of a
+// Role() function that returns the model's Role value
+// Requires a field in the model named Role, type String
+func Roler() {
+	if r, ok := relationalModelDefinition(false); ok {
+		r.Roler = true
+	}
+}
+
+// DynamicTableName sets a boolean flag that cause the generator
+// generate function definitions in the database models that specify
+// the name of the database table.  Useful when using multiple tables
+// with different names but same schema e.g. Users, AdminUsers
+func DynamicTableName() {
+	if r, ok := relationalModelDefinition(false); ok {
+		r.DynamicTableName = true
+	}
+}
+
+// SQLTag sets the model's struct tag `sql` value
+// for indexing and other purposes
+func SQLTag(d string) {
+	if r, ok := relationalModelDefinition(false); ok {
+		r.SQLTag = d
+	}
 }
