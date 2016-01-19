@@ -22,5 +22,8 @@ func TestRelationalModel(t *testing.T) {
 	if user == nil {
 		t.Errorf("expected %s model, got nil", "Users")
 	}
+	if user.Parent == nil || user.Parent != msql {
+		t.Errorf("expected parent to be set")
+	}
 
 }

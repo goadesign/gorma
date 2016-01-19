@@ -24,4 +24,7 @@ func TestRelationalStore(t *testing.T) {
 	if msql.Type != gorma.MySQL {
 		t.Errorf("expected type to be %s, got %s", gorma.MySQL, msql.Type)
 	}
+	if msql.Parent == nil || msql.Parent != sd {
+		t.Errorf("expected parent to be set")
+	}
 }
