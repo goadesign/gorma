@@ -26,7 +26,9 @@ func StorageGroup(name string, dsli func()) *gorma.StorageGroupDefinition {
 	if name == "" {
 		dsl.ReportError("Storage Group name cannot be empty")
 	}
-
+	if _, ok := gorma.GormaConstructs[gorma.StorageGroup]; ok {
+		dsl.ReportError("Storage Group %s already defined", name)
+	}
 	gorma.GormaConstructs[gorma.StorageGroup] = sg
 	return sg
 }

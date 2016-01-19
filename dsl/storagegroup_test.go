@@ -1,99 +1,87 @@
 package dsl_test
 
 import (
-	"strings"
-	"testing"
-
 	"github.com/bketelsen/gorma"
 	gdsl "github.com/bketelsen/gorma/dsl"
-	"github.com/raphael/goa/design"
-	"github.com/raphael/goa/design/dsl"
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
+	. "github.com/raphael/goa/design"
+	. "github.com/raphael/goa/design/dsl"
 )
 
-var SG *gorma.StorageGroupDefinition
+var _ = Describe("StorageGroup", func() {
+	var name string
+	var dsl func()
 
-func TestStorageGroup(t *testing.T) {
+	BeforeEach(func() {
+		Design = nil
+		Errors = nil
+		name = "mysql"
+		dsl = nil
+		gorma.GormaConstructs = nil
 
-	sg := setup()
-	design := design.Design
-	sd, ok := design.Constructs["gorma"][gorma.StorageGroup].(*gorma.StorageGroupDefinition)
-	if !ok {
-		t.Errorf("expected %#v to be %#v ", sd, sg)
-	}
+	})
 
-}
-func TestBadStorageGroup(t *testing.T) {
+	JustBeforeEach(func() {
 
-	sg := badSetup()
-	design := design.Design
-	err := dsl.RunDSL()
-	if err == nil {
-		t.Errorf("expected errors in goa dsl exectution, got none")
-	}
-	sd, ok := design.Constructs["gorma"][gorma.StorageGroup].(*gorma.StorageGroupDefinition)
-	if !ok {
-		t.Errorf("expected %#v to be %#v ", sd, sg)
-	}
-	if err := sg.Validate(); err == nil {
-		t.Errorf("Expected errors with bad Storage Group Definition, got none")
-	} else {
-		if len(err.Errors) != 1 {
-			t.Errorf("Expected 1 error, got %d: %s", len(err.Errors), err)
-		}
-	}
+		gdsl.StorageGroup(name, dsl)
 
-}
+		RunDSL()
 
-func TestStorageGroupChildren(t *testing.T) {
+	})
 
-	sg := setup()
-	des := design.Design
-	dsl.RunDSL()
-	sd, ok := des.Constructs["gorma"][gorma.StorageGroup].(*gorma.StorageGroupDefinition)
-	if !ok {
-		t.Errorf("expected %#v to be %#v ", sd, sg)
-	}
-	if !strings.Contains(sd.Description, "global") {
-		t.Errorf("expected description, got %s", sd.Description)
-	}
-	if len(sd.RelationalStores) != 1 {
-		t.Errorf("expected %d relational store, got %d", 1, len(sd.RelationalStores))
-	}
+	Context("with no DSL", func() {
+		BeforeEach(func() {
+			name = "mysql"
+		})
 
-}
-
-func setup() *gorma.StorageGroupDefinition {
-	sg := gdsl.StorageGroup("MyStorageGroup", func() {
-		gdsl.Description("This is the global storage group")
-		gdsl.RelationalStore("mysql", gorma.MySQL, func() {
-			gdsl.Description("This is the mysql relational store")
-			gdsl.RelationalModel("Users", UserType, func() {
-				gdsl.Description("This is the Users model")
-				gdsl.RelationalField("FirstName", func() {
-					gdsl.Description("This is the FirstName field")
-
-				})
-			})
+		It("produces a valid Storage Group definition", func() {
+			Ω(Design.Validate()).ShouldNot(HaveOccurred())
+			Ω(gorma.GormaConstructs[gorma.StorageGroup].(*gorma.StorageGroupDefinition).Name).Should(Equal(name))
 		})
 	})
-	return sg
-}
 
-func badSetup() *gorma.StorageGroupDefinition {
+	Context("with an already defined Storage Group with the same name", func() {
+		BeforeEach(func() {
+			name = "mysql"
+		})
 
-	sg := gdsl.StorageGroup("", func() {
-		gdsl.RelationalStore("mysql", gorma.MySQL, func() {
-			gdsl.RelationalModel("Users", UserType, func() {
-				gdsl.RelationalField("FirstName", func() {
-
-				})
-			})
+		It("produces an error", func() {
+			gdsl.StorageGroup(name, dsl)
+			Ω(Errors).Should(HaveOccurred())
 		})
 	})
-	return sg
-}
 
-var UserType = dsl.Type("User", func() {
-	dsl.Attribute("first_name", func() {
+	Context("with an already defined Storage Group with a different name", func() {
+		BeforeEach(func() {
+			name = "mysql"
+		})
+
+		It("returns an error", func() {
+			gdsl.StorageGroup("news", dsl)
+			Ω(Errors).Should(HaveOccurred())
+		})
+	})
+
+	Context("with valid DSL", func() {
+		JustBeforeEach(func() {
+			Ω(Errors).ShouldNot(HaveOccurred())
+			Ω(Design.Validate()).ShouldNot(HaveOccurred())
+		})
+
+		Context("with a description", func() {
+			const description = "description"
+
+			BeforeEach(func() {
+				dsl = func() {
+					gdsl.Description(description)
+				}
+			})
+
+			It("sets the storage group description", func() {
+				Ω(gorma.GormaConstructs[gorma.StorageGroup].(*gorma.StorageGroupDefinition).Description).Should(Equal(description))
+			})
+		})
+
 	})
 })
