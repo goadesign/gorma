@@ -9,9 +9,9 @@ import (
 )
 
 // Context returns the generic definition name used in error messages.
-func (a *RelationalModelDefinition) Context() string {
-	if a.Name != "" {
-		return fmt.Sprintf("RelationalModel %#v", a.Name)
+func (f *RelationalModelDefinition) Context() string {
+	if f.Name != "" {
+		return fmt.Sprintf("RelationalModel %#v", f.Name)
 	}
 	return "unnamed RelationalModel"
 }
@@ -36,6 +36,9 @@ func (f *RelationalModelDefinition) PKWhere() string {
 	}
 	return strings.Join(pkwhere, "and")
 }
+
+// PKWhereFields returns the fields for a where clause for the primary
+// keys of a model
 func (f *RelationalModelDefinition) PKWhereFields() string {
 	var pkwhere []string
 	for _, pk := range f.PrimaryKeys {
@@ -59,11 +62,12 @@ func (f *RelationalModelDefinition) PKUpdateFields() string {
 	return pkw
 }
 
-func (rm *RelationalModelDefinition) Definition() string {
-	header := fmt.Sprintf("type %s struct {\n", rm.Name)
+// Definition returns the struct definition for the model
+func (f *RelationalModelDefinition) Definition() string {
+	header := fmt.Sprintf("type %s struct {\n", f.Name)
 	var output string
-	rm.IterateFields(func(f *RelationalFieldDefinition) error {
-		output = output + f.Definition()
+	f.IterateFields(func(field *RelationalFieldDefinition) error {
+		output = output + field.Definition()
 		return nil
 	})
 	footer := "}\n"
@@ -73,26 +77,26 @@ func (rm *RelationalModelDefinition) Definition() string {
 
 // IterateFields returns an iterator function useful for iterating through
 // this model's field list
-func (rm *RelationalModelDefinition) IterateFields(it FieldIterator) error {
+func (f *RelationalModelDefinition) IterateFields(it FieldIterator) error {
 
 	names := make(map[string]string)
 	pks := make(map[string]string)
 	dates := make(map[string]string)
 
 	// Break out each type of fields
-	for n := range rm.Fields {
-		if rm.Fields[n].PrimaryKey {
+	for n := range f.Fields {
+		if f.Fields[n].PrimaryKey {
 			//	names[i] = n
 			pks[n] = n
 		}
 	}
-	for n := range rm.Fields {
-		if !rm.Fields[n].PrimaryKey && !rm.Fields[n].Timestamp {
+	for n := range f.Fields {
+		if !f.Fields[n].PrimaryKey && !f.Fields[n].Timestamp {
 			names[n] = n
 		}
 	}
-	for n := range rm.Fields {
-		if rm.Fields[n].Timestamp {
+	for n := range f.Fields {
+		if f.Fields[n].Timestamp {
 			//	names[i] = n
 			dates[n] = n
 		}
@@ -125,7 +129,7 @@ func (rm *RelationalModelDefinition) IterateFields(it FieldIterator) error {
 
 	// Iterate them
 	for _, n := range fields {
-		if err := it(rm.Fields[n]); err != nil {
+		if err := it(f.Fields[n]); err != nil {
 			return err
 		}
 	}

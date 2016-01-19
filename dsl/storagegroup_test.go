@@ -1,10 +1,10 @@
 package dsl_test
 
 import (
+	. "github.com/bketelsen/gorma"
+	. "github.com/bketelsen/gorma/dsl"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	. "github.com/raphael/goa/design"
-	. "github.com/raphael/goa/design/dsl"
 )
 
 var _ = Describe("Storage Group", func() {
@@ -19,7 +19,7 @@ var _ = Describe("Storage Group", func() {
 	})
 
 	JustBeforeEach(func() {
-		API(name, dsl)
+		StorageGroup(name, dsl)
 		RunDSL()
 	})
 
