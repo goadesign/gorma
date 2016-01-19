@@ -25,6 +25,10 @@ func TestBadStorageGroup(t *testing.T) {
 
 	sg := badSetup()
 	design := design.Design
+	err := dsl.RunDSL()
+	if err == nil {
+		t.Errorf("expected errors in goa dsl exectution, got none")
+	}
 	sd, ok := design.Constructs["gorma"][gorma.StorageGroup].(*gorma.StorageGroupDefinition)
 	if !ok {
 		t.Errorf("expected %#v to be %#v ", sd, sg)
