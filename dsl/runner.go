@@ -26,7 +26,7 @@ func checkInit() {
 // topLevelDefinition returns true if the currently evaluated DSL is a root
 // DSL (i.e. is not being run in the context of another definition).
 func topLevelDefinition(failItNotTopLevel bool) bool {
-	top := dsl.CurrentStack() == nil
+	top := dsl.CurrentDefinition() == nil
 	if failItNotTopLevel && !top {
 		incompatibleDSL(caller())
 	}
@@ -36,7 +36,7 @@ func topLevelDefinition(failItNotTopLevel bool) bool {
 // storageDefinition returns true and current context if it is an StorageGroupDefinition,
 // nil and false otherwise.
 func storageGroupDefinition(failIfNotSD bool) (*gorma.StorageGroupDefinition, bool) {
-	a, ok := dsl.CurrentStack().(*gorma.StorageGroupDefinition)
+	a, ok := dsl.CurrentDefinition().(*gorma.StorageGroupDefinition)
 	if !ok && failIfNotSD {
 		incompatibleDSL(caller())
 	}
@@ -46,7 +46,7 @@ func storageGroupDefinition(failIfNotSD bool) (*gorma.StorageGroupDefinition, bo
 // relationalStoreDefinition returns true and current context if it is an RelationalStoreDefinition,
 // nil and false otherwise.
 func relationalStoreDefinition(failIfNotSD bool) (*gorma.RelationalStoreDefinition, bool) {
-	a, ok := dsl.CurrentStack().(*gorma.RelationalStoreDefinition)
+	a, ok := dsl.CurrentDefinition().(*gorma.RelationalStoreDefinition)
 	if !ok && failIfNotSD {
 		incompatibleDSL(caller())
 	}
@@ -56,7 +56,7 @@ func relationalStoreDefinition(failIfNotSD bool) (*gorma.RelationalStoreDefiniti
 // relationalModelDefinition returns true and current context if it is an RelationalModelDefinition,
 // nil and false otherwise.
 func relationalModelDefinition(failIfNotSD bool) (*gorma.RelationalModelDefinition, bool) {
-	a, ok := dsl.CurrentStack().(*gorma.RelationalModelDefinition)
+	a, ok := dsl.CurrentDefinition().(*gorma.RelationalModelDefinition)
 	if !ok && failIfNotSD {
 		incompatibleDSL(caller())
 	}
@@ -66,7 +66,7 @@ func relationalModelDefinition(failIfNotSD bool) (*gorma.RelationalModelDefiniti
 // relationalFieldDefinition returns true and current context if it is an RelationalFieldDefinition,
 // nil and false otherwise.
 func relationalFieldDefinition(failIfNotSD bool) (*gorma.RelationalFieldDefinition, bool) {
-	a, ok := dsl.CurrentStack().(*gorma.RelationalFieldDefinition)
+	a, ok := dsl.CurrentDefinition().(*gorma.RelationalFieldDefinition)
 	if !ok && failIfNotSD {
 		incompatibleDSL(caller())
 	}

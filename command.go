@@ -8,6 +8,7 @@ import (
 var (
 	// TargetPackage is the name of the generated Go package.
 	TargetPackage string
+	AppPackage    string
 )
 
 // Command is the goa application code generator command line data structure.
@@ -25,6 +26,8 @@ func NewCommand() *Command {
 func (c *Command) RegisterFlags(r codegen.FlagRegistry) {
 	r.Flag("pkg", "Name of generated Go package containing models").
 		Default("models").StringVar(&TargetPackage)
+	r.Flag("app", "Name of goa generated Go package containing controllers, etc.").
+		Default("app").StringVar(&AppPackage)
 }
 
 // Run simply calls the meta generator.

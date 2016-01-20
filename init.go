@@ -5,6 +5,10 @@ import "github.com/raphael/goa/design"
 // GormaDesign is the root definition for Gorma
 var GormaDesign *StorageGroupDefinition
 
+func init() {
+	//GormaDesign = &StorageGroupDefinition{}
+}
+
 const (
 	// Gorma is the constant string used as the index in the
 	// goa DesignConstructs map

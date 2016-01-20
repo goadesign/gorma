@@ -47,6 +47,11 @@ func NewGenerator() (*Generator, error) {
 	}, nil
 }
 
+// AppOutputDir returns the directory containing the generated files.
+func AppOutputDir() string {
+	return filepath.Join(codegen.OutputDir, AppPackage)
+}
+
 // ModelOutputDir returns the directory containing the generated files.
 func ModelOutputDir() string {
 	return filepath.Join(codegen.OutputDir, TargetPackage)
@@ -55,6 +60,22 @@ func ModelOutputDir() string {
 // ModelPackagePath returns the Go package path to the generated package.
 func ModelPackagePath() (string, error) {
 	outputDir := ModelOutputDir()
+	gopaths := filepath.SplitList(os.Getenv("GOPATH"))
+	for _, gopath := range gopaths {
+		if strings.HasPrefix(outputDir, gopath) {
+			path, err := filepath.Rel(filepath.Join(gopath, "src"), outputDir)
+			if err != nil {
+				return "", err
+			}
+			return filepath.ToSlash(path), nil
+		}
+	}
+	return "", fmt.Errorf("output directory outside of Go workspace, make sure to define GOPATH correctly or change output directory")
+}
+
+// AppPackagePath returns the Go package path to the generated package.
+func AppPackagePath() (string, error) {
+	outputDir := AppOutputDir()
 	gopaths := filepath.SplitList(os.Getenv("GOPATH"))
 	for _, gopath := range gopaths {
 		if strings.HasPrefix(outputDir, gopath) {
@@ -84,21 +105,10 @@ func (g *Generator) Generate(api *design.APIDefinition) (_ []string, err error) 
 		return nil, err
 	}
 
-	err = api.IterateVersions(func(v *design.APIVersionDefinition) error {
-
-		// only generate for the base unnamed version
-		// because user types are unversioned
-		if v.Version != "" {
-			return nil
-		}
-		if err := g.generateUserTypes(outdir, v); err != nil {
-			return err
-		}
-		return nil
-	})
-	if err != nil {
-		return nil, err
+	if err := g.generateUserTypes(outdir, api); err != nil {
+		return g.genfiles, err
 	}
+
 	return g.genfiles, nil
 }
 
@@ -107,28 +117,13 @@ func (g *Generator) Cleanup() {
 	if len(g.genfiles) == 0 {
 		return
 	}
-	os.RemoveAll(ModelOutputDir())
+	//os.RemoveAll(ModelOutputDir())
 	g.genfiles = nil
-}
-
-// MergeResponses merge the response maps overriding the first argument map entries with the
-// second argument map entries in case of collision.
-func MergeResponses(l, r map[string]*design.ResponseDefinition) map[string]*design.ResponseDefinition {
-	if l == nil {
-		return r
-	}
-	if r == nil {
-		return l
-	}
-	for n, r := range r {
-		l[n] = r
-	}
-	return l
 }
 
 // Generated package name for resources supporting the given version.
 func packageName(version *design.APIVersionDefinition) (pack string) {
-	pack = TargetPackage
+	pack = AppPackage
 	if version.Version != "" {
 		pack = codegen.Goify(codegen.VersionPackage(version.Version), false)
 	}
@@ -137,39 +132,66 @@ func packageName(version *design.APIVersionDefinition) (pack string) {
 
 // generateUserTypes iterates through the user types and generates the data structures and
 // marshaling code.
-func (g *Generator) generateUserTypes(outdir string, version *design.APIVersionDefinition) error {
+func (g *Generator) generateUserTypes(outdir string, api *design.APIDefinition) error {
+	fmt.Println("Generating user types")
+	err := api.IterateVersions(func(version *design.APIVersionDefinition) error {
+		if version.Version != "" {
+			fmt.Println("Skipping version")
+			return nil
+		}
+		fmt.Println("Not skipping verson")
+		var modelname, filename string
+		err := GormaDesign.IterateStores(func(store *RelationalStoreDefinition) error {
+			err := store.IterateModels(func(model *RelationalModelDefinition) error {
+				fmt.Println("Iterating models")
+				modelname = strings.ToLower(codegen.Goify(model.Name, false))
+				modeldir := filepath.Join(outdir, codegen.Goify(model.Name, false))
 
-	var modelname, filename string
-	err := GormaDesign.IterateStores(func(store *RelationalStoreDefinition) error {
-		store.IterateModels(func(model *RelationalModelDefinition) error {
-			modelname = strings.ToLower(codegen.Goify(model.Name, false))
-			modeldir := filepath.Join(outdir, "models", model.Name)
-			filename = fmt.Sprintf("%s_gen.go", modelname)
-			utFile := filepath.Join(modeldir, filename)
-			utWr, err := NewUserTypesWriter(utFile)
-			if err != nil {
-				panic(err) // bug
-			}
-			title := fmt.Sprintf("%s: Models", version.Context())
-			imports := []*codegen.ImportSpec{
-				codegen.SimpleImport("fmt"),
-			}
+				if err := os.MkdirAll(modeldir, 0755); err != nil {
+					return nil
+				}
 
-			utWr.WriteHeader(title, packageName(version), imports)
-			data := &UserTypeTemplateData{
-				UserType:   nil,
-				Versioned:  version.Version != "",
-				DefaultPkg: TargetPackage,
-			}
-			err = utWr.Execute(data)
-			g.genfiles = append(g.genfiles, utFile)
-			if err != nil {
+				filename = fmt.Sprintf("%s_gen.go", modelname)
+				utFile := filepath.Join(modeldir, filename)
+				fmt.Println(filename)
+				fmt.Println(utFile)
+				err := os.RemoveAll(utFile)
+				if err != nil {
+					fmt.Println(err)
+				}
+				utWr, err := NewUserTypesWriter(utFile)
+				if err != nil {
+					panic(err) // bug
+				}
+				title := fmt.Sprintf("%s: Models", version.Context())
+				imports := []*codegen.ImportSpec{
+					codegen.SimpleImport("github.com/jinzhu/gorm"),
+					codegen.SimpleImport("golang.org/x/net/context"),
+				}
+
+				utWr.WriteHeader(title, modelname, imports)
+				data := &UserTypeTemplateData{
+					APIDefinition: api,
+					UserType:      model,
+					DefaultPkg:    TargetPackage,
+					AppPkg:        AppPackage,
+				}
+				err = utWr.Execute(data)
+				g.genfiles = append(g.genfiles, utFile)
+				if err != nil {
+					fmt.Println(err)
+					return err
+				}
+				err = utWr.FormatCode()
+				if err != nil {
+					fmt.Println(err)
+				}
 				return err
-			}
-			return utWr.FormatCode()
 
+			})
+			return err
 		})
-		return nil
+		return err
 	})
 	return err
 }

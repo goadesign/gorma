@@ -32,6 +32,7 @@ func RelationalField(name string, fieldType gorma.FieldType, dsl func()) {
 		if fieldType == gorma.PKUUID || fieldType == gorma.PKInteger || fieldType == gorma.PKBigInteger {
 			field.PrimaryKey = true
 			field.Description = "primary key"
+			s.PrimaryKeys = append(s.PrimaryKeys, field)
 		}
 
 		if fieldType == gorma.Timestamp {

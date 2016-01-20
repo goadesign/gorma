@@ -50,8 +50,9 @@ func RelationalModel(name string, modeledType *design.UserTypeDefinition, dsl fu
 func BelongsTo(parent string) {
 	if r, ok := relationalModelDefinition(false); ok {
 		field := &gorma.RelationalFieldDefinition{
-			Name:   codegen.Goify(inflect.Singularize(parent), true) + "ID",
-			Parent: r,
+			Name:      codegen.Goify(inflect.Singularize(parent), true) + "ID",
+			BelongsTo: parent,
+			Parent:    r,
 		}
 		r.RelationalFields[field.Name] = field
 		bt, ok := r.Parent.RelationalModels[parent]
@@ -76,6 +77,7 @@ func HasOne(child string) {
 	if r, ok := relationalModelDefinition(false); ok {
 		field := &gorma.RelationalFieldDefinition{
 			Name:   codegen.Goify(inflect.Singularize(child), true),
+			HasOne: child,
 			Parent: r,
 		}
 		r.RelationalFields[field.Name] = field
@@ -100,8 +102,9 @@ func HasOne(child string) {
 func HasMany(name, child string) {
 	if r, ok := relationalModelDefinition(false); ok {
 		field := &gorma.RelationalFieldDefinition{
-			Name:   name,
-			Parent: r,
+			Name:    name,
+			HasMany: child,
+			Parent:  r,
 		}
 		r.RelationalFields[field.Name] = field
 		var model *gorma.RelationalModelDefinition

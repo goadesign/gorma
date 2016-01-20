@@ -1,9 +1,14 @@
 package gorma
 
-import "github.com/raphael/goa/design"
+import (
+	"fmt"
+
+	"github.com/raphael/goa/design"
+)
 
 // Validate tests whether the StorageGroup definition is consistent
 func (a *StorageGroupDefinition) Validate() *design.ValidationErrors {
+	fmt.Println("Validating Group")
 	verr := new(design.ValidationErrors)
 	if a.Name == "" {
 		verr.Add(a, "storage group name not defined")
@@ -18,6 +23,7 @@ func (a *StorageGroupDefinition) Validate() *design.ValidationErrors {
 
 // Validate tests whether the RelationalStore definition is consistent
 func (a *RelationalStoreDefinition) Validate() *design.ValidationErrors {
+	fmt.Println("Validating Store")
 	verr := new(design.ValidationErrors)
 	if a.Name == "" {
 		verr.Add(a, "store name not defined")
@@ -35,7 +41,7 @@ func (a *RelationalStoreDefinition) Validate() *design.ValidationErrors {
 
 // Validate tests whether the RelationalModel definition is consistent
 func (a *RelationalModelDefinition) Validate() *design.ValidationErrors {
-
+	fmt.Println("Validating Model")
 	verr := new(design.ValidationErrors)
 	if a.Name == "" {
 		verr.Add(a, "model name not defined")
@@ -53,6 +59,7 @@ func (a *RelationalModelDefinition) Validate() *design.ValidationErrors {
 
 // Validate tests whether the RelationalField definition is consistent
 func (field *RelationalFieldDefinition) Validate() *design.ValidationErrors {
+	fmt.Println("Validing Field")
 	verr := new(design.ValidationErrors)
 
 	if field.Parent == nil {

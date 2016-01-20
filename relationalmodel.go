@@ -37,7 +37,7 @@ func (sd RelationalModelDefinition) Children() []design.Definition {
 func (f *RelationalModelDefinition) PKAttributes() string {
 	var attr []string
 	for _, pk := range f.PrimaryKeys {
-		attr = append(attr, fmt.Sprintf("%s %s", strings.ToLower(pk.Name), pk.Datatype))
+		attr = append(attr, fmt.Sprintf("%s %s", strings.ToLower(pk.Name), goDatatype(pk)))
 	}
 	return strings.Join(attr, ",")
 }
@@ -89,6 +89,10 @@ func (f *RelationalModelDefinition) StructDefinition() string {
 	footer := "}\n"
 	return header + output + footer
 
+}
+
+func (f *RelationalModelDefinition) LowerName() string {
+	return strings.ToLower(f.Name)
 }
 
 // IterateFields returns an iterator function useful for iterating through
