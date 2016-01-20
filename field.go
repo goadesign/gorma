@@ -20,13 +20,13 @@ func (f *RelationalFieldDefinition) DSL() func() {
 }
 
 // Children returnsa slice of this objects children
-func (sd RelationalFieldDefinition) Children() []design.ExternalDSLDefinition {
+func (f RelationalFieldDefinition) Children() []design.Definition {
 	// no children yet
-	return []design.ExternalDSLDefinition{}
+	return []design.Definition{}
 }
 
 // Definition returns the field's struct definition
-func (f *RelationalFieldDefinition) Definition() string {
+func (f *RelationalFieldDefinition) FieldDefinition() string {
 
 	return ""
 

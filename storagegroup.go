@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"sort"
 
+	"github.com/kr/pretty"
 	"github.com/raphael/goa/design"
 )
 
@@ -38,10 +39,42 @@ func (sd StorageGroupDefinition) DSL() func() {
 }
 
 // Children returnsa slice of this objects children
-func (sd StorageGroupDefinition) Children() []design.ExternalDSLDefinition {
-	var stores []design.ExternalDSLDefinition
+func (sd StorageGroupDefinition) Children() []design.Definition {
+	var stores []design.Definition
 	for _, s := range sd.RelationalStores {
 		stores = append(stores, s)
 	}
 	return stores
+}
+
+// IterateSets goes over all the definition sets of the StorageGroup: The StorageGroup definition itself, each
+// store definition, models and fields.
+func (a *StorageGroupDefinition) IterateSets(iterator design.SetIterator) {
+	// First run the top level StorageGroup
+
+	fmt.Println("HELLO SET ITERATOR")
+
+	iterator([]design.Definition{a})
+	// Then all the stores
+	var definitions []design.Definition
+	i := 0
+	a.IterateStores(func(store *RelationalStoreDefinition) error {
+		fmt.Println("Iterating store : ", store.Name)
+		definitions = append(definitions, store)
+		i++
+		store.IterateModels(func(model *RelationalModelDefinition) error {
+			fmt.Println("iterating model: ", model.Name)
+			definitions = append(definitions, model)
+			model.IterateFields(func(field *RelationalFieldDefinition) error {
+				fmt.Println("iterating fields: ", field.Name)
+				definitions = append(definitions, field)
+				return nil
+			})
+			return nil
+		})
+		return nil
+	})
+	iterator(definitions)
+
+	pretty.Print(definitions)
 }

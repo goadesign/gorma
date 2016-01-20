@@ -20,12 +20,13 @@ func (f *RelationalModelDefinition) Context() string {
 
 // DSL returns this object's DSL
 func (sd *RelationalModelDefinition) DSL() func() {
+	fmt.Println("Retrieving Model's DSL")
 	return sd.DefinitionDSL
 }
 
 // Children returnsa slice of this objects children
-func (sd RelationalModelDefinition) Children() []design.ExternalDSLDefinition {
-	var stores []design.ExternalDSLDefinition
+func (sd RelationalModelDefinition) Children() []design.Definition {
+	var stores []design.Definition
 	for _, s := range sd.RelationalFields {
 		stores = append(stores, s)
 	}
@@ -79,11 +80,11 @@ func (f *RelationalModelDefinition) PKUpdateFields() string {
 }
 
 // Definition returns the struct definition for the model
-func (f *RelationalModelDefinition) Definition() string {
+func (f *RelationalModelDefinition) StructDefinition() string {
 	header := fmt.Sprintf("type %s struct {\n", f.Name)
 	var output string
 	f.IterateFields(func(field *RelationalFieldDefinition) error {
-		output = output + field.Definition()
+		output = output + field.FieldDefinition()
 		return nil
 	})
 	footer := "}\n"

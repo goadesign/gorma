@@ -1,6 +1,7 @@
 package dsl
 
 import (
+	"fmt"
 	"strconv"
 
 	"bitbucket.org/pkg/inflect"
@@ -17,6 +18,7 @@ func RelationalModel(name string, modeledType *design.UserTypeDefinition, dsl fu
 	// We can't rely on this being run first, any of the top level DSL could run
 	// in any order. The top level DSLs are API, Version, Resource, MediaType and Type.
 	// The first one to be called executes InitDesign.
+	fmt.Println("HELLO MODEL")
 	checkInit()
 	if s, ok := relationalStoreDefinition(true); ok {
 		if s.RelationalModels == nil {

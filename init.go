@@ -1,9 +1,13 @@
 package gorma
 
-import "github.com/raphael/goa/design"
+import (
+	"fmt"
 
-// GormaConstructs is a map of Gorma types (currently only a StorageGroupDefinition
-var GormaConstructs design.Construct
+	"github.com/raphael/goa/design"
+)
+
+// GormaDesign is the root definition for Gorma
+var GormaDesign *StorageGroupDefinition
 
 const (
 	// Gorma is the constant string used as the index in the
@@ -33,9 +37,9 @@ const (
 
 // Init creates the necessary data structures for parsing a DSL
 func Init() {
-	// 	GormaConstructs = design.Design.NewConstructsSet("gorma") // later
-	GormaConstructs = design.NewConstruct(Gorma)
+	fmt.Println("HELLO INIT")
 	sg := &StorageGroupDefinition{}
-	GormaConstructs[StorageGroup] = sg
 
+	design.Roots = append(design.Roots, sg)
+	GormaDesign = sg
 }

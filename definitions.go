@@ -10,7 +10,7 @@ type FieldType string
 
 // StorageGroupDefinition is the parent configuration structure for Gorma definitions
 type StorageGroupDefinition struct {
-	design.DSLDefinition
+	design.Definition
 	DefinitionDSL    func()
 	Name             string
 	Description      string
@@ -19,7 +19,7 @@ type StorageGroupDefinition struct {
 
 // RelationalStoreDefinition is the parent configuration structure for Gorm relational model definitions
 type RelationalStoreDefinition struct {
-	design.DSLDefinition
+	design.Definition
 	DefinitionDSL    func()
 	Name             string
 	Description      string
@@ -31,7 +31,7 @@ type RelationalStoreDefinition struct {
 // RelationalModelDefinition implements the storage of a domain model into a
 // table in a relational database
 type RelationalModelDefinition struct {
-	design.DSLDefinition
+	design.Definition
 	DefinitionDSL    func()
 	Name             string
 	Description      string //
@@ -58,7 +58,7 @@ type RelationalModelDefinition struct {
 // MediaTypeAdapterDefinition represents the transformation of a
 // Goa media type into a Gorma Model
 type MediaTypeAdapterDefinition struct {
-	design.DSLDefinition
+	design.Definition
 	DefinitionDSL func()
 	Name          string
 	Description   string
@@ -69,7 +69,7 @@ type MediaTypeAdapterDefinition struct {
 // UserTypeAdapterDefinition represents the transformation of a Goa
 // user type into a Gorma Model
 type UserTypeAdapterDefinition struct {
-	design.DSLDefinition
+	design.Definition
 	DefinitionDSL func()
 	Name          string
 	Description   string
@@ -81,7 +81,7 @@ type UserTypeAdapterDefinition struct {
 // Payload (which is really a UserTypeDefinition
 // into a Gorma model
 type PayloadAdapterDefinition struct {
-	design.DSLDefinition
+	design.Definition
 	DefinitionDSL func()
 	Name          string
 	Description   string
@@ -92,7 +92,7 @@ type PayloadAdapterDefinition struct {
 // RelationalFieldDefinition implements the Field interface and represents
 // a field in a relational database
 type RelationalFieldDefinition struct {
-	design.DSLDefinition
+	design.Definition
 	DefinitionDSL     func()
 	Parent            *RelationalModelDefinition
 	a                 *design.AttributeDefinition
@@ -115,7 +115,7 @@ type RelationalFieldDefinition struct {
 // ManyToManyDefinition stores information about a ManyToMany
 // relationship between two domain objects
 type ManyToManyDefinition struct {
-	design.DSLDefinition
+	design.Definition
 	DefinitionDSL    func()
 	Left             *RelationalModelDefinition
 	Right            *RelationalModelDefinition

@@ -17,12 +17,13 @@ func (sd *RelationalStoreDefinition) Context() string {
 
 // DSL returns this object's DSL
 func (sd *RelationalStoreDefinition) DSL() func() {
+	fmt.Println("Retrieving Store's DSL")
 	return sd.DefinitionDSL
 }
 
 // Children returnsa slice of this objects children
-func (sd RelationalStoreDefinition) Children() []design.ExternalDSLDefinition {
-	var stores []design.ExternalDSLDefinition
+func (sd RelationalStoreDefinition) Children() []design.Definition {
+	var stores []design.Definition
 	for _, s := range sd.RelationalModels {
 		stores = append(stores, s)
 	}
