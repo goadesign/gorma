@@ -18,7 +18,8 @@ var _ = Describe("StorageGroup", func() {
 		Errors = nil
 		name = "mysql"
 		dsl = nil
-		gorma.GormaConstructs = nil
+		gorma.GormaDesign = nil
+		InitDesign()
 
 	})
 
@@ -37,7 +38,7 @@ var _ = Describe("StorageGroup", func() {
 
 		It("produces a valid Storage Group definition", func() {
 			Ω(Design.Validate()).ShouldNot(HaveOccurred())
-			Ω(gorma.GormaConstructs[gorma.StorageGroup].(*gorma.StorageGroupDefinition).Name).Should(Equal(name))
+			Ω(gorma.GormaDesign.Name).Should(Equal(name))
 		})
 	})
 
@@ -79,7 +80,7 @@ var _ = Describe("StorageGroup", func() {
 			})
 
 			It("sets the storage group description", func() {
-				Ω(gorma.GormaConstructs[gorma.StorageGroup].(*gorma.StorageGroupDefinition).Description).Should(Equal(description))
+				Ω(gorma.GormaDesign.Description).Should(Equal(description))
 			})
 		})
 

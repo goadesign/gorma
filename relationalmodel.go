@@ -20,7 +20,6 @@ func (f *RelationalModelDefinition) Context() string {
 
 // DSL returns this object's DSL
 func (sd *RelationalModelDefinition) DSL() func() {
-	fmt.Println("Retrieving Model's DSL")
 	return sd.DefinitionDSL
 }
 

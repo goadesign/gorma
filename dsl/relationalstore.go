@@ -1,10 +1,6 @@
 package dsl
 
-import (
-	"fmt"
-
-	"github.com/bketelsen/gorma"
-)
+import "github.com/bketelsen/gorma"
 
 // StorageGroup implements the top level Gorma DSL
 // Examples and more docs here later
@@ -13,7 +9,6 @@ func RelationalStore(name string, storeType gorma.RelationalStorageType, dsl fun
 	// in any order. The top level DSLs are API, Version, Resource, MediaType and Type.
 	// The first one to be called executes InitDesign.
 
-	fmt.Println("HELLO STORE")
 	checkInit()
 	if s, ok := storageGroupDefinition(true); ok {
 		if s.RelationalStores == nil {

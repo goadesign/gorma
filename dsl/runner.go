@@ -1,7 +1,6 @@
 package dsl
 
 import (
-	"fmt"
 	"runtime"
 	"strings"
 
@@ -20,7 +19,6 @@ func checkInit() {
 	if gorma.GormaDesign == nil {
 		//if !ok {
 		// There is no registered gorma construct set
-		fmt.Println("NO Design, creating")
 		gorma.Init()
 	}
 }

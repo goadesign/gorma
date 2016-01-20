@@ -1,10 +1,6 @@
 package dsl
 
-import (
-	"fmt"
-
-	"github.com/bketelsen/gorma"
-)
+import "github.com/bketelsen/gorma"
 
 // RelationalField is a DSL definition for a field in a Relational Model
 // Examples and more docs here later
@@ -13,7 +9,6 @@ func RelationalField(name string, fieldType gorma.FieldType, dsl func()) {
 	// in any order. The top level DSLs are API, Version, Resource, MediaType and Type.
 	// The first one to be called executes InitDesign.
 
-	fmt.Println("HELLO FIELD")
 	checkInit()
 	if s, ok := relationalModelDefinition(true); ok {
 		if s.RelationalFields == nil {

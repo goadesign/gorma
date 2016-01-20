@@ -1,8 +1,6 @@
 package dsl
 
 import (
-	"fmt"
-
 	"github.com/bketelsen/gorma"
 	"github.com/raphael/goa/design/dsl"
 )
@@ -13,7 +11,6 @@ func StorageGroup(name string, dsli func()) *gorma.StorageGroupDefinition {
 	// We can't rely on this being run first, any of the top level DSL could run
 	// in any order. The top level DSLs are API, Version, Resource, MediaType and Type.
 	// The first one to be called executes InitDesign.
-	fmt.Println("HELLO STORAGE GROUP")
 	checkInit()
 
 	if !topLevelDefinition(true) {

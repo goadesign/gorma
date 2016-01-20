@@ -24,7 +24,8 @@ var _ = Describe("RelationalModel", func() {
 		dsl = nil
 		storename = "mysql"
 		name = ""
-		gorma.GormaConstructs = nil
+		gorma.GormaDesign = nil
+		InitDesign()
 
 		RandomPayload = Type("RandomPayload", func() {
 			Attribute("first_name", String)
@@ -75,7 +76,7 @@ var _ = Describe("RelationalModel", func() {
 
 		It("produces a valid Relational Model definition", func() {
 			Ω(Design.Validate()).ShouldNot(HaveOccurred())
-			sg := gorma.GormaConstructs[gorma.StorageGroup].(*gorma.StorageGroupDefinition)
+			sg := gorma.GormaDesign
 			rs := sg.RelationalStores[storename]
 			Ω(rs.RelationalModels[name].Name).Should(Equal(name))
 		})
@@ -128,7 +129,7 @@ var _ = Describe("RelationalModel", func() {
 			})
 
 			It("sets the relational store description", func() {
-				sg := gorma.GormaConstructs[gorma.StorageGroup].(*gorma.StorageGroupDefinition)
+				sg := gorma.GormaDesign
 				rs := sg.RelationalStores[storename]
 				Ω(rs.RelationalModels[name].Description).Should(Equal(description))
 			})
@@ -144,7 +145,7 @@ var _ = Describe("RelationalModel", func() {
 			})
 
 			It("sets the relational store table name", func() {
-				sg := gorma.GormaConstructs[gorma.StorageGroup].(*gorma.StorageGroupDefinition)
+				sg := gorma.GormaDesign
 				rs := sg.RelationalStores[storename]
 				Ω(rs.RelationalModels[name].TableName).Should(Equal(tablename))
 			})
@@ -160,7 +161,7 @@ var _ = Describe("RelationalModel", func() {
 			})
 
 			It("sets the relational store alias", func() {
-				sg := gorma.GormaConstructs[gorma.StorageGroup].(*gorma.StorageGroupDefinition)
+				sg := gorma.GormaDesign
 				rs := sg.RelationalStores[storename]
 				Ω(rs.RelationalModels[name].Alias).Should(Equal(alias))
 			})
@@ -177,7 +178,7 @@ var _ = Describe("RelationalModel", func() {
 			})
 
 			It("sets the relational store cache values", func() {
-				sg := gorma.GormaConstructs[gorma.StorageGroup].(*gorma.StorageGroupDefinition)
+				sg := gorma.GormaDesign
 				rs := sg.RelationalStores[storename]
 				Ω(rs.RelationalModels[name].Cached).Should(Equal(true))
 				Ω(rs.RelationalModels[name].CacheDuration).Should(Equal(50))
@@ -194,7 +195,7 @@ var _ = Describe("RelationalModel", func() {
 			})
 
 			It("sets the relational store alias", func() {
-				sg := gorma.GormaConstructs[gorma.StorageGroup].(*gorma.StorageGroupDefinition)
+				sg := gorma.GormaDesign
 				rs := sg.RelationalStores[storename]
 				Ω(rs.RelationalModels[name].NoMedia).Should(Equal(true))
 			})
@@ -210,7 +211,7 @@ var _ = Describe("RelationalModel", func() {
 			})
 
 			It("sets the relational store alias", func() {
-				sg := gorma.GormaConstructs[gorma.StorageGroup].(*gorma.StorageGroupDefinition)
+				sg := gorma.GormaDesign
 				rs := sg.RelationalStores[storename]
 				Ω(rs.RelationalModels[name].Roler).Should(Equal(true))
 			})
@@ -226,7 +227,7 @@ var _ = Describe("RelationalModel", func() {
 			})
 
 			It("sets the relational store alias", func() {
-				sg := gorma.GormaConstructs[gorma.StorageGroup].(*gorma.StorageGroupDefinition)
+				sg := gorma.GormaDesign
 				rs := sg.RelationalStores[storename]
 				Ω(rs.RelationalModels[name].DynamicTableName).Should(Equal(true))
 			})
@@ -242,7 +243,7 @@ var _ = Describe("RelationalModel", func() {
 			})
 
 			It("sets the relational store alias", func() {
-				sg := gorma.GormaConstructs[gorma.StorageGroup].(*gorma.StorageGroupDefinition)
+				sg := gorma.GormaDesign
 				rs := sg.RelationalStores[storename]
 				Ω(rs.RelationalModels[name].SQLTag).Should(Equal(tag))
 			})

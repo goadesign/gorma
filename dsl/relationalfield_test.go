@@ -3,6 +3,7 @@ package dsl_test
 import (
 	"github.com/bketelsen/gorma"
 	gdsl "github.com/bketelsen/gorma/dsl"
+	"github.com/kr/pretty"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	. "github.com/raphael/goa/design"
@@ -23,7 +24,8 @@ var _ = Describe("RelationalField", func() {
 		modelname = "Users"
 		name = ""
 		ft = gorma.String
-		gorma.GormaConstructs = nil
+		gorma.GormaDesign = nil
+		InitDesign()
 		RandomPayload = Type("UserPayload", func() {
 			Attribute("first_name", String)
 			Attribute("last_name", String)
@@ -43,7 +45,7 @@ var _ = Describe("RelationalField", func() {
 				})
 			})
 		})
-
+		pretty.Println("JBE: ", gorma.GormaDesign)
 		RunDSL()
 
 	})
@@ -55,7 +57,7 @@ var _ = Describe("RelationalField", func() {
 
 		It("produces a valid Relational Field definition", func() {
 			Ω(Design.Validate()).ShouldNot(HaveOccurred())
-			sg := gorma.GormaConstructs[gorma.StorageGroup].(*gorma.StorageGroupDefinition)
+			sg := gorma.GormaDesign
 			rs := sg.RelationalStores[storename]
 			rm := rs.RelationalModels[modelname]
 			Ω(rm.RelationalFields[name].Name).Should(Equal(name))
@@ -96,32 +98,32 @@ var _ = Describe("RelationalField", func() {
 			})
 
 			It("sets the relational field description", func() {
-				sg := gorma.GormaConstructs[gorma.StorageGroup].(*gorma.StorageGroupDefinition)
+				sg := gorma.GormaDesign
 				rs := sg.RelationalStores[storename]
 				rm := rs.RelationalModels[modelname]
 				Ω(rm.RelationalFields[name].Description).Should(Equal(description))
 			})
 
 			It("sets the field name", func() {
-				sg := gorma.GormaConstructs[gorma.StorageGroup].(*gorma.StorageGroupDefinition)
+				sg := gorma.GormaDesign
 				rs := sg.RelationalStores[storename]
 				rm := rs.RelationalModels[modelname]
 				Ω(rm.RelationalFields["ID"].Name).Should(Equal("ID"))
 			})
 			It("sets the field type", func() {
-				sg := gorma.GormaConstructs[gorma.StorageGroup].(*gorma.StorageGroupDefinition)
+				sg := gorma.GormaDesign
 				rs := sg.RelationalStores[storename]
 				rm := rs.RelationalModels[modelname]
 				Ω(rm.RelationalFields["ID"].Datatype).Should(Equal(gorma.PKInteger))
 			})
 			It("sets the pk flag", func() {
-				sg := gorma.GormaConstructs[gorma.StorageGroup].(*gorma.StorageGroupDefinition)
+				sg := gorma.GormaDesign
 				rs := sg.RelationalStores[storename]
 				rm := rs.RelationalModels[modelname]
 				Ω(rm.RelationalFields["ID"].PrimaryKey).Should(Equal(true))
 			})
 			It("sets has a created at field", func() {
-				sg := gorma.GormaConstructs[gorma.StorageGroup].(*gorma.StorageGroupDefinition)
+				sg := gorma.GormaDesign
 				rs := sg.RelationalStores[storename]
 				rm := rs.RelationalModels[modelname]
 				Ω(rm.RelationalFields["CreatedAt"].Name).Should(Equal("CreatedAt"))
@@ -129,7 +131,7 @@ var _ = Describe("RelationalField", func() {
 				Ω(rm.RelationalFields["CreatedAt"].Nullable).Should(Equal(false))
 			})
 			It("sets has a deleted at field", func() {
-				sg := gorma.GormaConstructs[gorma.StorageGroup].(*gorma.StorageGroupDefinition)
+				sg := gorma.GormaDesign
 				rs := sg.RelationalStores[storename]
 				rm := rs.RelationalModels[modelname]
 				Ω(rm.RelationalFields["DeletedAt"].Name).Should(Equal("DeletedAt"))
@@ -137,7 +139,7 @@ var _ = Describe("RelationalField", func() {
 				Ω(rm.RelationalFields["DeletedAt"].Nullable).Should(Equal(true))
 			})
 			It("has the right number of fields", func() {
-				sg := gorma.GormaConstructs[gorma.StorageGroup].(*gorma.StorageGroupDefinition)
+				sg := gorma.GormaDesign
 				rs := sg.RelationalStores[storename]
 				rm := rs.RelationalModels[modelname]
 				length := len(rm.RelationalFields)

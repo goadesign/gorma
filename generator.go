@@ -79,15 +79,11 @@ func (g *Generator) Generate(api *design.APIDefinition) (_ []string, err error) 
 			g.Cleanup()
 		}
 	}()
-	fmt.Println("HELLO GENERATOR")
 	outdir := ModelOutputDir()
 	if err := os.MkdirAll(outdir, 0755); err != nil {
 		return nil, err
 	}
 
-	for _, root := range design.Roots {
-		fmt.Println(root)
-	}
 	err = api.IterateVersions(func(v *design.APIVersionDefinition) error {
 
 		// only generate for the base unnamed version
@@ -95,7 +91,6 @@ func (g *Generator) Generate(api *design.APIDefinition) (_ []string, err error) 
 		if v.Version != "" {
 			return nil
 		}
-		fmt.Println("HELLO GENERATOR VERSION", v.Version)
 		if err := g.generateUserTypes(outdir, v); err != nil {
 			return err
 		}
@@ -145,11 +140,8 @@ func packageName(version *design.APIVersionDefinition) (pack string) {
 func (g *Generator) generateUserTypes(outdir string, version *design.APIVersionDefinition) error {
 
 	var modelname, filename string
-	fmt.Println("HELLO GENERATOR USER TYPE")
 	err := GormaDesign.IterateStores(func(store *RelationalStoreDefinition) error {
-		fmt.Println("HELLO GENERATOR USER TYPE STORE", store.Name)
 		store.IterateModels(func(model *RelationalModelDefinition) error {
-			fmt.Println("HELLO GENERATOR USER TYPE STORE MODEL", model.Name)
 			modelname = strings.ToLower(codegen.Goify(model.Name, false))
 			modeldir := filepath.Join(outdir, "models", model.Name)
 			filename = fmt.Sprintf("%s_gen.go", modelname)

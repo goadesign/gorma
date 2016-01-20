@@ -19,7 +19,8 @@ var _ = Describe("RelationalStore", func() {
 		sgname = "production"
 		dsl = nil
 		name = ""
-		gorma.GormaConstructs = nil
+		gorma.GormaDesign = nil
+		InitDesign()
 
 	})
 
@@ -40,7 +41,7 @@ var _ = Describe("RelationalStore", func() {
 
 		It("produces a valid Relational Store definition", func() {
 			Ω(Design.Validate()).ShouldNot(HaveOccurred())
-			sg := gorma.GormaConstructs[gorma.StorageGroup].(*gorma.StorageGroupDefinition)
+			sg := gorma.GormaDesign
 			Ω(sg.RelationalStores[name].Name).Should(Equal(name))
 		})
 	})
@@ -86,7 +87,7 @@ var _ = Describe("RelationalStore", func() {
 			})
 
 			It("sets the relational store description", func() {
-				sg := gorma.GormaConstructs[gorma.StorageGroup].(*gorma.StorageGroupDefinition)
+				sg := gorma.GormaDesign
 				Ω(sg.RelationalStores[name].Description).Should(Equal(description))
 			})
 		})

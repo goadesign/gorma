@@ -1,10 +1,6 @@
 package gorma
 
-import (
-	"fmt"
-
-	"github.com/raphael/goa/design"
-)
+import "github.com/raphael/goa/design"
 
 // GormaDesign is the root definition for Gorma
 var GormaDesign *StorageGroupDefinition
@@ -37,9 +33,7 @@ const (
 
 // Init creates the necessary data structures for parsing a DSL
 func Init() {
-	fmt.Println("HELLO INIT")
 	sg := &StorageGroupDefinition{}
-
 	design.Roots = append(design.Roots, sg)
 	GormaDesign = sg
 }
