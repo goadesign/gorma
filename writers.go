@@ -8,10 +8,18 @@ import (
 )
 
 type (
+	TypeConverterData struct {
+		Type       *design.UserTypeDefinition
+		UpperName  string
+		LowerName  string
+		Version    string
+		VersionPkg string
+	}
 
 	// UserTypeTemplateData contains all the information used by the template to redner the
 	// media types code.
 	UserTypeTemplateData struct {
+		ConvertTypes  map[string]TypeConverterData
 		APIDefinition *design.APIDefinition
 		UserType      *RelationalModelDefinition
 		DefaultPkg    string
@@ -48,7 +56,10 @@ func arrayAttribute(a *design.AttributeDefinition) *design.AttributeDefinition {
 const (
 	// userTypeT generates the code for a user type.
 	// template input: UserTypeTemplateData
-	userTypeT = `// {{if .UserType.Description}}{{.UserType.Description}}{{else}}{{.UserType.Name }} type{{end}}
+	userTypeT = `// {{if .UserType.Description}}{{.UserType.Description}}
+// {{if .UserType.ModeledType  }} // Stores {{.UserType.ModeledType.TypeName}}{{end}}{{else}}{{.UserType.Name }}
+// {{if .UserType.ModeledType  }}Stores {{.UserType.ModeledType.TypeName}}{{end}}
+type{{end}}
 	{{.UserType.StructDefinition}}
 {{ if ne .UserType.TableName "" }}
 // TableName overrides the table name settings in gorm
@@ -113,8 +124,8 @@ func (m *{{$typename}}DB) One(ctx context.Context{{ if .UserType.DynamicTableNam
 }
 // Add creates a new record
 func (m *{{$typename}}DB) Add(ctx context.Context{{ if .UserType.DynamicTableName }}, tableName string{{ end }}, model {{$typename}}) ({{$typename}}, error) {
-	err := m.Db{{ if .UserType.DynamicTableName }}.Table(tableName){{ end }}.Create(&model).Error
-	{{ if .UserType.Cached }} go m.cache.Set(strconv.Itoa(model.ID), model, cache.DefaultExpiration) {{ end }}
+	err := m.Db{{ if .UserType.DynamicTableName }}.Table(tableName){{ end }}.Create(&model).Error{{ if .UserType.Cached }} 
+	go m.cache.Set(strconv.Itoa(model.ID), model, cache.DefaultExpiration) {{ end }}
 	return model, err
 }
 // Update modifies a single record
@@ -124,8 +135,7 @@ func (m *{{$typename}}DB) Update(ctx context.Context{{ if .UserType.DynamicTable
 		return  err
 	}
 	err = m.Db{{ if .UserType.DynamicTableName }}.Table(tableName){{ end }}.Model(&obj).Updates(model).Error
-	{{ if .UserType.Cached }}
-	go func(){
+	{{ if .UserType.Cached }}go func(){
 	obj, err := m.One(ctx, model.ID)
 	if err == nil {
 		m.cache.Set(strconv.Itoa(model.ID), obj, cache.DefaultExpiration)
@@ -136,12 +146,9 @@ func (m *{{$typename}}DB) Update(ctx context.Context{{ if .UserType.DynamicTable
 }
 // Delete removes a single record
 func (m *{{$typename}}DB) Delete(ctx context.Context{{ if .UserType.DynamicTableName }}, tableName string{{ end }}, {{.UserType.PKAttributes}})  error {
-	var obj {{$typename}}
-	{{ $l := len .UserType.PrimaryKeys }}
-	{{ if eq $l 1 }}
+	var obj {{$typename}}{{ $l := len .UserType.PrimaryKeys }}{{ if eq $l 1 }}
 	err := m.Db{{ if .UserType.DynamicTableName }}.Table(tableName){{ end }}.Delete(&obj, id).Error
-	{{ else  }}
-	err := m.Db{{ if .UserType.DynamicTableName }}.Table(tableName){{ end }}.Delete(&obj).Where("{{.UserType.PKWhere}}", {{.UserType.PKWhereFields}}).Error
+	{{ else  }}err := m.Db{{ if .UserType.DynamicTableName }}.Table(tableName){{ end }}.Delete(&obj).Where("{{.UserType.PKWhere}}", {{.UserType.PKWhereFields}}).Error
 	{{ end }}
 	if err != nil {
 		return  err
@@ -234,5 +241,25 @@ func Filter{{$typename}}By{{$bt.Name}}(parent *int, list []{{$typename}}) []{{$t
 	}
 	return filtered
 }
-{{end}}`
+{{end}}
+
+{{ if .UserType.ModeledType }}{{$ut := .UserType}}
+// Useful conversion functions
+func (m *{{$typeName}}DB) To{{.UserType.ModeledType.TypeName}}() {{.AppPkg}}.{{.UserType.ModeledType.TypeName}} {
+	payload := {{.AppPkg}}.{{.UserType.ModeledType.TypeName}}{}
+	{{ range $fname, $field := $ut.RelationalFields }}{{$obj  := $ut.ModeledType.ToObject}}{{range $key, $def := $obj}} {{if eq $field.LowerName $key}}payload.{{title $key}} = m.{{$fname}}
+	{{end}}{{end}}{{ end }}	return payload
+}
+{{end}}
+
+{{$ut := .UserType}}{{ range $key, $tcd := .ConvertTypes }}
+// Convert from	{{if eq $tcd.Version ""}}default version{{else}}Version {{$tcd.Version}}{{end}} {{$tcd.UpperName}} to {{$typeName}}
+func {{$typeName}}From{{$tcd.Version}}{{$tcd.UpperName}}(t {{if eq $tcd.Version ""}}{{$tcd.Version}}.{{end}}{{$tcd.UpperName}}) {{$typeName}} {
+	{{$ut.LowerName}} := {{$ut.Name}}{}
+	{{ range $fname, $field := $ut.RelationalFields }}{{$obj  := $tcd.Type.ToObject}}{{range $key, $def := $obj}} {{if eq $field.LowerName $key}}{{$ut.LowerName}}.{{title $key}} = t.{{$fname}}
+	{{end}}{{end}}{{ end }}	
+	return {{$ut.LowerName}}
+}
+{{end}}
+`
 )

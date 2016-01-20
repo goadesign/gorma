@@ -13,8 +13,6 @@ var sg = StorageGroup("MyStorageGroup", func() {
 			Description("This is the bottle model")
 			RelationalField("ID", gorma.PKInteger, func() {
 				Description("This is the ID PK field")
-				SQLTag("index")
-
 			})
 			RelationalField("Vintage", gorma.Integer, func() {
 				SQLTag("index")

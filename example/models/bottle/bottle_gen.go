@@ -12,25 +12,27 @@
 package bottle
 
 import (
+	"github.com/bketelsen/gorma/example/app"
 	"github.com/jinzhu/gorm"
 	"golang.org/x/net/context"
 )
 
 // This is the bottle model
+//  // Stores BottlePayload
 type Bottle struct {
-	ID        int             `sql:"index" gorm:"primary_key"` // This is the ID PK field
-	Varietal  string          //
+	ID        int             `gorm:"primary_key"` // This is the ID PK field
+	Country   string          //
+	Review    string          //
 	Vintage   int             `sql:"index"` //
 	Name      string          //
-	Region    string          //
-	Sweetness int             //
 	Vineyard  string          //
-	Review    string          //
-	Country   string          //
+	Sweetness int             //
+	Varietal  string          //
 	Color     string          //
+	Region    string          //
 	CreatedAt date.Timestamp  // timestamp
-	UpdatedAt date.Timestamp  // timestamp
 	DeletedAt *date.Timestamp // nullable timestamp (soft delete)
+	UpdatedAt date.Timestamp  // timestamp
 }
 
 // BottleDB is the implementation of the storage interface for Bottle
@@ -71,7 +73,6 @@ func (m *BottleDB) One(ctx context.Context, id int) (Bottle, error) {
 // Add creates a new record
 func (m *BottleDB) Add(ctx context.Context, model Bottle) (Bottle, error) {
 	err := m.Db.Create(&model).Error
-
 	return model, err
 }
 
@@ -89,7 +90,6 @@ func (m *BottleDB) Update(ctx context.Context, model Bottle) error {
 // Delete removes a single record
 func (m *BottleDB) Delete(ctx context.Context, id int) error {
 	var obj Bottle
-
 	err := m.Db.Delete(&obj, id).Error
 
 	if err != nil {
@@ -97,4 +97,23 @@ func (m *BottleDB) Delete(ctx context.Context, id int) error {
 	}
 
 	return nil
+}
+
+// Useful conversion functions
+func (m *BottleDB) ToBottlePayload() app.BottlePayload {
+	// convert it here, please
+
+	return &BottlePayload{}
+}
+
+// Convert from	default version CreateBottlePayload to Bottle
+func BottleFromCreateBottlePayload() Bottle {
+
+	return &Bottle{}
+}
+
+// Convert from	default version UpdateBottlePayload to Bottle
+func BottleFromUpdateBottlePayload() Bottle {
+
+	return &Bottle{}
 }

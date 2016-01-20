@@ -1,6 +1,7 @@
 package gorma
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -133,13 +134,10 @@ func packageName(version *design.APIVersionDefinition) (pack string) {
 // generateUserTypes iterates through the user types and generates the data structures and
 // marshaling code.
 func (g *Generator) generateUserTypes(outdir string, api *design.APIDefinition) error {
-	fmt.Println("Generating user types")
 	err := api.IterateVersions(func(version *design.APIVersionDefinition) error {
 		if version.Version != "" {
-			fmt.Println("Skipping version")
 			return nil
 		}
-		fmt.Println("Not skipping verson")
 		var modelname, filename string
 		err := GormaDesign.IterateStores(func(store *RelationalStoreDefinition) error {
 			err := store.IterateModels(func(model *RelationalModelDefinition) error {
@@ -164,13 +162,21 @@ func (g *Generator) generateUserTypes(outdir string, api *design.APIDefinition) 
 					panic(err) // bug
 				}
 				title := fmt.Sprintf("%s: Models", version.Context())
+				ap, err := AppPackagePath()
+				if err != nil {
+					panic(err)
+				}
 				imports := []*codegen.ImportSpec{
+					codegen.SimpleImport(ap),
 					codegen.SimpleImport("github.com/jinzhu/gorm"),
 					codegen.SimpleImport("golang.org/x/net/context"),
 				}
 
+				convTypes := getMatchingMediaTypes(model, api)
+
 				utWr.WriteHeader(title, modelname, imports)
 				data := &UserTypeTemplateData{
+					ConvertTypes:  convTypes,
 					APIDefinition: api,
 					UserType:      model,
 					DefaultPkg:    TargetPackage,
@@ -196,8 +202,44 @@ func (g *Generator) generateUserTypes(outdir string, api *design.APIDefinition) 
 	return err
 }
 
-/*
-	err = version.IterateUserTypes(func(t *design.UserTypeDefinition) error {
+func getMatchingMediaTypes(model *RelationalModelDefinition, api *design.APIDefinition) map[string]TypeConverterData {
+	data := make(map[string]TypeConverterData)
 
+	// Iterate API Versions
+	api.IterateVersions(func(version *design.APIVersionDefinition) error {
+		version.IterateResources(func(res *design.ResourceDefinition) error {
+			res.IterateActions(func(ad *design.ActionDefinition) error {
+				if ad.Payload != nil {
+					if compareObjectsSimple(model.ModeledType.ToObject(), ad.Payload.ToObject()) {
+						t := TypeConverterData{
+							Type:       ad.Payload,
+							UpperName:  strings.Title(ad.Payload.TypeName),
+							LowerName:  strings.ToLower(ad.Payload.TypeName),
+							Version:    version.Version,
+							VersionPkg: packageName(version),
+						}
+						data[version.Version+t.UpperName] = t
+					}
+				}
+				return nil
+			})
+			return nil
+		})
+		return nil
 	})
-*/
+	return data
+}
+
+func compareObjectsSimple(left, right design.Object) bool {
+	err := left.IterateAttributes(func(name string, at *design.AttributeDefinition) error {
+		_, ok := right[name]
+		if !ok {
+			return errors.New("no match")
+		}
+		return nil
+	})
+	if err != nil {
+		return false
+	}
+	return true
+}
