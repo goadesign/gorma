@@ -4,7 +4,7 @@ import "github.com/bketelsen/gorma"
 
 // RelationalField is a DSL definition for a field in a Relational Model
 // Examples and more docs here later
-func RelationalField(name string, fieldType gorma.FieldType, dsl func()) {
+func Field(name string, fieldType gorma.FieldType, dsl func()) {
 	// We can't rely on this being run first, any of the top level DSL could run
 	// in any order. The top level DSLs are API, Version, Resource, MediaType and Type.
 	// The first one to be called executes InitDesign.

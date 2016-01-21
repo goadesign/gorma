@@ -13,7 +13,7 @@ import (
 
 // RelationalModel is the DSL that represents a Relational Model
 // Examples and more docs here later
-func RelationalModel(name string, modeledType *design.UserTypeDefinition, dsl func()) {
+func Model(name string, modeledType *design.UserTypeDefinition, dsl func()) {
 	// We can't rely on this being run first, any of the top level DSL could run
 	// in any order. The top level DSLs are API, Version, Resource, MediaType and Type.
 	// The first one to be called executes InitDesign.

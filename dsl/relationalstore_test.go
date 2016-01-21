@@ -27,7 +27,7 @@ var _ = Describe("RelationalStore", func() {
 	JustBeforeEach(func() {
 
 		gdsl.StorageGroup(sgname, func() {
-			gdsl.RelationalStore(name, gorma.MySQL, dsl)
+			gdsl.Store(name, gorma.MySQL, dsl)
 		})
 
 		RunDSL()
@@ -53,7 +53,7 @@ var _ = Describe("RelationalStore", func() {
 
 		It("produces an error", func() {
 			gdsl.StorageGroup(sgname, func() {
-				gdsl.RelationalStore(name, gorma.MySQL, dsl)
+				gdsl.Store(name, gorma.MySQL, dsl)
 			})
 			Ω(Errors).Should(HaveOccurred())
 		})

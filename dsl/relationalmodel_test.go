@@ -50,15 +50,15 @@ var _ = Describe("RelationalModel", func() {
 
 	JustBeforeEach(func() {
 		gdsl.StorageGroup(sgname, func() {
-			gdsl.RelationalStore(storename, gorma.MySQL, func() {
-				gdsl.RelationalModel(name, RandomPayload, dsl)
-				gdsl.RelationalModel("Child", ChildPayload, func() {
+			gdsl.Store(storename, gorma.MySQL, func() {
+				gdsl.Model(name, RandomPayload, dsl)
+				gdsl.Model("Child", ChildPayload, func() {
 					gdsl.BelongsTo(name)
 				})
-				gdsl.RelationalModel("HasOne", HasOnePayload, func() {
+				gdsl.Model("HasOne", HasOnePayload, func() {
 					gdsl.HasOne("Child")
 				})
-				gdsl.RelationalModel("HasMany", HasOnePayload, func() {
+				gdsl.Model("HasMany", HasOnePayload, func() {
 					gdsl.HasMany("Children", "Child")
 				})
 
@@ -89,8 +89,8 @@ var _ = Describe("RelationalModel", func() {
 
 		It("produces an error", func() {
 			gdsl.StorageGroup(sgname, func() {
-				gdsl.RelationalStore(storename, gorma.MySQL, func() {
-					gdsl.RelationalModel(name, RandomPayload, dsl)
+				gdsl.Store(storename, gorma.MySQL, func() {
+					gdsl.Model(name, RandomPayload, dsl)
 				})
 			})
 			Ω(Errors).Should(HaveOccurred())
@@ -104,8 +104,8 @@ var _ = Describe("RelationalModel", func() {
 
 		It("returns an error", func() {
 			gdsl.StorageGroup(sgname, func() {
-				gdsl.RelationalStore(storename, gorma.MySQL, func() {
-					gdsl.RelationalModel(name, RandomPayload, dsl)
+				gdsl.Store(storename, gorma.MySQL, func() {
+					gdsl.Model(name, RandomPayload, dsl)
 				})
 			})
 			Ω(Errors).Should(HaveOccurred())

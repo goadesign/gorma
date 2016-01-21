@@ -3,7 +3,6 @@ package dsl_test
 import (
 	"github.com/bketelsen/gorma"
 	gdsl "github.com/bketelsen/gorma/dsl"
-	"github.com/kr/pretty"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	. "github.com/raphael/goa/design"
@@ -35,17 +34,16 @@ var _ = Describe("RelationalField", func() {
 
 	JustBeforeEach(func() {
 		gdsl.StorageGroup(sgname, func() {
-			gdsl.RelationalStore(storename, gorma.MySQL, func() {
-				gdsl.RelationalModel(modelname, RandomPayload, func() {
-					gdsl.RelationalField(name, ft, dsl)
-					gdsl.RelationalField("ID", gorma.PKInteger, dsl)
-					gdsl.RelationalField("CreatedAt", gorma.Timestamp, func() {})
-					gdsl.RelationalField("UpdatedAt", gorma.Timestamp, func() {})
-					gdsl.RelationalField("DeletedAt", gorma.NullableTimestamp, func() {})
+			gdsl.Store(storename, gorma.MySQL, func() {
+				gdsl.Model(modelname, RandomPayload, func() {
+					gdsl.Field(name, ft, dsl)
+					gdsl.Field("ID", gorma.PKInteger, dsl)
+					gdsl.Field("CreatedAt", gorma.Timestamp, func() {})
+					gdsl.Field("UpdatedAt", gorma.Timestamp, func() {})
+					gdsl.Field("DeletedAt", gorma.NullableTimestamp, func() {})
 				})
 			})
 		})
-		pretty.Println("JBE: ", gorma.GormaDesign)
 		RunDSL()
 
 	})
@@ -71,9 +69,9 @@ var _ = Describe("RelationalField", func() {
 
 		It("produces an error", func() {
 			gdsl.StorageGroup(sgname, func() {
-				gdsl.RelationalStore(storename, gorma.MySQL, func() {
-					gdsl.RelationalModel(modelname, RandomPayload, func() {
-						gdsl.RelationalField(name, ft, dsl)
+				gdsl.Store(storename, gorma.MySQL, func() {
+					gdsl.Model(modelname, RandomPayload, func() {
+						gdsl.Field(name, ft, dsl)
 					})
 				})
 			})
