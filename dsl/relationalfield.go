@@ -10,7 +10,11 @@ import (
 
 // RelationalField is a DSL definition for a field in a Relational Model
 // Examples and more docs here later
-//func Field(name string, fieldType gorma.FieldType, dsl func()) {
+// Parameter Options:
+// Field("Title")
+// Field("Title", gorma.String)
+// Field("Title", func(){... other field level dsl ...})
+// Field("Title", gorma.String, func(){... other field level dsl ...})
 func Field(name string, args ...interface{}) {
 	// We can't rely on this being run first, any of the top level DSL could run
 	// in any order. The top level DSLs are API, Version, Resource, MediaType and Type.
