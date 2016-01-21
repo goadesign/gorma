@@ -74,13 +74,14 @@ func goDatatype(f *RelationalFieldDefinition) string {
 		return ptr + "date.Timestamp"
 	default:
 		if f.BelongsTo != "" {
-			return f.BelongsTo
+			return fmt.Sprintf("%s.%s", strings.ToLower(f.BelongsTo), f.BelongsTo)
 		}
 		if f.HasMany != "" {
-			return f.HasMany
+
+			return fmt.Sprintf("[]%s.%s", strings.ToLower(f.HasMany), f.HasMany)
 		}
 		if f.HasOne != "" {
-			return f.HasOne
+			return fmt.Sprintf("%s.%s", strings.ToLower(f.HasOne), f.HasOne)
 		}
 	}
 

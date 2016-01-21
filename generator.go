@@ -173,7 +173,37 @@ func (g *Generator) generateUserTypes(outdir string, api *design.APIDefinition) 
 				}
 
 				convTypes := getMatchingMediaTypes(model, api)
-
+				// Imports
+				// HasMany
+				for _, hm := range model.HasMany {
+					mpp, err := ModelPackagePath()
+					if err != nil {
+						panic(err)
+					}
+					impdir := filepath.Join(mpp, hm.LowerName())
+					imp := codegen.SimpleImport(impdir)
+					imports = append(imports, imp)
+				}
+				// HasOne
+				for _, ho := range model.HasOne {
+					mpp, err := ModelPackagePath()
+					if err != nil {
+						panic(err)
+					}
+					impdir := filepath.Join(mpp, ho.LowerName())
+					imp := codegen.SimpleImport(impdir)
+					imports = append(imports, imp)
+				}
+				// BelongsTo
+				for _, bt := range model.BelongsTo {
+					mpp, err := ModelPackagePath()
+					if err != nil {
+						panic(err)
+					}
+					impdir := filepath.Join(mpp, bt.LowerName())
+					imp := codegen.SimpleImport(impdir)
+					imports = append(imports, imp)
+				}
 				utWr.WriteHeader(title, modelname, imports)
 				data := &UserTypeTemplateData{
 					ConvertTypes:  convTypes,

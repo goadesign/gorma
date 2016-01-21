@@ -1,6 +1,8 @@
 package gorma
 
 import (
+	"fmt"
+	"strings"
 	"text/template"
 
 	"github.com/raphael/goa/design"
@@ -33,6 +35,91 @@ type (
 	}
 )
 
+func fieldAssignmentModelToType(model *RelationalModelDefinition, ut *design.UserTypeDefinition, mtype, utype string) string {
+	//utPackage := "app"
+	var fieldAssignments []string
+	// type.Field = model.Field
+	for fname, field := range model.RelationalFields {
+		var mpointer, upointer bool
+		mpointer = field.Nullable
+		obj := ut.ToObject()
+		definition := ut.Definition()
+		for key, _ := range obj {
+			gfield := obj[key]
+			if field.LowerName() == key {
+				var fa string
+				// this is our field
+				if gfield.Type.IsObject() || definition.IsPrimitivePointer(key) {
+					upointer = true
+				} else {
+					// set it explicity because we're reusing the same bool
+					upointer = false
+				}
+				if upointer && mpointer {
+					// tfield = mfield
+					fa = fmt.Sprintf("\t%s.%s = %s.%s", utype, strings.Title(key), mtype, fname)
+
+				} else if upointer {
+					// *tfield = mfield
+					fa = fmt.Sprintf("\t*%s.%s = %s.%s", utype, strings.Title(key), mtype, fname)
+
+				} else if mpointer {
+					// tfield = *mfield (rare if never?)
+					fa = fmt.Sprintf("\t%s.%s = *%s.%s", utype, strings.Title(key), mtype, fname)
+				}
+				fieldAssignments = append(fieldAssignments, fa)
+
+			}
+		}
+
+	}
+	return strings.Join(fieldAssignments, "\n")
+}
+
+func fieldAssignmentTypeToModel(model *RelationalModelDefinition, ut *design.UserTypeDefinition, utype, mtype string) string {
+	//utPackage := "app"
+	var fieldAssignments []string
+	// type.Field = model.Field
+	for fname, field := range model.RelationalFields {
+		var mpointer, upointer bool
+		mpointer = field.Nullable
+		obj := ut.ToObject()
+		definition := ut.Definition()
+		for key, _ := range obj {
+			gfield := obj[key]
+			if field.LowerName() == key {
+				var fa string
+				// this is our field
+				if gfield.Type.IsObject() || definition.IsPrimitivePointer(key) {
+					upointer = true
+				} else {
+					// set it explicity because we're reusing the same bool
+					upointer = false
+				}
+				if !upointer && !mpointer {
+					// tfield = mfield
+					fa = fmt.Sprintf("\t%s.%s = %s.%s", mtype, fname, utype, strings.Title(key))
+				} else if upointer && mpointer {
+					// tfield = mfield
+					fa = fmt.Sprintf("\t%s.%s = %s.%s", mtype, fname, utype, strings.Title(key))
+
+				} else if upointer {
+					// *tfield = mfield
+					fa = fmt.Sprintf("\t*%s.%s = %s.%s", mtype, fname, utype, strings.Title(key))
+
+				} else if mpointer {
+					// tfield = *mfield (rare if never?)
+					fa = fmt.Sprintf("\t%s.%s = *%s.%s", mtype, fname, utype, strings.Title(key))
+				}
+				fieldAssignments = append(fieldAssignments, fa)
+
+			}
+		}
+
+	}
+	return strings.Join(fieldAssignments, "\n")
+}
+
 // NewUserTypesWriter returns a contexts code writer.
 // User types contain custom data structured defined in the DSL with "Type".
 func NewUserTypesWriter(filename string) (*UserTypesWriter, error) {
@@ -45,7 +132,10 @@ func NewUserTypesWriter(filename string) (*UserTypesWriter, error) {
 
 // Execute writes the code for the context types to the writer.
 func (w *UserTypesWriter) Execute(data *UserTypeTemplateData) error {
-	return w.ExecuteTemplate("types", userTypeT, nil, data)
+	fm := make(map[string]interface{})
+	fm["famt"] = fieldAssignmentModelToType
+	fm["fatm"] = fieldAssignmentTypeToModel
+	return w.ExecuteTemplate("types", userTypeT, fm, data)
 }
 
 // arrayAttribute returns the array element attribute definition.
@@ -243,21 +333,20 @@ func Filter{{$typename}}By{{$bt.Name}}(parent *int, list []{{$typename}}) []{{$t
 }
 {{end}}
 
-{{ if .UserType.ModeledType }}{{$ut := .UserType}}
+{{ if .UserType.ModeledType }}{{$ut := .UserType}}{{$tcd := $ut.ModeledType}}
 // Useful conversion functions
-func (m *{{$typeName}}DB) To{{.UserType.ModeledType.TypeName}}() {{.AppPkg}}.{{.UserType.ModeledType.TypeName}} {
-	payload := {{.AppPkg}}.{{.UserType.ModeledType.TypeName}}{}
-	{{ range $fname, $field := $ut.RelationalFields }}{{$obj  := $ut.ModeledType.ToObject}}{{range $key, $def := $obj}} {{if eq $field.LowerName $key}}payload.{{title $key}} = m.{{$fname}}
-	{{end}}{{end}}{{ end }}	return payload
+func (m *{{$typeName}}DB) To{{$tcd.TypeName}}() {{.AppPkg}}.{{$tcd.TypeName}} {
+	payload := {{.AppPkg}}.{{$tcd.TypeName}}{}
+	{{ famt $ut $tcd "m" "payload"}}
+	return payload
 }
 {{end}}
 
 {{$ut := .UserType}}{{ range $key, $tcd := .ConvertTypes }}
 // Convert from	{{if eq $tcd.Version ""}}default version{{else}}Version {{$tcd.Version}}{{end}} {{$tcd.UpperName}} to {{$typeName}}
-func {{$typeName}}From{{$tcd.Version}}{{$tcd.UpperName}}(t {{if eq $tcd.Version ""}}{{$tcd.Version}}.{{end}}{{$tcd.UpperName}}) {{$typeName}} {
+func {{$typeName}}From{{$tcd.Version}}{{$tcd.UpperName}}(t {{if ne $tcd.Version ""}}{{$tcd.Version}}.{{end}}{{$tcd.UpperName}}) {{$typeName}} {
 	{{$ut.LowerName}} := {{$ut.Name}}{}
-	{{ range $fname, $field := $ut.RelationalFields }}{{$obj  := $tcd.Type.ToObject}}{{range $key, $def := $obj}} {{if eq $field.LowerName $key}}{{$ut.LowerName}}.{{title $key}} = t.{{$fname}}
-	{{end}}{{end}}{{ end }}	
+	{{ fatm $ut $tcd.Type "m" $ut.LowerName}}
 	return {{$ut.LowerName}}
 }
 {{end}}
