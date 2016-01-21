@@ -1,11 +1,13 @@
 package dsl
 
 import (
-	"fmt"
 	"strings"
 
+	"bitbucket.org/pkg/inflect"
+
 	"github.com/bketelsen/gorma"
-	"github.com/raphael/goa/design/dsl"
+	"github.com/goadesign/goa/design/dsl"
+	"github.com/goadesign/goa/goagen/codegen"
 )
 
 // RelationalField is a DSL definition for a field in a Relational Model
@@ -22,8 +24,12 @@ func Field(name string, args ...interface{}) {
 
 	checkInit()
 	// standardize field name definitions
-	name = strings.Title(name)
-	fieldType, dsl := parsemModelArgs(args...)
+	name = codegen.Goify(name, true)
+	if strings.HasSuffix(name, "Id") {
+		name = strings.TrimRight(name, "Id")
+		name = name + "ID"
+	}
+	fieldType, dsl := parseModelArgs(args...)
 	if s, ok := relationalModelDefinition(true); ok {
 		if s.RelationalFields == nil {
 			s.RelationalFields = make(map[string]*gorma.RelationalFieldDefinition)
@@ -39,7 +45,6 @@ func Field(name string, args ...interface{}) {
 		} else {
 			// the field was auto-added by the model parser
 			// so we need to update whatever we can from this new definition
-			fmt.Println("AutoAdded field", name)
 			field.DefinitionDSL = dsl
 
 		}
@@ -60,12 +65,17 @@ func Field(name string, args ...interface{}) {
 			field.Description = "nullable timestamp (soft delete)"
 		}
 
+		field.DatabaseFieldName = inflect.Underscore(name)
+		if strings.HasSuffix(field.DatabaseFieldName, "_i_d") {
+			field.DatabaseFieldName = strings.TrimRight(field.DatabaseFieldName, "_i_d")
+			field.DatabaseFieldName = field.DatabaseFieldName + "_id"
+		}
 		s.RelationalFields[name] = field
 	}
 
 }
 
-func parsemModelArgs(args ...interface{}) (gorma.FieldType, func()) {
+func parseModelArgs(args ...interface{}) (gorma.FieldType, func()) {
 
 	var (
 		fieldType gorma.FieldType
@@ -103,12 +113,4 @@ func parsemModelArgs(args ...interface{}) (gorma.FieldType, func()) {
 
 	return fieldType, dslp
 
-}
-
-// DatabaseFieldName creates sql tag necessary to name the
-// database column
-func DatabaseFieldName(d string) {
-	if r, ok := relationalFieldDefinition(false); ok {
-		r.DatabaseFieldName = d
-	}
 }

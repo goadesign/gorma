@@ -5,8 +5,8 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/raphael/goa/design"
-	"github.com/raphael/goa/goagen/codegen"
+	"github.com/goadesign/goa/design"
+	"github.com/goadesign/goa/goagen/codegen"
 )
 
 type (
@@ -146,13 +146,12 @@ func arrayAttribute(a *design.AttributeDefinition) *design.AttributeDefinition {
 const (
 	// userTypeT generates the code for a user type.
 	// template input: UserTypeTemplateData
-	userTypeT = `// {{if .UserType.Description}}{{.UserType.Description}}
-// {{if .UserType.ModeledType  }} // Stores {{.UserType.ModeledType.TypeName}}{{end}}{{else}}{{.UserType.Name }}
-// {{if .UserType.ModeledType  }}Stores {{.UserType.ModeledType.TypeName}}{{end}}
-type{{end}}
-	{{.UserType.StructDefinition}}
+	userTypeT = `// {{if .UserType.Description}}{{.UserType.Description}} {{end}}
+{{if .UserType.ModeledType  }}// Stores {{.UserType.ModeledType.TypeName}}{{end}}
+{{.UserType.StructDefinition}}
 {{ if ne .UserType.TableName "" }}
-// TableName overrides the table name settings in gorm
+// TableName overrides the table name settings in Gorm to force a specific table name
+// in the database
 func (m {{.UserType.Name}}) TableName() string {
 	return "{{ .UserType.TableName}}"
 }{{end}}
@@ -207,8 +206,9 @@ func (m *{{$typename}}DB) One(ctx context.Context{{ if .UserType.DynamicTableNam
 		return o.({{$typename}}), nil
 	}
 	// fallback to database if not found{{ end }}
-	var obj {{$typename}}{{ $l := len $.UserType.PrimaryKeys }}{{ if eq $l 1 }}
-	err := m.Db{{ if .UserType.DynamicTableName }}.Table(tableName){{ end }}.Find(&obj, id).Error{{ else  }}err := m.Db{{ if .UserType.DynamicTableName }}.Table(tableName){{ end }}.Find(&obj).Where("{{.UserType.PKWhere}}", {{.UserType.PKWhereFields }} id).Error{{ end }}
+	var obj {{$typename}}{{ $l := len $.UserType.PrimaryKeys }}
+	{{ if eq $l 1 }}
+	err := m.Db{{ if .UserType.DynamicTableName }}.Table(tableName){{ end }}.Find(&obj, id).Error{{ else  }}err := m.Db{{ if .UserType.DynamicTableName }}.Table(tableName){{ end }}.Find(&obj).Where("{{.UserType.PKWhere}}", {{.UserType.PKWhereFields }}).Error{{ end }}
 	{{ if .UserType.Cached }} go m.cache.Set(strconv.Itoa(id), obj, cache.DefaultExpiration) {{ end }}
 	return obj, err
 }
@@ -236,7 +236,8 @@ func (m *{{$typename}}DB) Update(ctx context.Context{{ if .UserType.DynamicTable
 }
 // Delete removes a single record
 func (m *{{$typename}}DB) Delete(ctx context.Context{{ if .UserType.DynamicTableName }}, tableName string{{ end }}, {{.UserType.PKAttributes}})  error {
-	var obj {{$typename}}{{ $l := len .UserType.PrimaryKeys }}{{ if eq $l 1 }}
+	var obj {{$typename}}{{ $l := len .UserType.PrimaryKeys }}
+	{{ if eq $l 1 }}
 	err := m.Db{{ if .UserType.DynamicTableName }}.Table(tableName){{ end }}.Delete(&obj, id).Error
 	{{ else  }}err := m.Db{{ if .UserType.DynamicTableName }}.Table(tableName){{ end }}.Delete(&obj).Where("{{.UserType.PKWhere}}", {{.UserType.PKWhereFields}}).Error
 	{{ end }}
@@ -284,7 +285,7 @@ func (m *{{$typename}}DB) OneBy{{$bt.Name}}(ctx context.Context{{ if $ut.Dynamic
 {{$ut := .UserType }}{{$typeName := .UserType.Name}}{{ range $idx, $bt := .UserType.ManyToMany}}
 // Many To Many Relationships
 // Delete{{goify $bt.RightName true}} removes a {{$bt.RightName}}/{{$bt.LeftName}} entry from the join table
-func (m *{{$typeName}}DB) Delete{{goify $bt.RightName true}}(ctx context.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, {{$ut.Lower}}ID,  {{$bt.LowerRightName}}ID int)  error {
+func (m *{{$typeName}}DB) Delete{{goify $bt.RightName true}}(ctx context.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, {{$ut.LowerName}}ID,  {{$bt.LowerRightName}}ID int)  error {
 	var obj {{$typeName}}
 	obj.ID = {{$ut.LowerName}}ID
 	var assoc {{$bt.LowerRightName}}.{{$bt.RightName}}
@@ -305,14 +306,14 @@ func (m *{{$typeName}}DB) Add{{goify $bt.RightName true}}(ctx context.Context{{ 
 	{{$ut.LowerName}}.ID = {{$ut.LowerName}}ID
 	var assoc {{$bt.LowerRightName}}.{{$bt.RightName}}
 	assoc.ID = {{$bt.LowerRightName}}ID
-	err := m.Db{{ if $ut.DynamicTableName }}.Table(tableName){{ end }}.Model(&{{$ut.Lower}}).Association("{{$bt.RightNamePlural}}").Append(assoc).Error
+	err := m.Db{{ if $ut.DynamicTableName }}.Table(tableName){{ end }}.Model(&{{$ut.LowerName}}).Association("{{$bt.RightNamePlural}}").Append(assoc).Error
 	if err != nil {
 		return  err
 	}
 	return  nil
 }
 // List{{goify $bt.RightName true}} returns a list of the {{$bt.RightName}} models related to this {{$bt.LeftName}}
-func (m *{{$typeName}}DB) List{{goify $bt.RightName true}}(ctx context.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, {{$ut.Lower}}ID int)  []{{$bt.LowerRightName}}.{{$bt.RightName}} {
+func (m *{{$typeName}}DB) List{{goify $bt.RightName true}}(ctx context.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, {{$ut.LowerName}}ID int)  []{{$bt.LowerRightName}}.{{$bt.RightName}} {
 	var list []{{$bt.LowerRightName}}.{{$bt.RightName}}
 	var obj {{$typeName}}
 	obj.ID = {{$ut.LowerName}}ID

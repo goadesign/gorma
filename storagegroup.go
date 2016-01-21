@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"sort"
 
-	"github.com/raphael/goa/design"
+	"github.com/goadesign/goa/design"
 )
 
 // IterateStores runs an iterator function once per Relational Store in the StorageGroup's Store list

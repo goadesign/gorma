@@ -1,8 +1,8 @@
 package design
 
 import (
-	. "github.com/raphael/goa/design"
-	. "github.com/raphael/goa/design/dsl"
+	. "github.com/goadesign/goa/design"
+	. "github.com/goadesign/goa/design/dsl"
 )
 
 // Account is the account resource media type.

@@ -12,7 +12,7 @@
 
 package app
 
-import "github.com/raphael/goa"
+import "github.com/goadesign/goa"
 
 // AccountController is the controller interface for the Account actions.
 type AccountController interface {

@@ -6,8 +6,8 @@ import (
 	"strings"
 
 	"github.com/bketelsen/gorma"
-	"github.com/raphael/goa/design"
-	"github.com/raphael/goa/design/dsl"
+	"github.com/goadesign/goa/design"
+	"github.com/goadesign/goa/design/dsl"
 )
 
 func checkInit() {

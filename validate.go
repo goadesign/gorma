@@ -3,7 +3,7 @@ package gorma
 import (
 	"fmt"
 
-	"github.com/raphael/goa/design"
+	"github.com/goadesign/goa/design"
 )
 
 // Validate tests whether the StorageGroup definition is consistent

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"sort"
 
-	"github.com/raphael/goa/design"
+	"github.com/goadesign/goa/design"
 )
 
 // Context returns the generic definition name used in error messages.

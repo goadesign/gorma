@@ -2,13 +2,14 @@ package dsl
 
 import (
 	"strconv"
+	"strings"
 
 	"bitbucket.org/pkg/inflect"
 
 	"github.com/bketelsen/gorma"
-	"github.com/raphael/goa/design"
-	"github.com/raphael/goa/design/dsl"
-	"github.com/raphael/goa/goagen/codegen"
+	"github.com/goadesign/goa/design"
+	"github.com/goadesign/goa/design/dsl"
+	"github.com/goadesign/goa/goagen/codegen"
 )
 
 // RelationalModel is the DSL that represents a Relational Model
@@ -33,6 +34,7 @@ func Model(name string, modeledType *design.UserTypeDefinition, dsl func()) {
 				BelongsTo:        make(map[string]*gorma.RelationalModelDefinition),
 				HasMany:          make(map[string]*gorma.RelationalModelDefinition),
 				HasOne:           make(map[string]*gorma.RelationalModelDefinition),
+				ManyToMany:       make(map[string]*gorma.ManyToManyDefinition),
 			}
 		} else {
 			models.ModeledType = modeledType
@@ -65,6 +67,10 @@ func BelongsTo(parent string) {
 				Name:             parent,
 				Parent:           r.Parent,
 				RelationalFields: make(map[string]*gorma.RelationalFieldDefinition),
+				BelongsTo:        make(map[string]*gorma.RelationalModelDefinition),
+				HasMany:          make(map[string]*gorma.RelationalModelDefinition),
+				HasOne:           make(map[string]*gorma.RelationalModelDefinition),
+				ManyToMany:       make(map[string]*gorma.ManyToManyDefinition),
 			}
 			r.BelongsTo[parent] = models
 		}
@@ -93,6 +99,10 @@ func HasOne(child string) {
 				Name:             child,
 				Parent:           r.Parent,
 				RelationalFields: make(map[string]*gorma.RelationalFieldDefinition),
+				BelongsTo:        make(map[string]*gorma.RelationalModelDefinition),
+				HasMany:          make(map[string]*gorma.RelationalModelDefinition),
+				HasOne:           make(map[string]*gorma.RelationalModelDefinition),
+				ManyToMany:       make(map[string]*gorma.ManyToManyDefinition),
 			}
 			r.HasOne[child] = models
 		}
@@ -120,8 +130,64 @@ func HasMany(name, child string) {
 				Name:             child,
 				Parent:           r.Parent,
 				RelationalFields: make(map[string]*gorma.RelationalFieldDefinition),
+				BelongsTo:        make(map[string]*gorma.RelationalModelDefinition),
+				HasMany:          make(map[string]*gorma.RelationalModelDefinition),
+				HasOne:           make(map[string]*gorma.RelationalModelDefinition),
+				ManyToMany:       make(map[string]*gorma.ManyToManyDefinition),
 			}
 			r.HasMany[child] = model
+		}
+
+	}
+}
+
+// ManyToMany creates a join table to store the intersection relationship
+// between this model and another model.  For example, in retail an Order can
+// contain many products, and a product can belong to many orders.  To express
+// this relationship use the following syntax:
+// Model("Order", func(){
+//    ManyToMany("Product", "order_lines")
+// })
+// This specifies that the Order and Product tables have a "junction" table
+// called `order_lines` that contains the order and product information
+// The generated model will have a field called `Products` that will
+// be an array of type `product.Product`
+func ManyToMany(other, tablename string) {
+	if r, ok := relationalModelDefinition(false); ok {
+		field := &gorma.RelationalFieldDefinition{
+			Name:        inflect.Pluralize(other),
+			Many2Many:   other,
+			Description: "many to many " + r.Name + "/" + strings.Title(other),
+			Parent:      r,
+		}
+		r.RelationalFields[field.Name] = field
+		var model *gorma.RelationalModelDefinition
+		model, ok := r.Parent.RelationalModels[other]
+		var m2m *gorma.ManyToManyDefinition
+
+		if ok {
+			m2m = &gorma.ManyToManyDefinition{
+				Left:          r,
+				Right:         model,
+				DatabaseField: tablename,
+			}
+			r.ManyToMany[other] = m2m
+		} else {
+			model = &gorma.RelationalModelDefinition{
+				Name:             other,
+				Parent:           r.Parent,
+				RelationalFields: make(map[string]*gorma.RelationalFieldDefinition),
+				BelongsTo:        make(map[string]*gorma.RelationalModelDefinition),
+				HasMany:          make(map[string]*gorma.RelationalModelDefinition),
+				HasOne:           make(map[string]*gorma.RelationalModelDefinition),
+				ManyToMany:       make(map[string]*gorma.ManyToManyDefinition),
+			}
+			m2m = &gorma.ManyToManyDefinition{
+				Left:          r,
+				Right:         model,
+				DatabaseField: tablename,
+			}
+			r.ManyToMany[other] = m2m
 		}
 
 	}

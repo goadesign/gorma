@@ -5,9 +5,9 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/raphael/goa/design"
-	"github.com/raphael/goa/design/dsl"
-	"github.com/raphael/goa/goagen/codegen"
+	"github.com/goadesign/goa/design"
+	"github.com/goadesign/goa/design/dsl"
+	"github.com/goadesign/goa/goagen/codegen"
 )
 
 // Context returns the generic definition name used in error messages.
@@ -50,7 +50,7 @@ func (f *RelationalModelDefinition) PKWhere() string {
 		def := fmt.Sprintf("%s = ?", pk.DatabaseFieldName)
 		pkwhere = append(pkwhere, def)
 	}
-	return strings.Join(pkwhere, "and")
+	return strings.Join(pkwhere, " and ")
 }
 
 // PKWhereFields returns the fields for a where clause for the primary
@@ -117,7 +117,6 @@ func (f *RelationalModelDefinition) IterateFields(it FieldIterator) error {
 	}
 	for n := range f.RelationalFields {
 		if f.RelationalFields[n].Timestamp {
-			//	names[i] = n
 			dates[n] = n
 		}
 	}
@@ -169,6 +168,10 @@ func (f *RelationalModelDefinition) PopulateFromModeledType() {
 		rf := &RelationalFieldDefinition{}
 		rf.Parent = f
 		rf.Name = codegen.Goify(name, true)
+		if strings.HasSuffix(rf.Name, "Id") {
+			rf.Name = strings.TrimRight(rf.Name, "Id")
+			rf.Name = rf.Name + "ID"
+		}
 		switch att.Type.Kind() {
 		case design.BooleanKind:
 			rf.Datatype = Boolean

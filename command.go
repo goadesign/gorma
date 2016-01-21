@@ -1,8 +1,8 @@
 package gorma
 
 import (
-	"github.com/raphael/goa/goagen/codegen"
-	"github.com/raphael/goa/goagen/meta"
+	"github.com/goadesign/goa/goagen/codegen"
+	"github.com/goadesign/goa/goagen/meta"
 )
 
 var (

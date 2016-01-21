@@ -1,15 +1,14 @@
 package gorma
 
 import (
-	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
 
-	"github.com/raphael/goa/design"
-	"github.com/raphael/goa/goagen/codegen"
-	"github.com/raphael/goa/goagen/utils"
+	"github.com/goadesign/goa/design"
+	"github.com/goadesign/goa/goagen/codegen"
+	"github.com/goadesign/goa/goagen/utils"
 
 	"gopkg.in/alecthomas/kingpin.v2"
 )
@@ -141,7 +140,6 @@ func (g *Generator) generateUserTypes(outdir string, api *design.APIDefinition) 
 		var modelname, filename string
 		err := GormaDesign.IterateStores(func(store *RelationalStoreDefinition) error {
 			err := store.IterateModels(func(model *RelationalModelDefinition) error {
-				fmt.Println("Iterating models")
 				modelname = strings.ToLower(codegen.Goify(model.Name, false))
 				modeldir := filepath.Join(outdir, codegen.Goify(model.Name, false))
 
@@ -151,8 +149,6 @@ func (g *Generator) generateUserTypes(outdir string, api *design.APIDefinition) 
 
 				filename = fmt.Sprintf("%s_gen.go", modelname)
 				utFile := filepath.Join(modeldir, filename)
-				fmt.Println(filename)
-				fmt.Println(utFile)
 				err := os.RemoveAll(utFile)
 				if err != nil {
 					fmt.Println(err)
@@ -170,6 +166,17 @@ func (g *Generator) generateUserTypes(outdir string, api *design.APIDefinition) 
 					codegen.SimpleImport(ap),
 					codegen.SimpleImport("github.com/jinzhu/gorm"),
 					codegen.SimpleImport("golang.org/x/net/context"),
+				}
+				needDate := false
+				for _, field := range model.RelationalFields {
+					if field.Datatype == Timestamp || field.Datatype == NullableTimestamp {
+						needDate = true
+					}
+				}
+				if needDate {
+
+					imp := codegen.SimpleImport("time")
+					imports = append(imports, imp)
 				}
 
 				convTypes := getMatchingMediaTypes(model, api)
@@ -240,15 +247,21 @@ func getMatchingMediaTypes(model *RelationalModelDefinition, api *design.APIDefi
 		version.IterateResources(func(res *design.ResourceDefinition) error {
 			res.IterateActions(func(ad *design.ActionDefinition) error {
 				if ad.Payload != nil {
-					if compareObjectsSimple(model.ModeledType.ToObject(), ad.Payload.ToObject()) {
+					// TODO: This is crap, but nothing else seems to work
+					// It also requires that all UserTypes be named SomethingPayload
+					// Which sucks too
+					fixedTN := strings.Replace(ad.Payload.TypeName, "Payload", "", -1)
+					fixedTN = strings.Replace(fixedTN, strings.Title(ad.Name), "", -1)
+					if model.Name == fixedTN {
 						t := TypeConverterData{
 							Type:       ad.Payload,
-							UpperName:  strings.Title(ad.Payload.TypeName),
+							UpperName:  ad.Payload.TypeName,
 							LowerName:  strings.ToLower(ad.Payload.TypeName),
 							Version:    version.Version,
 							VersionPkg: packageName(version),
 						}
 						data[version.Version+t.UpperName] = t
+					} else {
 					}
 				}
 				return nil
@@ -258,18 +271,4 @@ func getMatchingMediaTypes(model *RelationalModelDefinition, api *design.APIDefi
 		return nil
 	})
 	return data
-}
-
-func compareObjectsSimple(left, right design.Object) bool {
-	err := left.IterateAttributes(func(name string, at *design.AttributeDefinition) error {
-		_, ok := right[name]
-		if !ok {
-			return errors.New("no match")
-		}
-		return nil
-	})
-	if err != nil {
-		return false
-	}
-	return true
 }

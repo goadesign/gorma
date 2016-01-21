@@ -1,6 +1,6 @@
 package gorma
 
-import "github.com/raphael/goa/design"
+import "github.com/goadesign/goa/design"
 
 // RelationalStorageType is the type of database
 type RelationalStorageType string
@@ -119,11 +119,7 @@ type ManyToManyDefinition struct {
 	DefinitionDSL    func()
 	Left             *RelationalModelDefinition
 	Right            *RelationalModelDefinition
-	LeftNamePlural   string
-	RightNamePlural  string
-	LeftName         string
-	RightName        string
-	RelationshipName string
+	RelationshipName string // ??
 	DatabaseField    string
 }
 

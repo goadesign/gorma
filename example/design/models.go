@@ -7,19 +7,19 @@ import (
 
 var sg = StorageGroup("MyStorageGroup", func() {
 	Description("This is the global storage group")
-	RelationalStore("mysql", gorma.MySQL, func() {
+	Store("mysql", gorma.MySQL, func() {
 		Description("This is the mysql relational store")
-		RelationalModel("Bottle", BottlePayload, func() {
+		Model("Bottle", BottlePayload, func() {
 			Description("This is the bottle model")
-			RelationalField("ID", gorma.PKInteger, func() {
+			Field("ID", gorma.PKInteger, func() {
 				Description("This is the ID PK field")
 			})
-			RelationalField("Vintage", gorma.Integer, func() {
+			Field("Vintage", gorma.Integer, func() {
 				SQLTag("index")
 			})
-			RelationalField("CreatedAt", gorma.Timestamp, func() {})
-			RelationalField("UpdatedAt", gorma.Timestamp, func() {})
-			RelationalField("DeletedAt", gorma.NullableTimestamp, func() {})
+			Field("CreatedAt", gorma.Timestamp, func() {})
+			Field("UpdatedAt", gorma.Timestamp, func() {})
+			Field("DeletedAt", gorma.NullableTimestamp, func() {})
 		})
 	})
 })

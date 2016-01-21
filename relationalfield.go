@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/raphael/goa/design"
+	"github.com/goadesign/goa/design"
 )
 
 // Context returns the generic definition name used in error messages.
@@ -71,7 +71,7 @@ func goDatatype(f *RelationalFieldDefinition) string {
 	case PKUUID:
 		return ptr + "string " // TBD
 	case Timestamp, NullableTimestamp:
-		return ptr + "date.Timestamp"
+		return ptr + "time.Time"
 	default:
 		if f.BelongsTo != "" {
 			return fmt.Sprintf("%s.%s", strings.ToLower(f.BelongsTo), f.BelongsTo)
@@ -82,6 +82,9 @@ func goDatatype(f *RelationalFieldDefinition) string {
 		}
 		if f.HasOne != "" {
 			return fmt.Sprintf("%s.%s", strings.ToLower(f.HasOne), f.HasOne)
+		}
+		if f.Many2Many != "" {
+			return fmt.Sprintf("[]%s.%s", strings.ToLower(f.Many2Many), f.Many2Many)
 		}
 	}
 

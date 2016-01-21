@@ -5,8 +5,8 @@ import (
 	gdsl "github.com/bketelsen/gorma/dsl"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	. "github.com/raphael/goa/design"
-	. "github.com/raphael/goa/design/dsl"
+	. "github.com/goadesign/goa/design"
+	. "github.com/goadesign/goa/design/dsl"
 )
 
 var _ = Describe("StorageGroup", func() {

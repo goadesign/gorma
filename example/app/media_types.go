@@ -12,7 +12,7 @@
 
 package app
 
-import "github.com/raphael/goa"
+import "github.com/goadesign/goa"
 
 // A tenant account
 // Identifier: application/vnd.account+json

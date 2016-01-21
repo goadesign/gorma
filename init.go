@@ -1,6 +1,6 @@
 package gorma
 
-import "github.com/raphael/goa/design"
+import "github.com/goadesign/goa/design"
 
 // GormaDesign is the root definition for Gorma
 var GormaDesign *StorageGroupDefinition
