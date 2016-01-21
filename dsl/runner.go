@@ -1,6 +1,7 @@
 package dsl
 
 import (
+	"reflect"
 	"runtime"
 	"strings"
 
@@ -71,6 +72,13 @@ func relationalFieldDefinition(failIfNotSD bool) (*gorma.RelationalFieldDefiniti
 		incompatibleDSL(caller())
 	}
 	return a, ok
+}
+
+// invalidArgError records an invalid argument error.
+// It is used by DSL functions that take dynamic arguments.
+func invalidArgError(expected string, actual interface{}) {
+	dsl.ReportError("cannot use %#v (type %s) as type %s",
+		actual, reflect.TypeOf(actual), expected)
 }
 
 // incompatibleDSL should be called by DSL functions when they are

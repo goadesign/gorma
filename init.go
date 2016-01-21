@@ -33,6 +33,7 @@ const (
 	PKUUID            FieldType             = "pkuuid"
 	Timestamp         FieldType             = "timestamp"
 	NullableTimestamp FieldType             = "nulltimestamp"
+	NotFound          FieldType             = "notfound"
 )
 
 // Init creates the necessary data structures for parsing a DSL

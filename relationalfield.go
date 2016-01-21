@@ -90,11 +90,21 @@ func goDatatype(f *RelationalFieldDefinition) string {
 }
 
 func tags(f *RelationalFieldDefinition) string {
-	var sqltags, gormtags string
+	var sqltag, stag, atag, gormtags string
+	var sqltags []string
 	var tags []string
 	if f.SQLTag != "" {
-		sqltags = "sql:\"" + f.SQLTag + "\""
-		tags = append(tags, sqltags)
+		stag = f.SQLTag
+		sqltags = append(sqltags, stag)
+	}
+	if f.Alias != "" {
+		atag = f.Alias
+		sqltags = append(sqltags, atag)
+	}
+	if f.Alias != "" || f.SQLTag != "" {
+		sqltag = "sql:\"" + strings.Join(sqltags, ";") + "\""
+		tags = append(tags, sqltag)
+
 	}
 
 	if f.PrimaryKey {
@@ -102,7 +112,7 @@ func tags(f *RelationalFieldDefinition) string {
 		tags = append(tags, gormtags)
 	}
 	output := strings.Join(tags, " ")
-	if sqltags != "" || gormtags != "" {
+	if sqltag != "" || gormtags != "" {
 		return fmt.Sprintf("`%s`", output)
 	}
 	return ""

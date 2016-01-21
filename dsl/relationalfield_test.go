@@ -38,9 +38,9 @@ var _ = Describe("RelationalField", func() {
 				gdsl.Model(modelname, RandomPayload, func() {
 					gdsl.Field(name, ft, dsl)
 					gdsl.Field("ID", gorma.PKInteger, dsl)
-					gdsl.Field("CreatedAt", gorma.Timestamp, func() {})
-					gdsl.Field("UpdatedAt", gorma.Timestamp, func() {})
-					gdsl.Field("DeletedAt", gorma.NullableTimestamp, func() {})
+					gdsl.Field("CreatedAt", gorma.Timestamp)
+					gdsl.Field("UpdatedAt", gorma.Timestamp)
+					gdsl.Field("DeletedAt", gorma.NullableTimestamp)
 				})
 			})
 		})

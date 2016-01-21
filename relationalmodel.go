@@ -162,11 +162,9 @@ func (f *RelationalModelDefinition) IterateFields(it FieldIterator) error {
 // ok to just assign without testing
 func (f *RelationalModelDefinition) PopulateFromModeledType() {
 	if f.ModeledType == nil {
-		fmt.Println("is nil")
 		return
 	}
 	obj := f.ModeledType.ToObject()
-
 	obj.IterateAttributes(func(name string, att *design.AttributeDefinition) error {
 		rf := &RelationalFieldDefinition{}
 		rf.Parent = f
