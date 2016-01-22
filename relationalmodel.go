@@ -39,7 +39,7 @@ func (sd RelationalModelDefinition) Children() []design.Definition {
 func (f *RelationalModelDefinition) PKAttributes() string {
 	var attr []string
 	for _, pk := range f.PrimaryKeys {
-		attr = append(attr, fmt.Sprintf("%s %s", inflect.Camelize(pk.Name), goDatatype(pk)))
+		attr = append(attr, fmt.Sprintf("%s %s", inflect.Underscore(pk.Name), goDatatype(pk)))
 	}
 	return strings.Join(attr, ",")
 }
