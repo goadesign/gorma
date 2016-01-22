@@ -65,10 +65,15 @@ func Field(name string, args ...interface{}) {
 			field.Description = "nullable timestamp (soft delete)"
 		}
 
+		// remove these hacks when goify can fix it
 		field.DatabaseFieldName = inflect.Underscore(name)
 		if strings.HasSuffix(field.DatabaseFieldName, "_i_d") {
 			field.DatabaseFieldName = strings.TrimSuffix(field.DatabaseFieldName, "_i_d")
 			field.DatabaseFieldName = field.DatabaseFieldName + "_id"
+		}
+		if field.DatabaseFieldName = "i_d" {
+			field.DatabaseFieldName = "id"  
+
 		}
 		s.RelationalFields[name] = field
 	}
