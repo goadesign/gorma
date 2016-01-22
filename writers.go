@@ -57,6 +57,11 @@ func fieldAssignmentModelToType(model *RelationalModelDefinition, ut *design.Med
 				} else if mpointer {
 					// tfield = *mfield (rare if never?)
 					fa = fmt.Sprintf("\t%s.%s = *%s.%s", utype, codegen.Goify(key, true), mtype, fname)
+				} else {
+					// tfield = mfield
+					fa = fmt.Sprintf("\t%s.%s = %s.%s", utype, codegen.Goify(key, true), mtype, fname)
+
+
 				}
 				fieldAssignments = append(fieldAssignments, fa)
 
@@ -341,7 +346,7 @@ func (m *{{$typeName}}) To{{$tcdTypeName}}() {{$ap}}.{{$tcdTypeName}} {
 }
 {{end}}{{end}}{{end}}
 
-{{$ap := .AppPkg}}{{ if gt (len .UserType.RenderTo) 0 }}{{$ut := .UserType}}{{range  $tcd := $ut.RenderTo }}{{ range $version := $tcd.APIVersions }}{{ $tcdTypeName := goify $tcd.TypeName true }} { if eq $version ""}}{{$version = $ap}}{{end}} // v{{$version}}{
+{{$ap := .AppPkg}}{{ if gt (len .UserType.RenderTo) 0 }}{{$ut := .UserType}}{{range  $tcd := $ut.RenderTo }}{{ range $version := $tcd.APIVersions }}{{ $tcdTypeName := goify $tcd.TypeName true }} {{ if eq $version ""}}{{$pack := $ap}}{{else}}{{$pack := $version}} {{end}} // v{{$version}}{
 // Useful conversion functions
 func (m *{{$typeName}}) To{{$tcdTypeName}}() {{$version}}.{{$tcdTypeName}} {
 	payload := {{$version}}.{{$tcdTypeName}}{}

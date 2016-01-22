@@ -141,14 +141,9 @@ func (g *Generator) generateUserTypes(outdir string, api *design.APIDefinition) 
 		err := GormaDesign.IterateStores(func(store *RelationalStoreDefinition) error {
 			err := store.IterateModels(func(model *RelationalModelDefinition) error {
 				modelname = strings.ToLower(codegen.Goify(model.Name, false))
-				modeldir := filepath.Join(outdir, strings.ToLower(model.Name))
-
-				if err := os.MkdirAll(modeldir, 0755); err != nil {
-					return nil
-				}
 
 				filename = fmt.Sprintf("%s_gen.go", modelname)
-				utFile := filepath.Join(modeldir, filename)
+				utFile := filepath.Join(outdir, filename)
 				err := os.RemoveAll(utFile)
 				if err != nil {
 					fmt.Println(err)
@@ -178,39 +173,7 @@ func (g *Generator) generateUserTypes(outdir string, api *design.APIDefinition) 
 					imp := codegen.SimpleImport("time")
 					imports = append(imports, imp)
 				}
-
-				// Imports
-				// HasMany
-				for _, hm := range model.HasMany {
-					mpp, err := ModelPackagePath()
-					if err != nil {
-						panic(err)
-					}
-					impdir := filepath.Join(mpp, hm.LowerName())
-					imp := codegen.SimpleImport(impdir)
-					imports = append(imports, imp)
-				}
-				// HasOne
-				for _, ho := range model.HasOne {
-					mpp, err := ModelPackagePath()
-					if err != nil {
-						panic(err)
-					}
-					impdir := filepath.Join(mpp, ho.LowerName())
-					imp := codegen.SimpleImport(impdir)
-					imports = append(imports, imp)
-				}
-				// BelongsTo
-				for _, bt := range model.BelongsTo {
-					mpp, err := ModelPackagePath()
-					if err != nil {
-						panic(err)
-					}
-					impdir := filepath.Join(mpp, bt.LowerName())
-					imp := codegen.SimpleImport(impdir)
-					imports = append(imports, imp)
-				}
-				utWr.WriteHeader(title, modelname, imports)
+				utWr.WriteHeader(title, "genmodels", imports)
 				data := &UserTypeTemplateData{
 					APIDefinition: api,
 					UserType:      model,

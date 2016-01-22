@@ -77,17 +77,17 @@ func goDatatype(f *RelationalFieldDefinition) string {
 		return ptr + "time.Time"
 	default:
 		if f.BelongsTo != "" {
-			return fmt.Sprintf("%s.%s", strings.ToLower(f.BelongsTo), f.BelongsTo)
+			return f.BelongsTo
 		}
 		if f.HasMany != "" {
 
-			return fmt.Sprintf("[]%s.%s", strings.ToLower(f.HasMany), f.HasMany)
+			return fmt.Sprintf("[]%s",  f.HasMany)
 		}
 		if f.HasOne != "" {
-			return fmt.Sprintf("%s.%s", strings.ToLower(f.HasOne), f.HasOne)
+			return fmt.Sprintf("%s",  f.HasOne)
 		}
 		if f.Many2Many != "" {
-			return fmt.Sprintf("[]%s.%s", strings.ToLower(f.Many2Many), f.Many2Many)
+			return fmt.Sprintf("[]%s", f.Many2Many)
 		}
 	}
 

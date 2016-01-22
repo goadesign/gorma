@@ -9,7 +9,7 @@
 // The content of this file is auto-generated, DO NOT MODIFY
 //************************************************************************//
 
-package bottle
+package genmodels
 
 import (
 	"time"
@@ -21,19 +21,19 @@ import (
 
 // This is the bottle model
 type Bottle struct {
-	ID        int        `gorm:"primary_key"` // This is the ID PK field
-	Name      string     //
-	Sweetness int        //
-	Region    string     //
-	Review    string     //
-	Varietal  string     //
-	Vineyard  string     //
-	Country   string     //
-	Vintage   int        `sql:"index"` //
-	Color     string     //
-	UpdatedAt time.Time  // timestamp
+	ID        int `gorm:"primary_key"` // This is the ID PK field
+	Color     string
+	Country   string
+	Name      string
+	Region    string
+	Review    string
+	Sweetness int
+	Varietal  string
+	Vineyard  string
+	Vintage   int        `sql:"index"`
 	DeletedAt *time.Time // nullable timestamp (soft delete)
 	CreatedAt time.Time  // timestamp
+	UpdatedAt time.Time  // timestamp
 }
 
 // BottleDB is the implementation of the storage interface for Bottle
@@ -62,6 +62,14 @@ type BottleStorage interface {
 }
 
 // CRUD Functions
+
+// List returns an array of records
+func (m *BottleDB) List(ctx context.Context) []Bottle {
+	var objs []Bottle
+	m.Db.Find(&objs)
+	return objs
+}
+
 // One returns a single record by ID
 func (m *BottleDB) One(ctx context.Context, id int) (Bottle, error) {
 
@@ -105,14 +113,16 @@ func (m *BottleDB) Delete(ctx context.Context, id int) error {
 // Useful conversion functions
 func (m *Bottle) ToBottle() app.Bottle {
 	payload := app.Bottle{}
-
-	payload.Country = &m.Country
-
-	payload.Sweetness = &m.Sweetness
-
-	payload.Region = &m.Region
 	payload.Review = &m.Review
-
+	// Unknown conversion: vintage, Vintage
+	// Unknown conversion: color, Color
+	// Unknown conversion: name, Name
+	payload.Region = &m.Region
+	// Unknown conversion: vineyard, Vineyard
+	// Unknown conversion: id, ID
+	payload.Country = &m.Country
+	payload.Sweetness = &m.Sweetness
+	// Unknown conversion: varietal, Varietal
 	return payload
 }
 
@@ -120,13 +130,13 @@ func (m *Bottle) ToBottle() app.Bottle {
 func BottleFromBottlePayload(t app.BottlePayload) Bottle {
 	bottle := Bottle{}
 	bottle.Color = *t.Color
+	bottle.Name = *t.Name
 	bottle.Region = *t.Region
 	bottle.Review = *t.Review
+	bottle.Vintage = *t.Vintage
+	bottle.Country = *t.Country
+	bottle.Sweetness = *t.Sweetness
 	bottle.Varietal = *t.Varietal
 	bottle.Vineyard = *t.Vineyard
-	bottle.Country = *t.Country
-	bottle.Name = *t.Name
-	bottle.Sweetness = *t.Sweetness
-	bottle.Vintage = *t.Vintage
 	return bottle
 }
