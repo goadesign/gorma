@@ -61,7 +61,6 @@ func fieldAssignmentModelToType(model *RelationalModelDefinition, ut *design.Med
 					// tfield = mfield
 					fa = fmt.Sprintf("\t%s.%s = %s.%s", utype, codegen.Goify(key, true), mtype, fname)
 
-
 				}
 				fieldAssignments = append(fieldAssignments, fa)
 
@@ -337,8 +336,7 @@ func Filter{{$typename}}By{{$bt.Name}}(parent *int, list []{{$typename}}) []{{$t
 }
 {{end}}
 
-{{$ap := .AppPkg}}{{ if gt (len .UserType.RenderTo) 0 }}{{$ut := .UserType}}{{range  $tcd := $ut.RenderTo }}{{if $tcd.SupportsNoVersion}}{{ $tcdTypeName := goify $tcd.TypeName true }}
-// Useful conversion functions
+{{$ap := .AppPkg}}{{ if gt (len .UserType.RenderTo) 0 }}{{$ut := .UserType}}// Useful conversion functions{{range  $tcd := $ut.RenderTo }}{{if $tcd.SupportsNoVersion}}{{ $tcdTypeName := goify $tcd.TypeName true }}
 func (m *{{$typeName}}) To{{$tcdTypeName}}() {{$ap}}.{{$tcdTypeName}} {
 	payload := {{$ap}}.{{$tcdTypeName}}{}
 	{{ famt $ut $tcd "m" "payload"}}
@@ -346,10 +344,10 @@ func (m *{{$typeName}}) To{{$tcdTypeName}}() {{$ap}}.{{$tcdTypeName}} {
 }
 {{end}}{{end}}{{end}}
 
-{{$ap := .AppPkg}}{{ if gt (len .UserType.RenderTo) 0 }}{{$ut := .UserType}}{{range  $tcd := $ut.RenderTo }}{{ range $version := $tcd.APIVersions }}{{ $tcdTypeName := goify $tcd.TypeName true }} {{ if eq $version ""}}{{$pack := $ap}}{{else}}{{$pack := $version}} {{end}} // v{{$version}}{
-// Useful conversion functions
-func (m *{{$typeName}}) To{{$tcdTypeName}}() {{$version}}.{{$tcdTypeName}} {
-	payload := {{$version}}.{{$tcdTypeName}}{}
+{{ if gt (len .UserType.RenderTo) 0 }}{{$ut := .UserType}}{{range  $tcd := $ut.RenderTo }}{{ range $version := $tcd.APIVersions }}{{ $tcdTypeName := goify $tcd.TypeName true }}
+//To{{if eq $version ""}}{{title $ap}}{{else}}{{title $version}}{{end}}{{$tcdTypeName}} converts to goa types
+func (m *{{$typeName}}) To{{if eq $version ""}}{{title $ap}}{{else}}{{title $version}}{{end}}{{$tcdTypeName}}() {{if eq $version ""}}{{$ap}}{{else}}{{$version}}{{end}}.{{$tcdTypeName}} {
+	payload := {{if eq $version ""}}{{$ap}}{{else}}{{$version}}{{end}}.{{$tcdTypeName}}{}
 	{{ famt $ut $tcd "m" "payload"}}
 	return payload
 }
