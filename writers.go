@@ -290,7 +290,7 @@ func (m *{{$typename}}DB) OneBy{{$bt.Name}}(ctx context.Context{{ if $ut.Dynamic
 func (m *{{$typeName}}DB) Delete{{goify $bt.RightName true}}(ctx context.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, {{$ut.LowerName}}ID,  {{$bt.LowerRightName}}ID int)  error {
 	var obj {{$typeName}}
 	obj.ID = {{$ut.LowerName}}ID
-	var assoc {{$bt.LowerRightName}}.{{$bt.RightName}}
+	var assoc {{$bt.RightName}}
 	var err error
 	assoc.ID = {{$bt.LowerRightName}}ID
 	if err != nil {
@@ -306,7 +306,7 @@ func (m *{{$typeName}}DB) Delete{{goify $bt.RightName true}}(ctx context.Context
 func (m *{{$typeName}}DB) Add{{goify $bt.RightName true}}(ctx context.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, {{$ut.LowerName}}ID, {{$bt.LowerRightName}}ID int) error {
 	var {{$ut.LowerName}} {{$typeName}}
 	{{$ut.LowerName}}.ID = {{$ut.LowerName}}ID
-	var assoc {{$bt.LowerRightName}}.{{$bt.RightName}}
+	var assoc {{$bt.RightName}}
 	assoc.ID = {{$bt.LowerRightName}}ID
 	err := m.Db{{ if $ut.DynamicTableName }}.Table(tableName){{ end }}.Model(&{{$ut.LowerName}}).Association("{{$bt.RightNamePlural}}").Append(assoc).Error
 	if err != nil {
@@ -316,7 +316,7 @@ func (m *{{$typeName}}DB) Add{{goify $bt.RightName true}}(ctx context.Context{{ 
 }
 // List{{goify $bt.RightName true}} returns a list of the {{$bt.RightName}} models related to this {{$bt.LeftName}}
 func (m *{{$typeName}}DB) List{{goify $bt.RightName true}}(ctx context.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, {{$ut.LowerName}}ID int)  []{{$bt.RightName}} {
-	var list []{{$bt.LowerRightName}}.{{$bt.RightName}}
+	var list []{{$bt.RightName}}
 	var obj {{$typeName}}
 	obj.ID = {{$ut.LowerName}}ID
 	m.Db{{ if $ut.DynamicTableName }}.Table(tableName){{ end }}.Model(&obj).Association("{{$bt.RightNamePlural}}").Find(&list)
