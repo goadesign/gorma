@@ -12,27 +12,28 @@
 package bottle
 
 import (
+	"time"
+
 	"github.com/bketelsen/gorma/example/app"
 	"github.com/jinzhu/gorm"
 	"golang.org/x/net/context"
 )
 
 // This is the bottle model
-//  // Stores BottlePayload
 type Bottle struct {
-	ID        int             `gorm:"primary_key"` // This is the ID PK field
-	Country   string          //
-	Review    string          //
-	Vintage   int             `sql:"index"` //
-	Name      string          //
-	Vineyard  string          //
-	Sweetness int             //
-	Varietal  string          //
-	Color     string          //
-	Region    string          //
-	CreatedAt date.Timestamp  // timestamp
-	DeletedAt *date.Timestamp // nullable timestamp (soft delete)
-	UpdatedAt date.Timestamp  // timestamp
+	ID        int        `gorm:"primary_key"` // This is the ID PK field
+	Name      string     //
+	Sweetness int        //
+	Region    string     //
+	Review    string     //
+	Varietal  string     //
+	Vineyard  string     //
+	Country   string     //
+	Vintage   int        `sql:"index"` //
+	Color     string     //
+	UpdatedAt time.Time  // timestamp
+	DeletedAt *time.Time // nullable timestamp (soft delete)
+	CreatedAt time.Time  // timestamp
 }
 
 // BottleDB is the implementation of the storage interface for Bottle
@@ -65,6 +66,7 @@ type BottleStorage interface {
 func (m *BottleDB) One(ctx context.Context, id int) (Bottle, error) {
 
 	var obj Bottle
+
 	err := m.Db.Find(&obj, id).Error
 
 	return obj, err
@@ -90,6 +92,7 @@ func (m *BottleDB) Update(ctx context.Context, model Bottle) error {
 // Delete removes a single record
 func (m *BottleDB) Delete(ctx context.Context, id int) error {
 	var obj Bottle
+
 	err := m.Db.Delete(&obj, id).Error
 
 	if err != nil {
@@ -100,20 +103,30 @@ func (m *BottleDB) Delete(ctx context.Context, id int) error {
 }
 
 // Useful conversion functions
-func (m *BottleDB) ToBottlePayload() app.BottlePayload {
-	// convert it here, please
+func (m *Bottle) ToBottle() app.Bottle {
+	payload := app.Bottle{}
 
-	return &BottlePayload{}
+	payload.Country = &m.Country
+
+	payload.Sweetness = &m.Sweetness
+
+	payload.Region = &m.Region
+	payload.Review = &m.Review
+
+	return payload
 }
 
-// Convert from	default version CreateBottlePayload to Bottle
-func BottleFromCreateBottlePayload() Bottle {
-
-	return &Bottle{}
-}
-
-// Convert from	default version UpdateBottlePayload to Bottle
-func BottleFromUpdateBottlePayload() Bottle {
-
-	return &Bottle{}
+// Convert from	default version BottlePayload to Bottle
+func BottleFromBottlePayload(t app.BottlePayload) Bottle {
+	bottle := Bottle{}
+	bottle.Color = *t.Color
+	bottle.Region = *t.Region
+	bottle.Review = *t.Review
+	bottle.Varietal = *t.Varietal
+	bottle.Vineyard = *t.Vineyard
+	bottle.Country = *t.Country
+	bottle.Name = *t.Name
+	bottle.Sweetness = *t.Sweetness
+	bottle.Vintage = *t.Vintage
+	return bottle
 }

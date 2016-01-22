@@ -9,7 +9,9 @@ var sg = StorageGroup("MyStorageGroup", func() {
 	Description("This is the global storage group")
 	Store("mysql", gorma.MySQL, func() {
 		Description("This is the mysql relational store")
-		Model("Bottle", BottlePayload, func() {
+		Model("Bottle", func() {
+			BuiltFrom(BottlePayload)
+			RenderTo(Bottle)
 			Description("This is the bottle model")
 			Field("ID", gorma.PKInteger, func() {
 				Description("This is the ID PK field")

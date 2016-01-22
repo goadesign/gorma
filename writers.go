@@ -35,7 +35,7 @@ func fieldAssignmentModelToType(model *RelationalModelDefinition, ut *design.Med
 		mpointer = field.Nullable
 		obj := ut.ToObject()
 		definition := ut.Definition()
-		for key, _ := range obj {
+		for key := range obj {
 			gfield := obj[key]
 			if field.LowerName() == key {
 				var fa string
@@ -51,8 +51,8 @@ func fieldAssignmentModelToType(model *RelationalModelDefinition, ut *design.Med
 					fa = fmt.Sprintf("\t%s.%s = %s.%s", utype, strings.Title(key), mtype, fname)
 
 				} else if upointer {
-					// *tfield = mfield
-					fa = fmt.Sprintf("\t*%s.%s = %s.%s", utype, strings.Title(key), mtype, fname)
+					// tfield = &mfield
+					fa = fmt.Sprintf("\t%s.%s = &%s.%s", utype, strings.Title(key), mtype, fname)
 
 				} else if mpointer {
 					// tfield = *mfield (rare if never?)
@@ -76,7 +76,7 @@ func fieldAssignmentTypeToModel(model *RelationalModelDefinition, ut *design.Use
 		mpointer = field.Nullable
 		obj := ut.ToObject()
 		definition := ut.Definition()
-		for key, _ := range obj {
+		for key := range obj {
 			gfield := obj[key]
 			if field.LowerName() == key {
 				var fa string
@@ -95,8 +95,8 @@ func fieldAssignmentTypeToModel(model *RelationalModelDefinition, ut *design.Use
 					fa = fmt.Sprintf("\t%s.%s = %s.%s", mtype, fname, utype, strings.Title(key))
 
 				} else if upointer {
-					// *tfield = mfield
-					fa = fmt.Sprintf("\t*%s.%s = %s.%s", mtype, fname, utype, strings.Title(key))
+					// tfield = &mfield
+					fa = fmt.Sprintf("\t%s.%s = *%s.%s", mtype, fname, utype, strings.Title(key))
 
 				} else if mpointer {
 					// tfield = *mfield (rare if never?)
@@ -354,7 +354,7 @@ func {{$typeName}}From{{$version}}{{$tcd.Name}}(t {{if ne $version ""}}{{$versio
 // Convert from	default version {{$tcd.TypeName}} to {{$typeName}}
 func {{$typeName}}From{{$tcd.TypeName}}(t {{$ap}}.{{$tcd.TypeName}}) {{$typeName}} {
 	{{$ut.LowerName}} := {{$ut.Name}}{}
-	{{ fatm $ut $tcd "m" $ut.LowerName}}
+	{{ fatm $ut $tcd "t" $ut.LowerName}}
 	return {{$ut.LowerName}}
 }
 
