@@ -185,7 +185,7 @@ type {{.UserType.Name}}Storage interface {
 	ListBy{{$bt.Name}}(ctx context.Context{{ if $dtn}}, tableName string{{ end }},{{$bt.LowerName}}_id int) []{{$typename}}
 	OneBy{{$bt.Name}}(ctx context.Context{{ if $dtn}}, tableName string{{ end }}, {{$bt.LowerName}}_id, id int) ({{$typename}}, error){{end}}
 	{{range $i, $m2m := .UserType.ManyToMany}}
-	List{{$m2m.RightNamePlural}}(context.Context, int) []{{$m2m.RightName}}.{{$m2m.RightName}}
+	List{{$m2m.RightNamePlural}}(context.Context, int) []{{{$m2m.RightName}}
 	Add{{$m2m.RightNamePlural}}(context.Context, int, int) (error)
 	Delete{{$m2m.RightNamePlural}}(context.Context, int, int) error
 	{{end}}
@@ -315,7 +315,7 @@ func (m *{{$typeName}}DB) Add{{goify $bt.RightName true}}(ctx context.Context{{ 
 	return  nil
 }
 // List{{goify $bt.RightName true}} returns a list of the {{$bt.RightName}} models related to this {{$bt.LeftName}}
-func (m *{{$typeName}}DB) List{{goify $bt.RightName true}}(ctx context.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, {{$ut.LowerName}}ID int)  []{{$bt.LowerRightName}}.{{$bt.RightName}} {
+func (m *{{$typeName}}DB) List{{goify $bt.RightName true}}(ctx context.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, {{$ut.LowerName}}ID int)  []{{$bt.RightName}} {
 	var list []{{$bt.LowerRightName}}.{{$bt.RightName}}
 	var obj {{$typeName}}
 	obj.ID = {{$ut.LowerName}}ID
