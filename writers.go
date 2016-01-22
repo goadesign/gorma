@@ -48,15 +48,15 @@ func fieldAssignmentModelToType(model *RelationalModelDefinition, ut *design.Med
 				}
 				if upointer && mpointer {
 					// tfield = mfield
-					fa = fmt.Sprintf("\t%s.%s = %s.%s", utype, strings.Title(key), mtype, fname)
+					fa = fmt.Sprintf("\t%s.%s = %s.%s", utype, codegen.Goify(key, true), mtype, fname)
 
 				} else if upointer {
 					// tfield = &mfield
-					fa = fmt.Sprintf("\t%s.%s = &%s.%s", utype, strings.Title(key), mtype, fname)
+					fa = fmt.Sprintf("\t%s.%s = &%s.%s", utype, codegen.Goify(key, true), mtype, fname)
 
 				} else if mpointer {
 					// tfield = *mfield (rare if never?)
-					fa = fmt.Sprintf("\t%s.%s = *%s.%s", utype, strings.Title(key), mtype, fname)
+					fa = fmt.Sprintf("\t%s.%s = *%s.%s", utype, codegen.Goify(key, true), mtype, fname)
 				}
 				fieldAssignments = append(fieldAssignments, fa)
 
