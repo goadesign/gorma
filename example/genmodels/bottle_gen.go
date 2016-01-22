@@ -31,9 +31,9 @@ type Bottle struct {
 	Varietal  string
 	Vineyard  string
 	Vintage   int        `sql:"index"`
-	UpdatedAt time.Time  // timestamp
 	DeletedAt *time.Time // nullable timestamp (soft delete)
 	CreatedAt time.Time  // timestamp
+	UpdatedAt time.Time  // timestamp
 }
 
 // BottleDB is the implementation of the storage interface for Bottle
@@ -113,30 +113,30 @@ func (m *BottleDB) Delete(ctx context.Context, id int) error {
 // Useful conversion functions
 func (m *Bottle) ToBottle() app.Bottle {
 	payload := app.Bottle{}
-	payload.Name = m.Name
-	payload.Region = &m.Region
-	payload.Review = &m.Review
-	payload.Vineyard = m.Vineyard
-	payload.Vintage = m.Vintage
-	payload.ID = m.ID
 	payload.Color = m.Color
 	payload.Country = &m.Country
+	payload.Name = m.Name
+	payload.Vineyard = m.Vineyard
+	payload.Vintage = m.Vintage
+	payload.Region = &m.Region
+	payload.Review = &m.Review
 	payload.Sweetness = &m.Sweetness
 	payload.Varietal = m.Varietal
+	payload.ID = m.ID
 	return payload
 }
 
 // Convert from	default version BottlePayload to Bottle
 func BottleFromBottlePayload(t app.BottlePayload) Bottle {
 	bottle := Bottle{}
+	bottle.Name = *t.Name
+	bottle.Vineyard = *t.Vineyard
+	bottle.Vintage = *t.Vintage
 	bottle.Color = *t.Color
 	bottle.Country = *t.Country
 	bottle.Sweetness = *t.Sweetness
 	bottle.Varietal = *t.Varietal
-	bottle.Vintage = *t.Vintage
-	bottle.Name = *t.Name
 	bottle.Region = *t.Region
 	bottle.Review = *t.Review
-	bottle.Vineyard = *t.Vineyard
 	return bottle
 }
