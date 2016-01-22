@@ -14,7 +14,7 @@ import (
 
 // RelationalModel is the DSL that represents a Relational Model
 // Examples and more docs here later
-func Model(name string, modeledType *design.UserTypeDefinition, dsl func()) {
+func Model(name string, dsl func()) {
 	// We can't rely on this being run first, any of the top level DSL could run
 	// in any order. The top level DSLs are API, Version, Resource, MediaType and Type.
 	// The first one to be called executes InitDesign.
@@ -29,7 +29,6 @@ func Model(name string, modeledType *design.UserTypeDefinition, dsl func()) {
 				Name:             name,
 				DefinitionDSL:    dsl,
 				Parent:           s,
-				ModeledType:      modeledType,
 				RelationalFields: make(map[string]*gorma.RelationalFieldDefinition),
 				BelongsTo:        make(map[string]*gorma.RelationalModelDefinition),
 				HasMany:          make(map[string]*gorma.RelationalModelDefinition),
@@ -37,11 +36,37 @@ func Model(name string, modeledType *design.UserTypeDefinition, dsl func()) {
 				ManyToMany:       make(map[string]*gorma.ManyToManyDefinition),
 			}
 		} else {
-			models.ModeledType = modeledType
 			models.DefinitionDSL = dsl
 		}
-		models.PopulateFromModeledType()
+		//models.PopulateFromModeledType() -- need to do this later
 		s.RelationalModels[name] = models
+	}
+
+}
+
+func RenderTo(mts ...*design.MediaTypeDefinition) {
+	checkInit()
+	if s, ok := relationalModelDefinition(true); ok {
+		if s.RenderTo == nil {
+			s.RenderTo = []*design.MediaTypeDefinition{}
+		}
+
+		for _, mt := range mts {
+			s.RenderTo = append(s.RenderTo, mt)
+		}
+	}
+
+}
+func BuiltFrom(mts ...*design.UserTypeDefinition) {
+	checkInit()
+	if s, ok := relationalModelDefinition(true); ok {
+		if s.BuiltFrom == nil {
+			s.BuiltFrom = []*design.UserTypeDefinition{}
+		}
+		for _, mt := range mts {
+			s.BuiltFrom = append(s.BuiltFrom, mt)
+		}
+		s.PopulateFromModeledType()
 	}
 
 }

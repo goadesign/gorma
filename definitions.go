@@ -36,7 +36,8 @@ type RelationalModelDefinition struct {
 	Name             string
 	Description      string //
 	Parent           *RelationalStoreDefinition
-	ModeledType      *design.UserTypeDefinition
+	BuiltFrom        []*design.UserTypeDefinition
+	RenderTo         []*design.MediaTypeDefinition
 	BelongsTo        map[string]*RelationalModelDefinition
 	HasMany          map[string]*RelationalModelDefinition
 	HasOne           map[string]*RelationalModelDefinition

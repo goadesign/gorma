@@ -10,18 +10,9 @@ import (
 )
 
 type (
-	TypeConverterData struct {
-		Type       *design.UserTypeDefinition
-		UpperName  string
-		LowerName  string
-		Version    string
-		VersionPkg string
-	}
-
 	// UserTypeTemplateData contains all the information used by the template to redner the
 	// media types code.
 	UserTypeTemplateData struct {
-		ConvertTypes  map[string]TypeConverterData
 		APIDefinition *design.APIDefinition
 		UserType      *RelationalModelDefinition
 		DefaultPkg    string
@@ -35,7 +26,7 @@ type (
 	}
 )
 
-func fieldAssignmentModelToType(model *RelationalModelDefinition, ut *design.UserTypeDefinition, mtype, utype string) string {
+func fieldAssignmentModelToType(model *RelationalModelDefinition, ut *design.MediaTypeDefinition, mtype, utype string) string {
 	//utPackage := "app"
 	var fieldAssignments []string
 	// type.Field = model.Field
@@ -147,7 +138,6 @@ const (
 	// userTypeT generates the code for a user type.
 	// template input: UserTypeTemplateData
 	userTypeT = `// {{if .UserType.Description}}{{.UserType.Description}} {{end}}
-{{if .UserType.ModeledType  }}// Stores {{.UserType.ModeledType.TypeName}}{{end}}
 {{.UserType.StructDefinition}}
 {{ if ne .UserType.TableName "" }}
 // TableName overrides the table name settings in Gorm to force a specific table name
@@ -334,22 +324,40 @@ func Filter{{$typename}}By{{$bt.Name}}(parent *int, list []{{$typename}}) []{{$t
 }
 {{end}}
 
-{{ if .UserType.ModeledType }}{{$ut := .UserType}}{{$tcd := $ut.ModeledType}}
+{{$ap := .AppPkg}}{{ if gt (len .UserType.RenderTo) 0 }}{{$ut := .UserType}}{{range  $tcd := $ut.RenderTo }}{{if $tcd.SupportsNoVersion}}
 // Useful conversion functions
-func (m *{{$typeName}}DB) To{{$tcd.TypeName}}() {{.AppPkg}}.{{$tcd.TypeName}} {
-	payload := {{.AppPkg}}.{{$tcd.TypeName}}{}
+func (m *{{$typeName}}) To{{$tcd.TypeName}}() {{$ap}}.{{$tcd.TypeName}} {
+	payload := {{$ap}}.{{$tcd.TypeName}}{}
 	{{ famt $ut $tcd "m" "payload"}}
 	return payload
 }
-{{end}}
+{{end}}{{end}}{{end}}
 
-{{$ut := .UserType}}{{ range $key, $tcd := .ConvertTypes }}
-// Convert from	{{if eq $tcd.Version ""}}default version{{else}}Version {{$tcd.Version}}{{end}} {{$tcd.UpperName}} to {{$typeName}}
-func {{$typeName}}From{{$tcd.Version}}{{$tcd.UpperName}}(t {{if ne $tcd.Version ""}}{{$tcd.Version}}.{{end}}{{$tcd.UpperName}}) {{$typeName}} {
+{{$ap := .AppPkg}}{{ if gt (len .UserType.RenderTo) 0 }}{{$ut := .UserType}}{{range  $tcd := $ut.RenderTo }}{{ range $version := $tcd.APIVersions }} // v{{$version}}
+// Useful conversion functions
+func (m *{{$typeName}}) To{{$tcd.TypeName}}() {{$version}}.{{$tcd.TypeName}} {
+	payload := {{$version}}.{{$tcd.TypeName}}{}
+	{{ famt $ut $tcd "m" "payload"}}
+	return payload
+}
+{{end}}{{end}}{{end}}
+
+{{$ap:= .AppPkg}}{{$ut := .UserType}}{{ range $tcd := $ut.BuiltFrom}}{{ range $version := $tcd.APIVersions }} // v{{$version}}
+// Convert from	{{if eq $version ""}}default version{{else}}Version {{$version}}{{end}} {{$tcd.TypeName}} to {{$typeName}}
+func {{$typeName}}From{{$version}}{{$tcd.Name}}(t {{if ne $version ""}}{{$version}}.{{else}}{{$ap}}.{{end}}{{$tcd.Name}}) {{$typeName}} {
 	{{$ut.LowerName}} := {{$ut.Name}}{}
 	{{ fatm $ut $tcd.Type "m" $ut.LowerName}}
 	return {{$ut.LowerName}}
 }
+{{end}}{{end}}
+{{$ap:= .AppPkg}}{{$ut := .UserType}}{{ range $tcd := $ut.BuiltFrom}}
+// Convert from	default version {{$tcd.TypeName}} to {{$typeName}}
+func {{$typeName}}From{{$tcd.TypeName}}(t {{$ap}}.{{$tcd.TypeName}}) {{$typeName}} {
+	{{$ut.LowerName}} := {{$ut.Name}}{}
+	{{ fatm $ut $tcd "m" $ut.LowerName}}
+	return {{$ut.LowerName}}
+}
+
 {{end}}
 `
 )

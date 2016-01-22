@@ -160,33 +160,36 @@ func (f *RelationalModelDefinition) IterateFields(it FieldIterator) error {
 // This happens before fields are processed, so it's
 // ok to just assign without testing
 func (f *RelationalModelDefinition) PopulateFromModeledType() {
-	if f.ModeledType == nil {
+	if f.BuiltFrom == nil {
 		return
 	}
-	obj := f.ModeledType.ToObject()
-	obj.IterateAttributes(func(name string, att *design.AttributeDefinition) error {
-		rf := &RelationalFieldDefinition{}
-		rf.Parent = f
-		rf.Name = codegen.Goify(name, true)
-		if strings.HasSuffix(rf.Name, "Id") {
-			rf.Name = strings.TrimRight(rf.Name, "Id")
-			rf.Name = rf.Name + "ID"
-		}
-		switch att.Type.Kind() {
-		case design.BooleanKind:
-			rf.Datatype = Boolean
-		case design.IntegerKind:
-			rf.Datatype = Integer
-		case design.NumberKind:
-			rf.Datatype = Decimal
-		case design.StringKind:
-			rf.Datatype = String
-		default:
-			dsl.ReportError("Unsupported type: %#v ", att.Type.Kind())
-		}
-		f.RelationalFields[rf.Name] = rf
-		return nil
-	})
+	for _, mt := range f.BuiltFrom {
+		obj := mt.ToObject()
+		obj.IterateAttributes(func(name string, att *design.AttributeDefinition) error {
+			rf := &RelationalFieldDefinition{}
+			rf.Parent = f
+			rf.Name = codegen.Goify(name, true)
+			if strings.HasSuffix(rf.Name, "Id") {
+				rf.Name = strings.TrimRight(rf.Name, "Id")
+				rf.Name = rf.Name + "ID"
+			}
+			switch att.Type.Kind() {
+			case design.BooleanKind:
+				rf.Datatype = Boolean
+			case design.IntegerKind:
+				rf.Datatype = Integer
+			case design.NumberKind:
+				rf.Datatype = Decimal
+			case design.StringKind:
+				rf.Datatype = String
+			default:
+				dsl.ReportError("Unsupported type: %#v ", att.Type.Kind())
+			}
+			f.RelationalFields[rf.Name] = rf
+			return nil
+		})
+
+	}
 	return
 
 }

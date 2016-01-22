@@ -3,10 +3,10 @@ package dsl_test
 import (
 	"github.com/bketelsen/gorma"
 	gdsl "github.com/bketelsen/gorma/dsl"
-	. "github.com/onsi/ginkgo"
-	. "github.com/onsi/gomega"
 	. "github.com/goadesign/goa/design"
 	. "github.com/goadesign/goa/design/dsl"
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
 )
 
 var _ = Describe("RelationalField", func() {
@@ -35,7 +35,8 @@ var _ = Describe("RelationalField", func() {
 	JustBeforeEach(func() {
 		gdsl.StorageGroup(sgname, func() {
 			gdsl.Store(storename, gorma.MySQL, func() {
-				gdsl.Model(modelname, RandomPayload, func() {
+				gdsl.Model(modelname, func() {
+					gdsl.BuiltFrom(RandomPayload)
 					gdsl.Field(name, ft, dsl)
 					gdsl.Field("ID", gorma.PKInteger, dsl)
 					gdsl.Field("CreatedAt", gorma.Timestamp)
@@ -70,7 +71,7 @@ var _ = Describe("RelationalField", func() {
 		It("produces an error", func() {
 			gdsl.StorageGroup(sgname, func() {
 				gdsl.Store(storename, gorma.MySQL, func() {
-					gdsl.Model(modelname, RandomPayload, func() {
+					gdsl.Model(modelname, func() {
 						gdsl.Field(name, ft, dsl)
 					})
 				})
@@ -141,7 +142,7 @@ var _ = Describe("RelationalField", func() {
 				rs := sg.RelationalStores[storename]
 				rm := rs.RelationalModels[modelname]
 				length := len(rm.RelationalFields)
-				Ω(length).Should(Equal(6))
+				Ω(length).Should(Equal(5))
 			})
 		})
 

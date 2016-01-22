@@ -179,7 +179,6 @@ func (g *Generator) generateUserTypes(outdir string, api *design.APIDefinition) 
 					imports = append(imports, imp)
 				}
 
-				convTypes := getMatchingMediaTypes(model, api)
 				// Imports
 				// HasMany
 				for _, hm := range model.HasMany {
@@ -213,7 +212,6 @@ func (g *Generator) generateUserTypes(outdir string, api *design.APIDefinition) 
 				}
 				utWr.WriteHeader(title, modelname, imports)
 				data := &UserTypeTemplateData{
-					ConvertTypes:  convTypes,
 					APIDefinition: api,
 					UserType:      model,
 					DefaultPkg:    TargetPackage,
@@ -237,38 +235,4 @@ func (g *Generator) generateUserTypes(outdir string, api *design.APIDefinition) 
 		return err
 	})
 	return err
-}
-
-func getMatchingMediaTypes(model *RelationalModelDefinition, api *design.APIDefinition) map[string]TypeConverterData {
-	data := make(map[string]TypeConverterData)
-
-	// Iterate API Versions
-	api.IterateVersions(func(version *design.APIVersionDefinition) error {
-		version.IterateResources(func(res *design.ResourceDefinition) error {
-			res.IterateActions(func(ad *design.ActionDefinition) error {
-				if ad.Payload != nil {
-					// TODO: This is crap, but nothing else seems to work
-					// It also requires that all UserTypes be named SomethingPayload
-					// Which sucks too
-					fixedTN := strings.Replace(ad.Payload.TypeName, "Payload", "", -1)
-					fixedTN = strings.Replace(fixedTN, strings.Title(ad.Name), "", -1)
-					if model.Name == fixedTN {
-						t := TypeConverterData{
-							Type:       ad.Payload,
-							UpperName:  ad.Payload.TypeName,
-							LowerName:  strings.ToLower(ad.Payload.TypeName),
-							Version:    version.Version,
-							VersionPkg: packageName(version),
-						}
-						data[version.Version+t.UpperName] = t
-					} else {
-					}
-				}
-				return nil
-			})
-			return nil
-		})
-		return nil
-	})
-	return data
 }

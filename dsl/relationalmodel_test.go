@@ -3,10 +3,10 @@ package dsl_test
 import (
 	"github.com/bketelsen/gorma"
 	gdsl "github.com/bketelsen/gorma/dsl"
-	. "github.com/onsi/ginkgo"
-	. "github.com/onsi/gomega"
 	. "github.com/goadesign/goa/design"
 	. "github.com/goadesign/goa/design/dsl"
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
 )
 
 var _ = Describe("RelationalModel", func() {
@@ -51,14 +51,17 @@ var _ = Describe("RelationalModel", func() {
 	JustBeforeEach(func() {
 		gdsl.StorageGroup(sgname, func() {
 			gdsl.Store(storename, gorma.MySQL, func() {
-				gdsl.Model(name, RandomPayload, dsl)
-				gdsl.Model("Child", ChildPayload, func() {
+				gdsl.Model(name, dsl)
+				gdsl.Model("Child", func() {
+					gdsl.BuiltFrom(ChildPayload)
 					gdsl.BelongsTo(name)
 				})
-				gdsl.Model("HasOne", HasOnePayload, func() {
+				gdsl.Model("HasOne", func() {
+					gdsl.BuiltFrom(HasOnePayload)
 					gdsl.HasOne("Child")
 				})
-				gdsl.Model("HasMany", HasOnePayload, func() {
+				gdsl.Model("HasMany", func() {
+					gdsl.BuiltFrom(HasManyPayload)
 					gdsl.HasMany("Children", "Child")
 				})
 
@@ -90,7 +93,7 @@ var _ = Describe("RelationalModel", func() {
 		It("produces an error", func() {
 			gdsl.StorageGroup(sgname, func() {
 				gdsl.Store(storename, gorma.MySQL, func() {
-					gdsl.Model(name, RandomPayload, dsl)
+					gdsl.Model(name, dsl)
 				})
 			})
 			Ω(Errors).Should(HaveOccurred())
@@ -105,7 +108,7 @@ var _ = Describe("RelationalModel", func() {
 		It("returns an error", func() {
 			gdsl.StorageGroup(sgname, func() {
 				gdsl.Store(storename, gorma.MySQL, func() {
-					gdsl.Model(name, RandomPayload, dsl)
+					gdsl.Model(name, dsl)
 				})
 			})
 			Ω(Errors).Should(HaveOccurred())
