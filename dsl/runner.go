@@ -5,7 +5,7 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/bketelsen/gorma"
+	"github.com/goadesign/gorma"
 	"github.com/goadesign/goa/design"
 	"github.com/goadesign/goa/design/dsl"
 )

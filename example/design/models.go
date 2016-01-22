@@ -1,8 +1,8 @@
 package design
 
 import (
-	"github.com/bketelsen/gorma"
-	. "github.com/bketelsen/gorma/dsl"
+	"github.com/goadesign/gorma"
+	. "github.com/goadesign/gorma/dsl"
 )
 
 var sg = StorageGroup("MyStorageGroup", func() {

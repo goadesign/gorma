@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/bketelsen/gorma/example/app"
+	"github.com/goadesign/gorma/example/app"
 	"github.com/goadesign/goa"
 )
 

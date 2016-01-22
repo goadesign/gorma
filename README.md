@@ -1,7 +1,7 @@
 # gorma
 Gorma is a storage generator for [goa](http://goa.design).
 
-[![GoDoc](https://godoc.org/github.com/bketelsen/gorma?status.svg)](http://godoc.org/github.com/bketelsen/gorma)
+[![GoDoc](https://godoc.org/github.com/goadesign/gorma?status.svg)](http://godoc.org/github.com/goadesign/gorma)
 
 ## Table of Contents
 
@@ -49,7 +49,7 @@ See the `dsl` GoDoc for all the details and options.
 From the root of your application, issue the `goagen` command as follows:
 
 ```
-	goagen --design=github.com/gopheracademy/congo/design gen --pkg-path=github.com/bketelsen/gorma
+	goagen --design=github.com/gopheracademy/congo/design gen --pkg-path=github.com/goadesign/gorma
 ```
 Be sure to replace `github.com/gopheracademy/congo/design` with the design package of your `goa` application.
 

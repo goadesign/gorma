@@ -1,6 +1,6 @@
 package dsl
 
-import "github.com/bketelsen/gorma"
+import "github.com/goadesign/gorma"
 
 // Store represents a database.  Gorma lets you specify
 // a database type, but it's currently not used for any generation

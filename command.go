@@ -35,7 +35,7 @@ func (c *Command) Run() ([]string, error) {
 	flags := map[string]string{"pkg": TargetPackage}
 	gen := meta.NewGenerator(
 		"modelgen.Generate",
-		[]*codegen.ImportSpec{codegen.SimpleImport("github.com/bketelsen/gorma/modelgen")},
+		[]*codegen.ImportSpec{codegen.SimpleImport("github.com/goadesign/gorma/modelgen")},
 		flags,
 	)
 	return gen.Generate()

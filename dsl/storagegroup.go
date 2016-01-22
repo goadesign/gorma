@@ -1,7 +1,7 @@
 package dsl
 
 import (
-	"github.com/bketelsen/gorma"
+	"github.com/goadesign/gorma"
 	"github.com/goadesign/goa/design/dsl"
 )
 

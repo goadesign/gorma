@@ -3,8 +3,8 @@
 //
 // Generated with goagen v0.0.1, command line:
 // $ goagen
-// --out=$(GOPATH)/src/github.com/bketelsen/gorma/example
-// --design=github.com/bketelsen/gorma/example/design
+// --out=$(GOPATH)/src/github.com/goadesign/gorma/example
+// --design=github.com/goadesign/gorma/example/design
 //
 // The content of this file is auto-generated, DO NOT MODIFY
 //************************************************************************//
@@ -14,7 +14,7 @@ package bottle
 import (
 	"time"
 
-	"github.com/bketelsen/gorma/example/app"
+	"github.com/goadesign/gorma/example/app"
 	"github.com/jinzhu/gorm"
 	"golang.org/x/net/context"
 )

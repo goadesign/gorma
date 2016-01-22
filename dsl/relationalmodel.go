@@ -6,7 +6,7 @@ import (
 
 	"bitbucket.org/pkg/inflect"
 
-	"github.com/bketelsen/gorma"
+	"github.com/goadesign/gorma"
 	"github.com/goadesign/goa/design"
 	"github.com/goadesign/goa/design/dsl"
 	"github.com/goadesign/goa/goagen/codegen"

@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/bketelsen/gorma/example/app"
-	"github.com/bketelsen/gorma/example/swagger"
+	"github.com/goadesign/gorma/example/app"
+	"github.com/goadesign/gorma/example/swagger"
 	"github.com/goadesign/goa"
 	"github.com/goadesign/middleware"
 )

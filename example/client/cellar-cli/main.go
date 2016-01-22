@@ -6,7 +6,7 @@ import (
 	"io/ioutil"
 	"os"
 
-	"github.com/bketelsen/gorma/example/client"
+	"github.com/goadesign/gorma/example/client"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
