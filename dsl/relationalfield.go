@@ -5,9 +5,9 @@ import (
 
 	"bitbucket.org/pkg/inflect"
 
-	"github.com/goadesign/gorma"
 	"github.com/goadesign/goa/design/dsl"
 	"github.com/goadesign/goa/goagen/codegen"
+	"github.com/goadesign/gorma"
 )
 
 // RelationalField is a DSL definition for a field in a Relational Model
@@ -71,8 +71,8 @@ func Field(name string, args ...interface{}) {
 			field.DatabaseFieldName = strings.TrimSuffix(field.DatabaseFieldName, "_i_d")
 			field.DatabaseFieldName = field.DatabaseFieldName + "_id"
 		}
-		if field.DatabaseFieldName = "i_d" {
-			field.DatabaseFieldName = "id"  
+		if field.DatabaseFieldName == "i_d" {
+			field.DatabaseFieldName = "id"
 
 		}
 		s.RelationalFields[name] = field
