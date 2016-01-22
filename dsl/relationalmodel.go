@@ -6,10 +6,10 @@ import (
 
 	"bitbucket.org/pkg/inflect"
 
-	"github.com/goadesign/gorma"
 	"github.com/goadesign/goa/design"
 	"github.com/goadesign/goa/design/dsl"
 	"github.com/goadesign/goa/goagen/codegen"
+	"github.com/goadesign/gorma"
 )
 
 // Model is the DSL that represents a Relational Model
