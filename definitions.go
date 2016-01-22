@@ -5,7 +5,7 @@ import "github.com/goadesign/goa/design"
 // RelationalStorageType is the type of database
 type RelationalStorageType string
 
-// FieldType is the storage type for a database field
+// FieldType is the storage data type for a database field
 type FieldType string
 
 // StorageGroupDefinition is the parent configuration structure for Gorma definitions
@@ -58,6 +58,7 @@ type RelationalModelDefinition struct {
 
 // MediaTypeAdapterDefinition represents the transformation of a
 // Goa media type into a Gorma Model
+// Unimplemented at this time
 type MediaTypeAdapterDefinition struct {
 	design.Definition
 	DefinitionDSL func()
@@ -69,6 +70,7 @@ type MediaTypeAdapterDefinition struct {
 
 // UserTypeAdapterDefinition represents the transformation of a Goa
 // user type into a Gorma Model
+// Unimplemented at this time
 type UserTypeAdapterDefinition struct {
 	design.Definition
 	DefinitionDSL func()
@@ -81,6 +83,7 @@ type UserTypeAdapterDefinition struct {
 // PayloadAdapterDefinition represents the transformation of a Goa
 // Payload (which is really a UserTypeDefinition
 // into a Gorma model
+// Unimplemented at this time
 type PayloadAdapterDefinition struct {
 	design.Definition
 	DefinitionDSL func()
@@ -90,7 +93,7 @@ type PayloadAdapterDefinition struct {
 	Right         *RelationalModelDefinition
 }
 
-// RelationalFieldDefinition implements the Field interface and represents
+// RelationalFieldDefinition represents
 // a field in a relational database
 type RelationalFieldDefinition struct {
 	design.Definition

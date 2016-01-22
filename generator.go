@@ -141,7 +141,7 @@ func (g *Generator) generateUserTypes(outdir string, api *design.APIDefinition) 
 		err := GormaDesign.IterateStores(func(store *RelationalStoreDefinition) error {
 			err := store.IterateModels(func(model *RelationalModelDefinition) error {
 				modelname = strings.ToLower(codegen.Goify(model.Name, false))
-				modeldir := filepath.Join(outdir, codegen.Goify(model.Name, false))
+				modeldir := filepath.Join(outdir, model.Name)
 
 				if err := os.MkdirAll(modeldir, 0755); err != nil {
 					return nil

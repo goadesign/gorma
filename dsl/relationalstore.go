@@ -2,8 +2,9 @@ package dsl
 
 import "github.com/bketelsen/gorma"
 
-// StorageGroup implements the top level Gorma DSL
-// Examples and more docs here later
+// Store represents a database.  Gorma lets you specify
+// a database type, but it's currently not used for any generation
+// logic.
 func Store(name string, storeType gorma.RelationalStorageType, dsl func()) {
 	// We can't rely on this being run first, any of the top level DSL could run
 	// in any order. The top level DSLs are API, Version, Resource, MediaType and Type.

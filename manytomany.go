@@ -6,19 +6,6 @@ import (
 	"bitbucket.org/pkg/inflect"
 )
 
-/*// ManyToManyDefinition stores information about a ManyToMany
-// relationship between two domain objects
-type ManyToManyDefinition struct {
-	design.Definition
-	DefinitionDSL    func()
-	Left             *RelationalModelDefinition
-	Right            *RelationalModelDefinition
-	RelationshipName string // ??
-	DatabaseField    string
-}
-
-*/
-
 func (m *ManyToManyDefinition) LeftNamePlural() string {
 	return inflect.Pluralize(m.Left.Name)
 }

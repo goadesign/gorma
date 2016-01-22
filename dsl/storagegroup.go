@@ -6,7 +6,7 @@ import (
 )
 
 // StorageGroup implements the top level Gorma DSL
-// Examples and more docs here later
+// There should be one StorageGroup per Goa application.
 func StorageGroup(name string, dsli func()) *gorma.StorageGroupDefinition {
 	// We can't rely on this being run first, any of the top level DSL could run
 	// in any order. The top level DSLs are API, Version, Resource, MediaType and Type.

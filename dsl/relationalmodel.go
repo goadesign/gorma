@@ -12,8 +12,11 @@ import (
 	"github.com/goadesign/goa/goagen/codegen"
 )
 
-// RelationalModel is the DSL that represents a Relational Model
-// Examples and more docs here later
+// Model is the DSL that represents a Relational Model
+// Model name should be Title cased. Use RenderTo() and BuiltFrom()
+// to have Gorma generate conversion helpers for your model.  Gorma
+// will create appropriate fields for all of your database relationships
+// too, using the BelongsTo(), HasMany(), HasOne(), and ManyToMany() DSL
 func Model(name string, dsl func()) {
 	// We can't rely on this being run first, any of the top level DSL could run
 	// in any order. The top level DSLs are API, Version, Resource, MediaType and Type.
@@ -44,6 +47,10 @@ func Model(name string, dsl func()) {
 
 }
 
+// RenderTo informs Gorma that this model will need to be
+// rendered to a Goa type.  Conversion functions
+// will be generated to convert to/from the model.
+// Usage:   RenderTo(SomeGoaMediaType)
 func RenderTo(mts ...*design.MediaTypeDefinition) {
 	checkInit()
 	if s, ok := relationalModelDefinition(true); ok {
@@ -57,6 +64,11 @@ func RenderTo(mts ...*design.MediaTypeDefinition) {
 	}
 
 }
+
+// BuiltFrom informs Gorma that this model will be populated
+// from a Goa payload (User Type).  Conversion functions
+// will be generated to convert from the payload to the model.
+// Usage:  BuiltFrom(SomeGoaPayload)
 func BuiltFrom(mts ...*design.UserTypeDefinition) {
 	checkInit()
 	if s, ok := relationalModelDefinition(true); ok {
@@ -74,6 +86,7 @@ func BuiltFrom(mts ...*design.UserTypeDefinition) {
 // BelongsTo signifies a relationship between this model and a
 // Parent.  The Parent has the child, and the Child belongs
 // to the Parent
+// Usage:  BelongsTo("User")
 func BelongsTo(parent string) {
 	if r, ok := relationalModelDefinition(false); ok {
 		idfield := &gorma.RelationalFieldDefinition{
@@ -105,7 +118,8 @@ func BelongsTo(parent string) {
 
 // HasOne signifies a relationship between this model and a
 // Child.  The Parent has the child, and the Child belongs
-// to the Parent
+// to the Parent.
+// Usage:  HasOne("Proposal")
 func HasOne(child string) {
 	if r, ok := relationalModelDefinition(false); ok {
 		field := &gorma.RelationalFieldDefinition{
@@ -136,7 +150,10 @@ func HasOne(child string) {
 
 // HasMany signifies a relationship between this model and a
 // set of Children.  The Parent has the children, and the Children belong
-// to the Parent
+// to the Parent.  The first parameter becomes the name of the
+// field in the model struct, the second parameter is the name
+// of the child model.
+// Usage:  HasMany("Orders", "Order")
 func HasMany(name, child string) {
 	if r, ok := relationalModelDefinition(false); ok {
 		field := &gorma.RelationalFieldDefinition{
