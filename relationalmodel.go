@@ -5,8 +5,6 @@ import (
 	"sort"
 	"strings"
 
-	"bitbucket.org/pkg/inflect"
-
 	"github.com/goadesign/goa/design"
 	"github.com/goadesign/goa/design/dsl"
 	"github.com/goadesign/goa/goagen/codegen"
@@ -39,7 +37,7 @@ func (sd RelationalModelDefinition) Children() []design.Definition {
 func (f *RelationalModelDefinition) PKAttributes() string {
 	var attr []string
 	for _, pk := range f.PrimaryKeys {
-		attr = append(attr, fmt.Sprintf("%s %s", inflect.Underscore(pk.Name), goDatatype(pk)))
+		attr = append(attr, fmt.Sprintf("%s %s", pk.DatabaseFieldName, goDatatype(pk)))
 	}
 	return strings.Join(attr, ",")
 }
