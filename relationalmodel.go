@@ -123,11 +123,12 @@ func (f *RelationalModelDefinition) IterateFields(it FieldIterator) error {
 
 	// Sort only the fields that aren't pk or date
 	j := 0
-	sortfields := make([]string, len(names))
+	sortnames := make([]string, len(names))
 	for n := range names {
-		sortfields[j] = n
+		sortnames[j] = n
+		j++
 	}
-	sort.Strings(sortfields)
+	sort.Strings(sortnames)
 
 	// Put them back together
 	j = 0
@@ -137,7 +138,7 @@ func (f *RelationalModelDefinition) IterateFields(it FieldIterator) error {
 		fields[j] = pk
 		j++
 	}
-	for _, name := range names {
+	for _, name := range sortnames {
 		fields[j] = name
 		j++
 	}
@@ -170,7 +171,7 @@ func (f *RelationalModelDefinition) PopulateFromModeledType() {
 			rf.Parent = f
 			rf.Name = codegen.Goify(name, true)
 			if strings.HasSuffix(rf.Name, "Id") {
-				rf.Name = strings.TrimRight(rf.Name, "Id")
+				rf.Name = strings.TrimSuffix(rf.Name, "Id")
 				rf.Name = rf.Name + "ID"
 			}
 			switch att.Type.Kind() {

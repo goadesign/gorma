@@ -89,18 +89,18 @@ func fieldAssignmentTypeToModel(model *RelationalModelDefinition, ut *design.Use
 				}
 				if !upointer && !mpointer {
 					// tfield = mfield
-					fa = fmt.Sprintf("\t%s.%s = %s.%s", mtype, fname, utype, strings.Title(key))
+					fa = fmt.Sprintf("\t%s.%s = %s.%s", mtype, fname, utype, codegen.Goify(key, true))
 				} else if upointer && mpointer {
 					// tfield = mfield
-					fa = fmt.Sprintf("\t%s.%s = %s.%s", mtype, fname, utype, strings.Title(key))
+					fa = fmt.Sprintf("\t%s.%s = %s.%s", mtype, fname, utype, codegen.Goify(key, true))
 
 				} else if upointer {
 					// tfield = &mfield
-					fa = fmt.Sprintf("\t%s.%s = *%s.%s", mtype, fname, utype, strings.Title(key))
+					fa = fmt.Sprintf("\t%s.%s = *%s.%s", mtype, fname, utype, codegen.Goify(key, true))
 
 				} else if mpointer {
 					// tfield = *mfield (rare if never?)
-					fa = fmt.Sprintf("\t%s.%s = *%s.%s", mtype, fname, utype, strings.Title(key))
+					fa = fmt.Sprintf("\t%s.%s = *%s.%s", mtype, fname, utype, codegen.Goify(key, true))
 				}
 				fieldAssignments = append(fieldAssignments, fa)
 
@@ -332,19 +332,19 @@ func Filter{{$typename}}By{{$bt.Name}}(parent *int, list []{{$typename}}) []{{$t
 }
 {{end}}
 
-{{$ap := .AppPkg}}{{ if gt (len .UserType.RenderTo) 0 }}{{$ut := .UserType}}{{range  $tcd := $ut.RenderTo }}{{if $tcd.SupportsNoVersion}}
+{{$ap := .AppPkg}}{{ if gt (len .UserType.RenderTo) 0 }}{{$ut := .UserType}}{{range  $tcd := $ut.RenderTo }}{{if $tcd.SupportsNoVersion}}{{ $tcdTypeName := goify $tcd.TypeName true }}
 // Useful conversion functions
-func (m *{{$typeName}}) To{{$tcd.TypeName}}() {{$ap}}.{{$tcd.TypeName}} {
-	payload := {{$ap}}.{{$tcd.TypeName}}{}
+func (m *{{$typeName}}) To{{$tcdTypeName}}() {{$ap}}.{{$tcdTypeName}} {
+	payload := {{$ap}}.{{$tcdTypeName}}{}
 	{{ famt $ut $tcd "m" "payload"}}
 	return payload
 }
 {{end}}{{end}}{{end}}
 
-{{$ap := .AppPkg}}{{ if gt (len .UserType.RenderTo) 0 }}{{$ut := .UserType}}{{range  $tcd := $ut.RenderTo }}{{ range $version := $tcd.APIVersions }} // v{{$version}}
+{{$ap := .AppPkg}}{{ if gt (len .UserType.RenderTo) 0 }}{{$ut := .UserType}}{{range  $tcd := $ut.RenderTo }}{{ range $version := $tcd.APIVersions }}{{ $tcdTypeName := goify $tcd.TypeName true }} // v{{$version}}
 // Useful conversion functions
-func (m *{{$typeName}}) To{{$tcd.TypeName}}() {{$version}}.{{$tcd.TypeName}} {
-	payload := {{$version}}.{{$tcd.TypeName}}{}
+func (m *{{$typeName}}) To{{$tcdTypeName}}() {{$version}}.{{$tcdTypeName}} {
+	payload := {{$version}}.{{$tcdTypeName}}{}
 	{{ famt $ut $tcd "m" "payload"}}
 	return payload
 }

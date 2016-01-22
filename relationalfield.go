@@ -28,8 +28,11 @@ func (f RelationalFieldDefinition) Children() []design.Definition {
 
 // Definition returns the field's struct definition
 func (f *RelationalFieldDefinition) FieldDefinition() string {
-
-	def := fmt.Sprintf("%s\t%s %s %s\n", f.Name, goDatatype(f), tags(f), "// "+f.Description)
+	var comment string
+	if f.Description != "" {
+		comment = "// " + f.Description
+	}
+	def := fmt.Sprintf("%s\t%s %s %s\n", f.Name, goDatatype(f), tags(f), comment)
 	return def
 
 }
@@ -93,30 +96,31 @@ func goDatatype(f *RelationalFieldDefinition) string {
 }
 
 func tags(f *RelationalFieldDefinition) string {
-	var sqltag, stag, atag, gormtags string
+	var gormtags []string
 	var sqltags []string
 	var tags []string
+
 	if f.SQLTag != "" {
-		stag = f.SQLTag
-		sqltags = append(sqltags, stag)
+		sqltags = append(sqltags, f.SQLTag)
 	}
 	if f.Alias != "" {
-		atag = f.Alias
-		sqltags = append(sqltags, atag)
+		gormtags = append(gormtags, "column:"+f.Alias)
 	}
-	if f.Alias != "" || f.SQLTag != "" {
-		sqltag = "sql:\"" + strings.Join(sqltags, ";") + "\""
-		tags = append(tags, sqltag)
-
-	}
-
 	if f.PrimaryKey {
-		gormtags = "gorm:\"" + "primary_key" + "\""
-		tags = append(tags, gormtags)
+		gormtags = append(gormtags, "primary_key")
 	}
-	output := strings.Join(tags, " ")
-	if sqltag != "" || gormtags != "" {
-		return fmt.Sprintf("`%s`", output)
+
+	if len(sqltags) > 0 {
+		sqltag := "sql:\"" + strings.Join(sqltags, ";") + "\""
+		tags = append(tags, sqltag)
+	}
+	if len(gormtags) > 0 {
+		gormtag := "gorm:\"" + strings.Join(gormtags, ";") + "\""
+		tags = append(tags, gormtag)
+	}
+
+	if len(tags) > 0 {
+		return "`" + strings.Join(tags, " ") + "`"
 	}
 	return ""
 }

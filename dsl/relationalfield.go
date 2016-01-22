@@ -26,7 +26,7 @@ func Field(name string, args ...interface{}) {
 	// standardize field name definitions
 	name = codegen.Goify(name, true)
 	if strings.HasSuffix(name, "Id") {
-		name = strings.TrimRight(name, "Id")
+		name = strings.TrimSuffix(name, "Id")
 		name = name + "ID"
 	}
 	fieldType, dsl := parseModelArgs(args...)
@@ -67,7 +67,7 @@ func Field(name string, args ...interface{}) {
 
 		field.DatabaseFieldName = inflect.Underscore(name)
 		if strings.HasSuffix(field.DatabaseFieldName, "_i_d") {
-			field.DatabaseFieldName = strings.TrimRight(field.DatabaseFieldName, "_i_d")
+			field.DatabaseFieldName = strings.TrimSuffix(field.DatabaseFieldName, "_i_d")
 			field.DatabaseFieldName = field.DatabaseFieldName + "_id"
 		}
 		s.RelationalFields[name] = field
