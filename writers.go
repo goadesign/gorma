@@ -188,6 +188,14 @@ type {{.UserType.Name}}Storage interface {
 }
 
 // CRUD Functions
+
+// List returns an array of records
+func (m *{{$typename}}DB) List(ctx context.Context{{ if .User.DynamicTableName}}, tableName string{{ end }}) []{{$typename}} {
+	var objs []{{$typename}}
+	m.Db{{ if .User.DynamicTableName }}.Table(tableName){{ end }}.Find(&objs)
+	return objs
+}
+
 // One returns a single record by ID
 func (m *{{$typename}}DB) One(ctx context.Context{{ if .UserType.DynamicTableName }}, tableName string{{ end }}, {{.UserType.PKAttributes}}) ({{$typename}}, error) {
 	{{ if .UserType.Cached }}//first attempt to retrieve from cache
