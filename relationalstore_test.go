@@ -7,12 +7,12 @@ import (
 	"github.com/goadesign/gorma"
 )
 
-func TestStorageGroupContext(t *testing.T) {
-	sg := &gorma.StorageGroupDefinition{}
+func TestStoreContext(t *testing.T) {
+	sg := &gorma.RelationalStoreDefinition{}
 	sg.Name = "SG"
 
 	c := sg.Context()
-	exp := fmt.Sprintf("StorageGroup %#v", sg.Name)
+	exp := fmt.Sprintf("RelationalStore %#v", sg.Name)
 	if c != exp {
 		t.Errorf("Expected %s, got %s", exp, c)
 	}
@@ -20,14 +20,14 @@ func TestStorageGroupContext(t *testing.T) {
 	sg.Name = ""
 
 	c = sg.Context()
-	exp = "unnamed Storage Group"
+	exp = "unnamed RelationalStore"
 	if c != exp {
 		t.Errorf("Expected %s, got %s", exp, c)
 	}
 }
 
-func TestStorageGroupDSL(t *testing.T) {
-	sg := &gorma.StorageGroupDefinition{}
+func TestStoreDSL(t *testing.T) {
+	sg := &gorma.RelationalStoreDefinition{}
 	f := func() {
 		return
 	}

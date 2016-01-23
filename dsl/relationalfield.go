@@ -24,11 +24,6 @@ func Field(name string, args ...interface{}) {
 
 	checkInit()
 	// standardize field name definitions
-	name = codegen.Goify(name, true)
-	if strings.HasSuffix(name, "Id") {
-		name = strings.TrimSuffix(name, "Id")
-		name = name + "ID"
-	}
 	fieldType, dsl := parseModelArgs(args...)
 	if s, ok := relationalModelDefinition(true); ok {
 		if s.RelationalFields == nil {
@@ -37,7 +32,7 @@ func Field(name string, args ...interface{}) {
 		field, ok := s.RelationalFields[name]
 		if !ok {
 			field = &gorma.RelationalFieldDefinition{
-				Name:          name,
+				Name:          SanitizeFieldName(name),
 				DefinitionDSL: dsl,
 				Parent:        s,
 				Datatype:      fieldType,
@@ -65,21 +60,39 @@ func Field(name string, args ...interface{}) {
 			field.Description = "nullable timestamp (soft delete)"
 		}
 
-		// remove these hacks when goify can fix it
-		field.DatabaseFieldName = inflect.Underscore(name)
-		if strings.HasSuffix(field.DatabaseFieldName, "_i_d") {
-			field.DatabaseFieldName = strings.TrimSuffix(field.DatabaseFieldName, "_i_d")
-			field.DatabaseFieldName = field.DatabaseFieldName + "_id"
-		}
-		if field.DatabaseFieldName == "i_d" {
-			field.DatabaseFieldName = "id"
+		field.DatabaseFieldName = SanitizeDBFieldName(name)
 
-		}
 		s.RelationalFields[name] = field
 	}
 
 }
 
+// SanitizeFieldName is exported for testing purposes
+func SanitizeFieldName(name string) string {
+
+	name = codegen.Goify(name, true)
+	if strings.HasSuffix(name, "Id") {
+		name = strings.TrimSuffix(name, "Id")
+		name = name + "ID"
+	}
+
+	return name
+
+}
+
+// SanitizeDBFieldName is exported for testing purposes
+func SanitizeDBFieldName(name string) string {
+	name = inflect.Underscore(name)
+	if strings.HasSuffix(name, "_i_d") {
+		name = strings.TrimSuffix(name, "_i_d")
+		name = name + "_id"
+	}
+	if name == "i_d" {
+		name = "id"
+
+	}
+	return name
+}
 func parseModelArgs(args ...interface{}) (gorma.FieldType, func()) {
 
 	var (

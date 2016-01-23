@@ -57,11 +57,11 @@ var _ = Describe("RelationalModel", func() {
 					gdsl.BuiltFrom(ChildPayload)
 					gdsl.BelongsTo(name)
 				})
-				gdsl.Model("HasOne", func() {
+				gdsl.Model("One", func() {
 					gdsl.BuiltFrom(HasOnePayload)
 					gdsl.HasOne("Child")
 				})
-				gdsl.Model("HasMany", func() {
+				gdsl.Model("Many", func() {
 					gdsl.BuiltFrom(HasManyPayload)
 					gdsl.HasMany("Children", "Child")
 				})
@@ -88,7 +88,7 @@ var _ = Describe("RelationalModel", func() {
 
 	Context("with an already defined Relational Model with the same name", func() {
 		BeforeEach(func() {
-			name = "mysql"
+			name = "duplicate"
 		})
 
 		It("produces an error", func() {
@@ -250,6 +250,97 @@ var _ = Describe("RelationalModel", func() {
 				sg := gorma.GormaDesign
 				rs := sg.RelationalStores[storename]
 				Ω(rs.RelationalModels[name].SQLTag).Should(Equal(tag))
+			})
+		})
+
+		Context("with a has one relationaship", func() {
+
+			It("sets the creates the foreign key in the child model", func() {
+				sg := gorma.GormaDesign
+				rs := sg.RelationalStores[storename]
+				f, ok := rs.RelationalModels["Child"].RelationalFields["OneID"]
+
+				Ω(ok).Should(Equal(true))
+				Ω(f.DatabaseFieldName).Should(Equal("one_id"))
+			})
+			It("the relationship is added to the HasOne list", func() {
+				sg := gorma.GormaDesign
+				rs := sg.RelationalStores[storename]
+				ch, ok := rs.RelationalModels["One"].HasOne["Child"]
+
+				Ω(ok).Should(Equal(true))
+				Ω(ch).Should(Equal(rs.RelationalModels["Child"]))
+			})
+
+			It("sets the field definition correctly for the owning model", func() {
+				sg := gorma.GormaDesign
+				rs := sg.RelationalStores[storename]
+				f, ok := rs.RelationalModels["One"].RelationalFields["Child"]
+
+				Ω(ok).Should(Equal(true))
+				Ω(f.Name).Should(Equal("Child"))
+			})
+		})
+
+		Context("with a belongs to relationship", func() {
+
+			BeforeEach(func() {
+				name = "User"
+			})
+
+			It("sets the creates the foreign key in the child model", func() {
+				sg := gorma.GormaDesign
+				rs := sg.RelationalStores[storename]
+				f, ok := rs.RelationalModels["Child"].RelationalFields["UserID"]
+
+				Ω(ok).Should(Equal(true))
+				Ω(f.DatabaseFieldName).Should(Equal("user_id"))
+			})
+			It("the relationship is added to the BelongsTo list", func() {
+				sg := gorma.GormaDesign
+				rs := sg.RelationalStores[storename]
+				ch, ok := rs.RelationalModels["Child"].BelongsTo["User"]
+
+				Ω(ok).Should(Equal(true))
+				Ω(ch).Should(Equal(rs.RelationalModels["User"]))
+			})
+
+			It("sets the field definition correctly for the child model", func() {
+				sg := gorma.GormaDesign
+				rs := sg.RelationalStores[storename]
+				f, ok := rs.RelationalModels["Child"].RelationalFields["UserID"]
+
+				Ω(ok).Should(Equal(true))
+				Ω(f.Name).Should(Equal("UserID"))
+			})
+		})
+
+		Context("with a has many relationship", func() {
+
+			It("sets the creates the foreign key in the child model", func() {
+				sg := gorma.GormaDesign
+				rs := sg.RelationalStores[storename]
+				f, ok := rs.RelationalModels["Child"].RelationalFields["ManyID"]
+
+				Ω(ok).Should(Equal(true))
+				Ω(f.DatabaseFieldName).Should(Equal("many_id"))
+			})
+			It("the relationship is added to the Has Many list", func() {
+				sg := gorma.GormaDesign
+				rs := sg.RelationalStores[storename]
+				ch, ok := rs.RelationalModels["Many"].HasMany["Child"]
+
+				Ω(ok).Should(Equal(true))
+				Ω(ch).Should(Equal(rs.RelationalModels["Child"]))
+			})
+
+			It("sets the field definition correctly for the child model", func() {
+				sg := gorma.GormaDesign
+				rs := sg.RelationalStores[storename]
+				f, ok := rs.RelationalModels["Many"].RelationalFields["Children"]
+
+				Ω(ok).Should(Equal(true))
+				Ω(f.Name).Should(Equal("Children"))
 			})
 		})
 

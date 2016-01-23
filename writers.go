@@ -211,7 +211,7 @@ func (m *{{$typename}}DB) Add(ctx context.Context{{ if .UserType.DynamicTableNam
 }
 // Update modifies a single record.
 func (m *{{$typename}}DB) Update(ctx context.Context{{ if .UserType.DynamicTableName }}, tableName string{{ end }}, model {{$typename}}) error {
-	obj, err := m.One(ctx{{ if .UserType.DynamicTableName }}, tableName{{ end }}, {{.UserType.PKUpdateFields}})
+	obj, err := m.One(ctx{{ if .UserType.DynamicTableName }}, tableName{{ end }}, {{.UserType.PKUpdateFields "model"}})
 	if err != nil {
 		return  err
 	}
