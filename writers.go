@@ -199,7 +199,7 @@ func (m *{{$typename}}DB) One(ctx context.Context{{ if .UserType.DynamicTableNam
 	// fallback to database if not found{{ end }}
 	var obj {{$typename}}{{ $l := len $.UserType.PrimaryKeys }}
 	{{ if eq $l 1 }}
-	err := m.Db{{ if .UserType.DynamicTableName }}.Table(tableName){{ end }}.Find(&obj, id).Error{{ else  }}err := m.Db{{ if .UserType.DynamicTableName }}.Table(tableName){{ end }}.Find(&obj).Where("{{.UserType.PKWhere}} = ?", {{.UserType.PKWhereFields }}).Error{{ end }}
+	err := m.Db{{ if .UserType.DynamicTableName }}.Table(tableName){{ end }}.Find(&obj, id).Error{{ else  }}err := m.Db{{ if .UserType.DynamicTableName }}.Table(tableName){{ end }}.Find(&obj).Where("{{.UserType.PKWhere}}", {{.UserType.PKWhereFields }}).Error{{ end }}
 	{{ if .UserType.Cached }} go m.cache.Set(strconv.Itoa(id), obj, cache.DefaultExpiration) {{ end }}
 	return obj, err
 }
@@ -230,7 +230,7 @@ func (m *{{$typename}}DB) Delete(ctx context.Context{{ if .UserType.DynamicTable
 	var obj {{$typename}}{{ $l := len .UserType.PrimaryKeys }}
 	{{ if eq $l 1 }}
 	err := m.Db{{ if .UserType.DynamicTableName }}.Table(tableName){{ end }}.Delete(&obj, id).Error
-	{{ else  }}err := m.Db{{ if .UserType.DynamicTableName }}.Table(tableName){{ end }}.Delete(&obj).Where("{{.UserType.PKWhere}} = ?", {{.UserType.PKWhereFields}}).Error
+	{{ else  }}err := m.Db{{ if .UserType.DynamicTableName }}.Table(tableName){{ end }}.Delete(&obj).Where("{{.UserType.PKWhere}}", {{.UserType.PKWhereFields}}).Error
 	{{ end }}
 	if err != nil {
 		return  err
@@ -245,7 +245,7 @@ func (m *{{$typename}}DB) Delete(ctx context.Context{{ if .UserType.DynamicTable
 func {{$typename}}FilterBy{{$bt.Name}}(parentid int, originaldb *gorm.DB) func(db *gorm.DB) *gorm.DB {
 	if parentid > 0 {
 		return func(db *gorm.DB) *gorm.DB {
-			return db.Where("{{$bt.LowerName}}_id = ?", parentid)
+			return db.Where("{{$bt.LowerName}}_id", parentid)
 		}
 	} else {
 		return func(db *gorm.DB) *gorm.DB {
