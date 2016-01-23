@@ -245,7 +245,7 @@ func (m *{{$typename}}DB) Delete(ctx context.Context{{ if .UserType.DynamicTable
 func {{$typename}}FilterBy{{$bt.Name}}(parentid int, originaldb *gorm.DB) func(db *gorm.DB) *gorm.DB {
 	if parentid > 0 {
 		return func(db *gorm.DB) *gorm.DB {
-			return db.Where("{{$bt.LowerName}}_id", parentid)
+			return db.Where("{{$bt.LowerName}}_id = ?", parentid)
 		}
 	} else {
 		return func(db *gorm.DB) *gorm.DB {
