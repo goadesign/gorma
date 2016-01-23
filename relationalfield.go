@@ -34,12 +34,10 @@ func (f *RelationalFieldDefinition) FieldDefinition() string {
 	}
 	def := fmt.Sprintf("%s\t%s %s %s\n", f.Name, goDatatype(f), tags(f), comment)
 	return def
-
 }
 
 // Tags returns teh sql and gorm struct tags for the Definition
 func (f *RelationalFieldDefinition) Tags() string {
-
 	return ""
 }
 
@@ -81,10 +79,10 @@ func goDatatype(f *RelationalFieldDefinition) string {
 		}
 		if f.HasMany != "" {
 
-			return fmt.Sprintf("[]%s",  f.HasMany)
+			return fmt.Sprintf("[]%s", f.HasMany)
 		}
 		if f.HasOne != "" {
-			return fmt.Sprintf("%s",  f.HasOne)
+			return fmt.Sprintf("%s", f.HasOne)
 		}
 		if f.Many2Many != "" {
 			return fmt.Sprintf("[]%s", f.Many2Many)
@@ -92,17 +90,15 @@ func goDatatype(f *RelationalFieldDefinition) string {
 	}
 
 	return "UNKNOWN TYPE"
-
 }
 
 func tags(f *RelationalFieldDefinition) string {
-	var gormtags []string
 	var sqltags []string
-	var tags []string
-
 	if f.SQLTag != "" {
 		sqltags = append(sqltags, f.SQLTag)
 	}
+
+	var gormtags []string
 	if f.Alias != "" {
 		gormtags = append(gormtags, "column:"+f.Alias)
 	}
@@ -110,6 +106,7 @@ func tags(f *RelationalFieldDefinition) string {
 		gormtags = append(gormtags, "primary_key")
 	}
 
+	var tags []string
 	if len(sqltags) > 0 {
 		sqltag := "sql:\"" + strings.Join(sqltags, ";") + "\""
 		tags = append(tags, sqltag)

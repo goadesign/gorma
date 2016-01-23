@@ -5,9 +5,9 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/goadesign/gorma"
 	"github.com/goadesign/goa/design"
 	"github.com/goadesign/goa/design/dsl"
+	"github.com/goadesign/gorma"
 )
 
 func checkInit() {

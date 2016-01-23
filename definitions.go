@@ -102,7 +102,7 @@ type RelationalFieldDefinition struct {
 	a                 *design.AttributeDefinition
 	Name              string
 	Datatype          FieldType
-	SQLTag            string //
+	SQLTag            string
 	DatabaseFieldName string
 	Description       string
 	Nullable          bool

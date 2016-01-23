@@ -1,8 +1,8 @@
 package dsl
 
 import (
-	"github.com/goadesign/gorma"
 	"github.com/goadesign/goa/design/dsl"
+	"github.com/goadesign/gorma"
 )
 
 // StorageGroup implements the top level Gorma DSL
