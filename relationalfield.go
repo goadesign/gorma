@@ -77,7 +77,7 @@ func goDatatype(f *RelationalFieldDefinition) string {
 		return ptr + "int"
 	case HasMany:
 		return fmt.Sprintf("[]%s", f.HasMany)
-	case HasManyKey:
+	case HasManyKey, HasOneKey:
 		return ptr + "int"
 	case HasOne:
 		return fmt.Sprintf("%s", f.HasOne)
