@@ -60,7 +60,7 @@ func Field(name string, args ...interface{}) {
 			field.Description = "nullable timestamp (soft delete)"
 		}
 
-		field.DatabaseFieldName = SanitizeDbFieldName(name)
+		field.DatabaseFieldName = SanitizeDBFieldName(name)
 
 		s.RelationalFields[name] = field
 	}
@@ -80,8 +80,8 @@ func SanitizeFieldName(name string) string {
 
 }
 
-// SanitizeDbFieldName is exported for testing purposes
-func SanitizeDbFieldName(name string) string {
+// SanitizeDBFieldName is exported for testing purposes
+func SanitizeDBFieldName(name string) string {
 	name = inflect.Underscore(name)
 	if strings.HasSuffix(name, "_i_d") {
 		name = strings.TrimSuffix(name, "_i_d")

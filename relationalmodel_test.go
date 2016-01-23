@@ -76,7 +76,7 @@ func makePK(name string) *gorma.RelationalFieldDefinition {
 
 	f := &gorma.RelationalFieldDefinition{}
 	f.Name = dsl.SanitizeFieldName(name)
-	f.DatabaseFieldName = dsl.SanitizeDbFieldName(f.Name)
+	f.DatabaseFieldName = dsl.SanitizeDBFieldName(f.Name)
 	f.Datatype = gorma.PKInteger
 	return f
 
@@ -86,7 +86,7 @@ func TestPKWhereSingle(t *testing.T) {
 	sg.RelationalFields = make(map[string]*gorma.RelationalFieldDefinition)
 	f := &gorma.RelationalFieldDefinition{}
 	f.Name = dsl.SanitizeFieldName("ID")
-	f.DatabaseFieldName = dsl.SanitizeDbFieldName(f.Name)
+	f.DatabaseFieldName = dsl.SanitizeDBFieldName(f.Name)
 	f.Datatype = gorma.PKInteger
 
 	sg.RelationalFields[f.Name] = f
@@ -124,7 +124,7 @@ func TestPKWhereFieldsSingle(t *testing.T) {
 	sg.RelationalFields = make(map[string]*gorma.RelationalFieldDefinition)
 	f := &gorma.RelationalFieldDefinition{}
 	f.Name = dsl.SanitizeFieldName("ID")
-	f.DatabaseFieldName = dsl.SanitizeDbFieldName(f.Name)
+	f.DatabaseFieldName = dsl.SanitizeDBFieldName(f.Name)
 	f.Datatype = gorma.PKInteger
 
 	sg.RelationalFields[f.Name] = f
@@ -162,7 +162,7 @@ func TestPKUpdateFieldsSingle(t *testing.T) {
 	sg.RelationalFields = make(map[string]*gorma.RelationalFieldDefinition)
 	f := &gorma.RelationalFieldDefinition{}
 	f.Name = dsl.SanitizeFieldName("ID")
-	f.DatabaseFieldName = dsl.SanitizeDbFieldName(f.Name)
+	f.DatabaseFieldName = dsl.SanitizeDBFieldName(f.Name)
 	f.Datatype = gorma.PKInteger
 
 	sg.RelationalFields[f.Name] = f

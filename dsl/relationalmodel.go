@@ -94,7 +94,7 @@ func BelongsTo(parent string) {
 			Description:       "Belongs To " + codegen.Goify(inflect.Singularize(parent), true),
 			Parent:            r,
 			Datatype:          gorma.BelongsTo,
-			DatabaseFieldName: SanitizeDbFieldName(codegen.Goify(inflect.Singularize(parent), true) + "ID"),
+			DatabaseFieldName: SanitizeDBFieldName(codegen.Goify(inflect.Singularize(parent), true) + "ID"),
 		}
 
 		r.RelationalFields[idfield.Name] = idfield
@@ -142,7 +142,7 @@ func HasOne(child string) {
 				Description:       "has one " + child,
 				Datatype:          gorma.HasOne,
 				Parent:            bt,
-				DatabaseFieldName: SanitizeDbFieldName(codegen.Goify(inflect.Singularize(r.Name), true) + "ID"),
+				DatabaseFieldName: SanitizeDBFieldName(codegen.Goify(inflect.Singularize(r.Name), true) + "ID"),
 			}
 			bt.RelationalFields[f.Name] = f
 		} else {
@@ -163,7 +163,7 @@ func HasOne(child string) {
 				Description:       "has one " + child,
 				Datatype:          gorma.HasOne,
 				Parent:            bt,
-				DatabaseFieldName: SanitizeDbFieldName(codegen.Goify(inflect.Singularize(r.Name), true) + "ID"),
+				DatabaseFieldName: SanitizeDBFieldName(codegen.Goify(inflect.Singularize(r.Name), true) + "ID"),
 			}
 			models.RelationalFields[f.Name] = f
 		}
@@ -201,7 +201,7 @@ func HasMany(name, child string) {
 				Description:       "has many " + child,
 				Datatype:          gorma.HasManyKey,
 				Parent:            model,
-				DatabaseFieldName: SanitizeDbFieldName(codegen.Goify(inflect.Singularize(r.Name), true) + "ID"),
+				DatabaseFieldName: SanitizeDBFieldName(codegen.Goify(inflect.Singularize(r.Name), true) + "ID"),
 			}
 			model.RelationalFields[f.Name] = f
 		} else {
@@ -222,7 +222,7 @@ func HasMany(name, child string) {
 				Description:       "has many " + child,
 				Datatype:          gorma.HasManyKey,
 				Parent:            model,
-				DatabaseFieldName: SanitizeDbFieldName(codegen.Goify(inflect.Singularize(r.Name), true) + "ID"),
+				DatabaseFieldName: SanitizeDBFieldName(codegen.Goify(inflect.Singularize(r.Name), true) + "ID"),
 			}
 			model.RelationalFields[f.Name] = f
 
