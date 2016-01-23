@@ -31,6 +31,9 @@ func fieldAssignmentModelToType(model *RelationalModelDefinition, ut *design.Med
 	var fieldAssignments []string
 	// type.Field = model.Field
 	for fname, field := range model.RelationalFields {
+		if field.Datatype == "" {
+			continue
+		}
 		var mpointer, upointer bool
 		mpointer = field.Nullable
 		obj := ut.ToObject()
@@ -78,6 +81,9 @@ func fieldAssignmentTypeToModel(model *RelationalModelDefinition, ut *design.Use
 		mpointer = field.Nullable
 		obj := ut.ToObject()
 		definition := ut.Definition()
+		if field.Datatype == "" {
+			continue
+		}
 		for key := range obj {
 			gfield := obj[key]
 			if field.LowerName() == key {
