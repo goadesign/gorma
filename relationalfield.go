@@ -36,9 +36,9 @@ func (f *RelationalFieldDefinition) FieldDefinition() string {
 	return def
 }
 
-// Tags returns teh sql and gorm struct tags for the Definition
+// Tags returns the sql and gorm struct tags for the Definition
 func (f *RelationalFieldDefinition) Tags() string {
-	return ""
+	return tags(f)
 }
 
 func (f *RelationalFieldDefinition) LowerName() string {
@@ -73,17 +73,16 @@ func goDatatype(f *RelationalFieldDefinition) string {
 		return ptr + "string " // TBD
 	case Timestamp, NullableTimestamp:
 		return ptr + "time.Time"
+	case BelongsTo:
+		return ptr + "int"
+	case HasMany:
+		return fmt.Sprintf("[]%s", f.HasMany)
+	case HasManyKey:
+		return ptr + "int"
+	case HasOne:
+		return fmt.Sprintf("%s", f.HasOne)
 	default:
-		if f.BelongsTo != "" {
-			return f.BelongsTo
-		}
-		if f.HasMany != "" {
 
-			return fmt.Sprintf("[]%s", f.HasMany)
-		}
-		if f.HasOne != "" {
-			return fmt.Sprintf("%s", f.HasOne)
-		}
 		if f.Many2Many != "" {
 			return fmt.Sprintf("[]%s", f.Many2Many)
 		}

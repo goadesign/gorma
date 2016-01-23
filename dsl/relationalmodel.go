@@ -90,19 +90,20 @@ func BuiltFrom(mts ...*design.UserTypeDefinition) {
 func BelongsTo(parent string) {
 	if r, ok := relationalModelDefinition(false); ok {
 		idfield := &gorma.RelationalFieldDefinition{
-			Name:        codegen.Goify(inflect.Singularize(parent), true) + "ID",
-			Description: "belongs to " + parent,
-			Parent:      r,
-			Datatype:    gorma.Integer,
+			Name:              codegen.Goify(inflect.Singularize(parent), true) + "ID",
+			Description:       "Belongs To " + codegen.Goify(inflect.Singularize(parent), true),
+			Parent:            r,
+			Datatype:          gorma.BelongsTo,
+			DatabaseFieldName: SanitizeDbFieldName(codegen.Goify(inflect.Singularize(parent), true) + "ID"),
 		}
 
 		r.RelationalFields[idfield.Name] = idfield
-		bt, ok := r.Parent.RelationalModels[parent]
+		bt, ok := r.Parent.RelationalModels[codegen.Goify(inflect.Singularize(parent), true)]
 		if ok {
-			r.BelongsTo[parent] = bt
+			r.BelongsTo[bt.Name] = bt
 		} else {
 			models := &gorma.RelationalModelDefinition{
-				Name:             parent,
+				Name:             codegen.Goify(inflect.Singularize(parent), true),
 				Parent:           r.Parent,
 				RelationalFields: make(map[string]*gorma.RelationalFieldDefinition),
 				BelongsTo:        make(map[string]*gorma.RelationalModelDefinition),
@@ -110,15 +111,16 @@ func BelongsTo(parent string) {
 				HasOne:           make(map[string]*gorma.RelationalModelDefinition),
 				ManyToMany:       make(map[string]*gorma.ManyToManyDefinition),
 			}
-			r.BelongsTo[parent] = models
+			r.BelongsTo[models.Name] = models
 		}
 
 	}
 }
 
-// HasOne signifies a relationship between this model and a
-// Child.  The Parent has the child, and the Child belongs
-// to the Parent.
+// HasOne signifies a relationship between this model and another model.
+// If this model HasOne(OtherModel), then OtherModel is expected
+// to have a ThisModelID field as a Foreign Key to this model's
+// Primary Key.  ThisModel will have a field named OtherModel of type OtherModel
 // Usage:  HasOne("Proposal")
 func HasOne(child string) {
 	if r, ok := relationalModelDefinition(false); ok {
@@ -126,13 +128,23 @@ func HasOne(child string) {
 			Name:        codegen.Goify(inflect.Singularize(child), true),
 			HasOne:      child,
 			Description: "has one " + child,
+			Datatype:    gorma.HasOne,
 			Parent:      r,
 		}
 		r.RelationalFields[field.Name] = field
 		bt, ok := r.Parent.RelationalModels[child]
 		if ok {
-			// wow!
 			r.HasOne[child] = bt
+			// create the fk field
+			f := &gorma.RelationalFieldDefinition{
+				Name:              codegen.Goify(inflect.Singularize(r.Name), true) + "ID",
+				HasOne:            child,
+				Description:       "has one " + child,
+				Datatype:          gorma.HasOne,
+				Parent:            bt,
+				DatabaseFieldName: SanitizeDbFieldName(codegen.Goify(inflect.Singularize(r.Name), true) + "ID"),
+			}
+			bt.RelationalFields[f.Name] = f
 		} else {
 			models := &gorma.RelationalModelDefinition{
 				Name:             child,
@@ -144,7 +156,18 @@ func HasOne(child string) {
 				ManyToMany:       make(map[string]*gorma.ManyToManyDefinition),
 			}
 			r.HasOne[child] = models
+			// create the fk field
+			f := &gorma.RelationalFieldDefinition{
+				Name:              codegen.Goify(inflect.Singularize(r.Name), true) + "ID",
+				HasOne:            child,
+				Description:       "has one " + child,
+				Datatype:          gorma.HasOne,
+				Parent:            bt,
+				DatabaseFieldName: SanitizeDbFieldName(codegen.Goify(inflect.Singularize(r.Name), true) + "ID"),
+			}
+			models.RelationalFields[f.Name] = f
 		}
+
 	}
 }
 
@@ -152,14 +175,18 @@ func HasOne(child string) {
 // set of Children.  The Parent has the children, and the Children belong
 // to the Parent.  The first parameter becomes the name of the
 // field in the model struct, the second parameter is the name
-// of the child model.
+// of the child model.  The Child model will have a ParentID field
+// appended to the field list.  The Parent model definition will use
+// the first parameter as the field name in the struct definition
 // Usage:  HasMany("Orders", "Order")
+// Struct field definition:  Children	[]Child
 func HasMany(name, child string) {
 	if r, ok := relationalModelDefinition(false); ok {
 		field := &gorma.RelationalFieldDefinition{
-			Name:        name,
+			Name:        codegen.Goify(name, true),
 			HasMany:     child,
 			Description: "has many " + inflect.Pluralize(child),
+			Datatype:    gorma.HasMany,
 			Parent:      r,
 		}
 		r.RelationalFields[field.Name] = field
@@ -167,6 +194,16 @@ func HasMany(name, child string) {
 		model, ok := r.Parent.RelationalModels[child]
 		if ok {
 			r.HasMany[child] = model
+			// create the fk field
+			f := &gorma.RelationalFieldDefinition{
+				Name:              codegen.Goify(inflect.Singularize(r.Name), true) + "ID",
+				HasMany:           child,
+				Description:       "has many " + child,
+				Datatype:          gorma.HasManyKey,
+				Parent:            model,
+				DatabaseFieldName: SanitizeDbFieldName(codegen.Goify(inflect.Singularize(r.Name), true) + "ID"),
+			}
+			model.RelationalFields[f.Name] = f
 		} else {
 			model = &gorma.RelationalModelDefinition{
 				Name:             child,
@@ -178,6 +215,17 @@ func HasMany(name, child string) {
 				ManyToMany:       make(map[string]*gorma.ManyToManyDefinition),
 			}
 			r.HasMany[child] = model
+			// create the fk field
+			f := &gorma.RelationalFieldDefinition{
+				Name:              codegen.Goify(inflect.Singularize(r.Name), true) + "ID",
+				HasMany:           child,
+				Description:       "has many " + child,
+				Datatype:          gorma.HasManyKey,
+				Parent:            model,
+				DatabaseFieldName: SanitizeDbFieldName(codegen.Goify(inflect.Singularize(r.Name), true) + "ID"),
+			}
+			model.RelationalFields[f.Name] = f
+
 		}
 
 	}

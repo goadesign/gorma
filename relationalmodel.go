@@ -66,11 +66,11 @@ func (f *RelationalModelDefinition) PKWhereFields() string {
 
 // PKUpdateFields returns something?  This function doesn't look useful in
 // current form.  Perhaps it isnt.
-func (f *RelationalModelDefinition) PKUpdateFields() string {
+func (f *RelationalModelDefinition) PKUpdateFields(modelname string) string {
 
 	var pkwhere []string
 	for _, pk := range f.PrimaryKeys {
-		def := fmt.Sprintf("model.%s", codegen.Goify(pk.Name, true))
+		def := fmt.Sprintf("%s.%s", modelname, codegen.Goify(pk.Name, true))
 		pkwhere = append(pkwhere, def)
 	}
 

@@ -55,6 +55,14 @@ const (
 	NullableTimestamp FieldType = "nulltimestamp"
 	// NotFound is used internally
 	NotFound FieldType = "notfound"
+	// HasOne is used internally
+	HasOne FieldType = "hasone"
+	// HasMany is used internally
+	HasMany FieldType = "hasmany"
+	// HasManyKey is used internally
+	HasManyKey FieldType = "hasmanykey"
+	// BelongsTo is used internally
+	BelongsTo FieldType = "belongsto"
 )
 
 // Init creates the necessary data structures for parsing a DSL
