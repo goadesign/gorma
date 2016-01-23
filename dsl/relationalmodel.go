@@ -140,7 +140,7 @@ func HasOne(child string) {
 				Name:              codegen.Goify(inflect.Singularize(r.Name), true) + "ID",
 				HasOne:            child,
 				Description:       "has one " + child,
-				Datatype:          gorma.HasOne,
+				Datatype:          gorma.HasOneKey,
 				Parent:            bt,
 				DatabaseFieldName: SanitizeDBFieldName(codegen.Goify(inflect.Singularize(r.Name), true) + "ID"),
 			}
@@ -161,7 +161,7 @@ func HasOne(child string) {
 				Name:              codegen.Goify(inflect.Singularize(r.Name), true) + "ID",
 				HasOne:            child,
 				Description:       "has one " + child,
-				Datatype:          gorma.HasOne,
+				Datatype:          gorma.HasOneKey,
 				Parent:            bt,
 				DatabaseFieldName: SanitizeDBFieldName(codegen.Goify(inflect.Singularize(r.Name), true) + "ID"),
 			}

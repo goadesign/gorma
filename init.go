@@ -57,6 +57,8 @@ const (
 	NotFound FieldType = "notfound"
 	// HasOne is used internally
 	HasOne FieldType = "hasone"
+	// HasOneKey is used internally
+	HasOneKey FieldType = "hasonekey"
 	// HasMany is used internally
 	HasMany FieldType = "hasmany"
 	// HasManyKey is used internally
