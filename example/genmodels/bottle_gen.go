@@ -21,20 +21,20 @@ import (
 
 // This is the bottle model
 type Bottle struct {
-	ID        int `gorm:"primary_key"`
-	Color     string
-	Country   string
-	FirstName string `gorm:"column:firstname"`
-	Name      string
-	Region    string
-	Review    string
-	Sweetness int
-	Varietal  string
-	Vineyard  string
-	Vintage   int        `sql:"index"`
-	DeletedAt *time.Time // nullable timestamp (soft delete)
-	CreatedAt time.Time  // timestamp
-	UpdatedAt time.Time  // timestamp
+	ID            int `gorm:"primary_key"`
+	Color         string
+	Country       string
+	Name          string
+	Region        string
+	Review        string
+	Sweetness     int
+	Varietal      string
+	Vineyard      string
+	Vintage       int        `sql:"index"`
+	VinyardCounty string     `gorm:"column:vinyardcounty"`
+	CreatedAt     time.Time  // timestamp
+	DeletedAt     *time.Time // nullable timestamp (soft delete)
+	UpdatedAt     time.Time  // timestamp
 }
 
 // BottleDB is the implementation of the storage interface for
@@ -115,19 +115,19 @@ func (m *BottleDB) Delete(ctx context.Context) error {
 // ToBottle converts a model Bottle to an app Bottle.
 func (m *Bottle) ToBottle() app.Bottle {
 	payload := app.Bottle{}
-	payload.Color = m.Color
+	payload.UpdatedAt = &m.UpdatedAt
 	payload.Country = &m.Country
-	payload.Name = m.Name
-	payload.Varietal = m.Varietal
 	payload.CreatedAt = &m.CreatedAt
-	payload.FirstName = &m.FirstName
+	payload.Name = m.Name
 	payload.Sweetness = &m.Sweetness
 	payload.Vineyard = m.Vineyard
+	payload.ID = m.ID
+	payload.Color = m.Color
 	payload.Vintage = m.Vintage
-	payload.UpdatedAt = &m.UpdatedAt
+	payload.VinyardCounty = &m.VinyardCounty
 	payload.Region = &m.Region
 	payload.Review = &m.Review
-	payload.ID = m.ID
+	payload.Varietal = m.Varietal
 	return payload
 }
 
@@ -135,14 +135,14 @@ func (m *Bottle) ToBottle() app.Bottle {
 func BottleFromBottlePayload(t app.BottlePayload) Bottle {
 	bottle := Bottle{}
 	bottle.Review = *t.Review
-	bottle.Sweetness = *t.Sweetness
-	bottle.Vineyard = *t.Vineyard
+	bottle.Varietal = *t.Varietal
 	bottle.Vintage = *t.Vintage
+	bottle.VinyardCounty = *t.VinyardCounty
 	bottle.Region = *t.Region
+	bottle.Country = *t.Country
 	bottle.Name = *t.Name
 	bottle.Color = *t.Color
-	bottle.Country = *t.Country
-	bottle.FirstName = *t.FirstName
-	bottle.Varietal = *t.Varietal
+	bottle.Sweetness = *t.Sweetness
+	bottle.Vineyard = *t.Vineyard
 	return bottle
 }

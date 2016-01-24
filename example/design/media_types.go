@@ -12,7 +12,6 @@ var Account = MediaType("application/vnd.account+json", func() {
 		Attribute("id", Integer, "ID of account")
 		Attribute("href", String, "API href of account")
 		Attribute("name", String, "Name of account")
-		Attribute("first_name", String)
 		Attribute("created_at", String, "Date of creation", func() {
 			Format("date-time")
 		})
@@ -26,7 +25,6 @@ var Account = MediaType("application/vnd.account+json", func() {
 	View("default", func() {
 		Attribute("id")
 		Attribute("href")
-		Attribute("first_name")
 		Attribute("name")
 		Attribute("created_at")
 		Attribute("created_by")
@@ -71,7 +69,7 @@ var Bottle = MediaType("application/vnd.bottle+json", func() {
 		Attribute("country")
 		Attribute("region")
 		Attribute("review")
-		Attribute("first_name")
+		Attribute("vinyard_county")
 
 		Required("id", "href", "name", "vineyard", "varietal", "vintage", "color")
 	})

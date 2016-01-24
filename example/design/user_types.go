@@ -21,7 +21,7 @@ var BottlePayload = Type("BottlePayload", func() {
 		Minimum(1900)
 		Maximum(2020)
 	})
-	Attribute("first_name")
+	Attribute("vinyard_county")
 	Attribute("color", func() {
 		Enum("red", "white", "rose", "yellow", "sparkling")
 	})
