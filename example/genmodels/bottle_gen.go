@@ -21,9 +21,9 @@ import (
 
 // This is the bottle model
 type Bottle struct {
-	ID        int `gorm:"primary_key"` // This is the ID PK field
 	Color     string
 	Country   string
+	ID        int
 	Name      string
 	Region    string
 	Review    string
@@ -31,64 +31,64 @@ type Bottle struct {
 	Varietal  string
 	Vineyard  string
 	Vintage   int        `sql:"index"`
-	DeletedAt *time.Time // nullable timestamp (soft delete)
 	CreatedAt time.Time  // timestamp
+	DeletedAt *time.Time // nullable timestamp (soft delete)
 	UpdatedAt time.Time  // timestamp
 }
 
-// BottleDB is the implementation of the storage interface for Bottle
+// BottleDB is the implementation of the storage interface for
+// Bottle.
 type BottleDB struct {
 	Db gorm.DB
 }
 
-// NewBottleDB creates a new storage type
+// NewBottleDB creates a new storage type.
 func NewBottleDB(db gorm.DB) *BottleDB {
 	return &BottleDB{Db: db}
 }
 
-// DB returns  the underlying database
+// DB returns the underlying database.
 func (m *BottleDB) DB() interface{} {
 	return &m.Db
 }
 
-// Storage Interface
+// BottleStorage represents the storage interface.
 type BottleStorage interface {
 	DB() interface{}
 	List(ctx context.Context) []Bottle
-	One(ctx context.Context, id int) (Bottle, error)
+	One(ctx context.Context) (Bottle, error)
 	Add(ctx context.Context, bottle Bottle) (Bottle, error)
 	Update(ctx context.Context, bottle Bottle) error
-	Delete(ctx context.Context, id int) error
+	Delete(ctx context.Context) error
 }
 
 // CRUD Functions
 
-// List returns an array of records
+// List returns an array of records.
 func (m *BottleDB) List(ctx context.Context) []Bottle {
 	var objs []Bottle
 	m.Db.Find(&objs)
 	return objs
 }
 
-// One returns a single record by ID
-func (m *BottleDB) One(ctx context.Context, id int) (Bottle, error) {
+// One returns a single record by ID.
+func (m *BottleDB) One(ctx context.Context) (Bottle, error) {
 
 	var obj Bottle
-
-	err := m.Db.Find(&obj, id).Error
+	err := m.Db.Find(&obj).Where("").Error
 
 	return obj, err
 }
 
-// Add creates a new record
+// Add creates a new record.
 func (m *BottleDB) Add(ctx context.Context, model Bottle) (Bottle, error) {
 	err := m.Db.Create(&model).Error
 	return model, err
 }
 
-// Update modifies a single record
+// Update modifies a single record.
 func (m *BottleDB) Update(ctx context.Context, model Bottle) error {
-	obj, err := m.One(ctx, model.ID)
+	obj, err := m.One(ctx)
 	if err != nil {
 		return err
 	}
@@ -97,11 +97,10 @@ func (m *BottleDB) Update(ctx context.Context, model Bottle) error {
 	return err
 }
 
-// Delete removes a single record
-func (m *BottleDB) Delete(ctx context.Context, id int) error {
+// Delete removes a single record.
+func (m *BottleDB) Delete(ctx context.Context) error {
 	var obj Bottle
-
-	err := m.Db.Delete(&obj, id).Error
+	err := m.Db.Delete(&obj).Where("").Error
 
 	if err != nil {
 		return err
@@ -111,32 +110,34 @@ func (m *BottleDB) Delete(ctx context.Context, id int) error {
 }
 
 // Useful conversion functions
+
+// ToBottle converts a model Bottle to an app Bottle.
 func (m *Bottle) ToBottle() app.Bottle {
 	payload := app.Bottle{}
+	payload.ID = m.ID
 	payload.Color = m.Color
-	payload.Country = &m.Country
 	payload.Name = m.Name
-	payload.Vineyard = m.Vineyard
-	payload.Vintage = m.Vintage
-	payload.Region = &m.Region
 	payload.Review = &m.Review
+	payload.Vintage = m.Vintage
+	payload.Country = &m.Country
+	payload.Region = &m.Region
 	payload.Sweetness = &m.Sweetness
 	payload.Varietal = m.Varietal
-	payload.ID = m.ID
+	payload.Vineyard = m.Vineyard
 	return payload
 }
 
-// Convert from	default version BottlePayload to Bottle
+// Convert from	default version BottlePayload to Bottle.
 func BottleFromBottlePayload(t app.BottlePayload) Bottle {
 	bottle := Bottle{}
-	bottle.Name = *t.Name
-	bottle.Vineyard = *t.Vineyard
-	bottle.Vintage = *t.Vintage
 	bottle.Color = *t.Color
+	bottle.Name = *t.Name
+	bottle.Review = *t.Review
+	bottle.Vintage = *t.Vintage
 	bottle.Country = *t.Country
+	bottle.Region = *t.Region
 	bottle.Sweetness = *t.Sweetness
 	bottle.Varietal = *t.Varietal
-	bottle.Region = *t.Region
-	bottle.Review = *t.Review
+	bottle.Vineyard = *t.Vineyard
 	return bottle
 }

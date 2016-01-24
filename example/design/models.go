@@ -13,9 +13,7 @@ var sg = StorageGroup("MyStorageGroup", func() {
 			BuiltFrom(BottlePayload)
 			RenderTo(Bottle)
 			Description("This is the bottle model")
-			Field("ID", gorma.PKInteger, func() {
-				Description("This is the ID PK field")
-			})
+
 			Field("Vintage", gorma.Integer, func() {
 				SQLTag("index")
 			})

@@ -346,3 +346,369 @@ var _ = Describe("RelationalModel", func() {
 
 	})
 })
+
+var _ = Describe("RelationalModel with auto fields enabled and auto fields set in dsl", func() {
+	var sgname, storename, name string
+	var dsl func()
+	var RandomPayload *UserTypeDefinition
+	var ChildPayload *UserTypeDefinition
+	var HasOnePayload *UserTypeDefinition
+	var HasManyPayload *UserTypeDefinition
+
+	BeforeEach(func() {
+		Design = nil
+		Errors = nil
+		sgname = "production"
+		dsl = nil
+		storename = "mysql"
+		name = ""
+		gorma.GormaDesign = nil
+		InitDesign()
+
+		RandomPayload = Type("RandomPayload", func() {
+			Attribute("first_name", String)
+			Attribute("last_name", String)
+		})
+
+		ChildPayload = Type("ChildPayload", func() {
+			Attribute("first_name", String)
+			Attribute("last_name", String)
+		})
+		HasOnePayload = Type("HasOnePayload", func() {
+			Attribute("first_name", String)
+			Attribute("last_name", String)
+		})
+
+		HasManyPayload = Type("HasManyPayload", func() {
+			Attribute("first_name", String)
+			Attribute("last_name", String)
+		})
+
+	})
+
+	JustBeforeEach(func() {
+		gdsl.StorageGroup(sgname, func() {
+			gdsl.Store(storename, gorma.MySQL, func() {
+				gdsl.AutomaticIDFields(true)
+				gdsl.AutomaticTimestamps(true)
+				gdsl.AutomaticSoftDelete(true)
+				gdsl.Model(name, dsl)
+				gdsl.Model("Child", func() {
+					gdsl.BuiltFrom(ChildPayload)
+					gdsl.BelongsTo(name)
+				})
+				gdsl.Model("One", func() {
+					gdsl.BuiltFrom(HasOnePayload)
+					gdsl.HasOne("Child")
+				})
+				gdsl.Model("Many", func() {
+					gdsl.BuiltFrom(HasManyPayload)
+					gdsl.HasMany("Children", "Child")
+				})
+
+			})
+		})
+
+		RunDSL()
+
+	})
+
+	Context("with no DSL", func() {
+		BeforeEach(func() {
+			name = "Users"
+			dsl = func() {
+				gdsl.Field("ID", gorma.PKInteger)
+				gdsl.Field("CreatedAt", gorma.Timestamp)
+				gdsl.Field("UpdatedAt", gorma.Timestamp)
+				gdsl.Field("DeletedAt", gorma.NullableTimestamp)
+			}
+		})
+
+		It("generates auto fields", func() {
+			Ω(Design.Validate()).ShouldNot(HaveOccurred())
+			sg := gorma.GormaDesign
+			rs := sg.RelationalStores[storename]
+			Ω(rs.RelationalModels[name].Name).Should(Equal(name))
+			_, ok := rs.RelationalModels[name].RelationalFields["ID"]
+			Ω(ok).Should(Equal(true))
+			_, ok = rs.RelationalModels[name].RelationalFields["UpdatedAt"]
+			Ω(ok).Should(Equal(true))
+			_, ok = rs.RelationalModels[name].RelationalFields["CreatedAt"]
+			Ω(ok).Should(Equal(true))
+			_, ok = rs.RelationalModels[name].RelationalFields["DeletedAt"]
+			Ω(ok).Should(Equal(true))
+			Ω(rs.RelationalModels[name].Name).Should(Equal(name))
+			Ω(len(rs.RelationalModels[name].RelationalFields)).Should(Equal(4))
+
+		})
+	})
+})
+var _ = Describe("RelationalModel with auto fields explicitly enabled", func() {
+	var sgname, storename, name string
+	var dsl func()
+	var RandomPayload *UserTypeDefinition
+	var ChildPayload *UserTypeDefinition
+	var HasOnePayload *UserTypeDefinition
+	var HasManyPayload *UserTypeDefinition
+
+	BeforeEach(func() {
+		Design = nil
+		Errors = nil
+		sgname = "production"
+		dsl = nil
+		storename = "mysql"
+		name = ""
+		gorma.GormaDesign = nil
+		InitDesign()
+
+		RandomPayload = Type("RandomPayload", func() {
+			Attribute("first_name", String)
+			Attribute("last_name", String)
+		})
+
+		ChildPayload = Type("ChildPayload", func() {
+			Attribute("first_name", String)
+			Attribute("last_name", String)
+		})
+		HasOnePayload = Type("HasOnePayload", func() {
+			Attribute("first_name", String)
+			Attribute("last_name", String)
+		})
+
+		HasManyPayload = Type("HasManyPayload", func() {
+			Attribute("first_name", String)
+			Attribute("last_name", String)
+		})
+
+	})
+
+	JustBeforeEach(func() {
+		gdsl.StorageGroup(sgname, func() {
+			gdsl.Store(storename, gorma.MySQL, func() {
+				gdsl.AutomaticIDFields(true)
+				gdsl.AutomaticTimestamps(true)
+				gdsl.AutomaticSoftDelete(true)
+				gdsl.Model(name, dsl)
+				gdsl.Model("Child", func() {
+					gdsl.BuiltFrom(ChildPayload)
+					gdsl.BelongsTo(name)
+				})
+				gdsl.Model("One", func() {
+					gdsl.BuiltFrom(HasOnePayload)
+					gdsl.HasOne("Child")
+				})
+				gdsl.Model("Many", func() {
+					gdsl.BuiltFrom(HasManyPayload)
+					gdsl.HasMany("Children", "Child")
+				})
+
+			})
+		})
+
+		RunDSL()
+
+	})
+
+	Context("with no DSL", func() {
+		BeforeEach(func() {
+			name = "Users"
+		})
+
+		It("generates auto fields", func() {
+			Ω(Design.Validate()).ShouldNot(HaveOccurred())
+			sg := gorma.GormaDesign
+			rs := sg.RelationalStores[storename]
+			Ω(rs.RelationalModels[name].Name).Should(Equal(name))
+			_, ok := rs.RelationalModels[name].RelationalFields["ID"]
+			Ω(ok).Should(Equal(true))
+			_, ok = rs.RelationalModels[name].RelationalFields["UpdatedAt"]
+			Ω(ok).Should(Equal(true))
+			_, ok = rs.RelationalModels[name].RelationalFields["CreatedAt"]
+			Ω(ok).Should(Equal(true))
+			_, ok = rs.RelationalModels[name].RelationalFields["DeletedAt"]
+			Ω(ok).Should(Equal(true))
+			Ω(rs.RelationalModels[name].Name).Should(Equal(name))
+			Ω(len(rs.RelationalModels[name].RelationalFields)).Should(Equal(4))
+		})
+	})
+})
+
+var _ = Describe("RelationalModel with auto fields disabled", func() {
+	var sgname, storename, name string
+	var dsl func()
+	var RandomPayload *UserTypeDefinition
+	var ChildPayload *UserTypeDefinition
+	var HasOnePayload *UserTypeDefinition
+	var HasManyPayload *UserTypeDefinition
+
+	BeforeEach(func() {
+		Design = nil
+		Errors = nil
+		sgname = "production"
+		dsl = nil
+		storename = "mysql"
+		name = ""
+		gorma.GormaDesign = nil
+		InitDesign()
+
+		RandomPayload = Type("RandomPayload", func() {
+			Attribute("first_name", String)
+			Attribute("last_name", String)
+		})
+
+		ChildPayload = Type("ChildPayload", func() {
+			Attribute("first_name", String)
+			Attribute("last_name", String)
+		})
+		HasOnePayload = Type("HasOnePayload", func() {
+			Attribute("first_name", String)
+			Attribute("last_name", String)
+		})
+
+		HasManyPayload = Type("HasManyPayload", func() {
+			Attribute("first_name", String)
+			Attribute("last_name", String)
+		})
+
+	})
+
+	JustBeforeEach(func() {
+		gdsl.StorageGroup(sgname, func() {
+			gdsl.Store(storename, gorma.MySQL, func() {
+				gdsl.AutomaticIDFields(false)
+				gdsl.AutomaticTimestamps(false)
+				gdsl.AutomaticSoftDelete(false)
+				gdsl.Model(name, dsl)
+				gdsl.Model("Child", func() {
+					gdsl.BuiltFrom(ChildPayload)
+					gdsl.BelongsTo(name)
+				})
+				gdsl.Model("One", func() {
+					gdsl.BuiltFrom(HasOnePayload)
+					gdsl.HasOne("Child")
+				})
+				gdsl.Model("Many", func() {
+					gdsl.BuiltFrom(HasManyPayload)
+					gdsl.HasMany("Children", "Child")
+				})
+
+			})
+		})
+
+		RunDSL()
+
+	})
+
+	Context("with no DSL", func() {
+		BeforeEach(func() {
+			name = "Users"
+		})
+
+		It("doesn't generate auto fields", func() {
+			Ω(Design.Validate()).ShouldNot(HaveOccurred())
+			sg := gorma.GormaDesign
+			rs := sg.RelationalStores[storename]
+			Ω(rs.RelationalModels[name].Name).Should(Equal(name))
+			_, ok := rs.RelationalModels[name].RelationalFields["ID"]
+			Ω(ok).Should(Equal(false))
+			_, ok = rs.RelationalModels[name].RelationalFields["UpdatedAt"]
+			Ω(ok).Should(Equal(false))
+			_, ok = rs.RelationalModels[name].RelationalFields["CreatedAt"]
+			Ω(ok).Should(Equal(false))
+			_, ok = rs.RelationalModels[name].RelationalFields["DeletedAt"]
+			Ω(ok).Should(Equal(false))
+			Ω(rs.RelationalModels[name].Name).Should(Equal(name))
+			Ω(len(rs.RelationalModels[name].RelationalFields)).Should(Equal(0))
+		})
+	})
+})
+
+var _ = Describe("RelationalModel with auto fields unset", func() {
+	var sgname, storename, name string
+	var dsl func()
+	var RandomPayload *UserTypeDefinition
+	var ChildPayload *UserTypeDefinition
+	var HasOnePayload *UserTypeDefinition
+	var HasManyPayload *UserTypeDefinition
+
+	BeforeEach(func() {
+		Design = nil
+		Errors = nil
+		sgname = "production"
+		dsl = nil
+		storename = "mysql"
+		name = ""
+		gorma.GormaDesign = nil
+		InitDesign()
+
+		RandomPayload = Type("RandomPayload", func() {
+			Attribute("first_name", String)
+			Attribute("last_name", String)
+		})
+
+		ChildPayload = Type("ChildPayload", func() {
+			Attribute("first_name", String)
+			Attribute("last_name", String)
+		})
+		HasOnePayload = Type("HasOnePayload", func() {
+			Attribute("first_name", String)
+			Attribute("last_name", String)
+		})
+
+		HasManyPayload = Type("HasManyPayload", func() {
+			Attribute("first_name", String)
+			Attribute("last_name", String)
+		})
+
+	})
+
+	JustBeforeEach(func() {
+		gdsl.StorageGroup(sgname, func() {
+			gdsl.Store(storename, gorma.MySQL, func() {
+				gdsl.Model(name, dsl)
+				gdsl.Model("Child", func() {
+					gdsl.BuiltFrom(ChildPayload)
+					gdsl.BelongsTo(name)
+				})
+				gdsl.Model("One", func() {
+					gdsl.BuiltFrom(HasOnePayload)
+					gdsl.HasOne("Child")
+				})
+				gdsl.Model("Many", func() {
+					gdsl.BuiltFrom(HasManyPayload)
+					gdsl.HasMany("Children", "Child")
+				})
+
+			})
+		})
+
+		RunDSL()
+
+	})
+
+	Context("with no DSL", func() {
+		BeforeEach(func() {
+			name = "Users"
+		})
+
+		It("generates auto fields", func() {
+			Ω(Design.Validate()).ShouldNot(HaveOccurred())
+			sg := gorma.GormaDesign
+			rs := sg.RelationalStores[storename]
+			Ω(rs.RelationalModels[name].Name).Should(Equal(name))
+			f, ok := rs.RelationalModels[name].RelationalFields["ID"]
+			Ω(ok).Should(Equal(true))
+			Ω(f.Datatype).Should(Equal(gorma.PKInteger))
+			f, ok = rs.RelationalModels[name].RelationalFields["UpdatedAt"]
+			Ω(ok).Should(Equal(true))
+			Ω(f.Datatype).Should(Equal(gorma.Timestamp))
+			f, ok = rs.RelationalModels[name].RelationalFields["CreatedAt"]
+			Ω(ok).Should(Equal(true))
+			Ω(f.Datatype).Should(Equal(gorma.Timestamp))
+			f, ok = rs.RelationalModels[name].RelationalFields["DeletedAt"]
+			Ω(ok).Should(Equal(true))
+			Ω(f.Datatype).Should(Equal(gorma.NullableTimestamp))
+			Ω(rs.RelationalModels[name].Name).Should(Equal(name))
+		})
+	})
+})
