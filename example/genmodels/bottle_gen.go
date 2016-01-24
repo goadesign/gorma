@@ -21,9 +21,10 @@ import (
 
 // This is the bottle model
 type Bottle struct {
+	ID        int `gorm:"primary_key"`
 	Color     string
 	Country   string
-	ID        int
+	FirstName string `gorm:"column:firstname"`
 	Name      string
 	Region    string
 	Review    string
@@ -31,8 +32,8 @@ type Bottle struct {
 	Varietal  string
 	Vineyard  string
 	Vintage   int        `sql:"index"`
-	CreatedAt time.Time  // timestamp
 	DeletedAt *time.Time // nullable timestamp (soft delete)
+	CreatedAt time.Time  // timestamp
 	UpdatedAt time.Time  // timestamp
 }
 
@@ -114,30 +115,34 @@ func (m *BottleDB) Delete(ctx context.Context) error {
 // ToBottle converts a model Bottle to an app Bottle.
 func (m *Bottle) ToBottle() app.Bottle {
 	payload := app.Bottle{}
-	payload.ID = m.ID
 	payload.Color = m.Color
-	payload.Name = m.Name
-	payload.Review = &m.Review
-	payload.Vintage = m.Vintage
 	payload.Country = &m.Country
-	payload.Region = &m.Region
-	payload.Sweetness = &m.Sweetness
+	payload.Name = m.Name
 	payload.Varietal = m.Varietal
+	payload.CreatedAt = &m.CreatedAt
+	payload.FirstName = &m.FirstName
+	payload.Sweetness = &m.Sweetness
 	payload.Vineyard = m.Vineyard
+	payload.Vintage = m.Vintage
+	payload.UpdatedAt = &m.UpdatedAt
+	payload.Region = &m.Region
+	payload.Review = &m.Review
+	payload.ID = m.ID
 	return payload
 }
 
 // Convert from	default version BottlePayload to Bottle.
 func BottleFromBottlePayload(t app.BottlePayload) Bottle {
 	bottle := Bottle{}
-	bottle.Color = *t.Color
-	bottle.Name = *t.Name
 	bottle.Review = *t.Review
-	bottle.Vintage = *t.Vintage
-	bottle.Country = *t.Country
-	bottle.Region = *t.Region
 	bottle.Sweetness = *t.Sweetness
-	bottle.Varietal = *t.Varietal
 	bottle.Vineyard = *t.Vineyard
+	bottle.Vintage = *t.Vintage
+	bottle.Region = *t.Region
+	bottle.Name = *t.Name
+	bottle.Color = *t.Color
+	bottle.Country = *t.Country
+	bottle.FirstName = *t.FirstName
+	bottle.Varietal = *t.Varietal
 	return bottle
 }

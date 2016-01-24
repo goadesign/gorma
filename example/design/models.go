@@ -17,6 +17,9 @@ var sg = StorageGroup("MyStorageGroup", func() {
 			Field("Vintage", gorma.Integer, func() {
 				SQLTag("index")
 			})
+			Field("first_name", gorma.String, func() {
+				Alias("firstname")
+			})
 			Field("CreatedAt", gorma.Timestamp, func() {})
 			Field("UpdatedAt", gorma.Timestamp, func() {})
 			Field("DeletedAt", gorma.NullableTimestamp, func() {})
