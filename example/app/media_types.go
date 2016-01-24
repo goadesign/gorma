@@ -5,6 +5,7 @@
 // $ goagen
 // --out=$(GOPATH)/src/github.com/goadesign/gorma/example
 // --design=github.com/goadesign/gorma/example/design
+// --pkg=app
 //
 // The content of this file is auto-generated, DO NOT MODIFY
 //************************************************************************//
@@ -17,15 +18,15 @@ import "github.com/goadesign/goa"
 // Identifier: application/vnd.account+json
 type Account struct {
 	// Date of creation
-	CreatedAt *string
+	CreatedAt *string `json:"created_at,omitempty"`
 	// Email of account owner
-	CreatedBy *string
+	CreatedBy *string `json:"created_by,omitempty"`
 	// API href of account
-	Href string
+	Href string `json:"href"`
 	// ID of account
-	ID int
+	ID int `json:"id"`
 	// Name of account
-	Name string
+	Name string `json:"name"`
 }
 
 // Account views
@@ -86,14 +87,14 @@ func MarshalAccount(source *Account, inErr error) (target map[string]interface{}
 		err = goa.ReportError(err, err2)
 		return
 	}
-	tmp15 := map[string]interface{}{
+	tmp27 := map[string]interface{}{
 		"created_at": source.CreatedAt,
 		"created_by": source.CreatedBy,
 		"href":       source.Href,
 		"id":         source.ID,
 		"name":       source.Name,
 	}
-	target = tmp15
+	target = tmp27
 	return
 }
 
@@ -105,11 +106,11 @@ func MarshalAccountLink(source *Account, inErr error) (target map[string]interfa
 		err = goa.ReportError(err, err2)
 		return
 	}
-	tmp16 := map[string]interface{}{
+	tmp28 := map[string]interface{}{
 		"href": source.Href,
 		"id":   source.ID,
 	}
-	target = tmp16
+	target = tmp28
 	return
 }
 
@@ -121,12 +122,12 @@ func MarshalAccountTiny(source *Account, inErr error) (target map[string]interfa
 		err = goa.ReportError(err, err2)
 		return
 	}
-	tmp17 := map[string]interface{}{
+	tmp29 := map[string]interface{}{
 		"href": source.Href,
 		"id":   source.ID,
 		"name": source.Name,
 	}
-	target = tmp17
+	target = tmp29
 	return
 }
 
@@ -134,26 +135,26 @@ func MarshalAccountTiny(source *Account, inErr error) (target map[string]interfa
 // Identifier: application/vnd.bottle+json
 type Bottle struct {
 	// Account that owns bottle
-	Account *Account
-	Color   string
-	Country *string
+	Account *Account `json:"account,omitempty"`
+	Color   string   `json:"color"`
+	Country *string  `json:"country,omitempty"`
 	// Date of creation
-	CreatedAt *string
+	CreatedAt *string `json:"created_at,omitempty"`
 	// API href of bottle
-	Href string
+	Href string `json:"href"`
 	// ID of bottle
-	ID   int
-	Name string
+	ID   int    `json:"id"`
+	Name string `json:"name"`
 	// Rating of bottle between 1 and 5
-	Rating    *int
-	Region    *string
-	Review    *string
-	Sweetness *int
+	Rating    *int    `json:"rating,omitempty"`
+	Region    *string `json:"region,omitempty"`
+	Review    *string `json:"review,omitempty"`
+	Sweetness *int    `json:"sweetness,omitempty"`
 	// Date of last update
-	UpdatedAt *string
-	Varietal  string
-	Vineyard  string
-	Vintage   int
+	UpdatedAt *string `json:"updated_at,omitempty"`
+	Varietal  string  `json:"varietal"`
+	Vineyard  string  `json:"vineyard"`
+	Vintage   int     `json:"vintage"`
 }
 
 // Bottle views
@@ -287,7 +288,7 @@ func MarshalBottle(source *Bottle, inErr error) (target map[string]interface{}, 
 		err = goa.ReportError(err, err2)
 		return
 	}
-	tmp18 := map[string]interface{}{
+	tmp30 := map[string]interface{}{
 		"href":     source.Href,
 		"id":       source.ID,
 		"name":     source.Name,
@@ -297,9 +298,9 @@ func MarshalBottle(source *Bottle, inErr error) (target map[string]interface{}, 
 		"vintage":  source.Vintage,
 	}
 	if source.Account != nil {
-		tmp18["account"], err = MarshalAccountTiny(source.Account, err)
+		tmp30["account"], err = MarshalAccountTiny(source.Account, err)
 	}
-	target = tmp18
+	target = tmp30
 	if err == nil {
 		links := make(map[string]interface{})
 		links["account"], err = MarshalAccountLink(source.Account, err)
@@ -316,7 +317,7 @@ func MarshalBottleFull(source *Bottle, inErr error) (target map[string]interface
 		err = goa.ReportError(err, err2)
 		return
 	}
-	tmp19 := map[string]interface{}{
+	tmp31 := map[string]interface{}{
 		"color":      source.Color,
 		"country":    source.Country,
 		"created_at": source.CreatedAt,
@@ -333,9 +334,9 @@ func MarshalBottleFull(source *Bottle, inErr error) (target map[string]interface
 		"vintage":    source.Vintage,
 	}
 	if source.Account != nil {
-		tmp19["account"], err = MarshalAccount(source.Account, err)
+		tmp31["account"], err = MarshalAccount(source.Account, err)
 	}
-	target = tmp19
+	target = tmp31
 	if err == nil {
 		links := make(map[string]interface{})
 		links["account"], err = MarshalAccountLink(source.Account, err)
@@ -352,13 +353,13 @@ func MarshalBottleTiny(source *Bottle, inErr error) (target map[string]interface
 		err = goa.ReportError(err, err2)
 		return
 	}
-	tmp20 := map[string]interface{}{
+	tmp32 := map[string]interface{}{
 		"href":   source.Href,
 		"id":     source.ID,
 		"name":   source.Name,
 		"rating": source.Rating,
 	}
-	target = tmp20
+	target = tmp32
 	if err == nil {
 		links := make(map[string]interface{})
 		links["account"], err = MarshalAccountLink(source.Account, err)
@@ -386,18 +387,18 @@ const (
 func (mt BottleCollection) Dump(view BottleCollectionViewEnum) (res []map[string]interface{}, err error) {
 	if view == BottleCollectionDefaultView {
 		res = make([]map[string]interface{}, len(mt))
-		for i, tmp21 := range mt {
-			var tmp22 map[string]interface{}
-			tmp22, err = MarshalBottle(tmp21, err)
-			res[i] = tmp22
+		for i, tmp33 := range mt {
+			var tmp34 map[string]interface{}
+			tmp34, err = MarshalBottle(tmp33, err)
+			res[i] = tmp34
 		}
 	}
 	if view == BottleCollectionTinyView {
 		res = make([]map[string]interface{}, len(mt))
-		for i, tmp23 := range mt {
-			var tmp24 map[string]interface{}
-			tmp24, err = MarshalBottleTiny(tmp23, err)
-			res[i] = tmp24
+		for i, tmp35 := range mt {
+			var tmp36 map[string]interface{}
+			tmp36, err = MarshalBottleTiny(tmp35, err)
+			res[i] = tmp36
 		}
 	}
 	return

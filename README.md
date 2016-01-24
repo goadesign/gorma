@@ -17,6 +17,8 @@ Gorma uses a custom `goa` DSL to generate a working storage system for your API.
 ## Opinionated
 Gorma generates Go code that uses [gorm](https://github.com/jinzhu/gorm) to access your database, therefore it is quite opinionated about how the data access layer is generated.
 
+By default, a primary key field is created as type `int` with name ID.  Also Gorm's magic date stamp fields `created_at`, `updated_at` and `deleted_at` are created.  Override this behavior with the Automatic* DSL functions on the Store.
+
 
 ## Use
 Write a storage definition using DSL from the `dsl` package.  Example:
@@ -30,15 +32,9 @@ Write a storage definition using DSL from the `dsl` package.  Example:
 				BuiltFrom(BottlePayload)
 				RenderTo(Bottle)
 				Description("This is the bottle model")
-				Field("ID", gorma.PKInteger, func() {
-					Description("This is the ID PK field")
-				})
 				Field("Vintage", gorma.Integer, func() {
 					SQLTag("index")
 				})
-				Field("CreatedAt", gorma.Timestamp, func() {})
-				Field("UpdatedAt", gorma.Timestamp, func() {})
-				Field("DeletedAt", gorma.NullableTimestamp, func() {})
 			})
 		})
 	})

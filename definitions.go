@@ -26,6 +26,9 @@ type RelationalStoreDefinition struct {
 	Parent           *StorageGroupDefinition
 	Type             RelationalStorageType
 	RelationalModels map[string]*RelationalModelDefinition
+	AutoIDGenerate   bool
+	AutoTimestamps   bool
+	AutoSoftDelete   bool
 }
 
 // RelationalModelDefinition implements the storage of a domain model into a

@@ -91,6 +91,87 @@ var _ = Describe("RelationalStore", func() {
 				sg := gorma.GormaDesign
 				Ω(sg.RelationalStores[name].Description).Should(Equal(description))
 			})
+			It("auto id generation defaults to true", func() {
+				sg := gorma.GormaDesign
+				Ω(sg.RelationalStores[name].AutoIDGenerate).Should(Equal(true))
+			})
+			It("auto timestamps defaults to true", func() {
+				sg := gorma.GormaDesign
+				Ω(sg.RelationalStores[name].AutoTimestamps).Should(Equal(true))
+			})
+			It("auto soft delete defaults to true", func() {
+				sg := gorma.GormaDesign
+				Ω(sg.RelationalStores[name].AutoSoftDelete).Should(Equal(true))
+			})
+		})
+		Context("with a AutoID off", func() {
+			const auto = false
+
+			BeforeEach(func() {
+				name = "mysql"
+				dsl = func() {
+					gdsl.AutomaticIDFields(auto)
+				}
+			})
+
+			It("auto id generation should be off", func() {
+				sg := gorma.GormaDesign
+				Ω(sg.RelationalStores[name].AutoIDGenerate).Should(Equal(false))
+			})
+			It("auto timestamps defaults to true", func() {
+				sg := gorma.GormaDesign
+				Ω(sg.RelationalStores[name].AutoTimestamps).Should(Equal(true))
+			})
+			It("auto soft delete defaults to true", func() {
+				sg := gorma.GormaDesign
+				Ω(sg.RelationalStores[name].AutoSoftDelete).Should(Equal(true))
+			})
+		})
+		Context("with a AutoTimestamps off", func() {
+			const auto = false
+
+			BeforeEach(func() {
+				name = "mysql"
+				dsl = func() {
+					gdsl.AutomaticTimestamps(auto)
+				}
+			})
+
+			It("auto id generation should be on", func() {
+				sg := gorma.GormaDesign
+				Ω(sg.RelationalStores[name].AutoIDGenerate).Should(Equal(true))
+			})
+			It("auto timestamps should be off", func() {
+				sg := gorma.GormaDesign
+				Ω(sg.RelationalStores[name].AutoTimestamps).Should(Equal(auto))
+			})
+			It("auto soft delete should be on", func() {
+				sg := gorma.GormaDesign
+				Ω(sg.RelationalStores[name].AutoSoftDelete).Should(Equal(true))
+			})
+		})
+		Context("with a AutoSoftDelete off", func() {
+			const auto = false
+
+			BeforeEach(func() {
+				name = "mysql"
+				dsl = func() {
+					gdsl.AutomaticSoftDelete(auto)
+				}
+			})
+
+			It("auto id generation should be on", func() {
+				sg := gorma.GormaDesign
+				Ω(sg.RelationalStores[name].AutoIDGenerate).Should(Equal(true))
+			})
+			It("auto timestamps should be on", func() {
+				sg := gorma.GormaDesign
+				Ω(sg.RelationalStores[name].AutoTimestamps).Should(Equal(true))
+			})
+			It("auto soft delete should be off", func() {
+				sg := gorma.GormaDesign
+				Ω(sg.RelationalStores[name].AutoSoftDelete).Should(Equal(auto))
+			})
 		})
 
 	})

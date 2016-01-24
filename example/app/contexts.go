@@ -5,6 +5,7 @@
 // $ goagen
 // --out=$(GOPATH)/src/github.com/goadesign/gorma/example
 // --design=github.com/goadesign/gorma/example/design
+// --pkg=app
 //
 // The content of this file is auto-generated, DO NOT MODIFY
 //************************************************************************//
@@ -36,7 +37,7 @@ func NewCreateAccountContext(c *goa.Context) (*CreateAccountContext, error) {
 // CreateAccountPayload is the account create action payload.
 type CreateAccountPayload struct {
 	// Name of account
-	Name string
+	Name string `json:"name"`
 }
 
 // Validate runs the validation rules defined in the design.
@@ -148,7 +149,7 @@ func NewUpdateAccountContext(c *goa.Context) (*UpdateAccountContext, error) {
 // UpdateAccountPayload is the account update action payload.
 type UpdateAccountPayload struct {
 	// Name of account
-	Name string
+	Name string `json:"name"`
 }
 
 // Validate runs the validation rules defined in the design.
@@ -195,15 +196,15 @@ func NewCreateBottleContext(c *goa.Context) (*CreateBottleContext, error) {
 
 // CreateBottlePayload is the bottle create action payload.
 type CreateBottlePayload struct {
-	Color     string
-	Country   *string
-	Name      string
-	Region    *string
-	Review    *string
-	Sweetness *int
-	Varietal  string
-	Vineyard  string
-	Vintage   int
+	Color     string  `json:"color"`
+	Country   *string `json:"country,omitempty"`
+	Name      string  `json:"name"`
+	Region    *string `json:"region,omitempty"`
+	Review    *string `json:"review,omitempty"`
+	Sweetness *int    `json:"sweetness,omitempty"`
+	Varietal  string  `json:"varietal"`
+	Vineyard  string  `json:"vineyard"`
+	Vintage   int     `json:"vintage"`
 }
 
 // Validate runs the validation rules defined in the design.
@@ -400,7 +401,7 @@ func NewRateBottleContext(c *goa.Context) (*RateBottleContext, error) {
 // RateBottlePayload is the bottle rate action payload.
 type RateBottlePayload struct {
 	// Rating of bottle between 1 and 5
-	Rating int
+	Rating int `json:"rating"`
 }
 
 // Validate runs the validation rules defined in the design.
@@ -505,15 +506,15 @@ func NewUpdateBottleContext(c *goa.Context) (*UpdateBottleContext, error) {
 
 // UpdateBottlePayload is the bottle update action payload.
 type UpdateBottlePayload struct {
-	Color     *string
-	Country   *string
-	Name      *string
-	Region    *string
-	Review    *string
-	Sweetness *int
-	Varietal  *string
-	Vineyard  *string
-	Vintage   *int
+	Color     *string `json:"color,omitempty"`
+	Country   *string `json:"country,omitempty"`
+	Name      *string `json:"name,omitempty"`
+	Region    *string `json:"region,omitempty"`
+	Review    *string `json:"review,omitempty"`
+	Sweetness *int    `json:"sweetness,omitempty"`
+	Varietal  *string `json:"varietal,omitempty"`
+	Vineyard  *string `json:"vineyard,omitempty"`
+	Vintage   *int    `json:"vintage,omitempty"`
 }
 
 // Validate runs the validation rules defined in the design.

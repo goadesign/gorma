@@ -41,8 +41,47 @@ func Model(name string, dsl func()) {
 		} else {
 			models.DefinitionDSL = dsl
 		}
-		//models.PopulateFromModeledType() -- need to do this later
+		///models.PopulateFromModeledType() -- need to do this later
 		s.RelationalModels[name] = models
+		if s.AutoIDGenerate {
+			field := &gorma.RelationalFieldDefinition{
+				Name:              SanitizeFieldName("ID"),
+				Parent:            models,
+				Datatype:          gorma.PKInteger,
+				PrimaryKey:        true,
+				DatabaseFieldName: SanitizeDBFieldName("ID"),
+			}
+			models.RelationalFields[field.Name] = field
+		}
+		if s.AutoTimestamps {
+			// add createdat
+			field := &gorma.RelationalFieldDefinition{
+				Name:              SanitizeFieldName("CreatedAt"),
+				Parent:            models,
+				Datatype:          gorma.Timestamp,
+				DatabaseFieldName: SanitizeDBFieldName("CreatedAt"),
+			}
+			models.RelationalFields[field.Name] = field
+			// add updatedat
+			field = &gorma.RelationalFieldDefinition{
+				Name:              SanitizeFieldName("UpdatedAt"),
+				Parent:            models,
+				Datatype:          gorma.Timestamp,
+				DatabaseFieldName: SanitizeDBFieldName("UpdatedAt"),
+			}
+			models.RelationalFields[field.Name] = field
+		}
+		if s.AutoSoftDelete {
+			// Add softdelete
+			field := &gorma.RelationalFieldDefinition{
+				Name:              SanitizeFieldName("DeletedAt"),
+				Parent:            models,
+				Nullable:          true,
+				Datatype:          gorma.NullableTimestamp,
+				DatabaseFieldName: SanitizeDBFieldName("DeletedAt"),
+			}
+			models.RelationalFields[field.Name] = field
+		}
 	}
 }
 
