@@ -39,7 +39,7 @@ var _ = Describe("RelationalField", func() {
 				gdsl.Model(modelname, func() {
 					gdsl.BuiltFrom(RandomPayload)
 					gdsl.Field(name, ft, dsl)
-					gdsl.Field("ID", gorma.PKInteger, dsl)
+					gdsl.Field("id", gorma.PKInteger, dsl) // use lowercase "id" to test sanitizer
 					gdsl.Field("CreatedAt", gorma.Timestamp)
 					gdsl.Field("UpdatedAt", gorma.Timestamp)
 					gdsl.Field("DeletedAt", gorma.NullableTimestamp)
@@ -95,6 +95,13 @@ var _ = Describe("RelationalField", func() {
 				dsl = func() {
 					gdsl.Description(description)
 				}
+			})
+
+			It("sanitizes the ID field", func() {
+				sg := gorma.GormaDesign
+				rs := sg.RelationalStores[storename]
+				rm := rs.RelationalModels[modelname]
+				Ω(rm.RelationalFields).Should(HaveKey("ID"))
 			})
 
 			It("sets the relational field description", func() {

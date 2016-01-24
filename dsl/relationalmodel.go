@@ -44,7 +44,6 @@ func Model(name string, dsl func()) {
 		//models.PopulateFromModeledType() -- need to do this later
 		s.RelationalModels[name] = models
 	}
-
 }
 
 // RenderTo informs Gorma that this model will need to be
@@ -62,7 +61,6 @@ func RenderTo(mts ...*design.MediaTypeDefinition) {
 			s.RenderTo = append(s.RenderTo, mt)
 		}
 	}
-
 }
 
 // BuiltFrom informs Gorma that this model will be populated
@@ -80,7 +78,6 @@ func BuiltFrom(mts ...*design.UserTypeDefinition) {
 		}
 		s.PopulateFromModeledType()
 	}
-
 }
 
 // BelongsTo signifies a relationship between this model and a
@@ -113,7 +110,6 @@ func BelongsTo(parent string) {
 			}
 			r.BelongsTo[models.Name] = models
 		}
-
 	}
 }
 
@@ -167,7 +163,6 @@ func HasOne(child string) {
 			}
 			models.RelationalFields[f.Name] = f
 		}
-
 	}
 }
 
@@ -225,9 +220,7 @@ func HasMany(name, child string) {
 				DatabaseFieldName: SanitizeDBFieldName(codegen.Goify(inflect.Singularize(r.Name), true) + "ID"),
 			}
 			model.RelationalFields[f.Name] = f
-
 		}
-
 	}
 }
 
@@ -279,7 +272,6 @@ func ManyToMany(other, tablename string) {
 			}
 			r.ManyToMany[other] = m2m
 		}
-
 	}
 }
 
