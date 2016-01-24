@@ -8,7 +8,8 @@ import (
 var (
 	// TargetPackage is the name of the generated Go package.
 	TargetPackage string
-	AppPackage    string
+	// AppPackage is the name of the goa-generated Go app package.
+	AppPackage string
 )
 
 // Command is the goa application code generator command line data structure.
