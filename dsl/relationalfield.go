@@ -23,7 +23,8 @@ func Field(name string, args ...interface{}) {
 	// The first one to be called executes InitDesign.
 
 	checkInit()
-	// standardize field name definitions
+
+	name = SanitizeFieldName(name)
 	fieldType, dsl := parseModelArgs(args...)
 	if s, ok := relationalModelDefinition(true); ok {
 		if s.RelationalFields == nil {
@@ -32,7 +33,7 @@ func Field(name string, args ...interface{}) {
 		field, ok := s.RelationalFields[name]
 		if !ok {
 			field = &gorma.RelationalFieldDefinition{
-				Name:          SanitizeFieldName(name),
+				Name:          name,
 				DefinitionDSL: dsl,
 				Parent:        s,
 				Datatype:      fieldType,
