@@ -108,8 +108,8 @@ type RelationalFieldDefinition struct {
 	Nullable          bool
 	PrimaryKey        bool
 	Timestamp         bool
-	Size              int // string field size
-	Alias             string
+	Size              int    // string field size
+	Alias             string // gorm:column
 	BelongsTo         string
 	HasOne            string
 	HasMany           string

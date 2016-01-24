@@ -6,7 +6,7 @@ import (
 	"github.com/goadesign/goa/design"
 )
 
-// Validate tests whether the StorageGroup definition is consistent
+// Validate tests whether the StorageGroup definition is consistent.
 func (a *StorageGroupDefinition) Validate() *design.ValidationErrors {
 	fmt.Println("Validating Group")
 	verr := new(design.ValidationErrors)
@@ -21,7 +21,7 @@ func (a *StorageGroupDefinition) Validate() *design.ValidationErrors {
 	return verr.AsError()
 }
 
-// Validate tests whether the RelationalStore definition is consistent
+// Validate tests whether the RelationalStore definition is consistent.
 func (a *RelationalStoreDefinition) Validate() *design.ValidationErrors {
 	fmt.Println("Validating Store")
 	verr := new(design.ValidationErrors)
@@ -39,7 +39,7 @@ func (a *RelationalStoreDefinition) Validate() *design.ValidationErrors {
 	return verr.AsError()
 }
 
-// Validate tests whether the RelationalModel definition is consistent
+// Validate tests whether the RelationalModel definition is consistent.
 func (a *RelationalModelDefinition) Validate() *design.ValidationErrors {
 	fmt.Println("Validating Model")
 	verr := new(design.ValidationErrors)
@@ -57,7 +57,7 @@ func (a *RelationalModelDefinition) Validate() *design.ValidationErrors {
 	return verr.AsError()
 }
 
-// Validate tests whether the RelationalField definition is consistent
+// Validate tests whether the RelationalField definition is consistent.
 func (field *RelationalFieldDefinition) Validate() *design.ValidationErrors {
 	fmt.Println("Validing Field")
 	verr := new(design.ValidationErrors)

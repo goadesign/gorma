@@ -7,7 +7,8 @@ import (
 	"github.com/goadesign/goa/design"
 )
 
-// IterateStores runs an iterator function once per Relational Store in the StorageGroup's Store list
+// IterateStores runs an iterator function once per Relational Store in the
+// StorageGroup's Store list.
 func (sd *StorageGroupDefinition) IterateStores(it StoreIterator) error {
 	if sd.RelationalStores != nil {
 		names := make([]string, len(sd.RelationalStores))
@@ -34,12 +35,12 @@ func (sd StorageGroupDefinition) Context() string {
 	return "unnamed Storage Group"
 }
 
-// DSL returns this object's DSL
+// DSL returns this object's DSL.
 func (sd StorageGroupDefinition) DSL() func() {
 	return sd.DefinitionDSL
 }
 
-// Children returnsa slice of this objects children
+// Children returns a slice of this objects children.
 func (sd StorageGroupDefinition) Children() []design.Definition {
 	var stores []design.Definition
 	for _, s := range sd.RelationalStores {
@@ -48,13 +49,13 @@ func (sd StorageGroupDefinition) Children() []design.Definition {
 	return stores
 }
 
-// IterateSets goes over all the definition sets of the StorageGroup: The StorageGroup definition itself, each
-// store definition, models and fields.
-func (a *StorageGroupDefinition) IterateSets(iterator design.SetIterator) {
+// IterateSets goes over all the definition sets of the StorageGroup: the
+// StorageGroup definition itself, each store definition, models and fields.
+func (sd *StorageGroupDefinition) IterateSets(iterator design.SetIterator) {
 	// First run the top level StorageGroup
 
-	iterator([]design.Definition{a})
-	a.IterateStores(func(store *RelationalStoreDefinition) error {
+	iterator([]design.Definition{sd})
+	sd.IterateStores(func(store *RelationalStoreDefinition) error {
 		iterator([]design.Definition{store})
 		store.IterateModels(func(model *RelationalModelDefinition) error {
 			iterator([]design.Definition{model})

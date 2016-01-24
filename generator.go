@@ -169,7 +169,6 @@ func (g *Generator) generateUserTypes(outdir string, api *design.APIDefinition) 
 					}
 				}
 				if needDate {
-
 					imp := codegen.SimpleImport("time")
 					imports = append(imports, imp)
 				}
@@ -191,7 +190,6 @@ func (g *Generator) generateUserTypes(outdir string, api *design.APIDefinition) 
 					fmt.Println(err)
 				}
 				return err
-
 			})
 			return err
 		})

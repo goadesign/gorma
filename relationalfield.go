@@ -26,7 +26,7 @@ func (f RelationalFieldDefinition) Children() []design.Definition {
 	return []design.Definition{}
 }
 
-// Definition returns the field's struct definition
+// FieldDefinition returns the field's struct definition
 func (f *RelationalFieldDefinition) FieldDefinition() string {
 	var comment string
 	if f.Description != "" {
@@ -41,6 +41,7 @@ func (f *RelationalFieldDefinition) Tags() string {
 	return tags(f)
 }
 
+// LowerName returns the field name as a lowercase string.
 func (f *RelationalFieldDefinition) LowerName() string {
 	return strings.ToLower(f.Name)
 }

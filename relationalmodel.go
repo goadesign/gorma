@@ -18,22 +18,22 @@ func (f *RelationalModelDefinition) Context() string {
 	return "unnamed RelationalModel"
 }
 
-// DSL returns this object's DSL
-func (sd *RelationalModelDefinition) DSL() func() {
-	return sd.DefinitionDSL
+// DSL returns this object's DSL.
+func (f *RelationalModelDefinition) DSL() func() {
+	return f.DefinitionDSL
 }
 
-// Children returnsa slice of this objects children
-func (sd RelationalModelDefinition) Children() []design.Definition {
+// Children returns a slice of this objects children.
+func (f RelationalModelDefinition) Children() []design.Definition {
 	var stores []design.Definition
-	for _, s := range sd.RelationalFields {
+	for _, s := range f.RelationalFields {
 		stores = append(stores, s)
 	}
 	return stores
 }
 
 // PKAttributes constructs a pair of field + definition strings
-// useful for method parameters
+// useful for method parameters.
 func (f *RelationalModelDefinition) PKAttributes() string {
 	var attr []string
 	for _, pk := range f.PrimaryKeys {
@@ -43,7 +43,7 @@ func (f *RelationalModelDefinition) PKAttributes() string {
 }
 
 // PKWhere returns an array of strings representing the where clause
-// of a retrieval by primary key(s) -- x = ? and y = ?
+// of a retrieval by primary key(s) -- x = ? and y = ?.
 func (f *RelationalModelDefinition) PKWhere() string {
 	var pkwhere []string
 	for _, pk := range f.PrimaryKeys {
@@ -54,7 +54,7 @@ func (f *RelationalModelDefinition) PKWhere() string {
 }
 
 // PKWhereFields returns the fields for a where clause for the primary
-// keys of a model
+// keys of a model.
 func (f *RelationalModelDefinition) PKWhereFields() string {
 	var pkwhere []string
 	for _, pk := range f.PrimaryKeys {
@@ -65,9 +65,8 @@ func (f *RelationalModelDefinition) PKWhereFields() string {
 }
 
 // PKUpdateFields returns something?  This function doesn't look useful in
-// current form.  Perhaps it isnt.
+// current form.  Perhaps it isn't.
 func (f *RelationalModelDefinition) PKUpdateFields(modelname string) string {
-
 	var pkwhere []string
 	for _, pk := range f.PrimaryKeys {
 		def := fmt.Sprintf("%s.%s", modelname, codegen.Goify(pk.Name, true))
@@ -78,7 +77,7 @@ func (f *RelationalModelDefinition) PKUpdateFields(modelname string) string {
 	return pkw
 }
 
-// Definition returns the struct definition for the model
+// StructDefinition returns the struct definition for the model.
 func (f *RelationalModelDefinition) StructDefinition() string {
 	header := fmt.Sprintf("type %s struct {\n", f.Name)
 	var output string
@@ -91,30 +90,32 @@ func (f *RelationalModelDefinition) StructDefinition() string {
 
 }
 
+// LowerName returns the model name as a lowercase string.
 func (f *RelationalModelDefinition) LowerName() string {
 	return strings.ToLower(f.Name)
 }
 
 // IterateFields returns an iterator function useful for iterating through
-// this model's field list
+// this model's field list.
 func (f *RelationalModelDefinition) IterateFields(it FieldIterator) error {
-
-	names := make(map[string]string)
-	pks := make(map[string]string)
-	dates := make(map[string]string)
-
 	// Break out each type of fields
+
+	pks := make(map[string]string)
 	for n := range f.RelationalFields {
 		if f.RelationalFields[n].PrimaryKey {
 			//	names[i] = n
 			pks[n] = n
 		}
 	}
+
+	names := make(map[string]string)
 	for n := range f.RelationalFields {
 		if !f.RelationalFields[n].PrimaryKey && !f.RelationalFields[n].Timestamp {
 			names[n] = n
 		}
 	}
+
+	dates := make(map[string]string)
 	for n := range f.RelationalFields {
 		if f.RelationalFields[n].Timestamp {
 			dates[n] = n
@@ -157,9 +158,9 @@ func (f *RelationalModelDefinition) IterateFields(it FieldIterator) error {
 }
 
 // PopulateFromModeledType creates fields for the model
-// based on the goa UserTypeDefinition it models
+// based on the goa UserTypeDefinition it models.
 // This happens before fields are processed, so it's
-// ok to just assign without testing
+// ok to just assign without testing.
 func (f *RelationalModelDefinition) PopulateFromModeledType() {
 	if f.BuiltFrom == nil {
 		return
@@ -189,8 +190,6 @@ func (f *RelationalModelDefinition) PopulateFromModeledType() {
 			f.RelationalFields[rf.Name] = rf
 			return nil
 		})
-
 	}
 	return
-
 }

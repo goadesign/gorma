@@ -15,12 +15,12 @@ func (sd *RelationalStoreDefinition) Context() string {
 	return "unnamed RelationalStore"
 }
 
-// DSL returns this object's DSL
+// DSL returns this object's DSL.
 func (sd *RelationalStoreDefinition) DSL() func() {
 	return sd.DefinitionDSL
 }
 
-// Children returnsa slice of this objects children
+// Children returns a slice of this objects children.
 func (sd RelationalStoreDefinition) Children() []design.Definition {
 	var stores []design.Definition
 	for _, s := range sd.RelationalModels {

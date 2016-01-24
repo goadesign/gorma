@@ -10,8 +10,9 @@ import (
 	"github.com/goadesign/gorma"
 )
 
-// RelationalField is a DSL definition for a field in a Relational Model
-// Examples and more docs here later
+// Field is a DSL definition for a field in a Relational Model.
+// TODO: Examples and more docs here later.
+//
 // Parameter Options:
 // Field("Title")
 // Field("Title", gorma.String)
@@ -65,12 +66,10 @@ func Field(name string, args ...interface{}) {
 
 		s.RelationalFields[name] = field
 	}
-
 }
 
 // SanitizeFieldName is exported for testing purposes
 func SanitizeFieldName(name string) string {
-
 	name = codegen.Goify(name, true)
 	if strings.HasSuffix(name, "Id") {
 		name = strings.TrimSuffix(name, "Id")
@@ -78,7 +77,6 @@ func SanitizeFieldName(name string) string {
 	}
 
 	return name
-
 }
 
 // SanitizeDBFieldName is exported for testing purposes
@@ -95,7 +93,6 @@ func SanitizeDBFieldName(name string) string {
 	return name
 }
 func parseModelArgs(args ...interface{}) (gorma.FieldType, func()) {
-
 	var (
 		fieldType gorma.FieldType
 		dslp      func()
@@ -131,5 +128,4 @@ func parseModelArgs(args ...interface{}) (gorma.FieldType, func()) {
 	}
 
 	return fieldType, dslp
-
 }
