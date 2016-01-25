@@ -46,7 +46,6 @@ type RelationalModelDefinition struct {
 	HasOne           map[string]*RelationalModelDefinition
 	ManyToMany       map[string]*ManyToManyDefinition
 	Adapters         map[string]func()
-	TableName        string
 	Alias            string // gorm:tablename
 	Cached           bool
 	CacheDuration    int

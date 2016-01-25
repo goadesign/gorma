@@ -12,11 +12,11 @@ import (
 	"github.com/goadesign/gorma"
 )
 
-// Model is the DSL that represents a Relational Model
+// Model is the DSL that represents a Relational Model.
 // Model name should be Title cased. Use RenderTo() and BuiltFrom()
 // to have Gorma generate conversion helpers for your model.  Gorma
 // will create appropriate fields for all of your database relationships
-// too, using the BelongsTo(), HasMany(), HasOne(), and ManyToMany() DSL
+// too, using the BelongsTo(), HasMany(), HasOne(), and ManyToMany() DSL.
 func Model(name string, dsl func()) {
 	// We can't rely on this being run first, any of the top level DSL could run
 	// in any order. The top level DSLs are API, Version, Resource, MediaType and Type.
@@ -121,7 +121,7 @@ func BuiltFrom(mts ...*design.UserTypeDefinition) {
 
 // BelongsTo signifies a relationship between this model and a
 // Parent.  The Parent has the child, and the Child belongs
-// to the Parent
+// to the Parent.
 // Usage:  BelongsTo("User")
 func BelongsTo(parent string) {
 	if r, ok := relationalModelDefinition(false); ok {
@@ -155,7 +155,8 @@ func BelongsTo(parent string) {
 // HasOne signifies a relationship between this model and another model.
 // If this model HasOne(OtherModel), then OtherModel is expected
 // to have a ThisModelID field as a Foreign Key to this model's
-// Primary Key.  ThisModel will have a field named OtherModel of type OtherModel
+// Primary Key.  ThisModel will have a field named OtherModel of type
+// OtherModel.
 // Usage:  HasOne("Proposal")
 func HasOne(child string) {
 	if r, ok := relationalModelDefinition(false); ok {
@@ -211,7 +212,7 @@ func HasOne(child string) {
 // field in the model struct, the second parameter is the name
 // of the child model.  The Child model will have a ParentID field
 // appended to the field list.  The Parent model definition will use
-// the first parameter as the field name in the struct definition
+// the first parameter as the field name in the struct definition.
 // Usage:  HasMany("Orders", "Order")
 // Struct field definition:  Children	[]Child
 func HasMany(name, child string) {
@@ -271,9 +272,9 @@ func HasMany(name, child string) {
 //    ManyToMany("Product", "order_lines")
 // })
 // This specifies that the Order and Product tables have a "junction" table
-// called `order_lines` that contains the order and product information
+// called `order_lines` that contains the order and product information.
 // The generated model will have a field called `Products` that will
-// be an array of type `product.Product`
+// be an array of type `product.Product`.
 func ManyToMany(other, tablename string) {
 	if r, ok := relationalModelDefinition(false); ok {
 		field := &gorma.RelationalFieldDefinition{
@@ -314,16 +315,7 @@ func ManyToMany(other, tablename string) {
 	}
 }
 
-// TableName creates a TableName() function that returns
-// the name of the table to query. Useful for pre-existing
-// schemas
-func TableName(d string) {
-	if r, ok := relationalModelDefinition(false); ok {
-		r.TableName = d
-	}
-}
-
-// Alias overrides the name of the sql store's table or field
+// Alias overrides the name of the SQL store's table or field.
 func Alias(d string) {
 	if r, ok := relationalModelDefinition(false); ok {
 		r.Alias = d
@@ -332,7 +324,7 @@ func Alias(d string) {
 	}
 }
 
-// Cached caches the models for `duration` seconds
+// Cached caches the models for `duration` seconds.
 func Cached(d string) {
 	if r, ok := relationalModelDefinition(false); ok {
 		r.Cached = true
@@ -353,10 +345,10 @@ func Roler() {
 	}
 }
 
-// DynamicTableName sets a boolean flag that cause the generator
+// DynamicTableName sets a boolean flag that causes the generator to
 // generate function definitions in the database models that specify
 // the name of the database table.  Useful when using multiple tables
-// with different names but same schema e.g. Users, AdminUsers
+// with different names but same schema e.g. Users, AdminUsers.
 func DynamicTableName() {
 	if r, ok := relationalModelDefinition(false); ok {
 		r.DynamicTableName = true
@@ -364,7 +356,7 @@ func DynamicTableName() {
 }
 
 // SQLTag sets the model's struct tag `sql` value
-// for indexing and other purposes
+// for indexing and other purposes.
 func SQLTag(d string) {
 	if r, ok := relationalModelDefinition(false); ok {
 		r.SQLTag = d
