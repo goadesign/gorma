@@ -26,9 +26,9 @@ func Model(name string, dsl func()) {
 		if s.RelationalModels == nil {
 			s.RelationalModels = make(map[string]*gorma.RelationalModelDefinition)
 		}
-		models, ok := s.RelationalModels[name]
+		model, ok := s.RelationalModels[name]
 		if !ok {
-			models = &gorma.RelationalModelDefinition{
+			model = &gorma.RelationalModelDefinition{
 				Name:             name,
 				DefinitionDSL:    dsl,
 				Parent:           s,
@@ -39,48 +39,48 @@ func Model(name string, dsl func()) {
 				ManyToMany:       make(map[string]*gorma.ManyToManyDefinition),
 			}
 		} else {
-			models.DefinitionDSL = dsl
+			model.DefinitionDSL = dsl
 		}
-		///models.PopulateFromModeledType() -- need to do this later
-		s.RelationalModels[name] = models
-		if s.AutoIDGenerate {
+		///model.PopulateFromModeledType() -- need to do this later
+		s.RelationalModels[name] = model
+		if !s.NoAutoIDFields {
 			field := &gorma.RelationalFieldDefinition{
 				Name:              SanitizeFieldName("ID"),
-				Parent:            models,
+				Parent:            model,
 				Datatype:          gorma.PKInteger,
 				PrimaryKey:        true,
 				DatabaseFieldName: SanitizeDBFieldName("ID"),
 			}
-			models.RelationalFields[field.Name] = field
+			model.RelationalFields[field.Name] = field
 		}
-		if s.AutoTimestamps {
+		if !s.NoAutoTimestamps {
 			// add createdat
 			field := &gorma.RelationalFieldDefinition{
 				Name:              SanitizeFieldName("CreatedAt"),
-				Parent:            models,
+				Parent:            model,
 				Datatype:          gorma.Timestamp,
 				DatabaseFieldName: SanitizeDBFieldName("CreatedAt"),
 			}
-			models.RelationalFields[field.Name] = field
+			model.RelationalFields[field.Name] = field
 			// add updatedat
 			field = &gorma.RelationalFieldDefinition{
 				Name:              SanitizeFieldName("UpdatedAt"),
-				Parent:            models,
+				Parent:            model,
 				Datatype:          gorma.Timestamp,
 				DatabaseFieldName: SanitizeDBFieldName("UpdatedAt"),
 			}
-			models.RelationalFields[field.Name] = field
+			model.RelationalFields[field.Name] = field
 		}
-		if s.AutoSoftDelete {
+		if !s.NoAutoSoftDelete {
 			// Add softdelete
 			field := &gorma.RelationalFieldDefinition{
 				Name:              SanitizeFieldName("DeletedAt"),
-				Parent:            models,
+				Parent:            model,
 				Nullable:          true,
 				Datatype:          gorma.NullableTimestamp,
 				DatabaseFieldName: SanitizeDBFieldName("DeletedAt"),
 			}
-			models.RelationalFields[field.Name] = field
+			model.RelationalFields[field.Name] = field
 		}
 	}
 }

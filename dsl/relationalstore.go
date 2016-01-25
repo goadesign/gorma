@@ -23,9 +23,6 @@ func Store(name string, storeType gorma.RelationalStorageType, dsl func()) {
 				Parent:           s,
 				Type:             storeType,
 				RelationalModels: make(map[string]*gorma.RelationalModelDefinition),
-				AutoTimestamps:   true,
-				AutoIDGenerate:   true,
-				AutoSoftDelete:   true,
 			}
 		}
 		s.RelationalStores[name] = store
@@ -33,33 +30,30 @@ func Store(name string, storeType gorma.RelationalStorageType, dsl func()) {
 
 }
 
-// AutomaticIDFields applies to a `Store` type.  It allows you
+// NoAutomaticIDFields applies to a `Store` type.  It allows you
 // to turn off the default behavior that will automatically create
-// an ID/int Primary Key for each model.  If set to false,
-// no ID field will be generated.
-func AutomaticIDFields(auto bool) {
-	if r, ok := relationalStoreDefinition(false); ok {
-		r.AutoIDGenerate = auto
+// an ID/int Primary Key for each model.
+func NoAutomaticIDFields() {
+	if s, ok := relationalStoreDefinition(false); ok {
+		s.NoAutoIDFields = true
 	}
 }
 
-// AutomaticTimestamps applies to a `Store` type.  It allows you
+// NoAutomaticTimestamps applies to a `Store` type.  It allows you
 // to turn off the default behavior that will automatically create
-// an `CreatedAt` and `UpdatedAt` fields for each model.  If set to false,
-// these fields won't be created.
-func AutomaticTimestamps(auto bool) {
-	if r, ok := relationalStoreDefinition(false); ok {
-		r.AutoTimestamps = auto
+// an `CreatedAt` and `UpdatedAt` fields for each model.
+func NoAutomaticTimestamps() {
+	if s, ok := relationalStoreDefinition(false); ok {
+		s.NoAutoTimestamps = true
 	}
 }
 
-// AutomaticSoftDelete applies to a `Store` type.  It allows
+// NoAutomaticSoftDelete applies to a `Store` type.  It allows
 // you to turn off the default behavior that will automatically
 // create a `DeletedAt` field (*time.Time) that acts as a
-// soft-delete filter for your models.  If set to false,
-// this field won't be created.
-func AutomaticSoftDelete(auto bool) {
-	if r, ok := relationalStoreDefinition(false); ok {
-		r.AutoSoftDelete = auto
+// soft-delete filter for your models.
+func NoAutomaticSoftDelete() {
+	if s, ok := relationalStoreDefinition(false); ok {
+		s.NoAutoSoftDelete = true
 	}
 }
