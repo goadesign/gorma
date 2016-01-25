@@ -50,7 +50,6 @@ type RelationalModelDefinition struct {
 	Alias            string // gorm:tablename
 	Cached           bool
 	CacheDuration    int
-	NoMedia          bool
 	Roler            bool
 	DynamicTableName bool
 	SQLTag           string

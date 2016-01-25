@@ -344,14 +344,6 @@ func Cached(d string) {
 	}
 }
 
-// NoMedia sets a boolean flag that prevents the generation
-// of media helpers
-func NoMedia() {
-	if r, ok := relationalModelDefinition(false); ok {
-		r.NoMedia = true
-	}
-}
-
 // Roler sets a boolean flag that cause the generation of a
 // Role() function that returns the model's Role value
 // Requires a field in the model named Role, type String
