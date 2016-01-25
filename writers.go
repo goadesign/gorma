@@ -131,11 +131,11 @@ const (
 	// template input: UserTypeTemplateData
 	userTypeT = `// {{if .UserType.Description}}{{.UserType.Description}} {{end}}
 {{.UserType.StructDefinition}}
-{{ if ne .UserType.TableName "" }}
+{{ if ne .UserType.Alias "" }}
 // TableName overrides the table name settings in Gorm to force a specific table name
 // in the database.
 func (m {{.UserType.Name}}) TableName() string {
-	return "{{ .UserType.TableName}}"
+	return "{{ .UserType.Alias}}"
 }{{end}}
 // {{.UserType.Name}}DB is the implementation of the storage interface for
 // {{.UserType.Name}}.

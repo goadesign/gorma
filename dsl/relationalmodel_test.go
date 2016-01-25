@@ -138,20 +138,20 @@ var _ = Describe("RelationalModel", func() {
 				Ω(rs.RelationalModels[name].Description).Should(Equal(description))
 			})
 		})
-		Context("with a table name", func() {
-			const tablename = "user_table"
+		Context("with a table alias name", func() {
+			const alias = "user_table"
 
 			BeforeEach(func() {
 				name = "Users"
 				dsl = func() {
-					gdsl.TableName(tablename)
+					gdsl.Alias(alias)
 				}
 			})
 
 			It("sets the relational store table name", func() {
 				sg := gorma.GormaDesign
 				rs := sg.RelationalStores[storename]
-				Ω(rs.RelationalModels[name].TableName).Should(Equal(tablename))
+				Ω(rs.RelationalModels[name].Alias).Should(Equal(alias))
 			})
 		})
 		Context("with an alias", func() {
