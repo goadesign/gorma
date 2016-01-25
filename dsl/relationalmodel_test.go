@@ -389,9 +389,6 @@ var _ = Describe("RelationalModel with auto fields enabled and auto fields set i
 	JustBeforeEach(func() {
 		gdsl.StorageGroup(sgname, func() {
 			gdsl.Store(storename, gorma.MySQL, func() {
-				gdsl.AutomaticIDFields(true)
-				gdsl.AutomaticTimestamps(true)
-				gdsl.AutomaticSoftDelete(true)
 				gdsl.Model(name, dsl)
 				gdsl.Model("Child", func() {
 					gdsl.BuiltFrom(ChildPayload)
@@ -485,9 +482,6 @@ var _ = Describe("RelationalModel with auto fields explicitly enabled", func() {
 	JustBeforeEach(func() {
 		gdsl.StorageGroup(sgname, func() {
 			gdsl.Store(storename, gorma.MySQL, func() {
-				gdsl.AutomaticIDFields(true)
-				gdsl.AutomaticTimestamps(true)
-				gdsl.AutomaticSoftDelete(true)
 				gdsl.Model(name, dsl)
 				gdsl.Model("Child", func() {
 					gdsl.BuiltFrom(ChildPayload)
@@ -575,9 +569,9 @@ var _ = Describe("RelationalModel with auto fields disabled", func() {
 	JustBeforeEach(func() {
 		gdsl.StorageGroup(sgname, func() {
 			gdsl.Store(storename, gorma.MySQL, func() {
-				gdsl.AutomaticIDFields(false)
-				gdsl.AutomaticTimestamps(false)
-				gdsl.AutomaticSoftDelete(false)
+				gdsl.NoAutomaticIDFields()
+				gdsl.NoAutomaticTimestamps()
+				gdsl.NoAutomaticSoftDelete()
 				gdsl.Model(name, dsl)
 				gdsl.Model("Child", func() {
 					gdsl.BuiltFrom(ChildPayload)
