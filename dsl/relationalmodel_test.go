@@ -189,21 +189,6 @@ var _ = Describe("RelationalModel", func() {
 
 			})
 		})
-		Context("with nomedia", func() {
-
-			BeforeEach(func() {
-				name = "Users"
-				dsl = func() {
-					gdsl.NoMedia()
-				}
-			})
-
-			It("sets the relational store alias", func() {
-				sg := gorma.GormaDesign
-				rs := sg.RelationalStores[storename]
-				Ω(rs.RelationalModels[name].NoMedia).Should(Equal(true))
-			})
-		})
 
 		Context("with roler", func() {
 
