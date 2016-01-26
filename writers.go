@@ -40,7 +40,7 @@ func fieldAssignmentModelToType(model *RelationalModelDefinition, ut *design.Med
 		definition := ut.Definition()
 		for key := range obj {
 			gfield := obj[key]
-			if field.LowerName() == key || field.DatabaseFieldName == key {
+			if field.Underscore() == key || field.DatabaseFieldName == key {
 				// this is our field
 				if gfield.Type.IsObject() || definition.IsPrimitivePointer(key) {
 					upointer = true
@@ -80,7 +80,7 @@ func fieldAssignmentTypeToModel(model *RelationalModelDefinition, ut *design.Use
 		}
 		for key := range obj {
 			gfield := obj[key]
-			if field.LowerName() == key || field.DatabaseFieldName == key {
+			if field.Underscore() == key || field.DatabaseFieldName == key {
 				// this is our field
 				if gfield.Type.IsObject() || definition.IsPrimitivePointer(key) {
 					upointer = true

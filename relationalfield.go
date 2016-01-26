@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strings"
 
+	"bitbucket.org/pkg/inflect"
+
 	"github.com/goadesign/goa/design"
 )
 
@@ -46,6 +48,10 @@ func (f *RelationalFieldDefinition) LowerName() string {
 	return strings.ToLower(f.Name)
 }
 
+// Underscore returns the field name as a lowercase string in snake case
+func (f *RelationalFieldDefinition) Underscore() string {
+	return inflect.Underscore(f.Name)
+}
 func goDatatype(f *RelationalFieldDefinition) string {
 	var ptr string
 	if f.Nullable {

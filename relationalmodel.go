@@ -184,6 +184,8 @@ func (f *RelationalModelDefinition) PopulateFromModeledType() {
 				rf.Datatype = Decimal
 			case design.StringKind:
 				rf.Datatype = String
+			case design.DateTimeKind:
+				rf.Datatype = Timestamp
 			default:
 				dsl.ReportError("Unsupported type: %#v ", att.Type.Kind())
 			}
