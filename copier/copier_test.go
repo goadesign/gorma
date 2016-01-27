@@ -68,7 +68,7 @@ func TestSimpleCopy(t *testing.T) {
 func TestLessSimpleCopy(t *testing.T) {
 
 	name := "Brian"
-	phone := "813-368-3425"
+	phone := "813-555-1212"
 	age := 31
 	left := LessSimple{
 		Name:  &name,
@@ -116,7 +116,7 @@ func TestLessSimpleCopy(t *testing.T) {
 func TestLessLessCopy(t *testing.T) {
 
 	name := "Brian"
-	phone := "813-368-3425"
+	phone := "813-555-1212"
 	age := 31
 	left := LessSimple{
 		Name:  &name,
@@ -142,7 +142,7 @@ func TestLessLessCopy(t *testing.T) {
 func TestComplexCopy(t *testing.T) {
 
 	name := "Brian"
-	phone := "813-368-3425"
+	phone := "813-555-1212"
 	var age int32
 	age = 30
 	balance := 5.50
