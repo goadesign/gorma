@@ -38,11 +38,14 @@ func Field(name string, args ...interface{}) {
 				DefinitionDSL: dsl,
 				Parent:        s,
 				Datatype:      fieldType,
+				BuiltFrom:     name,
 			}
 		} else {
 			// the field was auto-added by the model parser
 			// so we need to update whatever we can from this new definition
 			field.DefinitionDSL = dsl
+			field.BuiltFrom = fixID(inflect.Underscore(name))
+			field.RenderTo = fixID(inflect.Underscore(name))
 
 		}
 
@@ -66,6 +69,14 @@ func Field(name string, args ...interface{}) {
 
 		s.RelationalFields[name] = field
 	}
+}
+
+func fixID(s string) string {
+	if s == "i_d" {
+		return "id"
+	}
+	return s
+
 }
 
 // SanitizeFieldName is exported for testing purposes

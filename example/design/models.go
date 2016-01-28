@@ -13,11 +13,18 @@ var sg = StorageGroup("MyStorageGroup", func() {
 			BuiltFrom(BottlePayload)
 			RenderTo(Bottle)
 			Description("This is the bottle model")
-
+			Field("ID", gorma.Integer, func() {
+				RenderTo("id")
+				SQLTag("index")
+			})
 			Field("Vintage", gorma.Integer, func() {
+				BuiltFrom("myvintage")
+				RenderTo("vintage")
 				SQLTag("index")
 			})
 			Field("vinyard_county", gorma.String, func() {
+				BuiltFrom("vinyard_county")
+				RenderTo("vinyard_county")
 				Alias("vinyardcounty")
 			})
 			Field("CreatedAt", gorma.Timestamp, func() {})

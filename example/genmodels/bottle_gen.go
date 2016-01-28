@@ -21,9 +21,10 @@ import (
 
 // This is the bottle model
 type Bottle struct {
-	ID            int `gorm:"primary_key"`
+	ID            int `sql:"index" gorm:"primary_key"`
 	Color         string
 	Country       string
+	Myvintage     int
 	Name          string
 	Region        string
 	Review        string
@@ -32,9 +33,16 @@ type Bottle struct {
 	Vineyard      string
 	Vintage       int        `sql:"index"`
 	VinyardCounty string     `gorm:"column:vinyardcounty"`
-	CreatedAt     time.Time  // timestamp
 	DeletedAt     *time.Time // nullable timestamp (soft delete)
+	CreatedAt     time.Time  // timestamp
 	UpdatedAt     time.Time  // timestamp
+}
+
+// TableName overrides the table name settings in Gorm to force a specific table name
+// in the database.
+func (m Bottle) TableName() string {
+	return bottles
+
 }
 
 // BottleDB is the implementation of the storage interface for
@@ -65,84 +73,102 @@ type BottleStorage interface {
 
 // CRUD Functions
 
-// List returns an array of records.
-func (m *BottleDB) List(ctx context.Context) []Bottle {
-	var objs []Bottle
-	m.Db.Find(&objs)
+// ListBottle returns an array of view: default
+func (m *BottleDB) ListBottle(ctx context.Context) []app.Bottle {
+	var objs []app.Bottle
+	rows, err := m.Db.Table(m.TableName()).Select("vineyard,myvintage,id,name,varietal").Rows()
+	defer rows.Close()
+	if err != nil {
+		return objs
+	}
+	var varietal string
+	var name string
+	var vineyard string
+	var vintage int
+	var iD int
+
+	for rows.Next() {
+		rows.Scan(&vineyard, &vintage, &iD, &name, &varietal)
+		obj := app.Bottle{
+			Varietal: varietal,
+			ID:       iD,
+			Name:     name,
+			Vineyard: vineyard,
+			Vintage:  vintage,
+		}
+		objs = append(objs, obj)
+
+	}
+
 	return objs
 }
 
-// One returns a single record by ID.
-func (m *BottleDB) One(ctx context.Context) (Bottle, error) {
-
-	var obj Bottle
-	err := m.Db.Find(&obj).Where("").Error
-
-	return obj, err
-}
-
-// Add creates a new record.
-func (m *BottleDB) Add(ctx context.Context, model Bottle) (Bottle, error) {
-	err := m.Db.Create(&model).Error
-	return model, err
-}
-
-// Update modifies a single record.
-func (m *BottleDB) Update(ctx context.Context, model Bottle) error {
-	obj, err := m.One(ctx)
+// ListBottleViewFull returns an array of view: full
+func (m *BottleDB) ListBottleViewFull(ctx context.Context) []app.BottleViewFull {
+	var objs []app.BottleViewFull
+	rows, err := m.Db.Table(m.TableName()).Select("vinyardcounty,myvintage,name,review,country,id,vineyard,color,sweetness,region,created_at,updated_at,varietal").Rows()
+	defer rows.Close()
 	if err != nil {
-		return err
+		return objs
 	}
-	err = m.Db.Model(&obj).Updates(model).Error
+	var vinyardCounty string
+	var vintage int
+	var name string
+	var review string
+	var iD int
+	var vineyard string
+	var color string
+	var country string
+	var createdAt time.Time
+	var updatedAt time.Time
+	var varietal string
+	var sweetness int
+	var region string
 
-	return err
+	for rows.Next() {
+		rows.Scan(&vinyardCounty, &vintage, &review, &name, &vineyard, &color, &country, &iD, &varietal, &sweetness, &region, &createdAt, &updatedAt)
+		obj := app.BottleViewFull{
+			ID:            iD,
+			Vineyard:      vineyard,
+			Color:         color,
+			Country:       country,
+			Varietal:      varietal,
+			Sweetness:     sweetness,
+			Region:        region,
+			CreatedAt:     createdAt,
+			UpdatedAt:     updatedAt,
+			VinyardCounty: vinyardCounty,
+			Vintage:       vintage,
+			Name:          name,
+			Review:        review,
+		}
+		objs = append(objs, obj)
+
+	}
+
+	return objs
 }
 
-// Delete removes a single record.
-func (m *BottleDB) Delete(ctx context.Context) error {
-	var obj Bottle
-	err := m.Db.Delete(&obj).Where("").Error
-
+// ListBottleViewTiny returns an array of view: tiny
+func (m *BottleDB) ListBottleViewTiny(ctx context.Context) []app.BottleViewTiny {
+	var objs []app.BottleViewTiny
+	rows, err := m.Db.Table(m.TableName()).Select("id,name").Rows()
+	defer rows.Close()
 	if err != nil {
-		return err
+		return objs
+	}
+	var iD int
+	var name string
+
+	for rows.Next() {
+		rows.Scan(&iD, &name)
+		obj := app.BottleViewTiny{
+			ID:   iD,
+			Name: name,
+		}
+		objs = append(objs, obj)
+
 	}
 
-	return nil
-}
-
-// Useful conversion functions
-
-// ToBottle converts a model Bottle to an app Bottle.
-func (m *Bottle) ToBottle() app.Bottle {
-	payload := app.Bottle{}
-	payload.UpdatedAt = &m.UpdatedAt
-	payload.Country = &m.Country
-	payload.CreatedAt = &m.CreatedAt
-	payload.Name = m.Name
-	payload.Sweetness = &m.Sweetness
-	payload.Vineyard = m.Vineyard
-	payload.ID = m.ID
-	payload.Color = m.Color
-	payload.Vintage = m.Vintage
-	payload.VinyardCounty = &m.VinyardCounty
-	payload.Region = &m.Region
-	payload.Review = &m.Review
-	payload.Varietal = m.Varietal
-	return payload
-}
-
-// Convert from	default version BottlePayload to Bottle.
-func BottleFromBottlePayload(t app.BottlePayload) Bottle {
-	bottle := Bottle{}
-	bottle.Review = *t.Review
-	bottle.Varietal = *t.Varietal
-	bottle.Vintage = *t.Vintage
-	bottle.VinyardCounty = *t.VinyardCounty
-	bottle.Region = *t.Region
-	bottle.Country = *t.Country
-	bottle.Name = *t.Name
-	bottle.Color = *t.Color
-	bottle.Sweetness = *t.Sweetness
-	bottle.Vineyard = *t.Vineyard
-	return bottle
+	return objs
 }

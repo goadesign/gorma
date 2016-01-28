@@ -17,7 +17,7 @@ var BottlePayload = Type("BottlePayload", func() {
 	Attribute("varietal", func() {
 		MinLength(4)
 	})
-	Attribute("vintage", Integer, func() {
+	Attribute("myvintage", Integer, func() {
 		Minimum(1900)
 		Maximum(2020)
 	})

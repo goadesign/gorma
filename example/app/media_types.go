@@ -151,10 +151,11 @@ type Bottle struct {
 	Review    *string `json:"review,omitempty"`
 	Sweetness *int    `json:"sweetness,omitempty"`
 	// Date of last update
-	UpdatedAt *string `json:"updated_at,omitempty"`
-	Varietal  string  `json:"varietal"`
-	Vineyard  string  `json:"vineyard"`
-	Vintage   int     `json:"vintage"`
+	UpdatedAt     *string `json:"updated_at,omitempty"`
+	Varietal      string  `json:"varietal"`
+	Vineyard      string  `json:"vineyard"`
+	Vintage       int     `json:"vintage"`
+	VinyardCounty *string `json:"vinyard_county,omitempty"`
 }
 
 // Bottle views
@@ -204,14 +205,16 @@ func (mt *Bottle) Validate() (err error) {
 		err = goa.MissingAttributeError(`response`, "color", err)
 	}
 
-	if mt.Account.CreatedAt != nil {
-		if err2 := goa.ValidateFormat(goa.FormatDateTime, *mt.Account.CreatedAt); err2 != nil {
-			err = goa.InvalidFormatError(`response.account.created_at`, *mt.Account.CreatedAt, goa.FormatDateTime, err2, err)
+	if mt.Account != nil {
+		if mt.Account.CreatedAt != nil {
+			if err2 := goa.ValidateFormat(goa.FormatDateTime, *mt.Account.CreatedAt); err2 != nil {
+				err = goa.InvalidFormatError(`response.account.created_at`, *mt.Account.CreatedAt, goa.FormatDateTime, err2, err)
+			}
 		}
-	}
-	if mt.Account.CreatedBy != nil {
-		if err2 := goa.ValidateFormat(goa.FormatEmail, *mt.Account.CreatedBy); err2 != nil {
-			err = goa.InvalidFormatError(`response.account.created_by`, *mt.Account.CreatedBy, goa.FormatEmail, err2, err)
+		if mt.Account.CreatedBy != nil {
+			if err2 := goa.ValidateFormat(goa.FormatEmail, *mt.Account.CreatedBy); err2 != nil {
+				err = goa.InvalidFormatError(`response.account.created_by`, *mt.Account.CreatedBy, goa.FormatEmail, err2, err)
+			}
 		}
 	}
 	if !(mt.Color == "red" || mt.Color == "white" || mt.Color == "rose" || mt.Color == "yellow" || mt.Color == "sparkling") {
@@ -407,14 +410,16 @@ func (mt BottleCollection) Dump(view BottleCollectionViewEnum) (res []map[string
 // Validate validates the media type instance.
 func (mt BottleCollection) Validate() (err error) {
 	for _, e := range mt {
-		if e.Account.CreatedAt != nil {
-			if err2 := goa.ValidateFormat(goa.FormatDateTime, *e.Account.CreatedAt); err2 != nil {
-				err = goa.InvalidFormatError(`response[*].account.created_at`, *e.Account.CreatedAt, goa.FormatDateTime, err2, err)
+		if e.Account != nil {
+			if e.Account.CreatedAt != nil {
+				if err2 := goa.ValidateFormat(goa.FormatDateTime, *e.Account.CreatedAt); err2 != nil {
+					err = goa.InvalidFormatError(`response[*].account.created_at`, *e.Account.CreatedAt, goa.FormatDateTime, err2, err)
+				}
 			}
-		}
-		if e.Account.CreatedBy != nil {
-			if err2 := goa.ValidateFormat(goa.FormatEmail, *e.Account.CreatedBy); err2 != nil {
-				err = goa.InvalidFormatError(`response[*].account.created_by`, *e.Account.CreatedBy, goa.FormatEmail, err2, err)
+			if e.Account.CreatedBy != nil {
+				if err2 := goa.ValidateFormat(goa.FormatEmail, *e.Account.CreatedBy); err2 != nil {
+					err = goa.InvalidFormatError(`response[*].account.created_by`, *e.Account.CreatedBy, goa.FormatEmail, err2, err)
+				}
 			}
 		}
 		if !(e.Color == "red" || e.Color == "white" || e.Color == "rose" || e.Color == "yellow" || e.Color == "sparkling") {

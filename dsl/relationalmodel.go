@@ -89,15 +89,16 @@ func Model(name string, dsl func()) {
 // rendered to a Goa type.  Conversion functions
 // will be generated to convert to/from the model.
 // Usage:   RenderTo(SomeGoaMediaType)
-func RenderTo(mts ...*design.MediaTypeDefinition) {
+func RenderTo(rt interface{}) {
 	checkInit()
-	if s, ok := relationalModelDefinition(true); ok {
-		if s.RenderTo == nil {
-			s.RenderTo = []*design.MediaTypeDefinition{}
-		}
-
-		for _, mt := range mts {
-			s.RenderTo = append(s.RenderTo, mt)
+	if m, ok := relationalModelDefinition(false); ok {
+		m.RenderTo = rt.(*design.MediaTypeDefinition)
+	} else if f, ok := relationalFieldDefinition(true); ok {
+		render, ok := rt.(string)
+		if ok {
+			f.RenderTo = inflect.Underscore(render)
+		} else {
+			dsl.ReportError("RenderTo should be a string")
 		}
 	}
 }
@@ -106,16 +107,22 @@ func RenderTo(mts ...*design.MediaTypeDefinition) {
 // from a Goa payload (User Type).  Conversion functions
 // will be generated to convert from the payload to the model.
 // Usage:  BuiltFrom(SomeGoaPayload)
-func BuiltFrom(mts ...*design.UserTypeDefinition) {
+func BuiltFrom(bf interface{}) {
 	checkInit()
-	if s, ok := relationalModelDefinition(true); ok {
-		if s.BuiltFrom == nil {
-			s.BuiltFrom = []*design.UserTypeDefinition{}
+	if m, ok := relationalModelDefinition(false); ok {
+		if m.BuiltFrom == nil {
+			m.BuiltFrom = []*design.UserTypeDefinition{}
 		}
-		for _, mt := range mts {
-			s.BuiltFrom = append(s.BuiltFrom, mt)
+		mts := bf.(*design.UserTypeDefinition)
+		m.BuiltFrom = append(m.BuiltFrom, mts)
+		m.PopulateFromModeledType()
+	} else if f, ok := relationalFieldDefinition(true); ok {
+		from, ok := bf.(string)
+		if ok {
+			f.BuiltFrom = inflect.Underscore(from)
+		} else {
+			dsl.ReportError("BuiltFrom should be a string")
 		}
-		s.PopulateFromModeledType()
 	}
 }
 

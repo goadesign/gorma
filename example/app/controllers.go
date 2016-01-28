@@ -26,18 +26,12 @@ type AccountController interface {
 // MountAccountController "mounts" a Account resource controller on the given service.
 func MountAccountController(service goa.Service, ctrl AccountController) {
 	// Setup encoders and decoders. This is idempotent and is done by each MountXXX function.
-	tmp15 := goa.GobEncoderFactory()
-	service.SetEncoder(tmp15, false, "application/gob", "application/x-gob")
-	tmp16 := goa.JSONEncoderFactory()
-	service.SetEncoder(tmp16, true, "application/json")
-	tmp17 := goa.XMLEncoderFactory()
-	service.SetEncoder(tmp17, false, "application/xml", "text/xml")
-	tmp18 := goa.GobDecoderFactory()
-	service.SetDecoder(tmp18, false, "application/gob", "application/x-gob")
-	tmp19 := goa.JSONDecoderFactory()
-	service.SetDecoder(tmp19, true, "application/json")
-	tmp20 := goa.XMLDecoderFactory()
-	service.SetDecoder(tmp20, false, "application/xml", "text/xml")
+	service.SetEncoder(goa.GobEncoderFactory(), false, "application/gob", "application/x-gob")
+	service.SetEncoder(goa.JSONEncoderFactory(), true, "application/json")
+	service.SetEncoder(goa.XMLEncoderFactory(), false, "application/xml", "text/xml")
+	service.SetDecoder(goa.GobDecoderFactory(), false, "application/gob", "application/x-gob")
+	service.SetDecoder(goa.JSONDecoderFactory(), true, "application/json")
+	service.SetDecoder(goa.XMLDecoderFactory(), false, "application/xml", "text/xml")
 
 	// Setup endpoint handler
 	var h goa.Handler
@@ -122,18 +116,12 @@ type BottleController interface {
 // MountBottleController "mounts" a Bottle resource controller on the given service.
 func MountBottleController(service goa.Service, ctrl BottleController) {
 	// Setup encoders and decoders. This is idempotent and is done by each MountXXX function.
-	tmp21 := goa.GobEncoderFactory()
-	service.SetEncoder(tmp21, false, "application/gob", "application/x-gob")
-	tmp22 := goa.JSONEncoderFactory()
-	service.SetEncoder(tmp22, true, "application/json")
-	tmp23 := goa.XMLEncoderFactory()
-	service.SetEncoder(tmp23, false, "application/xml", "text/xml")
-	tmp24 := goa.GobDecoderFactory()
-	service.SetDecoder(tmp24, false, "application/gob", "application/x-gob")
-	tmp25 := goa.JSONDecoderFactory()
-	service.SetDecoder(tmp25, true, "application/json")
-	tmp26 := goa.XMLDecoderFactory()
-	service.SetDecoder(tmp26, false, "application/xml", "text/xml")
+	service.SetEncoder(goa.GobEncoderFactory(), false, "application/gob", "application/x-gob")
+	service.SetEncoder(goa.JSONEncoderFactory(), true, "application/json")
+	service.SetEncoder(goa.XMLEncoderFactory(), false, "application/xml", "text/xml")
+	service.SetDecoder(goa.GobDecoderFactory(), false, "application/gob", "application/x-gob")
+	service.SetDecoder(goa.JSONDecoderFactory(), true, "application/json")
+	service.SetDecoder(goa.XMLDecoderFactory(), false, "application/xml", "text/xml")
 
 	// Setup endpoint handler
 	var h goa.Handler

@@ -16,15 +16,16 @@ import "github.com/goadesign/goa"
 
 // BottlePayload type
 type BottlePayload struct {
-	Color     *string `json:"color,omitempty"`
-	Country   *string `json:"country,omitempty"`
-	Name      *string `json:"name,omitempty"`
-	Region    *string `json:"region,omitempty"`
-	Review    *string `json:"review,omitempty"`
-	Sweetness *int    `json:"sweetness,omitempty"`
-	Varietal  *string `json:"varietal,omitempty"`
-	Vineyard  *string `json:"vineyard,omitempty"`
-	Vintage   *int    `json:"vintage,omitempty"`
+	Color         *string `json:"color,omitempty"`
+	Country       *string `json:"country,omitempty"`
+	Name          *string `json:"name,omitempty"`
+	Region        *string `json:"region,omitempty"`
+	Review        *string `json:"review,omitempty"`
+	Sweetness     *int    `json:"sweetness,omitempty"`
+	Varietal      *string `json:"varietal,omitempty"`
+	Vineyard      *string `json:"vineyard,omitempty"`
+	Vintage       *int    `json:"vintage,omitempty"`
+	VinyardCounty *string `json:"vinyard_county,omitempty"`
 }
 
 // Validate validates the type instance.
@@ -95,15 +96,16 @@ func MarshalBottlePayload(source *BottlePayload, inErr error) (target map[string
 		return
 	}
 	tmp37 := map[string]interface{}{
-		"color":     source.Color,
-		"country":   source.Country,
-		"name":      source.Name,
-		"region":    source.Region,
-		"review":    source.Review,
-		"sweetness": source.Sweetness,
-		"varietal":  source.Varietal,
-		"vineyard":  source.Vineyard,
-		"vintage":   source.Vintage,
+		"color":          source.Color,
+		"country":        source.Country,
+		"name":           source.Name,
+		"region":         source.Region,
+		"review":         source.Review,
+		"sweetness":      source.Sweetness,
+		"varietal":       source.Varietal,
+		"vineyard":       source.Vineyard,
+		"vintage":        source.Vintage,
+		"vinyard_county": source.VinyardCounty,
 	}
 	target = tmp37
 	return

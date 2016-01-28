@@ -40,7 +40,7 @@ type RelationalModelDefinition struct {
 	Description      string //
 	Parent           *RelationalStoreDefinition
 	BuiltFrom        []*design.UserTypeDefinition
-	RenderTo         []*design.MediaTypeDefinition
+	RenderTo         *design.MediaTypeDefinition
 	BelongsTo        map[string]*RelationalModelDefinition
 	HasMany          map[string]*RelationalModelDefinition
 	HasOne           map[string]*RelationalModelDefinition
@@ -102,6 +102,8 @@ type RelationalFieldDefinition struct {
 	Parent            *RelationalModelDefinition
 	a                 *design.AttributeDefinition
 	Name              string
+	BuiltFrom         string
+	RenderTo          string
 	Datatype          FieldType
 	SQLTag            string
 	DatabaseFieldName string

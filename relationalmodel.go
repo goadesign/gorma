@@ -5,6 +5,8 @@ import (
 	"sort"
 	"strings"
 
+	"bitbucket.org/pkg/inflect"
+
 	"github.com/goadesign/goa/design"
 	"github.com/goadesign/goa/design/dsl"
 	"github.com/goadesign/goa/goagen/codegen"
@@ -21,6 +23,11 @@ func (f *RelationalModelDefinition) Context() string {
 // DSL returns this object's DSL.
 func (f *RelationalModelDefinition) DSL() func() {
 	return f.DefinitionDSL
+}
+
+// TableName returns the table name for this model
+func (f RelationalModelDefinition) TableName() string {
+	return inflect.Underscore(inflect.Pluralize(f.Name))
 }
 
 // Children returns a slice of this objects children.
@@ -171,10 +178,13 @@ func (f *RelationalModelDefinition) PopulateFromModeledType() {
 			rf := &RelationalFieldDefinition{}
 			rf.Parent = f
 			rf.Name = codegen.Goify(name, true)
+
 			if strings.HasSuffix(rf.Name, "Id") {
 				rf.Name = strings.TrimSuffix(rf.Name, "Id")
 				rf.Name = rf.Name + "ID"
 			}
+			rf.BuiltFrom = inflect.Underscore(rf.Name)
+			rf.RenderTo = inflect.Underscore(rf.Name)
 			switch att.Type.Kind() {
 			case design.BooleanKind:
 				rf.Datatype = Boolean
