@@ -198,13 +198,13 @@ func NewCreateBottleContext(c *goa.Context) (*CreateBottleContext, error) {
 type CreateBottlePayload struct {
 	Color         string  `json:"color"`
 	Country       *string `json:"country,omitempty"`
+	Myvintage     int     `json:"myvintage"`
 	Name          string  `json:"name"`
 	Region        *string `json:"region,omitempty"`
 	Review        *string `json:"review,omitempty"`
 	Sweetness     *int    `json:"sweetness,omitempty"`
 	Varietal      string  `json:"varietal"`
 	Vineyard      string  `json:"vineyard"`
-	Vintage       int     `json:"vintage"`
 	VinyardCounty *string `json:"vinyard_county,omitempty"`
 }
 
@@ -231,6 +231,12 @@ func (payload *CreateBottlePayload) Validate() (err error) {
 		if len(*payload.Country) < 2 {
 			err = goa.InvalidLengthError(`raw.country`, *payload.Country, len(*payload.Country), 2, true, err)
 		}
+	}
+	if payload.Myvintage < 1900 {
+		err = goa.InvalidRangeError(`raw.myvintage`, payload.Myvintage, 1900, true, err)
+	}
+	if payload.Myvintage > 2020 {
+		err = goa.InvalidRangeError(`raw.myvintage`, payload.Myvintage, 2020, false, err)
 	}
 	if len(payload.Name) < 2 {
 		err = goa.InvalidLengthError(`raw.name`, payload.Name, len(payload.Name), 2, true, err)
@@ -260,12 +266,6 @@ func (payload *CreateBottlePayload) Validate() (err error) {
 	}
 	if len(payload.Vineyard) < 2 {
 		err = goa.InvalidLengthError(`raw.vineyard`, payload.Vineyard, len(payload.Vineyard), 2, true, err)
-	}
-	if payload.Vintage < 1900 {
-		err = goa.InvalidRangeError(`raw.vintage`, payload.Vintage, 1900, true, err)
-	}
-	if payload.Vintage > 2020 {
-		err = goa.InvalidRangeError(`raw.vintage`, payload.Vintage, 2020, false, err)
 	}
 	return
 }
@@ -509,13 +509,13 @@ func NewUpdateBottleContext(c *goa.Context) (*UpdateBottleContext, error) {
 type UpdateBottlePayload struct {
 	Color         *string `json:"color,omitempty"`
 	Country       *string `json:"country,omitempty"`
+	Myvintage     *int    `json:"myvintage,omitempty"`
 	Name          *string `json:"name,omitempty"`
 	Region        *string `json:"region,omitempty"`
 	Review        *string `json:"review,omitempty"`
 	Sweetness     *int    `json:"sweetness,omitempty"`
 	Varietal      *string `json:"varietal,omitempty"`
 	Vineyard      *string `json:"vineyard,omitempty"`
-	Vintage       *int    `json:"vintage,omitempty"`
 	VinyardCounty *string `json:"vinyard_county,omitempty"`
 }
 
@@ -529,6 +529,16 @@ func (payload *UpdateBottlePayload) Validate() (err error) {
 	if payload.Country != nil {
 		if len(*payload.Country) < 2 {
 			err = goa.InvalidLengthError(`raw.country`, *payload.Country, len(*payload.Country), 2, true, err)
+		}
+	}
+	if payload.Myvintage != nil {
+		if *payload.Myvintage < 1900 {
+			err = goa.InvalidRangeError(`raw.myvintage`, *payload.Myvintage, 1900, true, err)
+		}
+	}
+	if payload.Myvintage != nil {
+		if *payload.Myvintage > 2020 {
+			err = goa.InvalidRangeError(`raw.myvintage`, *payload.Myvintage, 2020, false, err)
 		}
 	}
 	if payload.Name != nil {
@@ -564,16 +574,6 @@ func (payload *UpdateBottlePayload) Validate() (err error) {
 	if payload.Vineyard != nil {
 		if len(*payload.Vineyard) < 2 {
 			err = goa.InvalidLengthError(`raw.vineyard`, *payload.Vineyard, len(*payload.Vineyard), 2, true, err)
-		}
-	}
-	if payload.Vintage != nil {
-		if *payload.Vintage < 1900 {
-			err = goa.InvalidRangeError(`raw.vintage`, *payload.Vintage, 1900, true, err)
-		}
-	}
-	if payload.Vintage != nil {
-		if *payload.Vintage > 2020 {
-			err = goa.InvalidRangeError(`raw.vintage`, *payload.Vintage, 2020, false, err)
 		}
 	}
 	return

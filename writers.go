@@ -7,6 +7,7 @@ import (
 
 	"github.com/goadesign/goa/design"
 	"github.com/goadesign/goa/goagen/codegen"
+	"github.com/kr/pretty"
 )
 
 type (
@@ -133,6 +134,11 @@ func viewFields(ut *RelationalModelDefinition, v *design.ViewDefinition) []*Rela
 				if ok {
 					fields = append(fields, bf)
 				}
+			} else if name == "links" {
+				for n, ld := range v.Parent.Links {
+					fmt.Println(n)
+					pretty.Println(ld.Name, ld.View)
+				}
 			}
 		}
 	}
@@ -193,7 +199,7 @@ const (
 // in the database.
 func (m {{$ut.Name}}) TableName() string {
 {{ if ne $ut.Alias "" }}
-	return "{{ $ut.Alias}}" {{ else }} return {{ $ut.TableName }}
+return "{{ $ut.Alias}}" {{ else }} return "{{ $ut.TableName }}"
 {{end}}
 }
 // {{$ut.Name}}DB is the implementation of the storage interface for
@@ -238,12 +244,20 @@ type {{$ut.Name}}Storage interface {
 	{{end}}
 }
 
+// TableName overrides the table name settings in Gorm to force a specific table name
+// in the database.
+func (m *{{$ut.Name}}DB) TableName() string {
+{{ if ne $ut.Alias "" }}
+return "{{ $ut.Alias}}" {{ else }} return "{{ $ut.TableName }}"
+{{end}}
+}
+
 // CRUD Functions
 {{ range $vname, $view := $ut.RenderTo.Views}}
 // List{{$ut.RenderTo.TypeName}}{{if eq $vname "default"}}{{else}}View{{goify $vname true}}{{end}} returns an array of view: {{$vname}}
 func (m *{{$ut.Name}}DB) List{{$ut.RenderTo.TypeName}}{{if eq $vname "default"}}{{else}}View{{goify $vname true}}{{end}} (ctx context.Context{{ if $ut.DynamicTableName}}, tableName string{{ end }}) []app.{{$ut.RenderTo.TypeName}}{{if eq $vname "default"}}{{else}}View{{goify $vname true}}{{end}}{
 	var objs []app.{{$ut.RenderTo.TypeName}}{{if eq $vname "default"}}{{else}}View{{goify $vname true}}{{end}}
-	rows, err := m.Db.Table({{ if $ut.DynamicTableName }}.Table(tableName){{else}}m.TableName(){{ end }}).Select("{{viewSelect $ut $view}}").Rows()
+	rows, err := m.Db.Table({{ if $ut.DynamicTableName }}.Table(tableName){{else}}{{$ut.Name}}.TableName(){{ end }}).Select("{{viewSelect $ut $view}}").Rows()
 	defer rows.Close()
 	if err != nil {
 		return objs
@@ -263,5 +277,9 @@ func (m *{{$ut.Name}}DB) List{{$ut.RenderTo.TypeName}}{{if eq $vname "default"}}
 	return objs
 }
 {{end}}
+
+{{ range $ln, $link := $ut.RenderTo.Links }}
+// {{ $ln }}
+{{ end }}
 `
 )

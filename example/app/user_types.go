@@ -18,13 +18,13 @@ import "github.com/goadesign/goa"
 type BottlePayload struct {
 	Color         *string `json:"color,omitempty"`
 	Country       *string `json:"country,omitempty"`
+	Myvintage     *int    `json:"myvintage,omitempty"`
 	Name          *string `json:"name,omitempty"`
 	Region        *string `json:"region,omitempty"`
 	Review        *string `json:"review,omitempty"`
 	Sweetness     *int    `json:"sweetness,omitempty"`
 	Varietal      *string `json:"varietal,omitempty"`
 	Vineyard      *string `json:"vineyard,omitempty"`
-	Vintage       *int    `json:"vintage,omitempty"`
 	VinyardCounty *string `json:"vinyard_county,omitempty"`
 }
 
@@ -38,6 +38,16 @@ func (ut *BottlePayload) Validate() (err error) {
 	if ut.Country != nil {
 		if len(*ut.Country) < 2 {
 			err = goa.InvalidLengthError(`response.country`, *ut.Country, len(*ut.Country), 2, true, err)
+		}
+	}
+	if ut.Myvintage != nil {
+		if *ut.Myvintage < 1900 {
+			err = goa.InvalidRangeError(`response.myvintage`, *ut.Myvintage, 1900, true, err)
+		}
+	}
+	if ut.Myvintage != nil {
+		if *ut.Myvintage > 2020 {
+			err = goa.InvalidRangeError(`response.myvintage`, *ut.Myvintage, 2020, false, err)
 		}
 	}
 	if ut.Name != nil {
@@ -75,16 +85,6 @@ func (ut *BottlePayload) Validate() (err error) {
 			err = goa.InvalidLengthError(`response.vineyard`, *ut.Vineyard, len(*ut.Vineyard), 2, true, err)
 		}
 	}
-	if ut.Vintage != nil {
-		if *ut.Vintage < 1900 {
-			err = goa.InvalidRangeError(`response.vintage`, *ut.Vintage, 1900, true, err)
-		}
-	}
-	if ut.Vintage != nil {
-		if *ut.Vintage > 2020 {
-			err = goa.InvalidRangeError(`response.vintage`, *ut.Vintage, 2020, false, err)
-		}
-	}
 	return
 }
 
@@ -98,13 +98,13 @@ func MarshalBottlePayload(source *BottlePayload, inErr error) (target map[string
 	tmp37 := map[string]interface{}{
 		"color":          source.Color,
 		"country":        source.Country,
+		"myvintage":      source.Myvintage,
 		"name":           source.Name,
 		"region":         source.Region,
 		"review":         source.Review,
 		"sweetness":      source.Sweetness,
 		"varietal":       source.Varietal,
 		"vineyard":       source.Vineyard,
-		"vintage":        source.Vintage,
 		"vinyard_county": source.VinyardCounty,
 	}
 	target = tmp37

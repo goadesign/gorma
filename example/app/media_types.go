@@ -154,7 +154,7 @@ type Bottle struct {
 	UpdatedAt     *string `json:"updated_at,omitempty"`
 	Varietal      string  `json:"varietal"`
 	Vineyard      string  `json:"vineyard"`
-	Vintage       int     `json:"vintage"`
+	Vintage       string  `json:"vintage"`
 	VinyardCounty *string `json:"vinyard_county,omitempty"`
 }
 
@@ -200,7 +200,9 @@ func (mt *Bottle) Validate() (err error) {
 	if mt.Varietal == "" {
 		err = goa.MissingAttributeError(`response`, "varietal", err)
 	}
-
+	if mt.Vintage == "" {
+		err = goa.MissingAttributeError(`response`, "vintage", err)
+	}
 	if mt.Color == "" {
 		err = goa.MissingAttributeError(`response`, "color", err)
 	}
@@ -274,12 +276,6 @@ func (mt *Bottle) Validate() (err error) {
 	if len(mt.Vineyard) < 2 {
 		err = goa.InvalidLengthError(`response.vineyard`, mt.Vineyard, len(mt.Vineyard), 2, true, err)
 	}
-	if mt.Vintage < 1900 {
-		err = goa.InvalidRangeError(`response.vintage`, mt.Vintage, 1900, true, err)
-	}
-	if mt.Vintage > 2020 {
-		err = goa.InvalidRangeError(`response.vintage`, mt.Vintage, 2020, false, err)
-	}
 	return
 }
 
@@ -321,20 +317,21 @@ func MarshalBottleFull(source *Bottle, inErr error) (target map[string]interface
 		return
 	}
 	tmp31 := map[string]interface{}{
-		"color":      source.Color,
-		"country":    source.Country,
-		"created_at": source.CreatedAt,
-		"href":       source.Href,
-		"id":         source.ID,
-		"name":       source.Name,
-		"rating":     source.Rating,
-		"region":     source.Region,
-		"review":     source.Review,
-		"sweetness":  source.Sweetness,
-		"updated_at": source.UpdatedAt,
-		"varietal":   source.Varietal,
-		"vineyard":   source.Vineyard,
-		"vintage":    source.Vintage,
+		"color":          source.Color,
+		"country":        source.Country,
+		"created_at":     source.CreatedAt,
+		"href":           source.Href,
+		"id":             source.ID,
+		"name":           source.Name,
+		"rating":         source.Rating,
+		"region":         source.Region,
+		"review":         source.Review,
+		"sweetness":      source.Sweetness,
+		"updated_at":     source.UpdatedAt,
+		"varietal":       source.Varietal,
+		"vineyard":       source.Vineyard,
+		"vintage":        source.Vintage,
+		"vinyard_county": source.VinyardCounty,
 	}
 	if source.Account != nil {
 		tmp31["account"], err = MarshalAccount(source.Account, err)
@@ -478,12 +475,6 @@ func (mt BottleCollection) Validate() (err error) {
 		}
 		if len(e.Vineyard) < 2 {
 			err = goa.InvalidLengthError(`response[*].vineyard`, e.Vineyard, len(e.Vineyard), 2, true, err)
-		}
-		if e.Vintage < 1900 {
-			err = goa.InvalidRangeError(`response[*].vintage`, e.Vintage, 1900, true, err)
-		}
-		if e.Vintage > 2020 {
-			err = goa.InvalidRangeError(`response[*].vintage`, e.Vintage, 2020, false, err)
 		}
 	}
 	return
