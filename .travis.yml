@@ -1,0 +1,16 @@
+language: go
+go:
+  - 1.4
+  - 1.5
+  - tip
+
+sudo: false
+install:
+- go get -v ./...
+- export PATH=$PATH:$HOME/gopath/bin
+script:
+- make
+notifications:
+  slack:
+    secure: tcNpappojuA4O9obbQBX4uyph8J00UyK57yjdYzzVW4WDAFx8KBuaLV7GJoL3c3+nUSwOrp2XzF65JZdQIWf4sjMvIc5wxhPUWXWHY/zIHnlrA3DrOBmr+fEemzUjkPiexfu5C2jwqPNrUyNQchxIGJ+kN3xvHPgXAVdLWQaumO9tVA56VPQlxNfDSPpbuwrEURlWpRBsOYJ8MKD9ZRsgd3FLibc1S8vGb/kIYauQRqqMUg7eBiNigVMFZzcGhNHuHmRiZtHch4HQRNT/SBHga8/6kFfT25UuGDI1JFZVT46nO4r3fGQ5ZnC7f016JjCvVBHJcfw4NDJeSFGTECiJ0WFT6qs+m5dVVKuWZsjJU/92hRMshaK73OEvjljAy9hwapNQj2DMgx38E6zVfhoJn6q+yHYfuXf5Y3x6XscGXlhKpFhgY6o4OvbumggoCBaPPl9avgImifB016aSg8NCPoWODwA0HP+nwEzSbeczEj03gvk27c+KixAKse6vLmdMhtFsd2cloJdjDngrXsDote/vuAF9WWy8KcFDRlNkc+7RIEzNvJYDNS5+yxZAA7gr6eLo9H67lcsJPK9ljz5ZodGCZxmcXYtH/yC1dO38AKyXLZnwJkT8wcbqTJmpdCw7ME+dTY8xHiyCLwmyxI9cOlAN5HTGSEujxYWS7fCnT8=
+
