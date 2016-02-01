@@ -2,7 +2,7 @@ package design
 
 import (
 	. "github.com/goadesign/goa/design"
-	. "github.com/goadesign/goa/design/dsl"
+	. "github.com/goadesign/goa/design/apidsl"
 )
 
 // Account is the account resource media type.
@@ -12,9 +12,7 @@ var Account = MediaType("application/vnd.account+json", func() {
 		Attribute("id", Integer, "ID of account")
 		Attribute("href", String, "API href of account")
 		Attribute("name", String, "Name of account")
-		Attribute("created_at", String, "Date of creation", func() {
-			Format("date-time")
-		})
+		Attribute("created_at", DateTime, "Date of creation")
 		Attribute("created_by", String, "Email of account owner", func() {
 			Format("email")
 		})
@@ -53,12 +51,8 @@ var Bottle = MediaType("application/vnd.bottle+json", func() {
 			Maximum(5)
 		})
 		Attribute("account", Account, "Account that owns bottle")
-		Attribute("created_at", String, "Date of creation", func() {
-			Format("date-time")
-		})
-		Attribute("updated_at", String, "Date of last update", func() {
-			Format("date-time")
-		})
+		Attribute("created_at", DateTime, "Date of creation")
+		Attribute("updated_at", DateTime, "Date of last update")
 		// Attributes below inherit from the base type
 		Attribute("name")
 		Attribute("vineyard")

@@ -1,7 +1,7 @@
 package dsl
 
 import (
-	"github.com/goadesign/goa/design/dsl"
+	"github.com/goadesign/goa/dslengine"
 	"github.com/goadesign/gorma"
 )
 
@@ -17,10 +17,10 @@ func StorageGroup(name string, dsli func()) *gorma.StorageGroupDefinition {
 		return nil
 	}
 	if name == "" {
-		dsl.ReportError("Storage Group name cannot be empty")
+		dslengine.ReportError("Storage Group name cannot be empty")
 	}
 	if gorma.GormaDesign != nil {
-		dsl.ReportError("Only one StorageGroup is allowed")
+		dslengine.ReportError("Only one StorageGroup is allowed")
 	}
 	gorma.GormaDesign.Name = name
 	gorma.GormaDesign.RelationalStores = make(map[string]*gorma.RelationalStoreDefinition)

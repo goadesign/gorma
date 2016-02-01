@@ -16,16 +16,16 @@ import "github.com/goadesign/goa"
 
 // BottlePayload type
 type BottlePayload struct {
-	Color         *string `json:"color,omitempty"`
-	Country       *string `json:"country,omitempty"`
-	Myvintage     *int    `json:"myvintage,omitempty"`
-	Name          *string `json:"name,omitempty"`
-	Region        *string `json:"region,omitempty"`
-	Review        *string `json:"review,omitempty"`
-	Sweetness     *int    `json:"sweetness,omitempty"`
-	Varietal      *string `json:"varietal,omitempty"`
-	Vineyard      *string `json:"vineyard,omitempty"`
-	VinyardCounty *string `json:"vinyard_county,omitempty"`
+	Color         *string `json:"color,omitempty" xml:"color,omitempty"`
+	Country       *string `json:"country,omitempty" xml:"country,omitempty"`
+	Myvintage     *string `json:"myvintage,omitempty" xml:"myvintage,omitempty"`
+	Name          *string `json:"name,omitempty" xml:"name,omitempty"`
+	Region        *string `json:"region,omitempty" xml:"region,omitempty"`
+	Review        *string `json:"review,omitempty" xml:"review,omitempty"`
+	Sweetness     *int    `json:"sweetness,omitempty" xml:"sweetness,omitempty"`
+	Varietal      *string `json:"varietal,omitempty" xml:"varietal,omitempty"`
+	Vineyard      *string `json:"vineyard,omitempty" xml:"vineyard,omitempty"`
+	VinyardCounty *string `json:"vinyard_county,omitempty" xml:"vinyard_county,omitempty"`
 }
 
 // Validate validates the type instance.
@@ -38,16 +38,6 @@ func (ut *BottlePayload) Validate() (err error) {
 	if ut.Country != nil {
 		if len(*ut.Country) < 2 {
 			err = goa.InvalidLengthError(`response.country`, *ut.Country, len(*ut.Country), 2, true, err)
-		}
-	}
-	if ut.Myvintage != nil {
-		if *ut.Myvintage < 1900 {
-			err = goa.InvalidRangeError(`response.myvintage`, *ut.Myvintage, 1900, true, err)
-		}
-	}
-	if ut.Myvintage != nil {
-		if *ut.Myvintage > 2020 {
-			err = goa.InvalidRangeError(`response.myvintage`, *ut.Myvintage, 2020, false, err)
 		}
 	}
 	if ut.Name != nil {
@@ -85,28 +75,5 @@ func (ut *BottlePayload) Validate() (err error) {
 			err = goa.InvalidLengthError(`response.vineyard`, *ut.Vineyard, len(*ut.Vineyard), 2, true, err)
 		}
 	}
-	return
-}
-
-// MarshalBottlePayload validates and renders an instance of BottlePayload into a interface{}
-func MarshalBottlePayload(source *BottlePayload, inErr error) (target map[string]interface{}, err error) {
-	err = inErr
-	if err2 := source.Validate(); err2 != nil {
-		err = goa.ReportError(err, err2)
-		return
-	}
-	tmp37 := map[string]interface{}{
-		"color":          source.Color,
-		"country":        source.Country,
-		"myvintage":      source.Myvintage,
-		"name":           source.Name,
-		"region":         source.Region,
-		"review":         source.Review,
-		"sweetness":      source.Sweetness,
-		"varietal":       source.Varietal,
-		"vineyard":       source.Vineyard,
-		"vinyard_county": source.VinyardCounty,
-	}
-	target = tmp37
 	return
 }

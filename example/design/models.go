@@ -17,10 +17,9 @@ var sg = StorageGroup("MyStorageGroup", func() {
 				RenderTo("id")
 				SQLTag("index")
 			})
-			Field("Vintage", gorma.Integer, func() {
+			Field("Vintage", gorma.String, func() {
 				BuiltFrom("myvintage")
 				RenderTo("vintage")
-				SQLTag("index")
 			})
 			Field("vinyard_county", gorma.String, func() {
 				BuiltFrom("vinyard_county")
@@ -30,6 +29,24 @@ var sg = StorageGroup("MyStorageGroup", func() {
 			Field("CreatedAt", gorma.Timestamp, func() {})
 			Field("UpdatedAt", gorma.Timestamp, func() {})
 			Field("DeletedAt", gorma.NullableTimestamp, func() {})
+		})
+		Model("Account", func() {
+			RenderTo(Account)
+			Description("This is the Account model")
+			Field("ID", gorma.Integer, func() {
+				RenderTo("id")
+				SQLTag("index")
+			})
+			Field("Href", gorma.String, func() {
+				RenderTo("href")
+			})
+			Field("Name", gorma.String, func() {
+				RenderTo("name")
+			})
+			Field("CreatedAt", gorma.Timestamp, func() {})
+			Field("CreatedBy", gorma.String, func() {
+				RenderTo("created_by")
+			})
 		})
 	})
 })

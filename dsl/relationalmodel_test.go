@@ -5,7 +5,8 @@ import (
 	gdsl "github.com/goadesign/gorma/dsl"
 
 	. "github.com/goadesign/goa/design"
-	. "github.com/goadesign/goa/design/dsl"
+	. "github.com/goadesign/goa/design/apidsl"
+	. "github.com/goadesign/goa/dslengine"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
@@ -69,7 +70,7 @@ var _ = Describe("RelationalModel", func() {
 			})
 		})
 
-		RunDSL()
+		Run()
 
 	})
 
@@ -391,7 +392,7 @@ var _ = Describe("RelationalModel with auto fields enabled and auto fields set i
 			})
 		})
 
-		RunDSL()
+		Run()
 
 	})
 
@@ -484,7 +485,7 @@ var _ = Describe("RelationalModel with auto fields explicitly enabled", func() {
 			})
 		})
 
-		RunDSL()
+		Run()
 
 	})
 
@@ -574,7 +575,7 @@ var _ = Describe("RelationalModel with auto fields disabled", func() {
 			})
 		})
 
-		RunDSL()
+		Run()
 
 	})
 
@@ -661,7 +662,7 @@ var _ = Describe("RelationalModel with auto fields unset", func() {
 			})
 		})
 
-		RunDSL()
+		Run()
 
 	})
 

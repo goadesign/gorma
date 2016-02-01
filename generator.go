@@ -9,8 +9,7 @@ import (
 	"github.com/goadesign/goa/design"
 	"github.com/goadesign/goa/goagen/codegen"
 	"github.com/goadesign/goa/goagen/utils"
-
-	"gopkg.in/alecthomas/kingpin.v2"
+	"github.com/spf13/cobra"
 )
 
 // Generator is the application code generator.
@@ -19,32 +18,24 @@ type Generator struct {
 }
 
 // Generate is the generator entry point called by the meta generator.
-func Generate(api *design.APIDefinition) ([]string, error) {
-	g, err := NewGenerator()
-	if err != nil {
-		return nil, err
+func Generate(api *design.APIDefinition) (files []string, err error) {
+	g := new(Generator)
+	root := &cobra.Command{
+		Use:   "gorma",
+		Short: "Code generator",
+		Long:  "database model code generator",
+		PreRunE: func(*cobra.Command, []string) error {
+			outdir := ModelOutputDir()
+			g.genfiles = []string{outdir}
+			err = os.MkdirAll(outdir, 0777)
+			return err
+		},
+		Run: func(*cobra.Command, []string) { files, err = g.Generate(api) },
 	}
-	return g.Generate(api)
-}
-
-// NewGenerator returns the application code generator.
-func NewGenerator() (*Generator, error) {
-	app := kingpin.New("Code generator", "application code generator")
-	codegen.RegisterFlags(app)
-	NewCommand().RegisterFlags(app)
-	_, err := app.Parse(os.Args[1:])
-	if err != nil {
-		return nil, fmt.Errorf(`invalid command line: %s. Command line was "%s"`,
-			err, strings.Join(os.Args, " "))
-	}
-	outdir := ModelOutputDir()
-	//os.RemoveAll(outdir)
-	if err = os.MkdirAll(outdir, 0777); err != nil {
-		return nil, err
-	}
-	return &Generator{
-		genfiles: []string{outdir},
-	}, nil
+	codegen.RegisterFlags(root)
+	NewCommand().RegisterFlags(root)
+	root.Execute()
+	return
 }
 
 // AppOutputDir returns the directory containing the generated files.

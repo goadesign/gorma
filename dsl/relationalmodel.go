@@ -7,7 +7,7 @@ import (
 	"bitbucket.org/pkg/inflect"
 
 	"github.com/goadesign/goa/design"
-	"github.com/goadesign/goa/design/dsl"
+	"github.com/goadesign/goa/dslengine"
 	"github.com/goadesign/goa/goagen/codegen"
 	"github.com/goadesign/gorma"
 )
@@ -98,7 +98,7 @@ func RenderTo(rt interface{}) {
 		if ok {
 			f.RenderTo = inflect.Underscore(render)
 		} else {
-			dsl.ReportError("RenderTo should be a string")
+			dslengine.ReportError("RenderTo should be a string")
 		}
 	}
 }
@@ -110,18 +110,23 @@ func RenderTo(rt interface{}) {
 func BuiltFrom(bf interface{}) {
 	checkInit()
 	if m, ok := relationalModelDefinition(false); ok {
-		if m.BuiltFrom == nil {
-			m.BuiltFrom = []*design.UserTypeDefinition{}
-		}
 		mts := bf.(*design.UserTypeDefinition)
-		m.BuiltFrom = append(m.BuiltFrom, mts)
+		m.BuiltFrom = mts
 		m.PopulateFromModeledType()
+		for _, f := range m.RelationalFields {
+			f.DatabaseFieldName = SanitizeDBFieldName(f.Name)
+		}
 	} else if f, ok := relationalFieldDefinition(true); ok {
 		from, ok := bf.(string)
 		if ok {
 			f.BuiltFrom = inflect.Underscore(from)
+			if f.Parent.BuiltFrom != nil {
+				if !f.Parent.BuiltFrom.IsRequired(from) {
+					f.Nullable = true
+				}
+			}
 		} else {
-			dsl.ReportError("BuiltFrom should be a string")
+			dslengine.ReportError("BuiltFrom should be a string")
 		}
 	}
 }
@@ -337,7 +342,7 @@ func Cached(d string) {
 		r.Cached = true
 		dur, err := strconv.Atoi(d)
 		if err != nil {
-			dsl.ReportError("Duration %s couldn't be parsed as integer", d)
+			dslengine.ReportError("Duration %s couldn't be parsed as integer", d)
 		}
 		r.CacheDuration = dur
 	}

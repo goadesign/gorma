@@ -2,6 +2,7 @@ package gorma
 
 import (
 	"fmt"
+	"sort"
 	"strings"
 	"text/template"
 
@@ -27,7 +28,7 @@ type (
 	}
 )
 
-func fieldAssignmentModelToType(model *RelationalModelDefinition, ut *design.MediaTypeDefinition, mtype, utype string) string {
+func fieldAssignmentModelToType(model *RelationalModelDefinition, ut *design.ViewDefinition, mtype, utype string) string {
 	//utPackage := "app"
 	var fieldAssignments []string
 	// type.Field = model.Field
@@ -37,8 +38,8 @@ func fieldAssignmentModelToType(model *RelationalModelDefinition, ut *design.Med
 		}
 		var mpointer, upointer bool
 		mpointer = field.Nullable
-		obj := ut.ToObject()
-		definition := ut.Definition()
+		obj := ut.Type.ToObject()
+		definition := ut.Parent.Definition()
 		for key := range obj {
 			gfield := obj[key]
 			if field.Underscore() == key || field.DatabaseFieldName == key {
@@ -50,16 +51,18 @@ func fieldAssignmentModelToType(model *RelationalModelDefinition, ut *design.Med
 					upointer = false
 				}
 
-				var prefix string
+				prefix := "&"
 				if upointer && !mpointer {
 					// ufield = &mfield
 					prefix = "&"
 				} else if mpointer && !upointer {
 					// ufield = *mfield (rare if never?)
-					prefix = "*"
+					prefix = ""
+				} else if !upointer && !mpointer {
+					prefix = ""
 				}
 
-				fa := fmt.Sprintf("\t%s.%s = %s%s.%s", utype, codegen.Goify(key, true), prefix, mtype, fname)
+				fa := fmt.Sprintf("\t%s.%s = %s%s", utype, codegen.Goify(key, true), prefix, codegen.Goify(fname, false))
 				fieldAssignments = append(fieldAssignments, fa)
 			}
 		}
@@ -115,13 +118,13 @@ func viewSelect(ut *RelationalModelDefinition, v *design.ViewDefinition) string 
 					if bf.Alias != "" {
 						fields = append(fields, bf.Alias)
 					} else {
-						fields = append(fields, bf.BuiltFrom)
+						fields = append(fields, bf.DatabaseFieldName)
 					}
 				}
 			}
 		}
 	}
-
+	sort.Strings(fields)
 	return strings.Join(fields, ",")
 }
 func viewFields(ut *RelationalModelDefinition, v *design.ViewDefinition) []*RelationalFieldDefinition {
@@ -153,6 +156,7 @@ func viewFieldNames(ut *RelationalModelDefinition, v *design.ViewDefinition) []s
 		if obj[name].Type.IsPrimitive() {
 			if strings.TrimSpace(name) != "" && name != "links" {
 				bf, ok := ut.RelationalFields[codegen.Goify(name, true)]
+
 				if ok {
 					fields = append(fields, "&"+codegen.Goify(bf.Name, false))
 				}
@@ -160,6 +164,7 @@ func viewFieldNames(ut *RelationalModelDefinition, v *design.ViewDefinition) []s
 		}
 	}
 
+	sort.Strings(fields)
 	return fields
 }
 
@@ -254,30 +259,72 @@ return "{{ $ut.Alias}}" {{ else }} return "{{ $ut.TableName }}"
 
 // CRUD Functions
 {{ range $vname, $view := $ut.RenderTo.Views}}
-// List{{$ut.RenderTo.TypeName}}{{if eq $vname "default"}}{{else}}View{{goify $vname true}}{{end}} returns an array of view: {{$vname}}
-func (m *{{$ut.Name}}DB) List{{$ut.RenderTo.TypeName}}{{if eq $vname "default"}}{{else}}View{{goify $vname true}}{{end}} (ctx context.Context{{ if $ut.DynamicTableName}}, tableName string{{ end }}) []app.{{$ut.RenderTo.TypeName}}{{if eq $vname "default"}}{{else}}View{{goify $vname true}}{{end}}{
-	var objs []app.{{$ut.RenderTo.TypeName}}{{if eq $vname "default"}}{{else}}View{{goify $vname true}}{{end}}
-	rows, err := m.Db.Table({{ if $ut.DynamicTableName }}.Table(tableName){{else}}{{$ut.Name}}.TableName(){{ end }}).Select("{{viewSelect $ut $view}}").Rows()
+// List{{$ut.RenderTo.TypeName}}{{if eq $vname "default"}}{{else}}{{goify $vname true}}{{end}} returns an array of view: {{$vname}}
+func (m *{{$ut.Name}}DB) List{{$ut.RenderTo.TypeName}}{{if eq $vname "default"}}{{else}}{{goify $vname true}}{{end}} (ctx context.Context{{ if $ut.DynamicTableName}}, tableName string{{ end }}) []app.{{$ut.RenderTo.TypeName}}{{if eq $vname "default"}}{{else}}{{goify $vname true}}{{end}}{
+	var objs []app.{{$ut.RenderTo.TypeName}}{{if eq $vname "default"}}{{else}}{{goify $vname true}}{{end}}
+	rows, err := m.Db.Table({{ if $ut.DynamicTableName }}.Table(tableName){{else}}m.TableName(){{ end }}).Select("{{viewSelect $ut $view}}").Rows()
 	defer rows.Close()
 	if err != nil {
 		return objs
 	}
-	{{range $field := viewFields $ut $view}}var  {{goify $field.Name false }} {{goDatatype $field}}
-	{{end}}
 	for rows.Next() { {{$fields := viewFieldNames $ut $view}}
+	{{range $field := viewFields $ut $view}}var  {{goify $field.Name false }} {{goDatatype $field false}}
+	{{end}}
 		rows.Scan({{join $fields ","}} )
-		obj := app.{{$ut.RenderTo.TypeName}}{{if eq $vname "default"}}{{else}}View{{goify $vname true}}{{end}}{
-		{{range $field := viewFields $ut $view}}{{goify $field.RenderTo true}}: {{goify $field.Name false}}, 
-		{{end}}
-		}
+		obj := app.{{$ut.RenderTo.TypeName}}{{if eq $vname "default"}}{{else}}{{goify $vname true}}{{end}}{}
+		{{famt $ut $view "model" "obj" }}
 		objs = append(objs,obj)
 
 	}
-
 	return objs
 }
-{{end}}
 
+// One{{$ut.RenderTo.TypeName}}{{if eq $vname "default"}}{{else}}{{goify $vname true}}{{end}} returns an array of view: {{$vname}}
+func (m *{{$ut.Name}}DB) One{{$ut.RenderTo.TypeName}}{{if eq $vname "default"}}{{else}}{{goify $vname true}}{{end}} (ctx context.Context{{ if $ut.DynamicTableName}}, tableName string{{ end }}, id int) app.{{$ut.RenderTo.TypeName}}{{if eq $vname "default"}}{{else}}{{goify $vname true}}{{end}}{
+	var obj app.{{$ut.RenderTo.TypeName}}{{if eq $vname "default"}}{{else}}{{goify $vname true}}{{end}}
+	row := m.Db.Table({{ if $ut.DynamicTableName }}.Table(tableName){{else}}m.TableName(){{ end }}).Select("{{viewSelect $ut $view}}").Row()
+	{{range $field := viewFields $ut $view}}var  {{goify $field.Name false }} {{goDatatype $field false}}
+	{{end}}
+	row.Scan({{join $fields ","}} )
+	{{famt $ut $view "model" "obj" }}
+	return obj
+}
+{{end}}
+// Add creates a new record.
+func (m *{{$ut.Name}}DB) Add(ctx context.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, model {{$ut.Name}}) ({{$ut.Name}}, error) {
+	err := m.Db{{ if $ut.DynamicTableName }}.Table(tableName){{ end }}.Create(&model).Error{{ if $ut.Cached }}
+	go m.cache.Set(strconv.Itoa(model.ID), model, cache.DefaultExpiration) {{ end }}
+	return model, err
+}
+// Update modifies a single record.
+func (m *{{$ut.Name}}DB) Update(ctx context.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, model {{$ut.Name}}) error {
+	obj, err := m.One(ctx{{ if $ut.DynamicTableName }}, tableName{{ end }}, {{$ut.PKUpdateFields "model"}})
+	if err != nil {
+		return  err
+	}
+	err = m.Db{{ if $ut.DynamicTableName }}.Table(tableName){{ end }}.Model(&obj).Updates(model).Error
+	{{ if $ut.Cached }}go func(){
+	obj, err := m.One(ctx, model.ID)
+	if err == nil {
+		m.cache.Set(strconv.Itoa(model.ID), obj, cache.DefaultExpiration)
+	}
+	}()
+	{{ end }}
+	return err
+}
+// Delete removes a single record.
+func (m *{{$ut.Name}}DB) Delete(ctx context.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, {{$ut.PKAttributes}})  error {
+	var obj {{$ut.Name}}{{ $l := len $ut.PrimaryKeys }}
+	{{ if eq $l 1 }}
+	err := m.Db{{ if $ut.DynamicTableName }}.Table(tableName){{ end }}.Delete(&obj, id).Error
+	{{ else  }}err := m.Db{{ if $ut.DynamicTableName }}.Table(tableName){{ end }}.Delete(&obj).Where("{{$ut.PKWhere}}", {{$ut.PKWhereFields}}).Error
+	{{ end }}
+	if err != nil {
+		return  err
+	}
+	{{ if $ut.Cached }} go m.cache.Delete(strconv.Itoa(id)) {{ end }}
+	return  nil
+}
 {{ range $ln, $link := $ut.RenderTo.Links }}
 // {{ $ln }}
 {{ end }}

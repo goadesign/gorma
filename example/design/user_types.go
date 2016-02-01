@@ -2,7 +2,7 @@ package design
 
 import (
 	. "github.com/goadesign/goa/design"
-	. "github.com/goadesign/goa/design/dsl"
+	. "github.com/goadesign/goa/design/apidsl"
 )
 
 // BottlePayload defines the data structure used in the create bottle request body.
@@ -17,9 +17,7 @@ var BottlePayload = Type("BottlePayload", func() {
 	Attribute("varietal", func() {
 		MinLength(4)
 	})
-	Attribute("myvintage", Integer, func() {
-		Minimum(1900)
-		Maximum(2020)
+	Attribute("myvintage", String, func() {
 	})
 	Attribute("vinyard_county")
 	Attribute("color", func() {

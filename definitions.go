@@ -1,6 +1,9 @@
 package gorma
 
-import "github.com/goadesign/goa/design"
+import (
+	"github.com/goadesign/goa/design"
+	"github.com/goadesign/goa/dslengine"
+)
 
 // RelationalStorageType is the type of database
 type RelationalStorageType string
@@ -10,7 +13,7 @@ type FieldType string
 
 // StorageGroupDefinition is the parent configuration structure for Gorma definitions
 type StorageGroupDefinition struct {
-	design.Definition
+	dslengine.Definition
 	DefinitionDSL    func()
 	Name             string
 	Description      string
@@ -19,7 +22,7 @@ type StorageGroupDefinition struct {
 
 // RelationalStoreDefinition is the parent configuration structure for Gorm relational model definitions
 type RelationalStoreDefinition struct {
-	design.Definition
+	dslengine.Definition
 	DefinitionDSL    func()
 	Name             string
 	Description      string
@@ -34,12 +37,12 @@ type RelationalStoreDefinition struct {
 // RelationalModelDefinition implements the storage of a domain model into a
 // table in a relational database
 type RelationalModelDefinition struct {
-	design.Definition
+	dslengine.Definition
 	DefinitionDSL    func()
 	Name             string
 	Description      string //
 	Parent           *RelationalStoreDefinition
-	BuiltFrom        []*design.UserTypeDefinition
+	BuiltFrom        *design.UserTypeDefinition
 	RenderTo         *design.MediaTypeDefinition
 	BelongsTo        map[string]*RelationalModelDefinition
 	HasMany          map[string]*RelationalModelDefinition
@@ -61,7 +64,7 @@ type RelationalModelDefinition struct {
 // Goa media type into a Gorma Model
 // Unimplemented at this time
 type MediaTypeAdapterDefinition struct {
-	design.Definition
+	dslengine.Definition
 	DefinitionDSL func()
 	Name          string
 	Description   string
@@ -73,7 +76,7 @@ type MediaTypeAdapterDefinition struct {
 // user type into a Gorma Model
 // Unimplemented at this time
 type UserTypeAdapterDefinition struct {
-	design.Definition
+	dslengine.Definition
 	DefinitionDSL func()
 	Name          string
 	Description   string
@@ -86,7 +89,7 @@ type UserTypeAdapterDefinition struct {
 // into a Gorma model
 // Unimplemented at this time
 type PayloadAdapterDefinition struct {
-	design.Definition
+	dslengine.Definition
 	DefinitionDSL func()
 	Name          string
 	Description   string
@@ -97,7 +100,7 @@ type PayloadAdapterDefinition struct {
 // RelationalFieldDefinition represents
 // a field in a relational database
 type RelationalFieldDefinition struct {
-	design.Definition
+	dslengine.Definition
 	DefinitionDSL     func()
 	Parent            *RelationalModelDefinition
 	a                 *design.AttributeDefinition
@@ -122,7 +125,7 @@ type RelationalFieldDefinition struct {
 // ManyToManyDefinition stores information about a ManyToMany
 // relationship between two domain objects
 type ManyToManyDefinition struct {
-	design.Definition
+	dslengine.Definition
 	DefinitionDSL    func()
 	Left             *RelationalModelDefinition
 	Right            *RelationalModelDefinition

@@ -13,11 +13,9 @@
 package app
 
 import (
-	"fmt"
+	"github.com/goadesign/goa"
 	"strconv"
 	"strings"
-
-	"github.com/goadesign/goa"
 )
 
 // CreateAccountContext provides the account create action context.
@@ -37,7 +35,7 @@ func NewCreateAccountContext(c *goa.Context) (*CreateAccountContext, error) {
 // CreateAccountPayload is the account create action payload.
 type CreateAccountPayload struct {
 	// Name of account
-	Name string `json:"name"`
+	Name string `json:"name" xml:"name"`
 }
 
 // Validate runs the validation rules defined in the design.
@@ -114,13 +112,15 @@ func (ctx *ShowAccountContext) NotFound() error {
 }
 
 // OK sends a HTTP response with status code 200.
-func (ctx *ShowAccountContext) OK(resp *Account, view AccountViewEnum) error {
-	r, err := resp.Dump(view)
-	if err != nil {
-		return fmt.Errorf("invalid response: %s", err)
-	}
-	ctx.Header().Set("Content-Type", "application/vnd.account+json; charset=utf-8")
-	return ctx.Respond(200, r)
+func (ctx *ShowAccountContext) OK(resp *Account) error {
+	ctx.Header().Set("Content-Type", "application/vnd.account")
+	return ctx.Respond(200, resp)
+}
+
+// OKTiny sends a HTTP response with status code 200.
+func (ctx *ShowAccountContext) OKTiny(resp *AccountTiny) error {
+	ctx.Header().Set("Content-Type", "application/vnd.account")
+	return ctx.Respond(200, resp)
 }
 
 // UpdateAccountContext provides the account update action context.
@@ -149,7 +149,7 @@ func NewUpdateAccountContext(c *goa.Context) (*UpdateAccountContext, error) {
 // UpdateAccountPayload is the account update action payload.
 type UpdateAccountPayload struct {
 	// Name of account
-	Name string `json:"name"`
+	Name string `json:"name" xml:"name"`
 }
 
 // Validate runs the validation rules defined in the design.
@@ -196,16 +196,16 @@ func NewCreateBottleContext(c *goa.Context) (*CreateBottleContext, error) {
 
 // CreateBottlePayload is the bottle create action payload.
 type CreateBottlePayload struct {
-	Color         string  `json:"color"`
-	Country       *string `json:"country,omitempty"`
-	Myvintage     int     `json:"myvintage"`
-	Name          string  `json:"name"`
-	Region        *string `json:"region,omitempty"`
-	Review        *string `json:"review,omitempty"`
-	Sweetness     *int    `json:"sweetness,omitempty"`
-	Varietal      string  `json:"varietal"`
-	Vineyard      string  `json:"vineyard"`
-	VinyardCounty *string `json:"vinyard_county,omitempty"`
+	Color         string  `json:"color" xml:"color"`
+	Country       *string `json:"country,omitempty" xml:"country,omitempty"`
+	Myvintage     string  `json:"myvintage" xml:"myvintage"`
+	Name          string  `json:"name" xml:"name"`
+	Region        *string `json:"region,omitempty" xml:"region,omitempty"`
+	Review        *string `json:"review,omitempty" xml:"review,omitempty"`
+	Sweetness     *int    `json:"sweetness,omitempty" xml:"sweetness,omitempty"`
+	Varietal      string  `json:"varietal" xml:"varietal"`
+	Vineyard      string  `json:"vineyard" xml:"vineyard"`
+	VinyardCounty *string `json:"vinyard_county,omitempty" xml:"vinyard_county,omitempty"`
 }
 
 // Validate runs the validation rules defined in the design.
@@ -219,7 +219,9 @@ func (payload *CreateBottlePayload) Validate() (err error) {
 	if payload.Varietal == "" {
 		err = goa.MissingAttributeError(`raw`, "varietal", err)
 	}
-
+	if payload.Myvintage == "" {
+		err = goa.MissingAttributeError(`raw`, "myvintage", err)
+	}
 	if payload.Color == "" {
 		err = goa.MissingAttributeError(`raw`, "color", err)
 	}
@@ -231,12 +233,6 @@ func (payload *CreateBottlePayload) Validate() (err error) {
 		if len(*payload.Country) < 2 {
 			err = goa.InvalidLengthError(`raw.country`, *payload.Country, len(*payload.Country), 2, true, err)
 		}
-	}
-	if payload.Myvintage < 1900 {
-		err = goa.InvalidRangeError(`raw.myvintage`, payload.Myvintage, 1900, true, err)
-	}
-	if payload.Myvintage > 2020 {
-		err = goa.InvalidRangeError(`raw.myvintage`, payload.Myvintage, 2020, false, err)
 	}
 	if len(payload.Name) < 2 {
 		err = goa.InvalidLengthError(`raw.name`, payload.Name, len(payload.Name), 2, true, err)
@@ -358,13 +354,15 @@ func (ctx *ListBottleContext) NotFound() error {
 }
 
 // OK sends a HTTP response with status code 200.
-func (ctx *ListBottleContext) OK(resp BottleCollection, view BottleCollectionViewEnum) error {
-	r, err := resp.Dump(view)
-	if err != nil {
-		return fmt.Errorf("invalid response: %s", err)
-	}
-	ctx.Header().Set("Content-Type", "application/vnd.bottle+json; type=collection; charset=utf-8")
-	return ctx.Respond(200, r)
+func (ctx *ListBottleContext) OK(resp BottleCollection) error {
+	ctx.Header().Set("Content-Type", "application/vnd.bottle+json; type=collection")
+	return ctx.Respond(200, resp)
+}
+
+// OKTiny sends a HTTP response with status code 200.
+func (ctx *ListBottleContext) OKTiny(resp BottleTinyCollection) error {
+	ctx.Header().Set("Content-Type", "application/vnd.bottle+json; type=collection")
+	return ctx.Respond(200, resp)
 }
 
 // RateBottleContext provides the bottle rate action context.
@@ -402,7 +400,7 @@ func NewRateBottleContext(c *goa.Context) (*RateBottleContext, error) {
 // RateBottlePayload is the bottle rate action payload.
 type RateBottlePayload struct {
 	// Rating of bottle between 1 and 5
-	Rating int `json:"rating"`
+	Rating int `json:"rating" xml:"rating"`
 }
 
 // Validate runs the validation rules defined in the design.
@@ -464,13 +462,21 @@ func (ctx *ShowBottleContext) NotFound() error {
 }
 
 // OK sends a HTTP response with status code 200.
-func (ctx *ShowBottleContext) OK(resp *Bottle, view BottleViewEnum) error {
-	r, err := resp.Dump(view)
-	if err != nil {
-		return fmt.Errorf("invalid response: %s", err)
-	}
-	ctx.Header().Set("Content-Type", "application/vnd.bottle+json; charset=utf-8")
-	return ctx.Respond(200, r)
+func (ctx *ShowBottleContext) OK(resp *Bottle) error {
+	ctx.Header().Set("Content-Type", "application/vnd.bottle")
+	return ctx.Respond(200, resp)
+}
+
+// OKFull sends a HTTP response with status code 200.
+func (ctx *ShowBottleContext) OKFull(resp *BottleFull) error {
+	ctx.Header().Set("Content-Type", "application/vnd.bottle")
+	return ctx.Respond(200, resp)
+}
+
+// OKTiny sends a HTTP response with status code 200.
+func (ctx *ShowBottleContext) OKTiny(resp *BottleTiny) error {
+	ctx.Header().Set("Content-Type", "application/vnd.bottle")
+	return ctx.Respond(200, resp)
 }
 
 // UpdateBottleContext provides the bottle update action context.
@@ -507,16 +513,16 @@ func NewUpdateBottleContext(c *goa.Context) (*UpdateBottleContext, error) {
 
 // UpdateBottlePayload is the bottle update action payload.
 type UpdateBottlePayload struct {
-	Color         *string `json:"color,omitempty"`
-	Country       *string `json:"country,omitempty"`
-	Myvintage     *int    `json:"myvintage,omitempty"`
-	Name          *string `json:"name,omitempty"`
-	Region        *string `json:"region,omitempty"`
-	Review        *string `json:"review,omitempty"`
-	Sweetness     *int    `json:"sweetness,omitempty"`
-	Varietal      *string `json:"varietal,omitempty"`
-	Vineyard      *string `json:"vineyard,omitempty"`
-	VinyardCounty *string `json:"vinyard_county,omitempty"`
+	Color         *string `json:"color,omitempty" xml:"color,omitempty"`
+	Country       *string `json:"country,omitempty" xml:"country,omitempty"`
+	Myvintage     *string `json:"myvintage,omitempty" xml:"myvintage,omitempty"`
+	Name          *string `json:"name,omitempty" xml:"name,omitempty"`
+	Region        *string `json:"region,omitempty" xml:"region,omitempty"`
+	Review        *string `json:"review,omitempty" xml:"review,omitempty"`
+	Sweetness     *int    `json:"sweetness,omitempty" xml:"sweetness,omitempty"`
+	Varietal      *string `json:"varietal,omitempty" xml:"varietal,omitempty"`
+	Vineyard      *string `json:"vineyard,omitempty" xml:"vineyard,omitempty"`
+	VinyardCounty *string `json:"vinyard_county,omitempty" xml:"vinyard_county,omitempty"`
 }
 
 // Validate runs the validation rules defined in the design.
@@ -529,16 +535,6 @@ func (payload *UpdateBottlePayload) Validate() (err error) {
 	if payload.Country != nil {
 		if len(*payload.Country) < 2 {
 			err = goa.InvalidLengthError(`raw.country`, *payload.Country, len(*payload.Country), 2, true, err)
-		}
-	}
-	if payload.Myvintage != nil {
-		if *payload.Myvintage < 1900 {
-			err = goa.InvalidRangeError(`raw.myvintage`, *payload.Myvintage, 1900, true, err)
-		}
-	}
-	if payload.Myvintage != nil {
-		if *payload.Myvintage > 2020 {
-			err = goa.InvalidRangeError(`raw.myvintage`, *payload.Myvintage, 2020, false, err)
 		}
 	}
 	if payload.Name != nil {

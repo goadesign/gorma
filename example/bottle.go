@@ -28,7 +28,7 @@ func (c *BottleController) Delete(ctx *app.DeleteBottleContext) error {
 // List runs the list action.
 func (c *BottleController) List(ctx *app.ListBottleContext) error {
 	res := app.BottleCollection{}
-	return ctx.OK(res, "default")
+	return ctx.OK(res)
 }
 
 // Rate runs the rate action.
@@ -39,7 +39,7 @@ func (c *BottleController) Rate(ctx *app.RateBottleContext) error {
 // Show runs the show action.
 func (c *BottleController) Show(ctx *app.ShowBottleContext) error {
 	res := &app.Bottle{}
-	return ctx.OK(res, "default")
+	return ctx.OK(res)
 }
 
 // Update runs the update action.

@@ -8,7 +8,7 @@ import (
 	"bitbucket.org/pkg/inflect"
 
 	"github.com/goadesign/goa/design"
-	"github.com/goadesign/goa/design/dsl"
+	"github.com/goadesign/goa/dslengine"
 	"github.com/goadesign/goa/goagen/codegen"
 )
 
@@ -31,8 +31,8 @@ func (f RelationalModelDefinition) TableName() string {
 }
 
 // Children returns a slice of this objects children.
-func (f RelationalModelDefinition) Children() []design.Definition {
-	var stores []design.Definition
+func (f RelationalModelDefinition) Children() []dslengine.Definition {
+	var stores []dslengine.Definition
 	for _, s := range f.RelationalFields {
 		stores = append(stores, s)
 	}
@@ -44,7 +44,7 @@ func (f RelationalModelDefinition) Children() []design.Definition {
 func (f *RelationalModelDefinition) PKAttributes() string {
 	var attr []string
 	for _, pk := range f.PrimaryKeys {
-		attr = append(attr, fmt.Sprintf("%s %s", pk.DatabaseFieldName, goDatatype(pk)))
+		attr = append(attr, fmt.Sprintf("%s %s", pk.DatabaseFieldName, goDatatype(pk, true)))
 	}
 	return strings.Join(attr, ",")
 }
@@ -172,36 +172,37 @@ func (f *RelationalModelDefinition) PopulateFromModeledType() {
 	if f.BuiltFrom == nil {
 		return
 	}
-	for _, mt := range f.BuiltFrom {
-		obj := mt.ToObject()
-		obj.IterateAttributes(func(name string, att *design.AttributeDefinition) error {
-			rf := &RelationalFieldDefinition{}
-			rf.Parent = f
-			rf.Name = codegen.Goify(name, true)
+	obj := f.BuiltFrom.ToObject()
+	obj.IterateAttributes(func(name string, att *design.AttributeDefinition) error {
+		rf := &RelationalFieldDefinition{}
+		rf.Parent = f
+		rf.Name = codegen.Goify(name, true)
 
-			if strings.HasSuffix(rf.Name, "Id") {
-				rf.Name = strings.TrimSuffix(rf.Name, "Id")
-				rf.Name = rf.Name + "ID"
-			}
-			rf.BuiltFrom = inflect.Underscore(rf.Name)
-			rf.RenderTo = inflect.Underscore(rf.Name)
-			switch att.Type.Kind() {
-			case design.BooleanKind:
-				rf.Datatype = Boolean
-			case design.IntegerKind:
-				rf.Datatype = Integer
-			case design.NumberKind:
-				rf.Datatype = Decimal
-			case design.StringKind:
-				rf.Datatype = String
-			case design.DateTimeKind:
-				rf.Datatype = Timestamp
-			default:
-				dsl.ReportError("Unsupported type: %#v ", att.Type.Kind())
-			}
-			f.RelationalFields[rf.Name] = rf
-			return nil
-		})
-	}
+		if strings.HasSuffix(rf.Name, "Id") {
+			rf.Name = strings.TrimSuffix(rf.Name, "Id")
+			rf.Name = rf.Name + "ID"
+		}
+		rf.BuiltFrom = inflect.Underscore(rf.Name)
+		rf.RenderTo = inflect.Underscore(rf.Name)
+		switch att.Type.Kind() {
+		case design.BooleanKind:
+			rf.Datatype = Boolean
+		case design.IntegerKind:
+			rf.Datatype = Integer
+		case design.NumberKind:
+			rf.Datatype = Decimal
+		case design.StringKind:
+			rf.Datatype = String
+		case design.DateTimeKind:
+			rf.Datatype = Timestamp
+		default:
+			dslengine.ReportError("Unsupported type: %#v ", att.Type.Kind())
+		}
+		if !f.BuiltFrom.IsRequired(name) {
+			rf.Nullable = true
+		}
+		f.RelationalFields[rf.Name] = rf
+		return nil
+	})
 	return
 }

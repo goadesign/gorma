@@ -28,7 +28,7 @@ func (c *AccountController) Delete(ctx *app.DeleteAccountContext) error {
 // Show runs the show action.
 func (c *AccountController) Show(ctx *app.ShowAccountContext) error {
 	res := &app.Account{}
-	return ctx.OK(res, "default")
+	return ctx.OK(res)
 }
 
 // Update runs the update action.

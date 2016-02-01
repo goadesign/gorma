@@ -5,7 +5,7 @@ import (
 
 	"bitbucket.org/pkg/inflect"
 
-	"github.com/goadesign/goa/design/dsl"
+	"github.com/goadesign/goa/dslengine"
 	"github.com/goadesign/goa/goagen/codegen"
 	"github.com/goadesign/gorma"
 )
@@ -24,7 +24,7 @@ func Field(name string, args ...interface{}) {
 	// The first one to be called executes InitDesign.
 
 	checkInit()
-
+	name = codegen.Goify(name, true)
 	name = SanitizeFieldName(name)
 	fieldType, dsl := parseModelArgs(args...)
 	if s, ok := relationalModelDefinition(true); ok {
@@ -135,7 +135,7 @@ func parseModelArgs(args ...interface{}) (gorma.FieldType, func()) {
 		parseDSL(1, success, func() { invalidArgError("DSL", args[1]) })
 
 	default:
-		dsl.ReportError("too many arguments in call to Attribute")
+		dslengine.ReportError("too many arguments in call to Attribute")
 	}
 
 	return fieldType, dslp

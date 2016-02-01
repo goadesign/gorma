@@ -6,7 +6,7 @@ import (
 
 	"bitbucket.org/pkg/inflect"
 
-	"github.com/goadesign/goa/design"
+	"github.com/goadesign/goa/dslengine"
 )
 
 // Context returns the generic definition name used in error messages.
@@ -23,9 +23,9 @@ func (f *RelationalFieldDefinition) DSL() func() {
 }
 
 // Children returnsa slice of this objects children
-func (f RelationalFieldDefinition) Children() []design.Definition {
+func (f RelationalFieldDefinition) Children() []dslengine.Definition {
 	// no children yet
-	return []design.Definition{}
+	return []dslengine.Definition{}
 }
 
 // FieldDefinition returns the field's struct definition
@@ -34,7 +34,7 @@ func (f *RelationalFieldDefinition) FieldDefinition() string {
 	if f.Description != "" {
 		comment = "// " + f.Description
 	}
-	def := fmt.Sprintf("%s\t%s %s %s\n", f.Name, goDatatype(f), tags(f), comment)
+	def := fmt.Sprintf("%s\t%s %s %s\n", f.Name, goDatatype(f, true), tags(f), comment)
 	return def
 }
 
@@ -52,9 +52,9 @@ func (f *RelationalFieldDefinition) LowerName() string {
 func (f *RelationalFieldDefinition) Underscore() string {
 	return inflect.Underscore(f.Name)
 }
-func goDatatype(f *RelationalFieldDefinition) string {
+func goDatatype(f *RelationalFieldDefinition, includePtr bool) string {
 	var ptr string
-	if f.Nullable {
+	if f.Nullable && includePtr {
 		ptr = "*"
 	}
 	switch f.Datatype {
