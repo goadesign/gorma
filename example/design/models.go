@@ -12,8 +12,9 @@ var sg = StorageGroup("MyStorageGroup", func() {
 		Model("Bottle", func() {
 			BuiltFrom(BottlePayload)
 			RenderTo(Bottle)
+			BelongsTo("Account")
 			Description("This is the bottle model")
-			Field("ID", gorma.Integer, func() {
+			Field("ID", gorma.PKInteger, func() {
 				RenderTo("id")
 				SQLTag("index")
 			})
@@ -32,8 +33,9 @@ var sg = StorageGroup("MyStorageGroup", func() {
 		})
 		Model("Account", func() {
 			RenderTo(Account)
+			HasMany("Bottles", "Bottle")
 			Description("This is the Account model")
-			Field("ID", gorma.Integer, func() {
+			Field("ID", gorma.PKInteger, func() {
 				RenderTo("id")
 				SQLTag("index")
 			})

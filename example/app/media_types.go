@@ -13,6 +13,7 @@
 package app
 
 import "github.com/goadesign/goa"
+import "time"
 
 // A tenant account
 // Identifier: application/vnd.account+json

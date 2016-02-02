@@ -20,7 +20,8 @@ import (
 
 // This is the Account model
 type Account struct {
-	ID        int `sql:"index" gorm:"primary_key"`
+	ID        int      `sql:"index" gorm:"primary_key"` // primary key
+	Bottles   []Bottle // has many Bottles
 	CreatedBy string
 	DeletedAt *time.Time
 	Href      string
@@ -56,10 +57,10 @@ func (m *AccountDB) DB() interface{} {
 type AccountStorage interface {
 	DB() interface{}
 	List(ctx context.Context) []Account
-	One(ctx context.Context) (Account, error)
+	One(ctx context.Context, id int) (Account, error)
 	Add(ctx context.Context, account Account) (Account, error)
 	Update(ctx context.Context, account Account) error
-	Delete(ctx context.Context) error
+	Delete(ctx context.Context, id int) error
 }
 
 // TableName overrides the table name settings in Gorm to force a specific table name
@@ -74,121 +75,60 @@ func (m *AccountDB) TableName() string {
 // ListAccount returns an array of view: default
 func (m *AccountDB) ListAccount(ctx context.Context) []app.Account {
 	var objs []app.Account
-	rows, err := m.Db.Table(m.TableName()).Select("created_at,created_by,href,id,name").Rows()
-	defer rows.Close()
+	err := m.Db.Table(m.TableName()).Find(&objs).Error
 	if err != nil {
 		return objs
 	}
-	for rows.Next() {
-		var iD int
-		var href string
-		var name string
-		var createdAt time.Time
-		var createdBy string
 
-		rows.Scan(&createdAt, &createdBy, &href, &iD, &name)
-		obj := app.Account{}
-		obj.CreatedAt = &createdAt
-		obj.Href = href
-		obj.Name = name
-		obj.CreatedBy = &createdBy
-		obj.ID = iD
-		objs = append(objs, obj)
-
-	}
 	return objs
 }
 
 // OneAccount returns an array of view: default
 func (m *AccountDB) OneAccount(ctx context.Context, id int) app.Account {
+	var native Account
+	m.Db.Table(m.TableName()).Find(&native).Where("id = ?", id)
 	var obj app.Account
-	row := m.Db.Table(m.TableName()).Select("created_at,created_by,href,id,name").Row()
-	var iD int
-	var href string
-	var name string
-	var createdAt time.Time
-	var createdBy string
 
-	row.Scan(&createdAt, &createdBy, &href, &iD, &name)
-	obj.ID = iD
-	obj.CreatedAt = &createdAt
-	obj.Href = href
-	obj.Name = name
-	obj.CreatedBy = &createdBy
 	return obj
 }
 
 // ListAccountLink returns an array of view: link
 func (m *AccountDB) ListAccountLink(ctx context.Context) []app.AccountLink {
 	var objs []app.AccountLink
-	rows, err := m.Db.Table(m.TableName()).Select("href,id").Rows()
-	defer rows.Close()
+	err := m.Db.Table(m.TableName()).Find(&objs).Error
 	if err != nil {
 		return objs
 	}
-	for rows.Next() {
-		var iD int
-		var href string
 
-		rows.Scan(&href, &iD)
-		obj := app.AccountLink{}
-		obj.Href = href
-		obj.ID = iD
-		objs = append(objs, obj)
-
-	}
 	return objs
 }
 
 // OneAccountLink returns an array of view: link
 func (m *AccountDB) OneAccountLink(ctx context.Context, id int) app.AccountLink {
+	var native Account
+	m.Db.Table(m.TableName()).Find(&native).Where("id = ?", id)
 	var obj app.AccountLink
-	row := m.Db.Table(m.TableName()).Select("href,id").Row()
-	var href string
-	var iD int
 
-	row.Scan(&href, &iD)
-	obj.ID = iD
-	obj.Href = href
 	return obj
 }
 
 // ListAccountTiny returns an array of view: tiny
 func (m *AccountDB) ListAccountTiny(ctx context.Context) []app.AccountTiny {
 	var objs []app.AccountTiny
-	rows, err := m.Db.Table(m.TableName()).Select("href,id,name").Rows()
-	defer rows.Close()
+	err := m.Db.Table(m.TableName()).Find(&objs).Error
 	if err != nil {
 		return objs
 	}
-	for rows.Next() {
-		var iD int
-		var href string
-		var name string
 
-		rows.Scan(&href, &iD, &name)
-		obj := app.AccountTiny{}
-		obj.Href = href
-		obj.Name = name
-		obj.ID = iD
-		objs = append(objs, obj)
-
-	}
 	return objs
 }
 
 // OneAccountTiny returns an array of view: tiny
 func (m *AccountDB) OneAccountTiny(ctx context.Context, id int) app.AccountTiny {
+	var native Account
+	m.Db.Table(m.TableName()).Find(&native).Where("id = ?", id)
 	var obj app.AccountTiny
-	row := m.Db.Table(m.TableName()).Select("href,id,name").Row()
-	var iD int
-	var href string
-	var name string
 
-	row.Scan(&href, &iD, &name)
-	obj.ID = iD
-	obj.Href = href
-	obj.Name = name
 	return obj
 }
 
@@ -200,19 +140,17 @@ func (m *AccountDB) Add(ctx context.Context, model Account) (Account, error) {
 
 // Update modifies a single record.
 func (m *AccountDB) Update(ctx context.Context, model Account) error {
-	obj, err := m.One(ctx)
-	if err != nil {
-		return err
-	}
-	err = m.Db.Model(&obj).Updates(model).Error
+	obj := m.OneAccount(ctx, model.ID)
+	err := m.Db.Model(&obj).Updates(model).Error
 
 	return err
 }
 
 // Delete removes a single record.
-func (m *AccountDB) Delete(ctx context.Context) error {
+func (m *AccountDB) Delete(ctx context.Context, id int) error {
 	var obj Account
-	err := m.Db.Delete(&obj).Where("").Error
+
+	err := m.Db.Delete(&obj, id).Error
 
 	if err != nil {
 		return err

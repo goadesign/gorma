@@ -262,31 +262,24 @@ return "{{ $ut.Alias}}" {{ else }} return "{{ $ut.TableName }}"
 // List{{$ut.RenderTo.TypeName}}{{if eq $vname "default"}}{{else}}{{goify $vname true}}{{end}} returns an array of view: {{$vname}}
 func (m *{{$ut.Name}}DB) List{{$ut.RenderTo.TypeName}}{{if eq $vname "default"}}{{else}}{{goify $vname true}}{{end}} (ctx context.Context{{ if $ut.DynamicTableName}}, tableName string{{ end }}) []app.{{$ut.RenderTo.TypeName}}{{if eq $vname "default"}}{{else}}{{goify $vname true}}{{end}}{
 	var objs []app.{{$ut.RenderTo.TypeName}}{{if eq $vname "default"}}{{else}}{{goify $vname true}}{{end}}
-	rows, err := m.Db.Table({{ if $ut.DynamicTableName }}.Table(tableName){{else}}m.TableName(){{ end }}).Select("{{viewSelect $ut $view}}").Rows()
-	defer rows.Close()
+	err := m.Db.Table({{ if $ut.DynamicTableName }}.Table(tableName){{else}}m.TableName(){{ end }}).{{ range $ln, $lv := $ut.RenderTo.Links }}Preload("{{goify $ln true}}").{{end}}Find(&objs).Error
 	if err != nil {
 		return objs
 	}
-	for rows.Next() { {{$fields := viewFieldNames $ut $view}}
-	{{range $field := viewFields $ut $view}}var  {{goify $field.Name false }} {{goDatatype $field false}}
-	{{end}}
-		rows.Scan({{join $fields ","}} )
-		obj := app.{{$ut.RenderTo.TypeName}}{{if eq $vname "default"}}{{else}}{{goify $vname true}}{{end}}{}
-		{{famt $ut $view "model" "obj" }}
-		objs = append(objs,obj)
 
-	}
 	return objs
 }
 
 // One{{$ut.RenderTo.TypeName}}{{if eq $vname "default"}}{{else}}{{goify $vname true}}{{end}} returns an array of view: {{$vname}}
-func (m *{{$ut.Name}}DB) One{{$ut.RenderTo.TypeName}}{{if eq $vname "default"}}{{else}}{{goify $vname true}}{{end}} (ctx context.Context{{ if $ut.DynamicTableName}}, tableName string{{ end }}, id int) app.{{$ut.RenderTo.TypeName}}{{if eq $vname "default"}}{{else}}{{goify $vname true}}{{end}}{
+func (m *{{$ut.Name}}DB) One{{$ut.RenderTo.TypeName}}{{if eq $vname "default"}}{{else}}{{goify $vname true}}{{end}} (ctx context.Context{{ if $ut.DynamicTableName}}, tableName string{{ end }}, id int) app.{{$ut.RenderTo.TypeName}}{{if eq $vname "default"}}{{else}}{{goify $vname true}}{{end}}{	var native {{$ut.Name}}
+	m.Db.Table({{ if $ut.DynamicTableName }}.Table(tableName){{else}}m.TableName(){{ end }}).Find(&native).Where("id = ?", id)
 	var obj app.{{$ut.RenderTo.TypeName}}{{if eq $vname "default"}}{{else}}{{goify $vname true}}{{end}}
-	row := m.Db.Table({{ if $ut.DynamicTableName }}.Table(tableName){{else}}m.TableName(){{ end }}).Select("{{viewSelect $ut $view}}").Row()
-	{{range $field := viewFields $ut $view}}var  {{goify $field.Name false }} {{goDatatype $field false}}
-	{{end}}
-	row.Scan({{join $fields ","}} )
-	{{famt $ut $view "model" "obj" }}
+	{{ range $ln, $lv := $ut.RenderTo.Links }}{{goify $ln false}} := &app.{{goify $ln true}}Link{}
+	m.Db.Table("{{$ln}}").Find(&{{goify $ln false}}).Where("id = ?", native.{{goify $ln true}}ID)
+	obj.Links = &app.{{$ut.RenderTo.TypeName}}Links{
+		{{goify $ln true}}: {{goify $ln false}},
+	} 
+	{{ end }}
 	return obj
 }
 {{end}}
@@ -298,11 +291,8 @@ func (m *{{$ut.Name}}DB) Add(ctx context.Context{{ if $ut.DynamicTableName }}, t
 }
 // Update modifies a single record.
 func (m *{{$ut.Name}}DB) Update(ctx context.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, model {{$ut.Name}}) error {
-	obj, err := m.One(ctx{{ if $ut.DynamicTableName }}, tableName{{ end }}, {{$ut.PKUpdateFields "model"}})
-	if err != nil {
-		return  err
-	}
-	err = m.Db{{ if $ut.DynamicTableName }}.Table(tableName){{ end }}.Model(&obj).Updates(model).Error
+	obj := m.One{{$ut.Name}}(ctx{{ if $ut.DynamicTableName }}, tableName{{ end }}, {{$ut.PKUpdateFields "model"}})
+	err := m.Db{{ if $ut.DynamicTableName }}.Table(tableName){{ end }}.Model(&obj).Updates(model).Error
 	{{ if $ut.Cached }}go func(){
 	obj, err := m.One(ctx, model.ID)
 	if err == nil {
@@ -325,6 +315,8 @@ func (m *{{$ut.Name}}DB) Delete(ctx context.Context{{ if $ut.DynamicTableName }}
 	{{ if $ut.Cached }} go m.cache.Delete(strconv.Itoa(id)) {{ end }}
 	return  nil
 }
+
+
 {{ range $ln, $link := $ut.RenderTo.Links }}
 // {{ $ln }}
 {{ end }}
