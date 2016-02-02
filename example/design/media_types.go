@@ -2,7 +2,7 @@ package design
 
 import (
 	. "github.com/goadesign/goa/design"
-	. "github.com/goadesign/goa/design/dsl"
+	. "github.com/goadesign/goa/design/apidsl"
 )
 
 // Account is the account resource media type.

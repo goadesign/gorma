@@ -1,6 +1,6 @@
 package gorma
 
-import "github.com/goadesign/goa/design"
+import "github.com/goadesign/goa/dslengine"
 
 // GormaDesign is the root definition for Gorma
 var GormaDesign *StorageGroupDefinition
@@ -70,6 +70,6 @@ const (
 // Init creates the necessary data structures for parsing a DSL
 func Init() {
 	sg := &StorageGroupDefinition{}
-	design.Roots = append(design.Roots, sg)
+	dslengine.Roots = append(dslengine.Roots, sg)
 	GormaDesign = sg
 }

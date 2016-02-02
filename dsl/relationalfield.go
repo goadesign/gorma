@@ -5,7 +5,7 @@ import (
 
 	"bitbucket.org/pkg/inflect"
 
-	"github.com/goadesign/goa/design/dsl"
+	"github.com/goadesign/goa/dslengine"
 	"github.com/goadesign/goa/goagen/codegen"
 	"github.com/goadesign/gorma"
 )
@@ -124,7 +124,7 @@ func parseModelArgs(args ...interface{}) (gorma.FieldType, func()) {
 		parseDSL(1, success, func() { invalidArgError("DSL", args[1]) })
 
 	default:
-		dsl.ReportError("too many arguments in call to Attribute")
+		dslengine.ReportError("too many arguments in call to Attribute")
 	}
 
 	return fieldType, dslp

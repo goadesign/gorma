@@ -3,13 +3,13 @@ package gorma
 import (
 	"fmt"
 
-	"github.com/goadesign/goa/design"
+	"github.com/goadesign/goa/dslengine"
 )
 
 // Validate tests whether the StorageGroup definition is consistent.
-func (a *StorageGroupDefinition) Validate() *design.ValidationErrors {
+func (a *StorageGroupDefinition) Validate() *dslengine.ValidationErrors {
 	fmt.Println("Validating Group")
-	verr := new(design.ValidationErrors)
+	verr := new(dslengine.ValidationErrors)
 	if a.Name == "" {
 		verr.Add(a, "storage group name not defined")
 	}
@@ -22,9 +22,9 @@ func (a *StorageGroupDefinition) Validate() *design.ValidationErrors {
 }
 
 // Validate tests whether the RelationalStore definition is consistent.
-func (a *RelationalStoreDefinition) Validate() *design.ValidationErrors {
+func (a *RelationalStoreDefinition) Validate() *dslengine.ValidationErrors {
 	fmt.Println("Validating Store")
-	verr := new(design.ValidationErrors)
+	verr := new(dslengine.ValidationErrors)
 	if a.Name == "" {
 		verr.Add(a, "store name not defined")
 	}
@@ -40,9 +40,9 @@ func (a *RelationalStoreDefinition) Validate() *design.ValidationErrors {
 }
 
 // Validate tests whether the RelationalModel definition is consistent.
-func (a *RelationalModelDefinition) Validate() *design.ValidationErrors {
+func (a *RelationalModelDefinition) Validate() *dslengine.ValidationErrors {
 	fmt.Println("Validating Model")
-	verr := new(design.ValidationErrors)
+	verr := new(dslengine.ValidationErrors)
 	if a.Name == "" {
 		verr.Add(a, "model name not defined")
 	}
@@ -58,9 +58,9 @@ func (a *RelationalModelDefinition) Validate() *design.ValidationErrors {
 }
 
 // Validate tests whether the RelationalField definition is consistent.
-func (field *RelationalFieldDefinition) Validate() *design.ValidationErrors {
+func (field *RelationalFieldDefinition) Validate() *dslengine.ValidationErrors {
 	fmt.Println("Validing Field")
-	verr := new(design.ValidationErrors)
+	verr := new(dslengine.ValidationErrors)
 
 	if field.Parent == nil {
 		verr.Add(field, "missing relational model parent")

@@ -2,7 +2,7 @@ package design
 
 import (
 	. "github.com/goadesign/goa/design"
-	. "github.com/goadesign/goa/design/dsl"
+	. "github.com/goadesign/goa/design/apidsl"
 )
 
 // BottlePayload defines the data structure used in the create bottle request body.

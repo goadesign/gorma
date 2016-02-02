@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/goadesign/goa/design"
-	"github.com/goadesign/goa/design/dsl"
+	"github.com/goadesign/goa/dslengine"
 	"github.com/goadesign/goa/goagen/codegen"
 )
 
@@ -24,8 +24,8 @@ func (f *RelationalModelDefinition) DSL() func() {
 }
 
 // Children returns a slice of this objects children.
-func (f RelationalModelDefinition) Children() []design.Definition {
-	var stores []design.Definition
+func (f RelationalModelDefinition) Children() []dslengine.Definition {
+	var stores []dslengine.Definition
 	for _, s := range f.RelationalFields {
 		stores = append(stores, s)
 	}
@@ -187,7 +187,7 @@ func (f *RelationalModelDefinition) PopulateFromModeledType() {
 			case design.DateTimeKind:
 				rf.Datatype = Timestamp
 			default:
-				dsl.ReportError("Unsupported type: %#v ", att.Type.Kind())
+				dslengine.ReportError("Unsupported type: %#v ", att.Type.Kind())
 			}
 			f.RelationalFields[rf.Name] = rf
 			return nil

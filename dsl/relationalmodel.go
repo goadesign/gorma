@@ -7,7 +7,7 @@ import (
 	"bitbucket.org/pkg/inflect"
 
 	"github.com/goadesign/goa/design"
-	"github.com/goadesign/goa/design/dsl"
+	"github.com/goadesign/goa/dslengine"
 	"github.com/goadesign/goa/goagen/codegen"
 	"github.com/goadesign/gorma"
 )
@@ -330,7 +330,7 @@ func Cached(d string) {
 		r.Cached = true
 		dur, err := strconv.Atoi(d)
 		if err != nil {
-			dsl.ReportError("Duration %s couldn't be parsed as integer", d)
+			dslengine.ReportError("Duration %s couldn't be parsed as integer", d)
 		}
 		r.CacheDuration = dur
 	}

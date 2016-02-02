@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"sort"
 
-	"github.com/goadesign/goa/design"
+	"github.com/goadesign/goa/dslengine"
 )
 
 // IterateStores runs an iterator function once per Relational Store in the
@@ -41,8 +41,8 @@ func (sd StorageGroupDefinition) DSL() func() {
 }
 
 // Children returns a slice of this objects children.
-func (sd StorageGroupDefinition) Children() []design.Definition {
-	var stores []design.Definition
+func (sd StorageGroupDefinition) Children() []dslengine.Definition {
+	var stores []dslengine.Definition
 	for _, s := range sd.RelationalStores {
 		stores = append(stores, s)
 	}
@@ -51,16 +51,16 @@ func (sd StorageGroupDefinition) Children() []design.Definition {
 
 // IterateSets goes over all the definition sets of the StorageGroup: the
 // StorageGroup definition itself, each store definition, models and fields.
-func (sd *StorageGroupDefinition) IterateSets(iterator design.SetIterator) {
+func (sd *StorageGroupDefinition) IterateSets(iterator dslengine.SetIterator) {
 	// First run the top level StorageGroup
 
-	iterator([]design.Definition{sd})
+	iterator([]dslengine.Definition{sd})
 	sd.IterateStores(func(store *RelationalStoreDefinition) error {
-		iterator([]design.Definition{store})
+		iterator([]dslengine.Definition{store})
 		store.IterateModels(func(model *RelationalModelDefinition) error {
-			iterator([]design.Definition{model})
+			iterator([]dslengine.Definition{model})
 			model.IterateFields(func(field *RelationalFieldDefinition) error {
-				iterator([]design.Definition{field})
+				iterator([]dslengine.Definition{field})
 				return nil
 			})
 			return nil

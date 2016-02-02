@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"sort"
 
-	"github.com/goadesign/goa/design"
+	"github.com/goadesign/goa/dslengine"
 )
 
 // Context returns the generic definition name used in error messages.
@@ -21,8 +21,8 @@ func (sd *RelationalStoreDefinition) DSL() func() {
 }
 
 // Children returns a slice of this objects children.
-func (sd RelationalStoreDefinition) Children() []design.Definition {
-	var stores []design.Definition
+func (sd RelationalStoreDefinition) Children() []dslengine.Definition {
+	var stores []dslengine.Definition
 	for _, s := range sd.RelationalModels {
 		stores = append(stores, s)
 	}

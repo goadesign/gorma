@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"strings"
 
-	"bitbucket.org/pkg/inflect"
+	"github.com/goadesign/goa/dslengine"
 
-	"github.com/goadesign/goa/design"
+	"bitbucket.org/pkg/inflect"
 )
 
 // Context returns the generic definition name used in error messages.
@@ -23,9 +23,9 @@ func (f *RelationalFieldDefinition) DSL() func() {
 }
 
 // Children returnsa slice of this objects children
-func (f RelationalFieldDefinition) Children() []design.Definition {
+func (f RelationalFieldDefinition) Children() []dslengine.Definition {
 	// no children yet
-	return []design.Definition{}
+	return []dslengine.Definition{}
 }
 
 // FieldDefinition returns the field's struct definition

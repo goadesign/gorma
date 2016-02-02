@@ -5,7 +5,7 @@ import (
 	gdsl "github.com/goadesign/gorma/dsl"
 
 	. "github.com/goadesign/goa/design"
-	. "github.com/goadesign/goa/design/dsl"
+	. "github.com/goadesign/goa/design/apidsl"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
@@ -31,7 +31,7 @@ var _ = Describe("RelationalStore", func() {
 			gdsl.Store(name, gorma.MySQL, dsl)
 		})
 
-		RunDSL()
+		Run()
 
 	})
 
