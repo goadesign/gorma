@@ -149,6 +149,7 @@ func BelongsTo(parent string) {
 		bt, ok := r.Parent.RelationalModels[codegen.Goify(inflect.Singularize(parent), true)]
 		if ok {
 			r.BelongsTo[bt.Name] = bt
+
 		} else {
 			models := &gorma.RelationalModelDefinition{
 				Name:             codegen.Goify(inflect.Singularize(parent), true),

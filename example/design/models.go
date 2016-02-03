@@ -22,6 +22,10 @@ var sg = StorageGroup("MyStorageGroup", func() {
 				BuiltFrom("myvintage")
 				RenderTo("vintage")
 			})
+			Field("Rating", gorma.Integer, func() {
+				Nullable()
+				RenderTo("rating")
+			})
 			Field("vinyard_county", gorma.String, func() {
 				BuiltFrom("vinyard_county")
 				RenderTo("vinyard_county")
@@ -33,7 +37,6 @@ var sg = StorageGroup("MyStorageGroup", func() {
 		})
 		Model("Account", func() {
 			RenderTo(Account)
-			HasMany("Bottles", "Bottle")
 			Description("This is the Account model")
 			Field("ID", gorma.PKInteger, func() {
 				RenderTo("id")

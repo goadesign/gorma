@@ -79,6 +79,13 @@ func fixID(s string) string {
 
 }
 
+//Nullable sets the fields nullability
+func Nullable() {
+	if f, ok := relationalFieldDefinition(false); ok {
+		f.Nullable = true
+	}
+}
+
 // SanitizeFieldName is exported for testing purposes
 func SanitizeFieldName(name string) string {
 	name = codegen.Goify(name, true)

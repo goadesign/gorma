@@ -14,7 +14,6 @@ package genmodels
 import (
 	"github.com/goadesign/gorma/example/app"
 	"github.com/jinzhu/gorm"
-	"golang.org/x/net/context"
 	"time"
 )
 
@@ -26,6 +25,7 @@ type Bottle struct {
 	Country       *string
 	Myvintage     *string
 	Name          *string
+	Rating        *int
 	Region        *string
 	Review        *string
 	Sweetness     *int
@@ -36,6 +36,7 @@ type Bottle struct {
 	CreatedAt     time.Time  // timestamp
 	UpdatedAt     time.Time  // timestamp
 	DeletedAt     *time.Time // nullable timestamp (soft delete)
+	Account       Account
 }
 
 // TableName overrides the table name settings in Gorm to force a specific table name
@@ -64,13 +65,11 @@ func (m *BottleDB) DB() interface{} {
 // BottleStorage represents the storage interface.
 type BottleStorage interface {
 	DB() interface{}
-	List(ctx context.Context) []Bottle
-	One(ctx context.Context, id int) (Bottle, error)
-	Add(ctx context.Context, bottle Bottle) (Bottle, error)
-	Update(ctx context.Context, bottle Bottle) error
-	Delete(ctx context.Context, id int) error
-	ListByAccount(ctx context.Context, account_id int) []Bottle
-	OneByAccount(ctx context.Context, account_id, id int) (Bottle, error)
+	List(ctx goa.Context) []Bottle
+	One(ctx goa.Context, id int) (Bottle, error)
+	Add(ctx goa.Context, bottle Bottle) (Bottle, error)
+	Update(ctx goa.Context, bottle Bottle) error
+	Delete(ctx goa.Context, id int) error
 }
 
 // TableName overrides the table name settings in Gorm to force a specific table name
@@ -83,10 +82,13 @@ func (m *BottleDB) TableName() string {
 // CRUD Functions
 
 // ListBottle returns an array of view: default
-func (m *BottleDB) ListBottle(ctx context.Context) []app.Bottle {
+func (m *BottleDB) ListBottle(ctx goa.Context) []app.Bottle {
+	now := time.Now()
+	defer ctx.Info("ListBottle", "duration", time.Since(now))
 	var objs []app.Bottle
 	err := m.Db.Table(m.TableName()).Preload("Account").Find(&objs).Error
 	if err != nil {
+		ctx.Error("error listing Bottle", "error", err.Error())
 		return objs
 	}
 
@@ -94,24 +96,25 @@ func (m *BottleDB) ListBottle(ctx context.Context) []app.Bottle {
 }
 
 // OneBottle returns an array of view: default
-func (m *BottleDB) OneBottle(ctx context.Context, id int) app.Bottle {
+func (m *BottleDB) OneBottle(ctx goa.Context, id int) app.Bottle {
+	now := time.Now()
+	defer ctx.Info("OneBottle", "duration", time.Since(now))
+	var view app.Bottle
 	var native Bottle
-	m.Db.Table(m.TableName()).Find(&native).Where("id = ?", id)
-	var obj app.Bottle
-	account := &app.AccountLink{}
-	m.Db.Table("account").Find(&account).Where("id = ?", native.AccountID)
-	obj.Links = &app.BottleLinks{
-		Account: account,
-	}
 
-	return obj
+	m.Db.Table(m.TableName()).Preload("Account").Where("id = ?", id).Find(&native)
+	fmt.Println(native)
+	return view
 }
 
 // ListBottleFull returns an array of view: full
-func (m *BottleDB) ListBottleFull(ctx context.Context) []app.BottleFull {
+func (m *BottleDB) ListBottleFull(ctx goa.Context) []app.BottleFull {
+	now := time.Now()
+	defer ctx.Info("ListBottleFull", "duration", time.Since(now))
 	var objs []app.BottleFull
 	err := m.Db.Table(m.TableName()).Preload("Account").Find(&objs).Error
 	if err != nil {
+		ctx.Error("error listing Bottle", "error", err.Error())
 		return objs
 	}
 
@@ -119,24 +122,25 @@ func (m *BottleDB) ListBottleFull(ctx context.Context) []app.BottleFull {
 }
 
 // OneBottleFull returns an array of view: full
-func (m *BottleDB) OneBottleFull(ctx context.Context, id int) app.BottleFull {
+func (m *BottleDB) OneBottleFull(ctx goa.Context, id int) app.BottleFull {
+	now := time.Now()
+	defer ctx.Info("OneBottleFull", "duration", time.Since(now))
+	var view app.BottleFull
 	var native Bottle
-	m.Db.Table(m.TableName()).Find(&native).Where("id = ?", id)
-	var obj app.BottleFull
-	account := &app.AccountLink{}
-	m.Db.Table("account").Find(&account).Where("id = ?", native.AccountID)
-	obj.Links = &app.BottleLinks{
-		Account: account,
-	}
 
-	return obj
+	m.Db.Table(m.TableName()).Preload("Account").Where("id = ?", id).Find(&native)
+	fmt.Println(native)
+	return view
 }
 
 // ListBottleTiny returns an array of view: tiny
-func (m *BottleDB) ListBottleTiny(ctx context.Context) []app.BottleTiny {
+func (m *BottleDB) ListBottleTiny(ctx goa.Context) []app.BottleTiny {
+	now := time.Now()
+	defer ctx.Info("ListBottleTiny", "duration", time.Since(now))
 	var objs []app.BottleTiny
 	err := m.Db.Table(m.TableName()).Preload("Account").Find(&objs).Error
 	if err != nil {
+		ctx.Error("error listing Bottle", "error", err.Error())
 		return objs
 	}
 
@@ -144,44 +148,62 @@ func (m *BottleDB) ListBottleTiny(ctx context.Context) []app.BottleTiny {
 }
 
 // OneBottleTiny returns an array of view: tiny
-func (m *BottleDB) OneBottleTiny(ctx context.Context, id int) app.BottleTiny {
+func (m *BottleDB) OneBottleTiny(ctx goa.Context, id int) app.BottleTiny {
+	now := time.Now()
+	defer ctx.Info("OneBottleTiny", "duration", time.Since(now))
+	var view app.BottleTiny
 	var native Bottle
-	m.Db.Table(m.TableName()).Find(&native).Where("id = ?", id)
-	var obj app.BottleTiny
-	account := &app.AccountLink{}
-	m.Db.Table("account").Find(&account).Where("id = ?", native.AccountID)
-	obj.Links = &app.BottleLinks{
-		Account: account,
-	}
 
-	return obj
+	m.Db.Table(m.TableName()).Preload("Account").Where("id = ?", id).Find(&native)
+	fmt.Println(native)
+	return view
+}
+
+// GetBottle returns a single Bottle as a Database Model
+// This is more for use internally, and probably not what you want in  your controllers
+func (m *BottleDB) GetBottle(ctx goa.Context, id int) Bottle {
+	now := time.Now()
+	defer ctx.Info("GetBottle", "duration", time.Since(now))
+	var native Bottle
+	m.Db.Table(m.TableName()).Where("id = ?", id).Find(&native)
+	return native
 }
 
 // Add creates a new record.
-func (m *BottleDB) Add(ctx context.Context, model Bottle) (Bottle, error) {
+func (m *BottleDB) Add(ctx goa.Context, model Bottle) (Bottle, error) {
+	now := time.Now()
+	defer ctx.Info("AddBottle", "duration", time.Since(now))
 	err := m.Db.Create(&model).Error
+	if err != nil {
+		ctx.Error("error updating Bottle", "error", err.Error())
+		return model, err
+	}
+
 	return model, err
 }
 
 // Update modifies a single record.
-func (m *BottleDB) Update(ctx context.Context, model Bottle) error {
-	obj := m.OneBottle(ctx, model.ID)
+func (m *BottleDB) Update(ctx goa.Context, model Bottle) error {
+	now := time.Now()
+	defer ctx.Info("UpdateBottle", "duration", time.Since(now))
+	obj := m.GetBottle(ctx, model.ID)
 	err := m.Db.Model(&obj).Updates(model).Error
 
 	return err
 }
 
 // Delete removes a single record.
-func (m *BottleDB) Delete(ctx context.Context, id int) error {
+func (m *BottleDB) Delete(ctx goa.Context, id int) error {
+	now := time.Now()
+	defer ctx.Info("DeleteBottle", "duration", time.Since(now))
 	var obj Bottle
 
 	err := m.Db.Delete(&obj, id).Error
 
 	if err != nil {
+		ctx.Error("error retrieving Bottle", "error", err.Error())
 		return err
 	}
 
 	return nil
 }
-
-// account

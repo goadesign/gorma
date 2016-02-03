@@ -92,6 +92,9 @@ func (f *RelationalModelDefinition) StructDefinition() string {
 		output = output + field.FieldDefinition()
 		return nil
 	})
+	for _, bt := range f.BelongsTo {
+		output = output + bt.Name + "\t" + bt.Name + "\n"
+	}
 	footer := "}\n"
 	return header + output + footer
 

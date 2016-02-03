@@ -6,14 +6,18 @@ import (
 	"testing"
 	"time"
 
+	"gopkg.in/inconshreveable/log15.v2"
+
 	"golang.org/x/net/context"
 
+	"github.com/goadesign/goa"
 	"github.com/jinzhu/gorm"
-	"github.com/kr/pretty"
 	_ "github.com/lib/pq"
 )
 
 var db gorm.DB
+var logger log15.Logger
+var ctx *goa.Context
 
 func TestMain(m *testing.M) {
 	//c := dockertest.Launch("registry.xordataexchange.com/xor/postgres-dev")
@@ -21,7 +25,7 @@ func TestMain(m *testing.M) {
 	var err error
 	//port, err := strconv.Atoi(strings.Split(c.Port(5432), ":")[1])
 	//host := strings.Split(c.Port(5432), ":")[0]
-	url := fmt.Sprintf("dbname=xorapidb user=docker password=docker sslmode=disable port=%d host=%s", 32778, "192.168.100.5")
+	url := fmt.Sprintf("dbname=xorapidb user=docker password=docker sslmode=disable port=%d host=%s", 32779, "192.168.100.5")
 	fmt.Println(url)
 	time.Sleep(10)
 	db, err = gorm.Open("postgres", url)
@@ -30,6 +34,10 @@ func TestMain(m *testing.M) {
 	}
 	db.DropTable(&Bottle{}, &Account{})
 	db.AutoMigrate(&Bottle{}, &Account{})
+	logger = log15.New("tests", "bottle")
+	gctx := context.Background()
+	ctx = goa.NewContext(gctx, goa.New("test"), nil, nil, nil)
+	ctx.Logger = logger
 	setup()
 	//defer c.Close()
 	os.Exit(m.Run())
@@ -38,13 +46,34 @@ func TestMain(m *testing.M) {
 func TestOneBottle(t *testing.T) {
 	db.LogMode(true)
 	bdb := NewBottleDB(db)
-	btl := bdb.OneBottle(context.Background(), 1)
-	pretty.Println(btl)
+	btl := bdb.OneBottle(*ctx, 1)
+	fmt.Println(btl.ID)
 }
-
+func TestGetBottle(t *testing.T) {
+	db.LogMode(true)
+	bdb := NewBottleDB(db)
+	btl := bdb.GetBottle(*ctx, 1)
+	if btl.ID != 1 {
+		t.Error("Expected Bottle")
+	}
+}
+func TestOneAccount(t *testing.T) {
+	db.LogMode(true)
+	adb := NewAccountDB(db)
+	act := adb.OneAccount(*ctx, 1)
+	fmt.Println(act.ID)
+}
+func TestGetAccount(t *testing.T) {
+	db.LogMode(true)
+	adb := NewAccountDB(db)
+	act := adb.GetAccount(*ctx, 1)
+	if act.ID != 1 {
+		t.Error("Expected account")
+	}
+}
 func setup() error {
 	adb := NewAccountDB(db)
-	act, err := adb.Add(context.Background(), Account{
+	act, err := adb.Add(*ctx, Account{
 		CreatedBy: "Brian",
 		Href:      "href",
 		Name:      "Account1",
@@ -52,7 +81,6 @@ func setup() error {
 	if err != nil {
 		panic(err)
 	}
-	pretty.Println(act)
 
 	bdb := NewBottleDB(db)
 
@@ -66,6 +94,7 @@ func setup() error {
 	var Varietal string
 	var Vineyard string
 	var Vintage string
+	var Rating int
 	var VinyardCounty string
 	Color = "Blue"
 	Country = "Australia"
@@ -74,16 +103,18 @@ func setup() error {
 	Region = "South"
 	Review = "crappy"
 	Sweetness = 4
+	Rating = 99
 	Varietal = "Merlot"
 	Vineyard = "Robert Mondavi"
 	Vintage = "1999"
 	VinyardCounty = "Cork"
-	btl, err := bdb.Add(context.Background(), Bottle{
+	btl, err := bdb.Add(*ctx, Bottle{
 		AccountID:     act.ID,
 		Color:         &Color,
 		Country:       &Country,
 		Myvintage:     &Myvintage,
 		Name:          &Name,
+		Rating:        &Rating,
 		Region:        &Region,
 		Review:        &Review,
 		Sweetness:     &Sweetness,
@@ -92,6 +123,6 @@ func setup() error {
 		Vintage:       &Vintage,
 		VinyardCounty: &VinyardCounty,
 	})
-	pretty.Println(btl)
+	fmt.Println(btl.ID, btl.AccountID)
 	return err
 }
