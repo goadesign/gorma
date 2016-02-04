@@ -26,7 +26,7 @@ func (f *RelationalModelDefinition) DSL() func() {
 }
 
 // Context returns the generic definition name used in error messages.
-func (f *SourceMapping) Context() string {
+func (f *Mapping) Context() string {
 	if f.MappingName != "" {
 		return fmt.Sprintf("SourceMapping %#v", f.MappingName)
 	}
@@ -34,20 +34,7 @@ func (f *SourceMapping) Context() string {
 }
 
 // DSL returns this object's DSL.
-func (f *SourceMapping) DSL() func() {
-	return f.DefinitionDSL
-}
-
-// Context returns the generic definition name used in error messages.
-func (f *TargetMapping) Context() string {
-	if f.MappingName != "" {
-		return fmt.Sprintf("TargetMapping %#v", f.MappingName)
-	}
-	return "unnamed TargetMapping"
-}
-
-// DSL returns this object's DSL.
-func (f *TargetMapping) DSL() func() {
+func (f *Mapping) DSL() func() {
 	return f.DefinitionDSL
 }
 
@@ -112,7 +99,7 @@ func (f *RelationalModelDefinition) PKUpdateFields(modelname string) string {
 
 // StructDefinition returns the struct definition for the model.
 func (f *RelationalModelDefinition) StructDefinition() string {
-	header := fmt.Sprintf("type %s struct {\n", f.Name)
+	header := fmt.Sprintf("type %s struct {\n", f.ModelName)
 	var output string
 	f.IterateFields(func(field *RelationalFieldDefinition) error {
 		output = output + field.FieldDefinition()
@@ -126,46 +113,33 @@ func (f *RelationalModelDefinition) StructDefinition() string {
 
 }
 
-/*
-func (f *RelationalModelDefinition) Project(v string) *design.MediaTypeDefinition {
+func (f *RelationalModelDefinition) Attribute() *design.AttributeDefinition {
+	return f.AttributeDefinition
 
-	p, _, _ := f.RenderTo.Project(v)
+}
+
+func (f *RelationalModelDefinition) Project(name, v string) *design.MediaTypeDefinition {
+
+	p, _, _ := f.RenderTo[name].Project(v)
 	return p
 }
-*/
+
 // LowerName returns the model name as a lowercase string.
 func (f *RelationalModelDefinition) LowerName() string {
 	return strings.ToLower(f.ModelName)
 }
 
 // IterateSourceMaps runs an iterator function once per mapping in the Model's list
-func (sd *RelationalModelDefinition) IterateSourceMaps(it SourceMapIterator) error {
-	names := make([]string, len(sd.SourceMaps))
+func (sd *RelationalModelDefinition) IterateMaps(it MapIterator) error {
+	names := make([]string, len(sd.Maps))
 	i := 0
-	for n := range sd.SourceMaps {
+	for n := range sd.Maps {
 		names[i] = n
 		i++
 	}
 	sort.Strings(names)
 	for _, n := range names {
-		if err := it(sd.SourceMaps[n]); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-// IterateTarget Maps runs an iterator function once per mapping in the Model's list
-func (sd *RelationalModelDefinition) IterateTargetMaps(it TargetMapIterator) error {
-	names := make([]string, len(sd.TargetMaps))
-	i := 0
-	for n := range sd.TargetMaps {
-		names[i] = n
-		i++
-	}
-	sort.Strings(names)
-	for _, n := range names {
-		if err := it(sd.TargetMaps[n]); err != nil {
+		if err := it(sd.Maps[n]); err != nil {
 			return err
 		}
 	}

@@ -30,8 +30,7 @@ func Model(name string, dsl func()) {
 				DefinitionDSL:    dsl,
 				Parent:           s,
 				RelationalFields: make(map[string]*gorma.RelationalFieldDefinition),
-				SourceMaps:       make(map[string]*gorma.SourceMapping),
-				TargetMaps:       make(map[string]*gorma.TargetMapping),
+				Maps:             make(map[string]*gorma.Mapping),
 				BuiltFrom:        make(map[string]*design.UserTypeDefinition),
 				RenderTo:         make(map[string]*design.MediaTypeDefinition),
 				BelongsTo:        make(map[string]*gorma.RelationalModelDefinition),
@@ -89,20 +88,21 @@ func Model(name string, dsl func()) {
 // rendered to a Goa type.  Conversion functions
 // will be generated to convert to/from the model.
 // Usage:   RenderTo(MediaType)
-func RenderTo(rt interface{}, dsl func()) {
+func RendersTo(rt interface{}, dsl func()) {
 	checkInit()
 	if m, ok := relationalModelDefinition(true); ok {
 		mts, ok := rt.(*design.MediaTypeDefinition)
 		if ok {
 			m.RenderTo[mts.TypeName] = mts
-			m.TargetMaps[mts.TypeName] = &gorma.TargetMapping{
-				MappingName:   m.ModelName + ":" + mts.TypeName,
-				Description:   "Maps " + m.ModelName + " to " + mts.TypeName,
-				Remote:        mts.UserTypeDefinition,
-				Parent:        m,
-				DefinitionDSL: dsl,
-				Mappings:      make(map[string]*gorma.MapDefinition),
-			}
+			mapping := gorma.NewMapping()
+			mapping.MappingName = m.ModelName + ":" + mts.TypeName
+			mapping.Description = "Maps " + m.ModelName + " to " + mts.TypeName
+			mapping.Remote = mts.UserTypeDefinition
+			mapping.Parent = m
+			mapping.DefinitionDSL = dsl
+			mapping.Mappings = make(map[string]*gorma.MapDefinition)
+			m.Maps["source:"+mts.TypeName] = mapping
+
 		}
 
 	}
@@ -112,13 +112,13 @@ func RenderTo(rt interface{}, dsl func()) {
 // from a Goa UserType.  Conversion functions
 // will be generated to convert from the payload to the model.
 // Usage:  BuiltFrom(YourType)
-func BuiltFrom(bf interface{}, dsl func()) {
+func BuildsFrom(bf interface{}, dsl func()) {
 	checkInit()
 	if m, ok := relationalModelDefinition(true); ok {
 		mts, ok := bf.(*design.UserTypeDefinition)
 		if ok {
 			m.BuiltFrom[mts.TypeName] = mts
-			m.SourceMaps[mts.TypeName] = &gorma.SourceMapping{
+			m.Maps[mts.TypeName] = &gorma.Mapping{
 				AttributeDefinition: &design.AttributeDefinition{DSLFunc: dsl},
 				MappingName:         mts.TypeName + ":" + m.ModelName,
 				Description:         "Maps " + mts.TypeName + " to " + m.ModelName,
@@ -129,7 +129,7 @@ func BuiltFrom(bf interface{}, dsl func()) {
 			}
 		} else if mts, ok := bf.(*design.MediaTypeDefinition); ok {
 			m.BuiltFrom[mts.TypeName] = mts.UserTypeDefinition
-			m.SourceMaps[mts.TypeName] = &gorma.SourceMapping{
+			m.Maps[mts.TypeName] = &gorma.Mapping{
 
 				AttributeDefinition: &design.AttributeDefinition{DSLFunc: dsl},
 				MappingName:         mts.TypeName + ":" + m.ModelName,
@@ -149,7 +149,7 @@ func BuiltFrom(bf interface{}, dsl func()) {
 func Map(left, right string, fieldType gorma.FieldType) {
 	checkInit()
 
-	if m, ok := sourceMappingDefinition(false); ok {
+	if m, ok := mappingDefinition(false); ok {
 		fmt.Println("Source Map:", left, right, fieldType, m.Name)
 		fmt.Println(m.Parent, m.Parent.Name)
 		if md, ok := m.Mappings[left+":"+right]; ok {
@@ -175,33 +175,6 @@ func Map(left, right string, fieldType gorma.FieldType) {
 			m.Parent.RelationalFields[codegen.Goify(right, true)] = field
 		}
 
-	} else if m2, ok := targetMappingDefinition(true); ok {
-		fmt.Println("Target Map:", left, right, fieldType, m2.MappingName)
-		fmt.Println(m2.Parent, m2.Parent.Name)
-		if md, ok := m2.Mappings[left+":"+right]; ok {
-			// we have a mapping already
-			pretty.Println("Target Mapping Exists", md)
-		} else {
-			// no mapping exists
-			pretty.Println("Need New Target Mapping")
-			md := &gorma.MapDefinition{
-				RemoteField: right,
-				ParentField: left,
-				GormaType:   fieldType,
-			}
-			m.Mappings[right+":"+left] = md
-		}
-		field, ok := m2.Parent.RelationalFields[codegen.Goify(right, true)]
-		if !ok {
-			field = &gorma.RelationalFieldDefinition{
-				Name:     codegen.Goify(right, true),
-				Parent:   m2.Parent,
-				Datatype: fieldType,
-			}
-			m2.Parent.RelationalFields[codegen.Goify(right, true)] = field
-		}
-	} else {
-		panic("WTF")
 	}
 
 }
@@ -230,8 +203,7 @@ func BelongsTo(parent string) {
 				ModelName:        codegen.Goify(inflect.Singularize(parent), true),
 				Parent:           r.Parent,
 				RelationalFields: make(map[string]*gorma.RelationalFieldDefinition),
-				SourceMaps:       make(map[string]*gorma.SourceMapping),
-				TargetMaps:       make(map[string]*gorma.TargetMapping),
+				Maps:             make(map[string]*gorma.Mapping),
 				BuiltFrom:        make(map[string]*design.UserTypeDefinition),
 				RenderTo:         make(map[string]*design.MediaTypeDefinition),
 				BelongsTo:        make(map[string]*gorma.RelationalModelDefinition),
@@ -278,8 +250,7 @@ func HasOne(child string) {
 				ModelName:        child,
 				Parent:           r.Parent,
 				RelationalFields: make(map[string]*gorma.RelationalFieldDefinition),
-				SourceMaps:       make(map[string]*gorma.SourceMapping),
-				TargetMaps:       make(map[string]*gorma.TargetMapping),
+				Maps:             make(map[string]*gorma.Mapping),
 				BuiltFrom:        make(map[string]*design.UserTypeDefinition),
 				RenderTo:         make(map[string]*design.MediaTypeDefinition),
 				BelongsTo:        make(map[string]*gorma.RelationalModelDefinition),
@@ -340,8 +311,7 @@ func HasMany(name, child string) {
 				ModelName:        child,
 				Parent:           r.Parent,
 				RelationalFields: make(map[string]*gorma.RelationalFieldDefinition),
-				SourceMaps:       make(map[string]*gorma.SourceMapping),
-				TargetMaps:       make(map[string]*gorma.TargetMapping),
+				Maps:             make(map[string]*gorma.Mapping),
 				BuiltFrom:        make(map[string]*design.UserTypeDefinition),
 				RenderTo:         make(map[string]*design.MediaTypeDefinition),
 				BelongsTo:        make(map[string]*gorma.RelationalModelDefinition),
@@ -400,8 +370,7 @@ func ManyToMany(other, tablename string) {
 				ModelName:        other,
 				Parent:           r.Parent,
 				RelationalFields: make(map[string]*gorma.RelationalFieldDefinition),
-				SourceMaps:       make(map[string]*gorma.SourceMapping),
-				TargetMaps:       make(map[string]*gorma.TargetMapping),
+				Maps:             make(map[string]*gorma.Mapping),
 				BuiltFrom:        make(map[string]*design.UserTypeDefinition),
 				RenderTo:         make(map[string]*design.MediaTypeDefinition),
 				BelongsTo:        make(map[string]*gorma.RelationalModelDefinition),

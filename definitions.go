@@ -39,7 +39,7 @@ type RelationalStoreDefinition struct {
 // table in a relational database
 type RelationalModelDefinition struct {
 	dslengine.Definition
-	*design.AttributeDefinition
+	*design.UserTypeDefinition
 	DefinitionDSL    func()
 	ModelName        string
 	Description      string
@@ -51,8 +51,7 @@ type RelationalModelDefinition struct {
 	HasMany          map[string]*RelationalModelDefinition
 	HasOne           map[string]*RelationalModelDefinition
 	ManyToMany       map[string]*ManyToManyDefinition
-	SourceMaps       map[string]*SourceMapping
-	TargetMaps       map[string]*TargetMapping
+	Maps             map[string]*Mapping
 	Alias            string // gorm:tablename
 	Cached           bool
 	CacheDuration    int
@@ -64,7 +63,7 @@ type RelationalModelDefinition struct {
 	many2many        []string
 }
 
-type SourceMapping struct {
+type Mapping struct {
 	dslengine.Definition
 	*design.AttributeDefinition
 	DefinitionDSL func()
@@ -75,15 +74,15 @@ type SourceMapping struct {
 	Mappings      map[string]*MapDefinition // keyed by gorma field
 }
 
-type TargetMapping struct {
-	dslengine.Definition
-	*design.AttributeDefinition
-	DefinitionDSL func()
-	MappingName   string
-	Description   string
-	Remote        *design.UserTypeDefinition
-	Parent        *RelationalModelDefinition
-	Mappings      map[string]*MapDefinition // keyed by gorma field
+func NewMapping() *Mapping {
+	baseAttr := &design.AttributeDefinition{
+		Description: "mapping",
+	}
+	m := &Mapping{
+		Mappings:            make(map[string]*MapDefinition),
+		AttributeDefinition: baseAttr,
+	}
+	return m
 }
 
 // MapDefinition represents something
@@ -136,75 +135,8 @@ type StoreIterator func(m *RelationalStoreDefinition) error
 type ModelIterator func(m *RelationalModelDefinition) error
 
 // SourceMapIterator
-type SourceMapIterator func(m *SourceMapping) error
-
-// TargetMapIterator
-type TargetMapIterator func(m *TargetMapping) error
+type MapIterator func(m *Mapping) error
 
 // FieldIterator is a function that iterates over Fields
 // in a RelationalModel
 type FieldIterator func(m *RelationalFieldDefinition) error
-
-// Kind implements DataKind.
-func (u *RelationalModelDefinition) Kind() design.Kind { return design.UserTypeKind }
-
-// Name returns the JSON type name.
-func (u *RelationalModelDefinition) Name() string { return u.Type.Name() }
-
-// IsPrimitive calls IsPrimitive on the user type underlying data type.
-func (u *RelationalModelDefinition) IsPrimitive() bool { return u.Type.IsPrimitive() }
-
-// IsObject calls IsObject on the user type underlying data type.
-func (u *RelationalModelDefinition) IsObject() bool { return u.Type.IsObject() }
-
-// IsArray calls IsArray on the user type underlying data type.
-func (u *RelationalModelDefinition) IsArray() bool { return u.Type.IsArray() }
-
-// IsHash calls IsHash on the user type underlying data type.
-func (u *RelationalModelDefinition) IsHash() bool { return u.Type.IsHash() }
-
-// ToObject calls ToObject on the user type underlying data type.
-func (u *RelationalModelDefinition) ToObject() design.Object { return u.Type.ToObject() }
-
-// ToArray calls ToArray on the user type underlying data type.
-func (u *RelationalModelDefinition) ToArray() *design.Array { return u.Type.ToArray() }
-
-// ToHash calls ToHash on the user type underlying data type.
-func (u *RelationalModelDefinition) ToHash() *design.Hash { return u.Type.ToHash() }
-
-// IsCompatible returns true if val is compatible with p.
-func (u *RelationalModelDefinition) IsCompatible(val interface{}) bool {
-	return u.Type.IsCompatible(val)
-}
-
-// Kind implements DataKind.
-func (u *SourceMapping) Kind() design.Kind { return design.UserTypeKind }
-
-// Name returns the JSON type name.
-func (u *SourceMapping) Name() string { return u.Type.Name() }
-
-// IsPrimitive calls IsPrimitive on the user type underlying data type.
-func (u *SourceMapping) IsPrimitive() bool { return u.Type.IsPrimitive() }
-
-// IsObject calls IsObject on the user type underlying data type.
-func (u *SourceMapping) IsObject() bool { return u.Type.IsObject() }
-
-// IsArray calls IsArray on the user type underlying data type.
-func (u *SourceMapping) IsArray() bool { return u.Type.IsArray() }
-
-// IsHash calls IsHash on the user type underlying data type.
-func (u *SourceMapping) IsHash() bool { return u.Type.IsHash() }
-
-// ToObject calls ToObject on the user type underlying data type.
-func (u *SourceMapping) ToObject() design.Object { return u.Type.ToObject() }
-
-// ToArray calls ToArray on the user type underlying data type.
-func (u *SourceMapping) ToArray() *design.Array { return u.Type.ToArray() }
-
-// ToHash calls ToHash on the user type underlying data type.
-func (u *SourceMapping) ToHash() *design.Hash { return u.Type.ToHash() }
-
-// IsCompatible returns true if val is compatible with p.
-func (u *SourceMapping) IsCompatible(val interface{}) bool {
-	return u.Type.IsCompatible(val)
-}

@@ -1,8 +1,6 @@
 package design
 
 import (
-	"github.com/goadesign/goa/design"
-	gdsl "github.com/goadesign/goa/design/apidsl"
 	"github.com/goadesign/gorma"
 	. "github.com/goadesign/gorma/dsl"
 )
@@ -12,22 +10,16 @@ var sg = StorageGroup("MyStorageGroup", func() {
 	Store("mysql", gorma.MySQL, func() {
 		Description("This is the mysql relational store")
 		Model("Container", func() {
-			BuiltFrom(Bottle, func() {
+			BuildsFrom(Bottle, func() {
 				Map("id", "id", gorma.PKInteger)
 				//Map("account", "account", gorma.ForeignKey)
-				gdsl.Attribute("container_type", design.Integer, func() {
-					gdsl.Default(1)
-				})
 			})
-			RenderTo(Bottle, func() {})
-			BuiltFrom(Box, func() {
+			RendersTo(Bottle, func() {})
+			BuildsFrom(Box, func() {
 				Map("id", "id", gorma.PKInteger)
 				//Map("account", "account", gorma.ForeignKey)
-				gdsl.Attribute("container_type", design.Integer, func() {
-					gdsl.Default(2)
-				})
 			})
-			RenderTo(Box, func() {})
+			RendersTo(Box, func() {})
 			BelongsTo("Account")
 			Description("This is the Container model")
 			Field("DeletedAt", gorma.NullableTimestamp, func() {})
@@ -41,3 +33,10 @@ var sg = StorageGroup("MyStorageGroup", func() {
 		})
 	})
 })
+
+Model("AccountModel", func() {
+    BuildsFrom(Account, func() {
+        Attribute("id", ... // usual Attribute DSL
+        PrimaryKey("id")
+    }
+}

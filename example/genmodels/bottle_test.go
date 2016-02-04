@@ -12,6 +12,7 @@ import (
 
 	"github.com/goadesign/goa"
 	"github.com/jinzhu/gorm"
+	"github.com/kr/pretty"
 	_ "github.com/lib/pq"
 )
 
@@ -45,13 +46,13 @@ func TestMain(m *testing.M) {
 
 func TestOneBottle(t *testing.T) {
 	db.LogMode(true)
-	bdb := NewBottleDB(db)
+	bdb := NewBottleDB(db, logger)
 	btl := bdb.OneBottle(*ctx, 1)
-	fmt.Println(btl.ID)
+	pretty.Println("One Bottle: ", btl)
 }
 func TestGetBottle(t *testing.T) {
 	db.LogMode(true)
-	bdb := NewBottleDB(db)
+	bdb := NewBottleDB(db, logger)
 	btl := bdb.GetBottle(*ctx, 1)
 	if btl.ID != 1 {
 		t.Error("Expected Bottle")
@@ -59,22 +60,23 @@ func TestGetBottle(t *testing.T) {
 }
 func TestOneAccount(t *testing.T) {
 	db.LogMode(true)
-	adb := NewAccountDB(db)
+	adb := NewAccountDB(db, logger)
 	act := adb.OneAccount(*ctx, 1)
 	fmt.Println(act.ID)
 }
 func TestGetAccount(t *testing.T) {
 	db.LogMode(true)
-	adb := NewAccountDB(db)
+	adb := NewAccountDB(db, logger)
 	act := adb.GetAccount(*ctx, 1)
 	if act.ID != 1 {
 		t.Error("Expected account")
 	}
 }
 func setup() error {
-	adb := NewAccountDB(db)
+	adb := NewAccountDB(db, logger)
+	cb := "Brian"
 	act, err := adb.Add(*ctx, Account{
-		CreatedBy: "Brian",
+		CreatedBy: &cb,
 		Href:      "href",
 		Name:      "Account1",
 	})
@@ -82,11 +84,10 @@ func setup() error {
 		panic(err)
 	}
 
-	bdb := NewBottleDB(db)
+	bdb := NewBottleDB(db, logger)
 
 	var Color string
 	var Country string
-	var Myvintage string
 	var Name string
 	var Region string
 	var Review string
@@ -98,7 +99,6 @@ func setup() error {
 	var VinyardCounty string
 	Color = "Blue"
 	Country = "Australia"
-	Myvintage = "MyVintage"
 	Name = "Red Horse"
 	Region = "South"
 	Review = "crappy"
@@ -110,16 +110,15 @@ func setup() error {
 	VinyardCounty = "Cork"
 	btl, err := bdb.Add(*ctx, Bottle{
 		AccountID:     act.ID,
-		Color:         &Color,
+		Color:         Color,
 		Country:       &Country,
-		Myvintage:     &Myvintage,
-		Name:          &Name,
+		Name:          Name,
 		Rating:        &Rating,
 		Region:        &Region,
 		Review:        &Review,
 		Sweetness:     &Sweetness,
-		Varietal:      &Varietal,
-		Vineyard:      &Vineyard,
+		Varietal:      Varietal,
+		Vineyard:      Vineyard,
 		Vintage:       &Vintage,
 		VinyardCounty: &VinyardCounty,
 	})

@@ -207,106 +207,113 @@ const (
 {{$ut.StructDefinition}}
 // TableName overrides the table name settings in Gorm to force a specific table name
 // in the database.
-func (m {{$ut.Name}}) TableName() string {
+func (m {{$ut.ModelName}}) TableName() string {
 {{ if ne $ut.Alias "" }}
 return "{{ $ut.Alias}}" {{ else }} return "{{ $ut.TableName }}"
 {{end}}
 }
-// {{$ut.Name}}DB is the implementation of the storage interface for
-// {{$ut.Name}}.
-type {{$ut.Name}}DB struct {
+// {{$ut.ModelName}}DB is the implementation of the storage interface for
+// {{$ut.ModelName}}.
+type {{$ut.ModelName}}DB struct {
 	Db gorm.DB
 	log.Logger
 	{{ if $ut.Cached }}cache *cache.Cache{{end}}
 }
-// New{{$ut.Name}}DB creates a new storage type.
-func New{{$ut.Name}}DB(db gorm.DB, logger log.Logger) *{{$ut.Name}}DB {
-	glog := logger.New("db", "{{$ut.Name}}")
-	{{ if $ut.Cached }}return &{{$ut.Name}}DB{
+// New{{$ut.ModelName}}DB creates a new storage type.
+func New{{$ut.ModelName}}DB(db gorm.DB, logger log.Logger) *{{$ut.ModelName}}DB {
+	glog := logger.New("db", "{{$ut.ModelName}}")
+	{{ if $ut.Cached }}return &{{$ut.ModelName}}DB{
 		Db: db,
 		Logger: glog,
 		cache: cache.New(5*time.Minute, 30*time.Second),
 	}
-	{{ else  }}return &{{$ut.Name}}DB{Db: db, Logger: glog}{{ end  }}
+	{{ else  }}return &{{$ut.ModelName}}DB{Db: db, Logger: glog}{{ end  }}
 }
 // DB returns the underlying database.
-func (m *{{$ut.Name}}DB) DB() interface{} {
+func (m *{{$ut.ModelName}}DB) DB() interface{} {
 	return &m.Db
 }
 {{ if $ut.Roler }}
 // GetRole returns the value of the role field and satisfies the Roler interface.
-func (m {{$ut.Name}}) GetRole() string {
+func (m {{$ut.ModelName}}) GetRole() string {
 	return {{$f := $ut.Fields.role}}{{if $f.Nullable}}*{{end}}m.Role
 }
 {{end}}
 
-// {{$ut.Name}}Storage represents the storage interface.
-type {{$ut.Name}}Storage interface {
+// {{$ut.ModelName}}Storage represents the storage interface.
+type {{$ut.ModelName}}Storage interface {
 	DB() interface{}
-	List(ctx goa.Context{{ if $ut.DynamicTableName}}, tableName string{{ end }}) []{{$ut.Name}}
-	One(ctx goa.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, {{$ut.PKAttributes}}) ({{$ut.Name}}, error)
-	Add(ctx goa.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, {{$ut.LowerName}} {{$ut.Name}}) ({{$ut.Name}}, error)
-	Update(ctx goa.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, {{$ut.LowerName}} {{$ut.Name}}) (error)
+	List(ctx goa.Context{{ if $ut.DynamicTableName}}, tableName string{{ end }}) []{{$ut.ModelName}}
+	One(ctx goa.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, {{$ut.PKAttributes}}) ({{$ut.ModelName}}, error)
+	Add(ctx goa.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, {{$ut.LowerName}} {{$ut.ModelName}}) ({{$ut.ModelName}}, error)
+	Update(ctx goa.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, {{$ut.LowerName}} {{$ut.ModelName}}) (error)
 	Delete(ctx goa.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, {{ $ut.PKAttributes}}) (error) 	
 }
 
 // TableName overrides the table name settings in Gorm to force a specific table name
 // in the database.
-func (m *{{$ut.Name}}DB) TableName() string {
+func (m *{{$ut.ModelName}}DB) TableName() string {
 {{ if ne $ut.Alias "" }}
 return "{{ $ut.Alias}}" {{ else }} return "{{ $ut.TableName }}"
 {{end}}
 }
-
-{{ range $vname, $view := $ut.RenderTo.Views}}
+{{ range $rname, $rmt := $ut.RenderTo }}
+{{ range $vname, $view := $rmt.Views}}
 // Transformation
-{{ $mtd := $ut.Project $vname }}
-{{$functionName := gttn $ut.RenderTo.UserTypeDefinition $mtd.UserTypeDefinition ""}}
-{{ gtt $ut.RenderTo.UserTypeDefinition $mtd.UserTypeDefinition "app" $functionName }}
+{{ $mtd := $ut.Project $rname $vname }}
+{{$functionName := gttn $rmt.UserTypeDefinition $mtd.UserTypeDefinition "App"}}
+{{ gtt $rmt.UserTypeDefinition $mtd.UserTypeDefinition "app" $functionName }}
 
 // CRUD Functions
-// List{{$ut.RenderTo.TypeName}}{{if eq $vname "default"}}{{else}}{{goify $vname true}}{{end}} returns an array of view: {{$vname}}
-func (m *{{$ut.Name}}DB) List{{$ut.RenderTo.TypeName}}{{if eq $vname "default"}}{{else}}{{goify $vname true}}{{end}} (ctx goa.Context{{ if $ut.DynamicTableName}}, tableName string{{ end }}) []app.{{$ut.RenderTo.TypeName}}{{if eq $vname "default"}}{{else}}{{goify $vname true}}{{end}}{
+// List{{$rmt.TypeName}}{{if eq $vname "default"}}{{else}}{{goify $vname true}}{{end}} returns an array of view: {{$vname}}
+func (m *{{$ut.ModelName}}DB) List{{$rmt.TypeName}}{{if eq $vname "default"}}{{else}}{{goify $vname true}}{{end}} (ctx goa.Context{{ if $ut.DynamicTableName}}, tableName string{{ end }}) []app.{{$rmt.TypeName}}{{if eq $vname "default"}}{{else}}{{goify $vname true}}{{end}}{
 	now := time.Now()
-	defer ctx.Info("List{{$ut.RenderTo.TypeName}}{{if eq $vname "default"}}{{else}}{{goify $vname true}}{{end}}", "duration", time.Since(now))
-	var objs []app.{{$ut.RenderTo.TypeName}}{{if eq $vname "default"}}{{else}}{{goify $vname true}}{{end}}
-	err := m.Db.Table({{ if $ut.DynamicTableName }}.Table(tableName){{else}}m.TableName(){{ end }}).{{ range $ln, $lv := $ut.RenderTo.Links }}Preload("{{goify $ln true}}").{{end}}Find(&objs).Error
+	defer ctx.Info("List{{$rmt.TypeName}}{{if eq $vname "default"}}{{else}}{{goify $vname true}}{{end}}", "duration", time.Since(now))
+	var objs []app.{{$rmt.TypeName}}{{if eq $vname "default"}}{{else}}{{goify $vname true}}{{end}}
+	err := m.Db.Table({{ if $ut.DynamicTableName }}.Table(tableName){{else}}m.TableName(){{ end }}).{{ range $ln, $lv := $rmt.Links }}Preload("{{goify $ln true}}").{{end}}Find(&objs).Error
 	if err != nil {
-		ctx.Error("error listing {{$ut.Name}}", "error", err.Error())
+		ctx.Error("error listing {{$ut.ModelName}}", "error", err.Error())
 		return objs
 	}
 
 	return objs
 }
+	//{{$ut.LowerName}} := {{$ut.ModelName}}{}		
+	/*
+ 	{{ fatm $ut $rmt.UserTypeDefinition "t" $ut.LowerName}}		
+	*/
+ 	// return {{$ut.LowerName}}
 
-// One{{$ut.RenderTo.TypeName}}{{if eq $vname "default"}}{{else}}{{goify $vname true}}{{end}} returns an array of view: {{$vname}}
-func (m *{{$ut.Name}}DB) One{{$ut.RenderTo.TypeName}}{{if eq $vname "default"}}{{else}}{{goify $vname true}}{{end}} (ctx goa.Context{{ if $ut.DynamicTableName}}, tableName string{{ end }}, id int) app.{{$ut.RenderTo.TypeName}}{{if eq $vname "default"}}{{else}}{{goify $vname true}}{{end}}{	
+
+// One{{$rmt.TypeName}}{{if eq $vname "default"}}{{else}}{{goify $vname true}}{{end}} returns an array of view: {{$vname}}
+func (m *{{$ut.ModelName}}DB) One{{$rmt.TypeName}}{{if eq $vname "default"}}{{else}}{{goify $vname true}}{{end}} (ctx goa.Context{{ if $ut.DynamicTableName}}, tableName string{{ end }}, id int) app.{{$rmt.TypeName}}{{if eq $vname "default"}}{{else}}{{goify $vname true}}{{end}}{	
 	now := time.Now()
-	defer ctx.Info("One{{$ut.RenderTo.TypeName}}{{if eq $vname "default"}}{{else}}{{goify $vname true}}{{end}}", "duration", time.Since(now))
-	var view app.{{$ut.RenderTo.TypeName}}{{if eq $vname "default"}}{{else}}{{goify $vname true}}{{end}}
-	var native {{$ut.Name}}
+	defer ctx.Info("One{{$rmt.TypeName}}{{if eq $vname "default"}}{{else}}{{goify $vname true}}{{end}}", "duration", time.Since(now))
+	var view app.{{$rmt.TypeName}}{{if eq $vname "default"}}{{else}}{{goify $vname true}}{{end}}
+	var native {{$ut.ModelName}}
 
-	m.Db.Table({{ if $ut.DynamicTableName }}.Table(tableName){{else}}m.TableName(){{ end }}){{range $na, $hm:= $ut.HasMany}}.Preload("{{$hm.Name}}"){{end}}{{range $nm, $bt := $ut.BelongsTo}}.Preload("{{$bt.Name}}"){{end}}.Where("id = ?", id).Find(&native)
+	m.Db.Table({{ if $ut.DynamicTableName }}.Table(tableName){{else}}m.TableName(){{ end }}){{range $na, $hm:= $ut.HasMany}}.Preload("{{$hm.ModelName}}"){{end}}{{range $nm, $bt := $ut.BelongsTo}}.Preload("{{$bt.ModelName}}"){{end}}.Where("id = ?", id).Find(&native)
 	fmt.Println(native)
 	return view 
+	
 }
-{{end}}
-// Get{{$ut.Name}} returns a single {{$ut.Name}} as a Database Model
+{{end}}{{end}}
+// Get{{$ut.ModelName}} returns a single {{$ut.ModelName}} as a Database Model
 // This is more for use internally, and probably not what you want in  your controllers
-func (m *{{$ut.Name}}DB) Get{{$ut.Name}}(ctx goa.Context{{ if $ut.DynamicTableName}}, tableName string{{ end }}, id int) {{$ut.Name}}{	
+func (m *{{$ut.ModelName}}DB) Get{{$ut.ModelName}}(ctx goa.Context{{ if $ut.DynamicTableName}}, tableName string{{ end }}, id int) {{$ut.ModelName}}{	
 	now := time.Now()
-	defer ctx.Info("Get{{$ut.Name}}", "duration", time.Since(now))
-	var native {{$ut.Name}}
+	defer ctx.Info("Get{{$ut.ModelName}}", "duration", time.Since(now))
+	var native {{$ut.ModelName}}
 	m.Db.Table({{ if $ut.DynamicTableName }}.Table(tableName){{else}}m.TableName(){{ end }}).Where("id = ?", id).Find(&native)
 	return native 
 }
 // Add creates a new record.
-func (m *{{$ut.Name}}DB) Add(ctx goa.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, model {{$ut.Name}}) ({{$ut.Name}}, error) {
+func (m *{{$ut.ModelName}}DB) Add(ctx goa.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, model {{$ut.ModelName}}) ({{$ut.ModelName}}, error) {
 	now := time.Now()
-	defer ctx.Info("Add{{$ut.Name}}", "duration", time.Since(now))
+	defer ctx.Info("Add{{$ut.ModelName}}", "duration", time.Since(now))
 	err := m.Db{{ if $ut.DynamicTableName }}.Table(tableName){{ end }}.Create(&model).Error
 	if err != nil {
-		ctx.Error("error updating {{$ut.Name}}", "error", err.Error())
+		ctx.Error("error updating {{$ut.ModelName}}", "error", err.Error())
 		return model, err
 	}
 	{{ if $ut.Cached }}
@@ -314,10 +321,10 @@ func (m *{{$ut.Name}}DB) Add(ctx goa.Context{{ if $ut.DynamicTableName }}, table
 	return model, err
 }
 // Update modifies a single record.
-func (m *{{$ut.Name}}DB) Update(ctx goa.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, model {{$ut.Name}}) error {
+func (m *{{$ut.ModelName}}DB) Update(ctx goa.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, model {{$ut.ModelName}}) error {
 	now := time.Now()
-	defer ctx.Info("Update{{$ut.Name}}", "duration", time.Since(now))
-	obj := m.Get{{$ut.Name}}(ctx{{ if $ut.DynamicTableName }}, tableName{{ end }}, {{$ut.PKUpdateFields "model"}})
+	defer ctx.Info("Update{{$ut.ModelName}}", "duration", time.Since(now))
+	obj := m.Get{{$ut.ModelName}}(ctx{{ if $ut.DynamicTableName }}, tableName{{ end }}, {{$ut.PKUpdateFields "model"}})
 	err := m.Db{{ if $ut.DynamicTableName }}.Table(tableName){{ end }}.Model(&obj).Updates(model).Error
 	{{ if $ut.Cached }}go func(){
 	obj, err := m.One(ctx, model.ID)
@@ -329,16 +336,16 @@ func (m *{{$ut.Name}}DB) Update(ctx goa.Context{{ if $ut.DynamicTableName }}, ta
 	return err
 }
 // Delete removes a single record.
-func (m *{{$ut.Name}}DB) Delete(ctx goa.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, {{$ut.PKAttributes}})  error {
+func (m *{{$ut.ModelName}}DB) Delete(ctx goa.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, {{$ut.PKAttributes}})  error {
 	now := time.Now()
-	defer ctx.Info("Delete{{$ut.Name}}", "duration", time.Since(now))
-	var obj {{$ut.Name}}{{ $l := len $ut.PrimaryKeys }}
+	defer ctx.Info("Delete{{$ut.ModelName}}", "duration", time.Since(now))
+	var obj {{$ut.ModelName}}{{ $l := len $ut.PrimaryKeys }}
 	{{ if eq $l 1 }}
 	err := m.Db{{ if $ut.DynamicTableName }}.Table(tableName){{ end }}.Delete(&obj, id).Error
 	{{ else  }}err := m.Db{{ if $ut.DynamicTableName }}.Table(tableName){{ end }}.Delete(&obj).Where("{{$ut.PKWhere}}", {{$ut.PKWhereFields}}).Error
 	{{ end }}
 	if err != nil {
-		ctx.Error("error retrieving {{$ut.Name}}", "error", err.Error())
+		ctx.Error("error retrieving {{$ut.ModelName}}", "error", err.Error())
 		return  err
 	}
 	{{ if $ut.Cached }} go m.cache.Delete(strconv.Itoa(id)) {{ end }}
