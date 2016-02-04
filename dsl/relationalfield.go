@@ -38,14 +38,11 @@ func Field(name string, args ...interface{}) {
 				DefinitionDSL: dsl,
 				Parent:        s,
 				Datatype:      fieldType,
-				BuiltFrom:     name,
 			}
 		} else {
 			// the field was auto-added by the model parser
 			// so we need to update whatever we can from this new definition
 			field.DefinitionDSL = dsl
-			field.BuiltFrom = fixID(inflect.Underscore(name))
-			field.RenderTo = fixID(inflect.Underscore(name))
 
 		}
 

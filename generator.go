@@ -132,7 +132,7 @@ func (g *Generator) generateUserTypes(outdir string, api *design.APIDefinition) 
 		var modelname, filename string
 		err := GormaDesign.IterateStores(func(store *RelationalStoreDefinition) error {
 			err := store.IterateModels(func(model *RelationalModelDefinition) error {
-				modelname = strings.ToLower(codegen.Goify(model.Name, false))
+				modelname = strings.ToLower(codegen.Goify(model.ModelName, false))
 
 				filename = fmt.Sprintf("%s_gen.go", modelname)
 				utFile := filepath.Join(outdir, filename)
@@ -153,6 +153,8 @@ func (g *Generator) generateUserTypes(outdir string, api *design.APIDefinition) 
 					codegen.SimpleImport(ap),
 					codegen.SimpleImport("github.com/jinzhu/gorm"),
 					codegen.SimpleImport("golang.org/x/net/context"),
+					codegen.SimpleImport("golang.org/x/net/context"),
+					codegen.NewImport("log", "gopkg.in/inconshreveable/log15.v2"),
 				}
 				needDate := false
 				for _, field := range model.RelationalFields {
@@ -162,6 +164,10 @@ func (g *Generator) generateUserTypes(outdir string, api *design.APIDefinition) 
 				}
 				if needDate {
 					imp := codegen.SimpleImport("time")
+					imports = append(imports, imp)
+				}
+				if model.Cached {
+					imp := codegen.SimpleImport("github.com/patrickmn/go-cache")
 					imports = append(imports, imp)
 				}
 				utWr.WriteHeader(title, "genmodels", imports)

@@ -75,6 +75,26 @@ func relationalFieldDefinition(failIfNotSD bool) (*gorma.RelationalFieldDefiniti
 	return a, ok
 }
 
+// targetMappingDefinition returns true and current context if it is an RelationalFieldDefinition,
+// nil and false otherwise.
+func targetMappingDefinition(failIfNotSD bool) (*gorma.TargetMapping, bool) {
+	a, ok := dslengine.CurrentDefinition().(*gorma.TargetMapping)
+	if !ok && failIfNotSD {
+		incompatibleDSL(caller())
+	}
+	return a, ok
+}
+
+// sourceMappingDefinition returns true and current context if it is an RelationalFieldDefinition,
+// nil and false otherwise.
+func sourceMappingDefinition(failIfNotSD bool) (*gorma.SourceMapping, bool) {
+	a, ok := dslengine.CurrentDefinition().(*gorma.SourceMapping)
+	if !ok && failIfNotSD {
+		incompatibleDSL(caller())
+	}
+	return a, ok
+}
+
 // invalidArgError records an invalid argument error.
 // It is used by DSL functions that take dynamic arguments.
 func invalidArgError(expected string, actual interface{}) {

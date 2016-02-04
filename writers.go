@@ -190,6 +190,8 @@ func (w *UserTypesWriter) Execute(data *UserTypeTemplateData) error {
 	fm["viewFieldNames"] = viewFieldNames
 	fm["goDatatype"] = goDatatype
 	fm["plural"] = inflect.Pluralize
+	fm["gtt"] = codegen.GoTypeTransform
+	fm["gttn"] = codegen.GoTypeTransformName
 	return w.ExecuteTemplate("types", userTypeT, fm, data)
 }
 
@@ -214,15 +216,18 @@ return "{{ $ut.Alias}}" {{ else }} return "{{ $ut.TableName }}"
 // {{$ut.Name}}.
 type {{$ut.Name}}DB struct {
 	Db gorm.DB
+	log.Logger
 	{{ if $ut.Cached }}cache *cache.Cache{{end}}
 }
 // New{{$ut.Name}}DB creates a new storage type.
-func New{{$ut.Name}}DB(db gorm.DB) *{{$ut.Name}}DB {
+func New{{$ut.Name}}DB(db gorm.DB, logger log.Logger) *{{$ut.Name}}DB {
+	glog := logger.New("db", "{{$ut.Name}}")
 	{{ if $ut.Cached }}return &{{$ut.Name}}DB{
 		Db: db,
+		Logger: glog,
 		cache: cache.New(5*time.Minute, 30*time.Second),
 	}
-	{{ else  }}return &{{$ut.Name}}DB{Db: db}{{ end  }}
+	{{ else  }}return &{{$ut.Name}}DB{Db: db, Logger: glog}{{ end  }}
 }
 // DB returns the underlying database.
 func (m *{{$ut.Name}}DB) DB() interface{} {
@@ -253,8 +258,13 @@ return "{{ $ut.Alias}}" {{ else }} return "{{ $ut.TableName }}"
 {{end}}
 }
 
-// CRUD Functions
 {{ range $vname, $view := $ut.RenderTo.Views}}
+// Transformation
+{{ $mtd := $ut.Project $vname }}
+{{$functionName := gttn $ut.RenderTo.UserTypeDefinition $mtd.UserTypeDefinition ""}}
+{{ gtt $ut.RenderTo.UserTypeDefinition $mtd.UserTypeDefinition "app" $functionName }}
+
+// CRUD Functions
 // List{{$ut.RenderTo.TypeName}}{{if eq $vname "default"}}{{else}}{{goify $vname true}}{{end}} returns an array of view: {{$vname}}
 func (m *{{$ut.Name}}DB) List{{$ut.RenderTo.TypeName}}{{if eq $vname "default"}}{{else}}{{goify $vname true}}{{end}} (ctx goa.Context{{ if $ut.DynamicTableName}}, tableName string{{ end }}) []app.{{$ut.RenderTo.TypeName}}{{if eq $vname "default"}}{{else}}{{goify $vname true}}{{end}}{
 	now := time.Now()

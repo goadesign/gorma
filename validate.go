@@ -43,7 +43,7 @@ func (a *RelationalStoreDefinition) Validate() *dslengine.ValidationErrors {
 func (a *RelationalModelDefinition) Validate() *dslengine.ValidationErrors {
 	fmt.Println("Validating Model")
 	verr := new(dslengine.ValidationErrors)
-	if a.Name == "" {
+	if a.ModelName == "" {
 		verr.Add(a, "model name not defined")
 	}
 	if a.Parent == nil {

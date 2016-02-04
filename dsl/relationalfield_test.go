@@ -3,6 +3,7 @@ package dsl_test
 import (
 	"github.com/goadesign/gorma"
 	gdsl "github.com/goadesign/gorma/dsl"
+	"github.com/kr/pretty"
 
 	. "github.com/goadesign/goa/design"
 	. "github.com/goadesign/goa/design/apidsl"
@@ -27,7 +28,7 @@ var _ = Describe("RelationalField", func() {
 		ft = gorma.String
 		gorma.GormaDesign = nil
 		InitDesign()
-		RandomPayload = Type("UserPayload", func() {
+		RandomPayload = Type("RandomPayload", func() {
 			Attribute("first_name", String)
 			Attribute("last_name", String)
 		})
@@ -38,9 +39,12 @@ var _ = Describe("RelationalField", func() {
 		gdsl.StorageGroup(sgname, func() {
 			gdsl.Store(storename, gorma.MySQL, func() {
 				gdsl.Model(modelname, func() {
-					gdsl.BuiltFrom(RandomPayload)
+					gdsl.BuiltFrom(RandomPayload, func() {
+						gdsl.Map("first_name", "first_name", gorma.String)
+					})
 					gdsl.Field(name, ft, dsl)
 					gdsl.Field("id", gorma.PKInteger, dsl) // use lowercase "id" to test sanitizer
+					gdsl.Field("MiddleName", gorma.String)
 					gdsl.Field("CreatedAt", gorma.Timestamp)
 					gdsl.Field("UpdatedAt", gorma.Timestamp)
 					gdsl.Field("DeletedAt", gorma.NullableTimestamp)
@@ -61,6 +65,7 @@ var _ = Describe("RelationalField", func() {
 			sg := gorma.GormaDesign
 			rs := sg.RelationalStores[storename]
 			rm := rs.RelationalModels[modelname]
+			pretty.Println(rm)
 			Ω(rm.RelationalFields[name].Name).Should(Equal(name))
 		})
 	})
@@ -151,7 +156,7 @@ var _ = Describe("RelationalField", func() {
 				rs := sg.RelationalStores[storename]
 				rm := rs.RelationalModels[modelname]
 				length := len(rm.RelationalFields)
-				Ω(length).Should(Equal(6))
+				Ω(length).Should(Equal(7))
 			})
 		})
 

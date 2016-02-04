@@ -14,7 +14,7 @@ import (
 
 // Context returns the generic definition name used in error messages.
 func (f *RelationalModelDefinition) Context() string {
-	if f.Name != "" {
+	if f.ModelName != "" {
 		return fmt.Sprintf("RelationalModel %#v", f.Name)
 	}
 	return "unnamed RelationalModel"
@@ -25,9 +25,35 @@ func (f *RelationalModelDefinition) DSL() func() {
 	return f.DefinitionDSL
 }
 
+// Context returns the generic definition name used in error messages.
+func (f *SourceMapping) Context() string {
+	if f.MappingName != "" {
+		return fmt.Sprintf("SourceMapping %#v", f.MappingName)
+	}
+	return "unnamed SourceMapping"
+}
+
+// DSL returns this object's DSL.
+func (f *SourceMapping) DSL() func() {
+	return f.DefinitionDSL
+}
+
+// Context returns the generic definition name used in error messages.
+func (f *TargetMapping) Context() string {
+	if f.MappingName != "" {
+		return fmt.Sprintf("TargetMapping %#v", f.MappingName)
+	}
+	return "unnamed TargetMapping"
+}
+
+// DSL returns this object's DSL.
+func (f *TargetMapping) DSL() func() {
+	return f.DefinitionDSL
+}
+
 // TableName returns the table name for this model
 func (f RelationalModelDefinition) TableName() string {
-	return inflect.Underscore(inflect.Pluralize(f.Name))
+	return inflect.Underscore(inflect.Pluralize(f.ModelName))
 }
 
 // Children returns a slice of this objects children.
@@ -93,16 +119,57 @@ func (f *RelationalModelDefinition) StructDefinition() string {
 		return nil
 	})
 	for _, bt := range f.BelongsTo {
-		output = output + bt.Name + "\t" + bt.Name + "\n"
+		output = output + bt.ModelName + "\t" + bt.ModelName + "\n"
 	}
 	footer := "}\n"
 	return header + output + footer
 
 }
 
+/*
+func (f *RelationalModelDefinition) Project(v string) *design.MediaTypeDefinition {
+
+	p, _, _ := f.RenderTo.Project(v)
+	return p
+}
+*/
 // LowerName returns the model name as a lowercase string.
 func (f *RelationalModelDefinition) LowerName() string {
-	return strings.ToLower(f.Name)
+	return strings.ToLower(f.ModelName)
+}
+
+// IterateSourceMaps runs an iterator function once per mapping in the Model's list
+func (sd *RelationalModelDefinition) IterateSourceMaps(it SourceMapIterator) error {
+	names := make([]string, len(sd.SourceMaps))
+	i := 0
+	for n := range sd.SourceMaps {
+		names[i] = n
+		i++
+	}
+	sort.Strings(names)
+	for _, n := range names {
+		if err := it(sd.SourceMaps[n]); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// IterateTarget Maps runs an iterator function once per mapping in the Model's list
+func (sd *RelationalModelDefinition) IterateTargetMaps(it TargetMapIterator) error {
+	names := make([]string, len(sd.TargetMaps))
+	i := 0
+	for n := range sd.TargetMaps {
+		names[i] = n
+		i++
+	}
+	sort.Strings(names)
+	for _, n := range names {
+		if err := it(sd.TargetMaps[n]); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // IterateFields returns an iterator function useful for iterating through
@@ -175,37 +242,49 @@ func (f *RelationalModelDefinition) PopulateFromModeledType() {
 	if f.BuiltFrom == nil {
 		return
 	}
-	obj := f.BuiltFrom.ToObject()
-	obj.IterateAttributes(func(name string, att *design.AttributeDefinition) error {
-		rf := &RelationalFieldDefinition{}
-		rf.Parent = f
-		rf.Name = codegen.Goify(name, true)
+	for _, utd := range f.BuiltFrom {
+		obj := utd.ToObject()
+		obj.IterateAttributes(func(name string, att *design.AttributeDefinition) error {
+			rf, ok := f.RelationalFields[codegen.Goify(name, true)]
+			if ok {
+				// We already have a mapping for this field.  What to do?
+				fmt.Println("We have a definition for this field already")
+				fmt.Println("name:", name)
+			}
 
-		if strings.HasSuffix(rf.Name, "Id") {
-			rf.Name = strings.TrimSuffix(rf.Name, "Id")
-			rf.Name = rf.Name + "ID"
-		}
-		rf.BuiltFrom = inflect.Underscore(rf.Name)
-		rf.RenderTo = inflect.Underscore(rf.Name)
-		switch att.Type.Kind() {
-		case design.BooleanKind:
-			rf.Datatype = Boolean
-		case design.IntegerKind:
-			rf.Datatype = Integer
-		case design.NumberKind:
-			rf.Datatype = Decimal
-		case design.StringKind:
-			rf.Datatype = String
-		case design.DateTimeKind:
-			rf.Datatype = Timestamp
-		default:
-			dslengine.ReportError("Unsupported type: %#v ", att.Type.Kind())
-		}
-		if !f.BuiltFrom.IsRequired(name) {
-			rf.Nullable = true
-		}
-		f.RelationalFields[rf.Name] = rf
-		return nil
-	})
+			rf = &RelationalFieldDefinition{}
+			rf.Parent = f
+			rf.Name = codegen.Goify(name, true)
+
+			if strings.HasSuffix(rf.Name, "Id") {
+				rf.Name = strings.TrimSuffix(rf.Name, "Id")
+				rf.Name = rf.Name + "ID"
+			}
+			switch att.Type.Kind() {
+			case design.BooleanKind:
+				rf.Datatype = Boolean
+			case design.IntegerKind:
+				rf.Datatype = Integer
+			case design.NumberKind:
+				rf.Datatype = Decimal
+			case design.StringKind:
+				rf.Datatype = String
+			case design.DateTimeKind:
+				rf.Datatype = Timestamp
+			case design.MediaTypeKind:
+				// Embedded MediaType
+				// Skip for now?
+				return nil
+
+			default:
+				dslengine.ReportError("Unsupported type: %#v %s", att.Type.Kind(), att.Type.Name())
+			}
+			if !utd.IsRequired(name) {
+				rf.Nullable = true
+			}
+			f.RelationalFields[rf.Name] = rf
+			return nil
+		})
+	}
 	return
 }

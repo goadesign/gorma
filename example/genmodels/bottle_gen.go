@@ -14,6 +14,7 @@ package genmodels
 import (
 	"github.com/goadesign/gorma/example/app"
 	"github.com/jinzhu/gorm"
+	log "gopkg.in/inconshreveable/log15.v2"
 	"time"
 )
 
@@ -21,21 +22,21 @@ import (
 type Bottle struct {
 	ID            int `sql:"index" gorm:"primary_key"` // primary key
 	AccountID     int // Belongs To Account
-	Color         *string
+	Color         string
 	Country       *string
-	Myvintage     *string
-	Name          *string
+	Href          string
+	Name          string
 	Rating        *int
 	Region        *string
 	Review        *string
 	Sweetness     *int
-	Varietal      *string
-	Vineyard      *string
+	Varietal      string
+	Vineyard      string
 	Vintage       *string
 	VinyardCounty *string    `gorm:"column:vinyardcounty"`
-	CreatedAt     time.Time  // timestamp
-	UpdatedAt     time.Time  // timestamp
+	UpdatedAt     *time.Time // timestamp
 	DeletedAt     *time.Time // nullable timestamp (soft delete)
+	CreatedAt     *time.Time // timestamp
 	Account       Account
 }
 
@@ -50,11 +51,13 @@ func (m Bottle) TableName() string {
 // Bottle.
 type BottleDB struct {
 	Db gorm.DB
+	log.Logger
 }
 
 // NewBottleDB creates a new storage type.
-func NewBottleDB(db gorm.DB) *BottleDB {
-	return &BottleDB{Db: db}
+func NewBottleDB(db gorm.DB, logger log.Logger) *BottleDB {
+	glog := logger.New("db", "Bottle")
+	return &BottleDB{Db: db, Logger: glog}
 }
 
 // DB returns the underlying database.
@@ -79,8 +82,27 @@ func (m *BottleDB) TableName() string {
 
 }
 
-// CRUD Functions
+// Transformation
 
+func BottleToBottle_v(source *Bottle) (target *app.Bottle) {
+	target = new(app.Bottle)
+	target.account = new(app.Account)
+	target.account.created_at = source.account.created_at
+	target.account.created_by = source.account.created_by
+	target.account.href = source.account.href
+	target.account.id = source.account.id
+	target.account.name = source.account.name
+	target.href = source.href
+	target.id = source.id
+	target.name = source.name
+	target.rating = source.rating
+	target.varietal = source.varietal
+	target.vineyard = source.vineyard
+	target.vintage = source.vintage
+	return
+}
+
+// CRUD Functions
 // ListBottle returns an array of view: default
 func (m *BottleDB) ListBottle(ctx goa.Context) []app.Bottle {
 	now := time.Now()
@@ -107,6 +129,35 @@ func (m *BottleDB) OneBottle(ctx goa.Context, id int) app.Bottle {
 	return view
 }
 
+// Transformation
+
+func BottleToBottleFull_v(source *Bottle) (target *app.BottleFull) {
+	target = new(app.BottleFull)
+	target.account = new(app.Account)
+	target.account.created_at = source.account.created_at
+	target.account.created_by = source.account.created_by
+	target.account.href = source.account.href
+	target.account.id = source.account.id
+	target.account.name = source.account.name
+	target.color = source.color
+	target.country = source.country
+	target.created_at = source.created_at
+	target.href = source.href
+	target.id = source.id
+	target.name = source.name
+	target.rating = source.rating
+	target.region = source.region
+	target.review = source.review
+	target.sweetness = source.sweetness
+	target.updated_at = source.updated_at
+	target.varietal = source.varietal
+	target.vineyard = source.vineyard
+	target.vintage = source.vintage
+	target.vinyard_county = source.vinyard_county
+	return
+}
+
+// CRUD Functions
 // ListBottleFull returns an array of view: full
 func (m *BottleDB) ListBottleFull(ctx goa.Context) []app.BottleFull {
 	now := time.Now()
@@ -133,6 +184,18 @@ func (m *BottleDB) OneBottleFull(ctx goa.Context, id int) app.BottleFull {
 	return view
 }
 
+// Transformation
+
+func BottleToBottleTiny_v(source *Bottle) (target *app.BottleTiny) {
+	target = new(app.BottleTiny)
+	target.href = source.href
+	target.id = source.id
+	target.name = source.name
+	target.rating = source.rating
+	return
+}
+
+// CRUD Functions
 // ListBottleTiny returns an array of view: tiny
 func (m *BottleDB) ListBottleTiny(ctx goa.Context) []app.BottleTiny {
 	now := time.Now()

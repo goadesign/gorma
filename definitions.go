@@ -2,6 +2,7 @@ package gorma
 
 import (
 	"github.com/goadesign/goa/design"
+
 	"github.com/goadesign/goa/dslengine"
 )
 
@@ -38,17 +39,20 @@ type RelationalStoreDefinition struct {
 // table in a relational database
 type RelationalModelDefinition struct {
 	dslengine.Definition
+	*design.AttributeDefinition
 	DefinitionDSL    func()
-	Name             string
-	Description      string //
+	ModelName        string
+	Description      string
+	GoaType          *design.MediaTypeDefinition
 	Parent           *RelationalStoreDefinition
-	BuiltFrom        *design.UserTypeDefinition
-	RenderTo         *design.MediaTypeDefinition
+	BuiltFrom        map[string]*design.UserTypeDefinition
+	RenderTo         map[string]*design.MediaTypeDefinition
 	BelongsTo        map[string]*RelationalModelDefinition
 	HasMany          map[string]*RelationalModelDefinition
 	HasOne           map[string]*RelationalModelDefinition
 	ManyToMany       map[string]*ManyToManyDefinition
-	Adapters         map[string]func()
+	SourceMaps       map[string]*SourceMapping
+	TargetMaps       map[string]*TargetMapping
 	Alias            string // gorm:tablename
 	Cached           bool
 	CacheDuration    int
@@ -60,41 +64,33 @@ type RelationalModelDefinition struct {
 	many2many        []string
 }
 
-// MediaTypeAdapterDefinition represents the transformation of a
-// Goa media type into a Gorma Model
-// Unimplemented at this time
-type MediaTypeAdapterDefinition struct {
+type SourceMapping struct {
 	dslengine.Definition
+	*design.AttributeDefinition
 	DefinitionDSL func()
-	Name          string
+	MappingName   string
 	Description   string
-	Left          *design.MediaTypeDefinition
-	Right         *RelationalModelDefinition
+	Remote        *design.UserTypeDefinition
+	Parent        *RelationalModelDefinition
+	Mappings      map[string]*MapDefinition // keyed by gorma field
 }
 
-// UserTypeAdapterDefinition represents the transformation of a Goa
-// user type into a Gorma Model
-// Unimplemented at this time
-type UserTypeAdapterDefinition struct {
+type TargetMapping struct {
 	dslengine.Definition
+	*design.AttributeDefinition
 	DefinitionDSL func()
-	Name          string
+	MappingName   string
 	Description   string
-	Left          *RelationalModelDefinition
-	Right         *RelationalModelDefinition
+	Remote        *design.UserTypeDefinition
+	Parent        *RelationalModelDefinition
+	Mappings      map[string]*MapDefinition // keyed by gorma field
 }
 
-// PayloadAdapterDefinition represents the transformation of a Goa
-// Payload (which is really a UserTypeDefinition
-// into a Gorma model
-// Unimplemented at this time
-type PayloadAdapterDefinition struct {
-	dslengine.Definition
-	DefinitionDSL func()
-	Name          string
-	Description   string
-	Left          *design.UserTypeDefinition
-	Right         *RelationalModelDefinition
+// MapDefinition represents something
+type MapDefinition struct {
+	RemoteField string
+	ParentField string
+	GormaType   FieldType //  Override computed field type
 }
 
 // RelationalFieldDefinition represents
@@ -105,8 +101,6 @@ type RelationalFieldDefinition struct {
 	Parent            *RelationalModelDefinition
 	a                 *design.AttributeDefinition
 	Name              string
-	BuiltFrom         string
-	RenderTo          string
 	Datatype          FieldType
 	SQLTag            string
 	DatabaseFieldName string
@@ -141,6 +135,76 @@ type StoreIterator func(m *RelationalStoreDefinition) error
 // RelationalStore
 type ModelIterator func(m *RelationalModelDefinition) error
 
+// SourceMapIterator
+type SourceMapIterator func(m *SourceMapping) error
+
+// TargetMapIterator
+type TargetMapIterator func(m *TargetMapping) error
+
 // FieldIterator is a function that iterates over Fields
 // in a RelationalModel
 type FieldIterator func(m *RelationalFieldDefinition) error
+
+// Kind implements DataKind.
+func (u *RelationalModelDefinition) Kind() design.Kind { return design.UserTypeKind }
+
+// Name returns the JSON type name.
+func (u *RelationalModelDefinition) Name() string { return u.Type.Name() }
+
+// IsPrimitive calls IsPrimitive on the user type underlying data type.
+func (u *RelationalModelDefinition) IsPrimitive() bool { return u.Type.IsPrimitive() }
+
+// IsObject calls IsObject on the user type underlying data type.
+func (u *RelationalModelDefinition) IsObject() bool { return u.Type.IsObject() }
+
+// IsArray calls IsArray on the user type underlying data type.
+func (u *RelationalModelDefinition) IsArray() bool { return u.Type.IsArray() }
+
+// IsHash calls IsHash on the user type underlying data type.
+func (u *RelationalModelDefinition) IsHash() bool { return u.Type.IsHash() }
+
+// ToObject calls ToObject on the user type underlying data type.
+func (u *RelationalModelDefinition) ToObject() design.Object { return u.Type.ToObject() }
+
+// ToArray calls ToArray on the user type underlying data type.
+func (u *RelationalModelDefinition) ToArray() *design.Array { return u.Type.ToArray() }
+
+// ToHash calls ToHash on the user type underlying data type.
+func (u *RelationalModelDefinition) ToHash() *design.Hash { return u.Type.ToHash() }
+
+// IsCompatible returns true if val is compatible with p.
+func (u *RelationalModelDefinition) IsCompatible(val interface{}) bool {
+	return u.Type.IsCompatible(val)
+}
+
+// Kind implements DataKind.
+func (u *SourceMapping) Kind() design.Kind { return design.UserTypeKind }
+
+// Name returns the JSON type name.
+func (u *SourceMapping) Name() string { return u.Type.Name() }
+
+// IsPrimitive calls IsPrimitive on the user type underlying data type.
+func (u *SourceMapping) IsPrimitive() bool { return u.Type.IsPrimitive() }
+
+// IsObject calls IsObject on the user type underlying data type.
+func (u *SourceMapping) IsObject() bool { return u.Type.IsObject() }
+
+// IsArray calls IsArray on the user type underlying data type.
+func (u *SourceMapping) IsArray() bool { return u.Type.IsArray() }
+
+// IsHash calls IsHash on the user type underlying data type.
+func (u *SourceMapping) IsHash() bool { return u.Type.IsHash() }
+
+// ToObject calls ToObject on the user type underlying data type.
+func (u *SourceMapping) ToObject() design.Object { return u.Type.ToObject() }
+
+// ToArray calls ToArray on the user type underlying data type.
+func (u *SourceMapping) ToArray() *design.Array { return u.Type.ToArray() }
+
+// ToHash calls ToHash on the user type underlying data type.
+func (u *SourceMapping) ToHash() *design.Hash { return u.Type.ToHash() }
+
+// IsCompatible returns true if val is compatible with p.
+func (u *SourceMapping) IsCompatible(val interface{}) bool {
+	return u.Type.IsCompatible(val)
+}

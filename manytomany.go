@@ -7,22 +7,22 @@ import (
 )
 
 func (m *ManyToManyDefinition) LeftNamePlural() string {
-	return inflect.Pluralize(m.Left.Name)
+	return inflect.Pluralize(m.Left.ModelName)
 }
 func (m *ManyToManyDefinition) RightNamePlural() string {
-	return inflect.Pluralize(m.Right.Name)
+	return inflect.Pluralize(m.Right.ModelName)
 }
 
 func (m *ManyToManyDefinition) LeftName() string {
-	return m.Left.Name
+	return m.Left.ModelName
 }
 func (m *ManyToManyDefinition) RightName() string {
-	return m.Right.Name
+	return m.Right.ModelName
 }
 
 func (m *ManyToManyDefinition) LowerLeftName() string {
-	return strings.ToLower(m.Left.Name)
+	return strings.ToLower(m.Left.ModelName)
 }
 func (m *ManyToManyDefinition) LowerRightName() string {
-	return strings.ToLower(m.Right.Name)
+	return strings.ToLower(m.Right.ModelName)
 }
