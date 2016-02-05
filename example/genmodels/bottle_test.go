@@ -62,6 +62,15 @@ func TestOneBottleFull(t *testing.T) {
 		t.Error("Expected account to be populated with bottle retrieval")
 	}
 }
+
+func TestOneBottleTiny(t *testing.T) {
+	db.LogMode(true)
+	bdb := NewBottleDB(db, logger)
+	btl := bdb.OneBottleTiny(*ctx, 1)
+	if btl.Name != "Red Horse" {
+		t.Error("Expected name to be set")
+	}
+}
 func TestGetBottle(t *testing.T) {
 	db.LogMode(true)
 	bdb := NewBottleDB(db, logger)
