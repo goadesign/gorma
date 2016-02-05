@@ -3,7 +3,6 @@ package dsl_test
 import (
 	"github.com/goadesign/gorma"
 	gdsl "github.com/goadesign/gorma/dsl"
-	"github.com/kr/pretty"
 
 	. "github.com/goadesign/goa/design"
 	. "github.com/goadesign/goa/design/apidsl"
@@ -39,9 +38,7 @@ var _ = Describe("RelationalField", func() {
 		gdsl.StorageGroup(sgname, func() {
 			gdsl.Store(storename, gorma.MySQL, func() {
 				gdsl.Model(modelname, func() {
-					gdsl.BuiltFrom(RandomPayload, func() {
-						gdsl.Map("first_name", "first_name", gorma.String)
-					})
+					gdsl.BuildsFrom(RandomPayload)
 					gdsl.Field(name, ft, dsl)
 					gdsl.Field("id", gorma.PKInteger, dsl) // use lowercase "id" to test sanitizer
 					gdsl.Field("MiddleName", gorma.String)
@@ -65,8 +62,7 @@ var _ = Describe("RelationalField", func() {
 			sg := gorma.GormaDesign
 			rs := sg.RelationalStores[storename]
 			rm := rs.RelationalModels[modelname]
-			pretty.Println(rm)
-			Ω(rm.RelationalFields[name].Name).Should(Equal(name))
+			Ω(rm.RelationalFields[name].FieldName).Should(Equal(name))
 		})
 	})
 
@@ -121,7 +117,7 @@ var _ = Describe("RelationalField", func() {
 				sg := gorma.GormaDesign
 				rs := sg.RelationalStores[storename]
 				rm := rs.RelationalModels[modelname]
-				Ω(rm.RelationalFields["ID"].Name).Should(Equal("ID"))
+				Ω(rm.RelationalFields["ID"].FieldName).Should(Equal("ID"))
 			})
 			It("sets the field type", func() {
 				sg := gorma.GormaDesign
@@ -139,7 +135,7 @@ var _ = Describe("RelationalField", func() {
 				sg := gorma.GormaDesign
 				rs := sg.RelationalStores[storename]
 				rm := rs.RelationalModels[modelname]
-				Ω(rm.RelationalFields["CreatedAt"].Name).Should(Equal("CreatedAt"))
+				Ω(rm.RelationalFields["CreatedAt"].FieldName).Should(Equal("CreatedAt"))
 				Ω(rm.RelationalFields["CreatedAt"].Datatype).Should(Equal(gorma.Timestamp))
 				Ω(rm.RelationalFields["CreatedAt"].Nullable).Should(Equal(false))
 			})
@@ -147,7 +143,7 @@ var _ = Describe("RelationalField", func() {
 				sg := gorma.GormaDesign
 				rs := sg.RelationalStores[storename]
 				rm := rs.RelationalModels[modelname]
-				Ω(rm.RelationalFields["DeletedAt"].Name).Should(Equal("DeletedAt"))
+				Ω(rm.RelationalFields["DeletedAt"].FieldName).Should(Equal("DeletedAt"))
 				Ω(rm.RelationalFields["DeletedAt"].Datatype).Should(Equal(gorma.NullableTimestamp))
 				Ω(rm.RelationalFields["DeletedAt"].Nullable).Should(Equal(true))
 			})

@@ -10,7 +10,7 @@ import (
 
 func TestModelContext(t *testing.T) {
 	sg := &gorma.RelationalModelDefinition{}
-	sg.Name = "SG"
+	sg.ModelName = "SG"
 
 	c := sg.Context()
 	exp := fmt.Sprintf("RelationalModel %#v", sg.Name)
@@ -18,7 +18,7 @@ func TestModelContext(t *testing.T) {
 		t.Errorf("Expected %s, got %s", exp, c)
 	}
 
-	sg.Name = ""
+	sg.ModelName = ""
 
 	c = sg.Context()
 	exp = "unnamed RelationalModel"
@@ -45,7 +45,7 @@ func TestPKAttributesSingle(t *testing.T) {
 	sg.RelationalFields = make(map[string]*gorma.RelationalFieldDefinition)
 	f := makePK("id")
 	sg.PrimaryKeys = append(sg.PrimaryKeys, f)
-	sg.RelationalFields[f.Name] = f
+	sg.RelationalFields[f.FieldName] = f
 
 	pka := sg.PKAttributes()
 
@@ -59,10 +59,10 @@ func TestPKAttributesMultiple(t *testing.T) {
 	sg.RelationalFields = make(map[string]*gorma.RelationalFieldDefinition)
 	f := makePK("Field1")
 	sg.PrimaryKeys = append(sg.PrimaryKeys, f)
-	sg.RelationalFields[f.Name] = f
+	sg.RelationalFields[f.FieldName] = f
 
 	f2 := makePK("Field2")
-	sg.RelationalFields[f2.Name] = f2
+	sg.RelationalFields[f2.FieldName] = f2
 	sg.PrimaryKeys = append(sg.PrimaryKeys, f2)
 
 	pka := sg.PKAttributes()
@@ -75,8 +75,8 @@ func TestPKAttributesMultiple(t *testing.T) {
 func makePK(name string) *gorma.RelationalFieldDefinition {
 
 	f := &gorma.RelationalFieldDefinition{}
-	f.Name = dsl.SanitizeFieldName(name)
-	f.DatabaseFieldName = dsl.SanitizeDBFieldName(f.Name)
+	f.FieldName = dsl.SanitizeFieldName(name)
+	f.DatabaseFieldName = dsl.SanitizeDBFieldName(f.FieldName)
 	f.Datatype = gorma.PKInteger
 	return f
 
@@ -85,11 +85,11 @@ func TestPKWhereSingle(t *testing.T) {
 	sg := &gorma.RelationalModelDefinition{}
 	sg.RelationalFields = make(map[string]*gorma.RelationalFieldDefinition)
 	f := &gorma.RelationalFieldDefinition{}
-	f.Name = dsl.SanitizeFieldName("ID")
-	f.DatabaseFieldName = dsl.SanitizeDBFieldName(f.Name)
+	f.FieldName = dsl.SanitizeFieldName("ID")
+	f.DatabaseFieldName = dsl.SanitizeDBFieldName(f.FieldName)
 	f.Datatype = gorma.PKInteger
 
-	sg.RelationalFields[f.Name] = f
+	sg.RelationalFields[f.FieldName] = f
 	sg.PrimaryKeys = append(sg.PrimaryKeys, f)
 
 	pkw := sg.PKWhere()
@@ -104,11 +104,11 @@ func TestPKWhereMultiple(t *testing.T) {
 	sg := &gorma.RelationalModelDefinition{}
 	sg.RelationalFields = make(map[string]*gorma.RelationalFieldDefinition)
 	f := makePK("Field1")
-	sg.RelationalFields[f.Name] = f
+	sg.RelationalFields[f.FieldName] = f
 	sg.PrimaryKeys = append(sg.PrimaryKeys, f)
 
 	f2 := makePK("Field2")
-	sg.RelationalFields[f2.Name] = f2
+	sg.RelationalFields[f2.FieldName] = f2
 	sg.PrimaryKeys = append(sg.PrimaryKeys, f2)
 
 	pkw := sg.PKWhere()
@@ -123,11 +123,11 @@ func TestPKWhereFieldsSingle(t *testing.T) {
 	sg := &gorma.RelationalModelDefinition{}
 	sg.RelationalFields = make(map[string]*gorma.RelationalFieldDefinition)
 	f := &gorma.RelationalFieldDefinition{}
-	f.Name = dsl.SanitizeFieldName("ID")
-	f.DatabaseFieldName = dsl.SanitizeDBFieldName(f.Name)
+	f.FieldName = dsl.SanitizeFieldName("ID")
+	f.DatabaseFieldName = dsl.SanitizeDBFieldName(f.FieldName)
 	f.Datatype = gorma.PKInteger
 
-	sg.RelationalFields[f.Name] = f
+	sg.RelationalFields[f.FieldName] = f
 	sg.PrimaryKeys = append(sg.PrimaryKeys, f)
 
 	pkw := sg.PKWhereFields()
@@ -142,11 +142,11 @@ func TestPKWhereFieldsMultiple(t *testing.T) {
 	sg := &gorma.RelationalModelDefinition{}
 	sg.RelationalFields = make(map[string]*gorma.RelationalFieldDefinition)
 	f := makePK("Field1")
-	sg.RelationalFields[f.Name] = f
+	sg.RelationalFields[f.FieldName] = f
 	sg.PrimaryKeys = append(sg.PrimaryKeys, f)
 
 	f2 := makePK("Field2")
-	sg.RelationalFields[f2.Name] = f2
+	sg.RelationalFields[f2.FieldName] = f2
 	sg.PrimaryKeys = append(sg.PrimaryKeys, f2)
 
 	pkw := sg.PKWhereFields()
@@ -161,11 +161,11 @@ func TestPKUpdateFieldsSingle(t *testing.T) {
 	sg := &gorma.RelationalModelDefinition{}
 	sg.RelationalFields = make(map[string]*gorma.RelationalFieldDefinition)
 	f := &gorma.RelationalFieldDefinition{}
-	f.Name = dsl.SanitizeFieldName("ID")
-	f.DatabaseFieldName = dsl.SanitizeDBFieldName(f.Name)
+	f.FieldName = dsl.SanitizeFieldName("ID")
+	f.DatabaseFieldName = dsl.SanitizeDBFieldName(f.FieldName)
 	f.Datatype = gorma.PKInteger
 
-	sg.RelationalFields[f.Name] = f
+	sg.RelationalFields[f.FieldName] = f
 	sg.PrimaryKeys = append(sg.PrimaryKeys, f)
 
 	pkw := sg.PKUpdateFields("model")
@@ -180,11 +180,11 @@ func TestPKUpdateFieldsMultiple(t *testing.T) {
 	sg := &gorma.RelationalModelDefinition{}
 	sg.RelationalFields = make(map[string]*gorma.RelationalFieldDefinition)
 	f := makePK("Field1")
-	sg.RelationalFields[f.Name] = f
+	sg.RelationalFields[f.FieldName] = f
 	sg.PrimaryKeys = append(sg.PrimaryKeys, f)
 
 	f2 := makePK("Field2")
-	sg.RelationalFields[f2.Name] = f2
+	sg.RelationalFields[f2.FieldName] = f2
 	sg.PrimaryKeys = append(sg.PrimaryKeys, f2)
 
 	pkw := sg.PKUpdateFields("model")

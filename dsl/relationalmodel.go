@@ -1,7 +1,6 @@
 package dsl
 
 import (
-	"fmt"
 	"strconv"
 	"strings"
 
@@ -11,11 +10,10 @@ import (
 	"github.com/goadesign/goa/dslengine"
 	"github.com/goadesign/goa/goagen/codegen"
 	"github.com/goadesign/gorma"
-	"github.com/kr/pretty"
 )
 
 // Model is the DSL that represents a Relational Model.
-// Model name should be Title cased.  Use BuiltFrom() and RenderTo() DSL
+// Model name should be Title cased.  Use BuildsFrom() and RendersTo() DSL
 // to define the mapping between a Model and a Goa Type.
 func Model(name string, dsl func()) {
 	// We can't rely on this being run first, any of the top level DSL could run
@@ -23,160 +21,90 @@ func Model(name string, dsl func()) {
 	// The first one to be called executes InitDesign.
 	checkInit()
 	if s, ok := relationalStoreDefinition(true); ok {
-		model, ok := s.RelationalModels[name]
+		var model *gorma.RelationalModelDefinition
+		var ok bool
+		model, ok = s.RelationalModels[name]
 		if !ok {
-			model = &gorma.RelationalModelDefinition{
-				ModelName:        name,
-				DefinitionDSL:    dsl,
-				Parent:           s,
-				RelationalFields: make(map[string]*gorma.RelationalFieldDefinition),
-				Maps:             make(map[string]*gorma.Mapping),
-				BuiltFrom:        make(map[string]*design.UserTypeDefinition),
-				RenderTo:         make(map[string]*design.MediaTypeDefinition),
-				BelongsTo:        make(map[string]*gorma.RelationalModelDefinition),
-				HasMany:          make(map[string]*gorma.RelationalModelDefinition),
-				HasOne:           make(map[string]*gorma.RelationalModelDefinition),
-				ManyToMany:       make(map[string]*gorma.ManyToManyDefinition),
-			}
+			model = gorma.NewRelationalModelDefinition()
+			model.ModelName = name
+			model.DefinitionDSL = dsl
+			model.Parent = s
+			model.RelationalFields = make(map[string]*gorma.RelationalFieldDefinition)
 		} else {
 			model.DefinitionDSL = dsl
 		}
 		s.RelationalModels[name] = model
+
 		if !s.NoAutoIDFields {
-			field := &gorma.RelationalFieldDefinition{
-				Name:              SanitizeFieldName("ID"),
-				Parent:            model,
-				Datatype:          gorma.PKInteger,
-				PrimaryKey:        true,
-				DatabaseFieldName: SanitizeDBFieldName("ID"),
-			}
-			model.RelationalFields[field.Name] = field
+			field := gorma.NewRelationalFieldDefinition()
+			field.FieldName = SanitizeFieldName("ID")
+			field.Parent = model
+			field.Datatype = gorma.PKInteger
+			field.PrimaryKey = true
+			field.DatabaseFieldName = SanitizeDBFieldName("ID")
+			model.RelationalFields[field.FieldName] = field
 		}
 		if !s.NoAutoTimestamps {
 			// add createdat
-			field := &gorma.RelationalFieldDefinition{
-				Name:              SanitizeFieldName("CreatedAt"),
-				Parent:            model,
-				Datatype:          gorma.Timestamp,
-				DatabaseFieldName: SanitizeDBFieldName("CreatedAt"),
-			}
-			model.RelationalFields[field.Name] = field
+			field := gorma.NewRelationalFieldDefinition()
+			field.FieldName = SanitizeFieldName("CreatedAt")
+			field.Parent = model
+			field.Datatype = gorma.Timestamp
+			field.DatabaseFieldName = SanitizeDBFieldName("CreatedAt")
+			model.RelationalFields[field.FieldName] = field
+
 			// add updatedat
-			field = &gorma.RelationalFieldDefinition{
-				Name:              SanitizeFieldName("UpdatedAt"),
-				Parent:            model,
-				Datatype:          gorma.Timestamp,
-				DatabaseFieldName: SanitizeDBFieldName("UpdatedAt"),
-			}
-			model.RelationalFields[field.Name] = field
+			field = gorma.NewRelationalFieldDefinition()
+			field.FieldName = SanitizeFieldName("UpdatedAt")
+			field.Parent = model
+			field.Datatype = gorma.Timestamp
+			field.DatabaseFieldName = SanitizeDBFieldName("UpdatedAt")
+			model.RelationalFields[field.FieldName] = field
 		}
 		if !s.NoAutoSoftDelete {
 			// Add softdelete
-			field := &gorma.RelationalFieldDefinition{
-				Name:              SanitizeFieldName("DeletedAt"),
-				Parent:            model,
-				Nullable:          true,
-				Datatype:          gorma.NullableTimestamp,
-				DatabaseFieldName: SanitizeDBFieldName("DeletedAt"),
-			}
-			model.RelationalFields[field.Name] = field
+			field := gorma.NewRelationalFieldDefinition()
+			field.FieldName = SanitizeFieldName("DeletedAt")
+			field.Parent = model
+			field.Nullable = true
+			field.Datatype = gorma.NullableTimestamp
+			field.DatabaseFieldName = SanitizeDBFieldName("DeletedAt")
+			model.RelationalFields[field.FieldName] = field
 		}
 	}
 }
 
-// RenderTo informs Gorma that this model will need to be
+// RendersTo informs Gorma that this model will need to be
 // rendered to a Goa type.  Conversion functions
 // will be generated to convert to/from the model.
-// Usage:   RenderTo(MediaType)
-func RendersTo(rt interface{}, dsl func()) {
+// Usage:   RendersTo(MediaType)
+func RendersTo(rt interface{}) {
 	checkInit()
-	if m, ok := relationalModelDefinition(true); ok {
+	if m, ok := relationalModelDefinition(false); ok {
 		mts, ok := rt.(*design.MediaTypeDefinition)
 		if ok {
 			m.RenderTo[mts.TypeName] = mts
-			mapping := gorma.NewMapping()
-			mapping.MappingName = m.ModelName + ":" + mts.TypeName
-			mapping.Description = "Maps " + m.ModelName + " to " + mts.TypeName
-			mapping.Remote = mts.UserTypeDefinition
-			mapping.Parent = m
-			mapping.DefinitionDSL = dsl
-			mapping.Mappings = make(map[string]*gorma.MapDefinition)
-			m.Maps["source:"+mts.TypeName] = mapping
-
 		}
 
 	}
 }
 
-// BuiltFrom informs Gorma that this model will be populated
+// BuildsFrom informs Gorma that this model will be populated
 // from a Goa UserType.  Conversion functions
 // will be generated to convert from the payload to the model.
-// Usage:  BuiltFrom(YourType)
-func BuildsFrom(bf interface{}, dsl func()) {
+// Usage:  BuildsFrom(YourType)
+func BuildsFrom(bf interface{}) {
 	checkInit()
-	if m, ok := relationalModelDefinition(true); ok {
+	if m, ok := relationalModelDefinition(false); ok {
 		mts, ok := bf.(*design.UserTypeDefinition)
 		if ok {
 			m.BuiltFrom[mts.TypeName] = mts
-			m.Maps[mts.TypeName] = &gorma.Mapping{
-				AttributeDefinition: &design.AttributeDefinition{DSLFunc: dsl},
-				MappingName:         mts.TypeName + ":" + m.ModelName,
-				Description:         "Maps " + mts.TypeName + " to " + m.ModelName,
-				Remote:              mts,
-				Parent:              m,
-				DefinitionDSL:       dsl,
-				Mappings:            make(map[string]*gorma.MapDefinition),
-			}
 		} else if mts, ok := bf.(*design.MediaTypeDefinition); ok {
 			m.BuiltFrom[mts.TypeName] = mts.UserTypeDefinition
-			m.Maps[mts.TypeName] = &gorma.Mapping{
-
-				AttributeDefinition: &design.AttributeDefinition{DSLFunc: dsl},
-				MappingName:         mts.TypeName + ":" + m.ModelName,
-				Description:         "Maps " + mts.TypeName + " to " + m.ModelName,
-				Remote:              mts.UserTypeDefinition,
-				Parent:              m,
-				DefinitionDSL:       dsl,
-				Mappings:            make(map[string]*gorma.MapDefinition),
-			}
 		}
 		m.PopulateFromModeledType()
 
 	}
-}
-
-// Map defines the mapping between Gorma and Goa types
-func Map(left, right string, fieldType gorma.FieldType) {
-	checkInit()
-
-	if m, ok := mappingDefinition(false); ok {
-		fmt.Println("Source Map:", left, right, fieldType, m.Name)
-		fmt.Println(m.Parent, m.Parent.Name)
-		if md, ok := m.Mappings[left+":"+right]; ok {
-			// we have a mapping already
-			pretty.Println("Source Mapping Exists", md)
-		} else {
-			// no mapping exists
-			pretty.Println("Need New Source Mapping")
-			md := &gorma.MapDefinition{
-				RemoteField: left,
-				ParentField: right,
-				GormaType:   fieldType,
-			}
-			m.Mappings[left+":"+right] = md
-		}
-		field, ok := m.Parent.RelationalFields[codegen.Goify(right, true)]
-		if !ok {
-			field = &gorma.RelationalFieldDefinition{
-				Name:     codegen.Goify(right, true),
-				Parent:   m.Parent,
-				Datatype: fieldType,
-			}
-			m.Parent.RelationalFields[codegen.Goify(right, true)] = field
-		}
-
-	}
-
 }
 
 // BelongsTo signifies a relationship between this model and a
@@ -185,33 +113,21 @@ func Map(left, right string, fieldType gorma.FieldType) {
 // Usage:  BelongsTo("User")
 func BelongsTo(parent string) {
 	if r, ok := relationalModelDefinition(false); ok {
-		idfield := &gorma.RelationalFieldDefinition{
-			Name:              codegen.Goify(inflect.Singularize(parent), true) + "ID",
-			Description:       "Belongs To " + codegen.Goify(inflect.Singularize(parent), true),
-			Parent:            r,
-			Datatype:          gorma.BelongsTo,
-			DatabaseFieldName: SanitizeDBFieldName(codegen.Goify(inflect.Singularize(parent), true) + "ID"),
-		}
-
-		r.RelationalFields[idfield.Name] = idfield
+		idfield := gorma.NewRelationalFieldDefinition()
+		idfield.FieldName = codegen.Goify(inflect.Singularize(parent), true) + "ID"
+		idfield.Description = "Belongs To " + codegen.Goify(inflect.Singularize(parent), true)
+		idfield.Parent = r
+		idfield.Datatype = gorma.BelongsTo
+		idfield.DatabaseFieldName = SanitizeDBFieldName(codegen.Goify(inflect.Singularize(parent), true) + "ID")
+		r.RelationalFields[idfield.FieldName] = idfield
 		bt, ok := r.Parent.RelationalModels[codegen.Goify(inflect.Singularize(parent), true)]
 		if ok {
 			r.BelongsTo[bt.ModelName] = bt
-
 		} else {
-			models := &gorma.RelationalModelDefinition{
-				ModelName:        codegen.Goify(inflect.Singularize(parent), true),
-				Parent:           r.Parent,
-				RelationalFields: make(map[string]*gorma.RelationalFieldDefinition),
-				Maps:             make(map[string]*gorma.Mapping),
-				BuiltFrom:        make(map[string]*design.UserTypeDefinition),
-				RenderTo:         make(map[string]*design.MediaTypeDefinition),
-				BelongsTo:        make(map[string]*gorma.RelationalModelDefinition),
-				HasMany:          make(map[string]*gorma.RelationalModelDefinition),
-				HasOne:           make(map[string]*gorma.RelationalModelDefinition),
-				ManyToMany:       make(map[string]*gorma.ManyToManyDefinition),
-			}
-			r.BelongsTo[models.ModelName] = models
+			model := gorma.NewRelationalModelDefinition()
+			model.ModelName = codegen.Goify(inflect.Singularize(parent), true)
+			model.Parent = r.Parent
+			r.BelongsTo[model.ModelName] = model
 		}
 	}
 }
@@ -224,51 +140,40 @@ func BelongsTo(parent string) {
 // Usage:  HasOne("Proposal")
 func HasOne(child string) {
 	if r, ok := relationalModelDefinition(false); ok {
-		field := &gorma.RelationalFieldDefinition{
-			Name:        codegen.Goify(inflect.Singularize(child), true),
-			HasOne:      child,
-			Description: "has one " + child,
-			Datatype:    gorma.HasOne,
-			Parent:      r,
-		}
-		r.RelationalFields[field.Name] = field
+		field := gorma.NewRelationalFieldDefinition()
+		field.FieldName = codegen.Goify(inflect.Singularize(child), true)
+		field.HasOne = child
+		field.Description = "has one " + child
+		field.Datatype = gorma.HasOne
+		field.Parent = r
+		r.RelationalFields[field.FieldName] = field
 		bt, ok := r.Parent.RelationalModels[child]
 		if ok {
 			r.HasOne[child] = bt
 			// create the fk field
-			f := &gorma.RelationalFieldDefinition{
-				Name:              codegen.Goify(inflect.Singularize(r.ModelName), true) + "ID",
-				HasOne:            child,
-				Description:       "has one " + child,
-				Datatype:          gorma.HasOneKey,
-				Parent:            bt,
-				DatabaseFieldName: SanitizeDBFieldName(codegen.Goify(inflect.Singularize(r.ModelName), true) + "ID"),
-			}
-			bt.RelationalFields[f.Name] = f
+			f := gorma.NewRelationalFieldDefinition()
+			f.FieldName = codegen.Goify(inflect.Singularize(r.ModelName), true) + "ID"
+			f.HasOne = child
+			f.Description = "has one " + child
+			f.Datatype = gorma.HasOneKey
+			f.Parent = bt
+			f.DatabaseFieldName = SanitizeDBFieldName(codegen.Goify(inflect.Singularize(r.ModelName), true) + "ID")
+			bt.RelationalFields[f.FieldName] = f
 		} else {
-			models := &gorma.RelationalModelDefinition{
-				ModelName:        child,
-				Parent:           r.Parent,
-				RelationalFields: make(map[string]*gorma.RelationalFieldDefinition),
-				Maps:             make(map[string]*gorma.Mapping),
-				BuiltFrom:        make(map[string]*design.UserTypeDefinition),
-				RenderTo:         make(map[string]*design.MediaTypeDefinition),
-				BelongsTo:        make(map[string]*gorma.RelationalModelDefinition),
-				HasMany:          make(map[string]*gorma.RelationalModelDefinition),
-				HasOne:           make(map[string]*gorma.RelationalModelDefinition),
-				ManyToMany:       make(map[string]*gorma.ManyToManyDefinition),
-			}
-			r.HasOne[child] = models
+			model := gorma.NewRelationalModelDefinition()
+			model.ModelName = child
+			model.Parent = r.Parent
+			r.HasOne[child] = model
+
 			// create the fk field
-			f := &gorma.RelationalFieldDefinition{
-				Name:              codegen.Goify(inflect.Singularize(r.ModelName), true) + "ID",
-				HasOne:            child,
-				Description:       "has one " + child,
-				Datatype:          gorma.HasOneKey,
-				Parent:            bt,
-				DatabaseFieldName: SanitizeDBFieldName(codegen.Goify(inflect.Singularize(r.ModelName), true) + "ID"),
-			}
-			models.RelationalFields[f.Name] = f
+			f := gorma.NewRelationalFieldDefinition()
+			f.FieldName = codegen.Goify(inflect.Singularize(r.ModelName), true) + "ID"
+			f.HasOne = child
+			f.Description = "has one " + child
+			f.Datatype = gorma.HasOneKey
+			f.Parent = bt
+			f.DatabaseFieldName = SanitizeDBFieldName(codegen.Goify(inflect.Singularize(r.ModelName), true) + "ID")
+			model.RelationalFields[f.FieldName] = f
 		}
 	}
 }
@@ -284,53 +189,42 @@ func HasOne(child string) {
 // Struct field definition:  Children	[]Child
 func HasMany(name, child string) {
 	if r, ok := relationalModelDefinition(false); ok {
-		field := &gorma.RelationalFieldDefinition{
-			Name:        codegen.Goify(name, true),
-			HasMany:     child,
-			Description: "has many " + inflect.Pluralize(child),
-			Datatype:    gorma.HasMany,
-			Parent:      r,
-		}
-		r.RelationalFields[field.Name] = field
+		field := gorma.NewRelationalFieldDefinition()
+		field.FieldName = codegen.Goify(name, true)
+		field.HasMany = child
+		field.Description = "has many " + inflect.Pluralize(child)
+		field.Datatype = gorma.HasMany
+		field.Parent = r
+		r.RelationalFields[field.FieldName] = field
+
 		var model *gorma.RelationalModelDefinition
 		model, ok := r.Parent.RelationalModels[child]
 		if ok {
 			r.HasMany[child] = model
 			// create the fk field
-			f := &gorma.RelationalFieldDefinition{
-				Name:              codegen.Goify(inflect.Singularize(r.ModelName), true) + "ID",
-				HasMany:           child,
-				Description:       "has many " + child,
-				Datatype:          gorma.HasManyKey,
-				Parent:            model,
-				DatabaseFieldName: SanitizeDBFieldName(codegen.Goify(inflect.Singularize(r.ModelName), true) + "ID"),
-			}
-			model.RelationalFields[f.Name] = f
+			f := gorma.NewRelationalFieldDefinition()
+			f.FieldName = codegen.Goify(inflect.Singularize(r.ModelName), true) + "ID"
+			f.HasMany = child
+			f.Description = "has many " + child
+			f.Datatype = gorma.HasManyKey
+			f.Parent = model
+			f.DatabaseFieldName = SanitizeDBFieldName(codegen.Goify(inflect.Singularize(r.ModelName), true) + "ID")
+			model.RelationalFields[f.FieldName] = f
 		} else {
-			model = &gorma.RelationalModelDefinition{
-				ModelName:        child,
-				Parent:           r.Parent,
-				RelationalFields: make(map[string]*gorma.RelationalFieldDefinition),
-				Maps:             make(map[string]*gorma.Mapping),
-				BuiltFrom:        make(map[string]*design.UserTypeDefinition),
-				RenderTo:         make(map[string]*design.MediaTypeDefinition),
-				BelongsTo:        make(map[string]*gorma.RelationalModelDefinition),
-				HasMany:          make(map[string]*gorma.RelationalModelDefinition),
-				HasOne:           make(map[string]*gorma.RelationalModelDefinition),
-				ManyToMany:       make(map[string]*gorma.ManyToManyDefinition),
-			}
-			r.HasMany[child] = model
-			// create the fk field
-			f := &gorma.RelationalFieldDefinition{
-				Name:              codegen.Goify(inflect.Singularize(r.ModelName), true) + "ID",
-				HasMany:           child,
-				Description:       "has many " + child,
-				Datatype:          gorma.HasManyKey,
-				Parent:            model,
-				DatabaseFieldName: SanitizeDBFieldName(codegen.Goify(inflect.Singularize(r.ModelName), true) + "ID"),
-			}
-			model.RelationalFields[f.Name] = f
+			model = gorma.NewRelationalModelDefinition()
+			model.ModelName = child
+			model.Parent = r.Parent
 		}
+		r.HasMany[child] = model
+		// create the fk field
+		f := gorma.NewRelationalFieldDefinition()
+		f.FieldName = codegen.Goify(inflect.Singularize(r.ModelName), true) + "ID"
+		f.HasMany = child
+		f.Description = "has many " + child
+		f.Datatype = gorma.HasManyKey
+		f.Parent = model
+		f.DatabaseFieldName = SanitizeDBFieldName(codegen.Goify(inflect.Singularize(r.ModelName), true) + "ID")
+		model.RelationalFields[f.FieldName] = f
 	}
 }
 
@@ -347,13 +241,12 @@ func HasMany(name, child string) {
 // be an array of type `product.Product`.
 func ManyToMany(other, tablename string) {
 	if r, ok := relationalModelDefinition(false); ok {
-		field := &gorma.RelationalFieldDefinition{
-			Name:        inflect.Pluralize(other),
-			Many2Many:   other,
-			Description: "many to many " + r.ModelName + "/" + strings.Title(other),
-			Parent:      r,
-		}
-		r.RelationalFields[field.Name] = field
+		field := gorma.NewRelationalFieldDefinition()
+		field.FieldName = inflect.Pluralize(other)
+		field.Many2Many = other
+		field.Description = "many to many " + r.ModelName + "/" + strings.Title(other)
+		field.Parent = r
+		r.RelationalFields[field.FieldName] = field
 		var model *gorma.RelationalModelDefinition
 		model, ok := r.Parent.RelationalModels[other]
 		var m2m *gorma.ManyToManyDefinition
@@ -366,18 +259,9 @@ func ManyToMany(other, tablename string) {
 			}
 			r.ManyToMany[other] = m2m
 		} else {
-			model = &gorma.RelationalModelDefinition{
-				ModelName:        other,
-				Parent:           r.Parent,
-				RelationalFields: make(map[string]*gorma.RelationalFieldDefinition),
-				Maps:             make(map[string]*gorma.Mapping),
-				BuiltFrom:        make(map[string]*design.UserTypeDefinition),
-				RenderTo:         make(map[string]*design.MediaTypeDefinition),
-				BelongsTo:        make(map[string]*gorma.RelationalModelDefinition),
-				HasMany:          make(map[string]*gorma.RelationalModelDefinition),
-				HasOne:           make(map[string]*gorma.RelationalModelDefinition),
-				ManyToMany:       make(map[string]*gorma.ManyToManyDefinition),
-			}
+			model := gorma.NewRelationalModelDefinition()
+			model.ModelName = other
+			model.Parent = r.Parent
 			m2m = &gorma.ManyToManyDefinition{
 				Left:          r,
 				Right:         model,

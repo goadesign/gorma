@@ -69,7 +69,7 @@ const (
 
 // Init creates the necessary data structures for parsing a DSL
 func Init() {
-	sg := &StorageGroupDefinition{}
+	sg := NewStorageGroupDefinition()
 	dslengine.Roots = append(dslengine.Roots, sg)
 	GormaDesign = sg
 }

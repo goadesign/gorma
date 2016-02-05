@@ -7,6 +7,15 @@ import (
 	"github.com/goadesign/goa/dslengine"
 )
 
+// NewStorageGroupDefinition returns an initialized
+// StorageGroupDefinition
+func NewStorageGroupDefinition() *StorageGroupDefinition {
+	m := &StorageGroupDefinition{
+		RelationalStores: make(map[string]*RelationalStoreDefinition),
+	}
+	return m
+}
+
 // IterateStores runs an iterator function once per Relational Store in the
 // StorageGroup's Store list.
 func (sd *StorageGroupDefinition) IterateStores(it StoreIterator) error {
@@ -57,23 +66,20 @@ func (sd *StorageGroupDefinition) IterateSets(iterator dslengine.SetIterator) {
 	iterator([]dslengine.Definition{sd})
 	sd.IterateStores(func(store *RelationalStoreDefinition) error {
 		iterator([]dslengine.Definition{store})
+		//	i := 0
+		//	typeAttributes := make([]dslengine.Definition, len(store.RelationalModels))
 		store.IterateModels(func(model *RelationalModelDefinition) error {
+			//		model.AttributeDefinition.DSLFunc = model.DefinitionDSL
+			//		typeAttributes[i] = model.AttributeDefinition
+			//		i++
+
 			iterator([]dslengine.Definition{model})
-			typeAttributes := make([]dslengine.Definition, len(model.Maps))
-			i := 0
-			model.IterateMaps(func(smap *Mapping) error {
-				smap.AttributeDefinition.DSLFunc = smap.DefinitionDSL
-				typeAttributes[i] = smap.AttributeDefinition
-				i++
-				iterator([]dslengine.Definition{smap})
-				return nil
-			})
-			iterator(typeAttributes)
 
 			model.IterateFields(func(field *RelationalFieldDefinition) error {
 				iterator([]dslengine.Definition{field})
 				return nil
 			})
+			//		iterator(typeAttributes)
 			return nil
 		})
 		return nil

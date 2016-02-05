@@ -64,19 +64,16 @@ var _ = Describe("RelationalModel", func() {
 			gdsl.Store(storename, gorma.MySQL, func() {
 				gdsl.Model(name, dsl)
 				gdsl.Model("Child", func() {
-					gdsl.BuiltFrom(ChildPayload, func() {
-					})
-					gdsl.RenderTo(ChildMedia, func() {
-
-					})
+					gdsl.BuildsFrom(ChildPayload)
+					gdsl.RendersTo(ChildMedia)
 					gdsl.BelongsTo(name)
 				})
 				gdsl.Model("One", func() {
-					gdsl.BuiltFrom(HasOnePayload, func() {})
+					gdsl.BuildsFrom(HasOnePayload)
 					gdsl.HasOne("Child")
 				})
 				gdsl.Model("Many", func() {
-					gdsl.BuiltFrom(HasManyPayload, func() {})
+					gdsl.BuildsFrom(HasManyPayload)
 					gdsl.HasMany("Children", "Child")
 				})
 
@@ -96,7 +93,7 @@ var _ = Describe("RelationalModel", func() {
 			Ω(Design.Validate()).ShouldNot(HaveOccurred())
 			sg := gorma.GormaDesign
 			rs := sg.RelationalStores[storename]
-			Ω(rs.RelationalModels[name].Name).Should(Equal(name))
+			Ω(rs.RelationalModels[name].ModelName).Should(Equal(name))
 		})
 	})
 
@@ -277,7 +274,7 @@ var _ = Describe("RelationalModel", func() {
 				f, ok := rs.RelationalModels["One"].RelationalFields["Child"]
 
 				Ω(ok).Should(Equal(true))
-				Ω(f.Name).Should(Equal("Child"))
+				Ω(f.FieldName).Should(Equal("Child"))
 			})
 		})
 
@@ -310,7 +307,7 @@ var _ = Describe("RelationalModel", func() {
 				f, ok := rs.RelationalModels["Child"].RelationalFields["UserID"]
 
 				Ω(ok).Should(Equal(true))
-				Ω(f.Name).Should(Equal("UserID"))
+				Ω(f.FieldName).Should(Equal("UserID"))
 			})
 		})
 
@@ -339,7 +336,7 @@ var _ = Describe("RelationalModel", func() {
 				f, ok := rs.RelationalModels["Many"].RelationalFields["Children"]
 
 				Ω(ok).Should(Equal(true))
-				Ω(f.Name).Should(Equal("Children"))
+				Ω(f.FieldName).Should(Equal("Children"))
 			})
 		})
 
@@ -390,15 +387,15 @@ var _ = Describe("RelationalModel with auto fields enabled and auto fields set i
 			gdsl.Store(storename, gorma.MySQL, func() {
 				gdsl.Model(name, dsl)
 				gdsl.Model("Child", func() {
-					gdsl.BuiltFrom(ChildPayload, func() {})
+					gdsl.BuildsFrom(ChildPayload)
 					gdsl.BelongsTo(name)
 				})
 				gdsl.Model("One", func() {
-					gdsl.BuiltFrom(HasOnePayload, func() {})
+					gdsl.BuildsFrom(HasOnePayload)
 					gdsl.HasOne("Child")
 				})
 				gdsl.Model("Many", func() {
-					gdsl.BuiltFrom(HasManyPayload, func() {})
+					gdsl.BuildsFrom(HasManyPayload)
 					gdsl.HasMany("Children", "Child")
 				})
 
@@ -424,7 +421,7 @@ var _ = Describe("RelationalModel with auto fields enabled and auto fields set i
 			Ω(Design.Validate()).ShouldNot(HaveOccurred())
 			sg := gorma.GormaDesign
 			rs := sg.RelationalStores[storename]
-			Ω(rs.RelationalModels[name].Name).Should(Equal(name))
+			Ω(rs.RelationalModels[name].ModelName).Should(Equal(name))
 			_, ok := rs.RelationalModels[name].RelationalFields["ID"]
 			Ω(ok).Should(Equal(true))
 			_, ok = rs.RelationalModels[name].RelationalFields["UpdatedAt"]
@@ -433,7 +430,7 @@ var _ = Describe("RelationalModel with auto fields enabled and auto fields set i
 			Ω(ok).Should(Equal(true))
 			_, ok = rs.RelationalModels[name].RelationalFields["DeletedAt"]
 			Ω(ok).Should(Equal(true))
-			Ω(rs.RelationalModels[name].Name).Should(Equal(name))
+			Ω(rs.RelationalModels[name].ModelName).Should(Equal(name))
 			Ω(len(rs.RelationalModels[name].RelationalFields)).Should(Equal(4))
 
 		})
@@ -483,15 +480,15 @@ var _ = Describe("RelationalModel with auto fields explicitly enabled", func() {
 			gdsl.Store(storename, gorma.MySQL, func() {
 				gdsl.Model(name, dsl)
 				gdsl.Model("Child", func() {
-					gdsl.BuiltFrom(ChildPayload, func() {})
+					gdsl.BuildsFrom(ChildPayload)
 					gdsl.BelongsTo(name)
 				})
 				gdsl.Model("One", func() {
-					gdsl.BuiltFrom(HasOnePayload, func() {})
+					gdsl.BuildsFrom(HasOnePayload)
 					gdsl.HasOne("Child")
 				})
 				gdsl.Model("Many", func() {
-					gdsl.BuiltFrom(HasManyPayload, func() {})
+					gdsl.BuildsFrom(HasManyPayload)
 					gdsl.HasMany("Children", "Child")
 				})
 
@@ -511,7 +508,7 @@ var _ = Describe("RelationalModel with auto fields explicitly enabled", func() {
 			Ω(Design.Validate()).ShouldNot(HaveOccurred())
 			sg := gorma.GormaDesign
 			rs := sg.RelationalStores[storename]
-			Ω(rs.RelationalModels[name].Name).Should(Equal(name))
+			Ω(rs.RelationalModels[name].ModelName).Should(Equal(name))
 			_, ok := rs.RelationalModels[name].RelationalFields["ID"]
 			Ω(ok).Should(Equal(true))
 			_, ok = rs.RelationalModels[name].RelationalFields["UpdatedAt"]
@@ -520,7 +517,7 @@ var _ = Describe("RelationalModel with auto fields explicitly enabled", func() {
 			Ω(ok).Should(Equal(true))
 			_, ok = rs.RelationalModels[name].RelationalFields["DeletedAt"]
 			Ω(ok).Should(Equal(true))
-			Ω(rs.RelationalModels[name].Name).Should(Equal(name))
+			Ω(rs.RelationalModels[name].ModelName).Should(Equal(name))
 			Ω(len(rs.RelationalModels[name].RelationalFields)).Should(Equal(4))
 		})
 	})
@@ -573,15 +570,15 @@ var _ = Describe("RelationalModel with auto fields disabled", func() {
 				gdsl.NoAutomaticSoftDelete()
 				gdsl.Model(name, dsl)
 				gdsl.Model("Child", func() {
-					gdsl.BuiltFrom(ChildPayload, func() {})
+					gdsl.BuildsFrom(ChildPayload)
 					gdsl.BelongsTo(name)
 				})
 				gdsl.Model("One", func() {
-					gdsl.BuiltFrom(HasOnePayload, func() {})
+					gdsl.BuildsFrom(HasOnePayload)
 					gdsl.HasOne("Child")
 				})
 				gdsl.Model("Many", func() {
-					gdsl.BuiltFrom(HasManyPayload, func() {})
+					gdsl.BuildsFrom(HasManyPayload)
 					gdsl.HasMany("Children", "Child")
 				})
 
@@ -601,7 +598,7 @@ var _ = Describe("RelationalModel with auto fields disabled", func() {
 			Ω(Design.Validate()).ShouldNot(HaveOccurred())
 			sg := gorma.GormaDesign
 			rs := sg.RelationalStores[storename]
-			Ω(rs.RelationalModels[name].Name).Should(Equal(name))
+			Ω(rs.RelationalModels[name].ModelName).Should(Equal(name))
 			_, ok := rs.RelationalModels[name].RelationalFields["ID"]
 			Ω(ok).Should(Equal(false))
 			_, ok = rs.RelationalModels[name].RelationalFields["UpdatedAt"]
@@ -610,7 +607,7 @@ var _ = Describe("RelationalModel with auto fields disabled", func() {
 			Ω(ok).Should(Equal(false))
 			_, ok = rs.RelationalModels[name].RelationalFields["DeletedAt"]
 			Ω(ok).Should(Equal(false))
-			Ω(rs.RelationalModels[name].Name).Should(Equal(name))
+			Ω(rs.RelationalModels[name].ModelName).Should(Equal(name))
 			Ω(len(rs.RelationalModels[name].RelationalFields)).Should(Equal(0))
 		})
 	})
@@ -660,15 +657,15 @@ var _ = Describe("RelationalModel with auto fields unset", func() {
 			gdsl.Store(storename, gorma.MySQL, func() {
 				gdsl.Model(name, dsl)
 				gdsl.Model("Child", func() {
-					gdsl.BuiltFrom(ChildPayload, func() {})
+					gdsl.BuildsFrom(ChildPayload)
 					gdsl.BelongsTo(name)
 				})
 				gdsl.Model("One", func() {
-					gdsl.BuiltFrom(HasOnePayload, func() {})
+					gdsl.BuildsFrom(HasOnePayload)
 					gdsl.HasOne("Child")
 				})
 				gdsl.Model("Many", func() {
-					gdsl.BuiltFrom(HasManyPayload, func() {})
+					gdsl.BuildsFrom(HasManyPayload)
 					gdsl.HasMany("Children", "Child")
 				})
 
@@ -688,7 +685,7 @@ var _ = Describe("RelationalModel with auto fields unset", func() {
 			Ω(Design.Validate()).ShouldNot(HaveOccurred())
 			sg := gorma.GormaDesign
 			rs := sg.RelationalStores[storename]
-			Ω(rs.RelationalModels[name].Name).Should(Equal(name))
+			Ω(rs.RelationalModels[name].ModelName).Should(Equal(name))
 			f, ok := rs.RelationalModels[name].RelationalFields["ID"]
 			Ω(ok).Should(Equal(true))
 			Ω(f.Datatype).Should(Equal(gorma.PKInteger))
@@ -701,7 +698,7 @@ var _ = Describe("RelationalModel with auto fields unset", func() {
 			f, ok = rs.RelationalModels[name].RelationalFields["DeletedAt"]
 			Ω(ok).Should(Equal(true))
 			Ω(f.Datatype).Should(Equal(gorma.NullableTimestamp))
-			Ω(rs.RelationalModels[name].Name).Should(Equal(name))
+			Ω(rs.RelationalModels[name].ModelName).Should(Equal(name))
 		})
 	})
 })

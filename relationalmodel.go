@@ -12,6 +12,25 @@ import (
 	"github.com/goadesign/goa/goagen/codegen"
 )
 
+// NewRelationalModelDefinition returns an initialized
+// RelationalModelDefinition
+func NewRelationalModelDefinition() *RelationalModelDefinition {
+	baseAttr := &design.AttributeDefinition{}
+	m := &RelationalModelDefinition{
+		RelationalFields: make(map[string]*RelationalFieldDefinition),
+		BuiltFrom:        make(map[string]*design.UserTypeDefinition),
+		RenderTo:         make(map[string]*design.MediaTypeDefinition),
+		BelongsTo:        make(map[string]*RelationalModelDefinition),
+		HasMany:          make(map[string]*RelationalModelDefinition),
+		HasOne:           make(map[string]*RelationalModelDefinition),
+		ManyToMany:       make(map[string]*ManyToManyDefinition),
+		UserTypeDefinition: &design.UserTypeDefinition{
+			AttributeDefinition: baseAttr,
+		},
+	}
+	return m
+}
+
 // Context returns the generic definition name used in error messages.
 func (f *RelationalModelDefinition) Context() string {
 	if f.ModelName != "" {
@@ -25,20 +44,7 @@ func (f *RelationalModelDefinition) DSL() func() {
 	return f.DefinitionDSL
 }
 
-// Context returns the generic definition name used in error messages.
-func (f *Mapping) Context() string {
-	if f.MappingName != "" {
-		return fmt.Sprintf("SourceMapping %#v", f.MappingName)
-	}
-	return "unnamed SourceMapping"
-}
-
-// DSL returns this object's DSL.
-func (f *Mapping) DSL() func() {
-	return f.DefinitionDSL
-}
-
-// TableName returns the table name for this model
+// TableName returns the TableName of the struct
 func (f RelationalModelDefinition) TableName() string {
 	return inflect.Underscore(inflect.Pluralize(f.ModelName))
 }
@@ -89,7 +95,7 @@ func (f *RelationalModelDefinition) PKWhereFields() string {
 func (f *RelationalModelDefinition) PKUpdateFields(modelname string) string {
 	var pkwhere []string
 	for _, pk := range f.PrimaryKeys {
-		def := fmt.Sprintf("%s.%s", modelname, codegen.Goify(pk.Name, true))
+		def := fmt.Sprintf("%s.%s", modelname, codegen.Goify(pk.FieldName, true))
 		pkwhere = append(pkwhere, def)
 	}
 
@@ -113,11 +119,14 @@ func (f *RelationalModelDefinition) StructDefinition() string {
 
 }
 
+// Attributes implements the Container interface of goa.
 func (f *RelationalModelDefinition) Attribute() *design.AttributeDefinition {
 	return f.AttributeDefinition
 
 }
 
+// Project does something interesting, and I don't remember if I use it anywhere
+// TODO find out
 func (f *RelationalModelDefinition) Project(name, v string) *design.MediaTypeDefinition {
 
 	p, _, _ := f.RenderTo[name].Project(v)
@@ -127,23 +136,6 @@ func (f *RelationalModelDefinition) Project(name, v string) *design.MediaTypeDef
 // LowerName returns the model name as a lowercase string.
 func (f *RelationalModelDefinition) LowerName() string {
 	return strings.ToLower(f.ModelName)
-}
-
-// IterateSourceMaps runs an iterator function once per mapping in the Model's list
-func (sd *RelationalModelDefinition) IterateMaps(it MapIterator) error {
-	names := make([]string, len(sd.Maps))
-	i := 0
-	for n := range sd.Maps {
-		names[i] = n
-		i++
-	}
-	sort.Strings(names)
-	for _, n := range names {
-		if err := it(sd.Maps[n]); err != nil {
-			return err
-		}
-	}
-	return nil
 }
 
 // IterateFields returns an iterator function useful for iterating through
@@ -209,7 +201,8 @@ func (f *RelationalModelDefinition) IterateFields(it FieldIterator) error {
 }
 
 // PopulateFromModeledType creates fields for the model
-// based on the goa UserTypeDefinition it models.
+// based on the goa UserTypeDefinition it models, which is
+// set using BuildsFrom()
 // This happens before fields are processed, so it's
 // ok to just assign without testing.
 func (f *RelationalModelDefinition) PopulateFromModeledType() {
@@ -222,17 +215,15 @@ func (f *RelationalModelDefinition) PopulateFromModeledType() {
 			rf, ok := f.RelationalFields[codegen.Goify(name, true)]
 			if ok {
 				// We already have a mapping for this field.  What to do?
-				fmt.Println("We have a definition for this field already")
-				fmt.Println("name:", name)
 			}
 
 			rf = &RelationalFieldDefinition{}
 			rf.Parent = f
-			rf.Name = codegen.Goify(name, true)
+			rf.FieldName = codegen.Goify(name, true)
 
-			if strings.HasSuffix(rf.Name, "Id") {
-				rf.Name = strings.TrimSuffix(rf.Name, "Id")
-				rf.Name = rf.Name + "ID"
+			if strings.HasSuffix(rf.FieldName, "Id") {
+				rf.FieldName = strings.TrimSuffix(rf.FieldName, "Id")
+				rf.FieldName = rf.FieldName + "ID"
 			}
 			switch att.Type.Kind() {
 			case design.BooleanKind:
@@ -256,9 +247,97 @@ func (f *RelationalModelDefinition) PopulateFromModeledType() {
 			if !utd.IsRequired(name) {
 				rf.Nullable = true
 			}
-			f.RelationalFields[rf.Name] = rf
+			// might need this later?
+			rf.a = att
+			f.RelationalFields[rf.FieldName] = rf
+
+			addAttributeToModel(name, att, f)
+
 			return nil
 		})
 	}
 	return
+}
+
+func addAttributeToModel(name string, att *design.AttributeDefinition, m *RelationalModelDefinition) {
+	var parent *design.AttributeDefinition
+	parent = m.AttributeDefinition
+	if parent != nil {
+		if parent.Type == nil {
+			parent.Type = design.Object{}
+		}
+		if _, ok := parent.Type.(design.Object); !ok {
+			dslengine.ReportError("can't define child attributes on attribute of type %s", parent.Type.Name())
+			return
+		}
+
+		parent.Type.(design.Object)[name] = att
+	}
+
+}
+
+// copied from Goa
+func parseAttributeArgs(baseAttr *design.AttributeDefinition, args ...interface{}) (design.DataType, string, func()) {
+	var (
+		dataType    design.DataType
+		description string
+		dsl         func()
+		ok          bool
+	)
+
+	parseDataType := func(expected string, index int) {
+		if name, ok := args[index].(string); ok {
+			// Lookup type by name
+			if dataType, ok = design.Design.Types[name]; !ok {
+				if dataType = design.Design.MediaTypeWithIdentifier(name); dataType == nil {
+					dslengine.InvalidArgError(expected, args[index])
+				}
+			}
+			return
+		}
+		if dataType, ok = args[index].(design.DataType); !ok {
+			dslengine.InvalidArgError(expected, args[index])
+		}
+	}
+	parseDescription := func(expected string, index int) {
+		if description, ok = args[index].(string); !ok {
+			dslengine.InvalidArgError(expected, args[index])
+		}
+	}
+	parseDSL := func(index int, success, failure func()) {
+		if dsl, ok = args[index].(func()); ok {
+			success()
+		} else {
+			failure()
+		}
+	}
+
+	success := func() {}
+
+	switch len(args) {
+	case 0:
+		if baseAttr != nil {
+			dataType = baseAttr.Type
+		} else {
+			dataType = design.String
+		}
+	case 1:
+		success = func() {
+			if baseAttr != nil {
+				dataType = baseAttr.Type
+			}
+		}
+		parseDSL(0, success, func() { parseDataType("type, type name or func()", 0) })
+	case 2:
+		parseDataType("type or type name", 0)
+		parseDSL(1, success, func() { parseDescription("string or func()", 1) })
+	case 3:
+		parseDataType("type or type name", 0)
+		parseDescription("string", 1)
+		parseDSL(2, success, func() { dslengine.InvalidArgError("func()", args[2]) })
+	default:
+		dslengine.ReportError("too many arguments in call to Attribute")
+	}
+
+	return dataType, description, dsl
 }

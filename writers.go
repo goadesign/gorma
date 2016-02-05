@@ -160,7 +160,7 @@ func viewFieldNames(ut *RelationalModelDefinition, v *design.ViewDefinition) []s
 				bf, ok := ut.RelationalFields[codegen.Goify(name, true)]
 
 				if ok {
-					fields = append(fields, "&"+codegen.Goify(bf.Name, false))
+					fields = append(fields, "&"+codegen.Goify(bf.FieldName, false))
 				}
 			}
 		}

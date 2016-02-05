@@ -75,10 +75,10 @@ func relationalFieldDefinition(failIfNotSD bool) (*gorma.RelationalFieldDefiniti
 	return a, ok
 }
 
-// sourceMappingDefinition returns true and current context if it is an RelationalFieldDefinition,
+// attributeDefinition returns true and current context if it is an AttributeDefinition
 // nil and false otherwise.
-func mappingDefinition(failIfNotSD bool) (*gorma.Mapping, bool) {
-	a, ok := dslengine.CurrentDefinition().(*gorma.Mapping)
+func attributeDefinition(failIfNotSD bool) (*design.AttributeDefinition, bool) {
+	a, ok := dslengine.CurrentDefinition().(*design.AttributeDefinition)
 	if !ok && failIfNotSD {
 		incompatibleDSL(caller())
 	}

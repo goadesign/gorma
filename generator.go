@@ -151,6 +151,7 @@ func (g *Generator) generateUserTypes(outdir string, api *design.APIDefinition) 
 				}
 				imports := []*codegen.ImportSpec{
 					codegen.SimpleImport(ap),
+					codegen.SimpleImport("github.com/goadesign/goa"),
 					codegen.SimpleImport("github.com/jinzhu/gorm"),
 					codegen.SimpleImport("golang.org/x/net/context"),
 					codegen.SimpleImport("golang.org/x/net/context"),

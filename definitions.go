@@ -51,7 +51,6 @@ type RelationalModelDefinition struct {
 	HasMany          map[string]*RelationalModelDefinition
 	HasOne           map[string]*RelationalModelDefinition
 	ManyToMany       map[string]*ManyToManyDefinition
-	Maps             map[string]*Mapping
 	Alias            string // gorm:tablename
 	Cached           bool
 	CacheDuration    int
@@ -63,33 +62,10 @@ type RelationalModelDefinition struct {
 	many2many        []string
 }
 
-type Mapping struct {
-	dslengine.Definition
-	*design.AttributeDefinition
-	DefinitionDSL func()
-	MappingName   string
-	Description   string
-	Remote        *design.UserTypeDefinition
-	Parent        *RelationalModelDefinition
-	Mappings      map[string]*MapDefinition // keyed by gorma field
-}
-
-func NewMapping() *Mapping {
-	baseAttr := &design.AttributeDefinition{
-		Description: "mapping",
-	}
-	m := &Mapping{
-		Mappings:            make(map[string]*MapDefinition),
-		AttributeDefinition: baseAttr,
-	}
-	return m
-}
-
 // MapDefinition represents something
 type MapDefinition struct {
+	RemoteType  *design.UserTypeDefinition
 	RemoteField string
-	ParentField string
-	GormaType   FieldType //  Override computed field type
 }
 
 // RelationalFieldDefinition represents
@@ -99,7 +75,7 @@ type RelationalFieldDefinition struct {
 	DefinitionDSL     func()
 	Parent            *RelationalModelDefinition
 	a                 *design.AttributeDefinition
-	Name              string
+	FieldName         string
 	Datatype          FieldType
 	SQLTag            string
 	DatabaseFieldName string
@@ -113,6 +89,7 @@ type RelationalFieldDefinition struct {
 	HasOne            string
 	HasMany           string
 	Many2Many         string
+	Mappings          map[string]*MapDefinition
 }
 
 // ManyToManyDefinition stores information about a ManyToMany
@@ -133,9 +110,6 @@ type StoreIterator func(m *RelationalStoreDefinition) error
 // ModelIterator is a function that iterates over Models in a
 // RelationalStore
 type ModelIterator func(m *RelationalModelDefinition) error
-
-// SourceMapIterator
-type MapIterator func(m *Mapping) error
 
 // FieldIterator is a function that iterates over Fields
 // in a RelationalModel

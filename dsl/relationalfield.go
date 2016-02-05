@@ -5,6 +5,7 @@ import (
 
 	"bitbucket.org/pkg/inflect"
 
+	"github.com/goadesign/goa/design"
 	"github.com/goadesign/goa/dslengine"
 	"github.com/goadesign/goa/goagen/codegen"
 	"github.com/goadesign/gorma"
@@ -26,19 +27,18 @@ func Field(name string, args ...interface{}) {
 	checkInit()
 	name = codegen.Goify(name, true)
 	name = SanitizeFieldName(name)
-	fieldType, dsl := parseModelArgs(args...)
+	fieldType, dsl := parseFieldArgs(args...)
 	if s, ok := relationalModelDefinition(true); ok {
 		if s.RelationalFields == nil {
 			s.RelationalFields = make(map[string]*gorma.RelationalFieldDefinition)
 		}
 		field, ok := s.RelationalFields[name]
 		if !ok {
-			field = &gorma.RelationalFieldDefinition{
-				Name:          name,
-				DefinitionDSL: dsl,
-				Parent:        s,
-				Datatype:      fieldType,
-			}
+			field = gorma.NewRelationalFieldDefinition()
+			field.FieldName = name
+			field.DefinitionDSL = dsl
+			field.Parent = s
+			field.Datatype = fieldType
 		} else {
 			// the field was auto-added by the model parser
 			// so we need to update whatever we can from this new definition
@@ -61,10 +61,35 @@ func Field(name string, args ...interface{}) {
 			field.Nullable = true
 			field.Description = "nullable timestamp (soft delete)"
 		}
-
 		field.DatabaseFieldName = SanitizeDBFieldName(name)
 
 		s.RelationalFields[name] = field
+	}
+}
+
+// MapsFrom establishes a mapping relationship between a source
+// Type field and this model.  The source type must be a UserTypeDefinition "Type"
+// in goa.  These are typically Payloads.
+func MapsFrom(utd *design.UserTypeDefinition, field string) {
+	if f, ok := relationalFieldDefinition(true); ok {
+		checkInit()
+		md := gorma.NewMapDefinition()
+		md.RemoteField = field
+		md.RemoteType = utd
+		f.Mappings[utd.TypeName] = md
+
+	}
+}
+
+// MapsTo establishes a relationship between a field in model and
+// a MediaType in goa.
+func MapsTo(mtd *design.MediaTypeDefinition, field string) {
+	if f, ok := relationalFieldDefinition(true); ok {
+		checkInit()
+		md := gorma.NewMapDefinition()
+		md.RemoteField = field
+		md.RemoteType = mtd.UserTypeDefinition
+		f.Mappings[mtd.UserTypeDefinition.TypeName] = md
 	}
 }
 
@@ -80,6 +105,15 @@ func fixID(s string) string {
 func Nullable() {
 	if f, ok := relationalFieldDefinition(false); ok {
 		f.Nullable = true
+	}
+}
+
+// PrimaryKey establishes a field as a Primary Key by
+// seting the struct tags necessary to create the PK in gorm.
+func PrimaryKey() {
+	if f, ok := relationalFieldDefinition(true); ok {
+		checkInit()
+		f.PrimaryKey = true
 	}
 }
 
@@ -107,7 +141,7 @@ func SanitizeDBFieldName(name string) string {
 	}
 	return name
 }
-func parseModelArgs(args ...interface{}) (gorma.FieldType, func()) {
+func parseFieldArgs(args ...interface{}) (gorma.FieldType, func()) {
 	var (
 		fieldType gorma.FieldType
 		dslp      func()

@@ -12,34 +12,30 @@
 package genmodels
 
 import (
-	"fmt"
-	"time"
-
 	"github.com/goadesign/goa"
 	"github.com/goadesign/gorma/example/app"
 	"github.com/jinzhu/gorm"
 	log "gopkg.in/inconshreveable/log15.v2"
+	"time"
 )
 
-// This is the bottle model
+// This is the Bottle model
 type Bottle struct {
-	ID            int `sql:"index" gorm:"primary_key"` // primary key
+	ID            int `gorm:"primary_key"` // primary key
 	AccountID     int // Belongs To Account
-	Color         string
+	Color         *string
 	Country       *string
-	Href          string
-	Name          string
-	Rating        *int
+	CreatedAt     time.Time
+	DeletedAt     *time.Time
+	Myvintage     *string
+	Name          *string
 	Region        *string
 	Review        *string
 	Sweetness     *int
-	Varietal      string
-	Vineyard      string
-	Vintage       *string
-	VinyardCounty *string    `gorm:"column:vinyardcounty"`
-	UpdatedAt     *time.Time // timestamp
-	DeletedAt     *time.Time // nullable timestamp (soft delete)
-	CreatedAt     *time.Time // timestamp
+	UpdatedAt     time.Time
+	Varietal      *string
+	Vineyard      *string
+	VinyardCounty *string
 	Account       Account
 }
 
@@ -87,7 +83,7 @@ func (m *BottleDB) TableName() string {
 
 // Transformation
 
-func BottleToBottle_v(source *Bottle) (target *app.Bottle) {
+func BottleToBottleApp(source *Bottle) (target *app.Bottle) {
 	target = new(app.Bottle)
 	target.Account = new(app.Account)
 	target.Account.CreatedAt = source.Account.CreatedAt
@@ -101,7 +97,7 @@ func BottleToBottle_v(source *Bottle) (target *app.Bottle) {
 	target.Rating = source.Rating
 	target.Varietal = source.Varietal
 	target.Vineyard = source.Vineyard
-	target.Vintage = *source.Vintage
+	target.Vintage = source.Vintage
 	return
 }
 
@@ -120,21 +116,39 @@ func (m *BottleDB) ListBottle(ctx goa.Context) []app.Bottle {
 	return objs
 }
 
+//bottle := Bottle{}
+/*
+ 		bottle.ID = t.ID
+	bottle.Name = *t.Name
+	bottle.CreatedAt = *t.CreatedAt
+	bottle.Region = t.Region
+	bottle.Review = t.Review
+	bottle.Sweetness = t.Sweetness
+	bottle.Vineyard = *t.Vineyard
+	bottle.UpdatedAt = *t.UpdatedAt
+	bottle.Country = t.Country
+	bottle.Color = *t.Color
+	bottle.Varietal = *t.Varietal
+	bottle.VinyardCounty = t.VinyardCounty
+*/
+// return bottle
+
 // OneBottle returns an array of view: default
 func (m *BottleDB) OneBottle(ctx goa.Context, id int) app.Bottle {
 	now := time.Now()
 	defer ctx.Info("OneBottle", "duration", time.Since(now))
+	var view app.Bottle
 	var native Bottle
 
 	m.Db.Table(m.TableName()).Preload("Account").Where("id = ?", id).Find(&native)
 	fmt.Println(native)
-	view := BottleToBottle_v(&native)
-	return *view
+	return view
+
 }
 
 // Transformation
 
-func BottleToBottleFull_v(source *Bottle) (target *app.BottleFull) {
+func BottleToBottleFullApp(source *Bottle) (target *app.BottleFull) {
 	target = new(app.BottleFull)
 	target.Account = new(app.Account)
 	target.Account.CreatedAt = source.Account.CreatedAt
@@ -155,7 +169,7 @@ func BottleToBottleFull_v(source *Bottle) (target *app.BottleFull) {
 	target.UpdatedAt = source.UpdatedAt
 	target.Varietal = source.Varietal
 	target.Vineyard = source.Vineyard
-	target.Vintage = *source.Vintage
+	target.Vintage = source.Vintage
 	target.VinyardCounty = source.VinyardCounty
 	return
 }
@@ -175,6 +189,23 @@ func (m *BottleDB) ListBottleFull(ctx goa.Context) []app.BottleFull {
 	return objs
 }
 
+//bottle := Bottle{}
+/*
+ 		bottle.CreatedAt = *t.CreatedAt
+	bottle.Region = t.Region
+	bottle.Review = t.Review
+	bottle.Sweetness = t.Sweetness
+	bottle.Vineyard = *t.Vineyard
+	bottle.UpdatedAt = *t.UpdatedAt
+	bottle.Country = t.Country
+	bottle.Color = *t.Color
+	bottle.Varietal = *t.Varietal
+	bottle.VinyardCounty = t.VinyardCounty
+	bottle.ID = t.ID
+	bottle.Name = *t.Name
+*/
+// return bottle
+
 // OneBottleFull returns an array of view: full
 func (m *BottleDB) OneBottleFull(ctx goa.Context, id int) app.BottleFull {
 	now := time.Now()
@@ -185,11 +216,12 @@ func (m *BottleDB) OneBottleFull(ctx goa.Context, id int) app.BottleFull {
 	m.Db.Table(m.TableName()).Preload("Account").Where("id = ?", id).Find(&native)
 	fmt.Println(native)
 	return view
+
 }
 
 // Transformation
 
-func BottleToBottleTiny_v(source *Bottle) (target *app.BottleTiny) {
+func BottleToBottleTinyApp(source *Bottle) (target *app.BottleTiny) {
 	target = new(app.BottleTiny)
 	target.Href = source.Href
 	target.ID = source.ID
@@ -213,6 +245,23 @@ func (m *BottleDB) ListBottleTiny(ctx goa.Context) []app.BottleTiny {
 	return objs
 }
 
+//bottle := Bottle{}
+/*
+ 		bottle.UpdatedAt = *t.UpdatedAt
+	bottle.Country = t.Country
+	bottle.Color = *t.Color
+	bottle.Varietal = *t.Varietal
+	bottle.VinyardCounty = t.VinyardCounty
+	bottle.ID = t.ID
+	bottle.Name = *t.Name
+	bottle.Vineyard = *t.Vineyard
+	bottle.CreatedAt = *t.CreatedAt
+	bottle.Region = t.Region
+	bottle.Review = t.Review
+	bottle.Sweetness = t.Sweetness
+*/
+// return bottle
+
 // OneBottleTiny returns an array of view: tiny
 func (m *BottleDB) OneBottleTiny(ctx goa.Context, id int) app.BottleTiny {
 	now := time.Now()
@@ -223,6 +272,7 @@ func (m *BottleDB) OneBottleTiny(ctx goa.Context, id int) app.BottleTiny {
 	m.Db.Table(m.TableName()).Preload("Account").Where("id = ?", id).Find(&native)
 	fmt.Println(native)
 	return view
+
 }
 
 // GetBottle returns a single Bottle as a Database Model

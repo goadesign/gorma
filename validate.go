@@ -65,7 +65,7 @@ func (field *RelationalFieldDefinition) Validate() *dslengine.ValidationErrors {
 	if field.Parent == nil {
 		verr.Add(field, "missing relational model parent")
 	}
-	if field.Name == "" {
+	if field.FieldName == "" {
 		verr.Add(field, "field name not defined")
 	}
 	return verr.AsError()

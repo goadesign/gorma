@@ -135,7 +135,9 @@ var Bottle = MediaType("application/vnd.bottle+json", func() {
 		Attribute("varietal")
 		Attribute("vintage")
 		Attribute("color")
-		Attribute("sweetness")
+		Attribute("sweetness", func() {
+			Description("hello sally")
+		})
 		Attribute("country")
 		Attribute("region")
 		Attribute("review")

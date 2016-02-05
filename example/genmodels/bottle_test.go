@@ -119,7 +119,7 @@ func setup() error {
 		Sweetness:     &Sweetness,
 		Varietal:      Varietal,
 		Vineyard:      Vineyard,
-		Vintage:       &Vintage,
+		Vintage:       Vintage,
 		VinyardCounty: &VinyardCounty,
 	})
 	fmt.Println(btl.ID, btl.AccountID)
