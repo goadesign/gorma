@@ -54,17 +54,16 @@ func fieldAssignmentModelToType(model *RelationalModelDefinition, ut *design.Vie
 			continue
 		}
 		// Set the relational field
+		// if the view has one of them
 		if field.Datatype == BelongsTo {
 			fn := strings.Replace(field.FieldName, "ID", "", -1)
 			_, ok := obj[codegen.Goify(fn, false)]
 			if ok {
-				fmt.Println("they match!")
-			} else {
-				fmt.Println("object has no", codegen.Goify(fn, false))
+				fa := fmt.Sprintf("%s.%s = %s.%s.%sTo%s()", utype, codegen.Goify(fn, true), mtype, codegen.Goify(fn, true), codegen.Goify(fn, true), codegen.Goify(fn, true))
+				fieldAssignments = append(fieldAssignments, fa)
 			}
-			fa := fmt.Sprintf("%s.%s = %s.Account.AccountToAccount()", utype, codegen.Goify(fn, true), mtype)
-			fieldAssignments = append(fieldAssignments, fa)
 		}
+
 		for key := range obj {
 			gfield := obj[key]
 			if field.Underscore() == key || field.DatabaseFieldName == key {

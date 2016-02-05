@@ -103,7 +103,7 @@ var _ = Resource("bottle", func() {
 		)
 		Description("Record new bottle")
 		Payload(BottlePayload, func() {
-			Required("name", "vineyard", "varietal", "myvintage", "color")
+			Required("name", "vineyard", "varietal", "vintage", "color")
 		})
 		Response(Created, "^/accounts/[0-9]+/bottles/[0-9]+$")
 	})

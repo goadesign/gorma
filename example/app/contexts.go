@@ -74,14 +74,14 @@ func NewDeleteAccountContext(c *goa.Context) (*DeleteAccountContext, error) {
 	return &ctx, err
 }
 
-// NoContent sends a HTTP response with status code 204.
-func (ctx *DeleteAccountContext) NoContent() error {
-	return ctx.RespondBytes(204, nil)
-}
-
 // NotFound sends a HTTP response with status code 404.
 func (ctx *DeleteAccountContext) NotFound() error {
 	return ctx.RespondBytes(404, nil)
+}
+
+// NoContent sends a HTTP response with status code 204.
+func (ctx *DeleteAccountContext) NoContent() error {
+	return ctx.RespondBytes(204, nil)
 }
 
 // ShowAccountContext provides the account show action context.
@@ -106,11 +106,6 @@ func NewShowAccountContext(c *goa.Context) (*ShowAccountContext, error) {
 	return &ctx, err
 }
 
-// NotFound sends a HTTP response with status code 404.
-func (ctx *ShowAccountContext) NotFound() error {
-	return ctx.RespondBytes(404, nil)
-}
-
 // OK sends a HTTP response with status code 200.
 func (ctx *ShowAccountContext) OK(resp *Account) error {
 	ctx.Header().Set("Content-Type", "application/vnd.account")
@@ -121,6 +116,11 @@ func (ctx *ShowAccountContext) OK(resp *Account) error {
 func (ctx *ShowAccountContext) OKTiny(resp *AccountTiny) error {
 	ctx.Header().Set("Content-Type", "application/vnd.account")
 	return ctx.Respond(200, resp)
+}
+
+// NotFound sends a HTTP response with status code 404.
+func (ctx *ShowAccountContext) NotFound() error {
+	return ctx.RespondBytes(404, nil)
 }
 
 // UpdateAccountContext provides the account update action context.
@@ -198,13 +198,13 @@ func NewCreateBottleContext(c *goa.Context) (*CreateBottleContext, error) {
 type CreateBottlePayload struct {
 	Color         string  `json:"color" xml:"color"`
 	Country       *string `json:"country,omitempty" xml:"country,omitempty"`
-	Myvintage     string  `json:"myvintage" xml:"myvintage"`
 	Name          string  `json:"name" xml:"name"`
 	Region        *string `json:"region,omitempty" xml:"region,omitempty"`
 	Review        *string `json:"review,omitempty" xml:"review,omitempty"`
 	Sweetness     *int    `json:"sweetness,omitempty" xml:"sweetness,omitempty"`
 	Varietal      string  `json:"varietal" xml:"varietal"`
 	Vineyard      string  `json:"vineyard" xml:"vineyard"`
+	Vintage       string  `json:"vintage" xml:"vintage"`
 	VinyardCounty *string `json:"vinyard_county,omitempty" xml:"vinyard_county,omitempty"`
 }
 
@@ -219,8 +219,8 @@ func (payload *CreateBottlePayload) Validate() (err error) {
 	if payload.Varietal == "" {
 		err = goa.MissingAttributeError(`raw`, "varietal", err)
 	}
-	if payload.Myvintage == "" {
-		err = goa.MissingAttributeError(`raw`, "myvintage", err)
+	if payload.Vintage == "" {
+		err = goa.MissingAttributeError(`raw`, "vintage", err)
 	}
 	if payload.Color == "" {
 		err = goa.MissingAttributeError(`raw`, "color", err)
@@ -302,14 +302,14 @@ func NewDeleteBottleContext(c *goa.Context) (*DeleteBottleContext, error) {
 	return &ctx, err
 }
 
-// NoContent sends a HTTP response with status code 204.
-func (ctx *DeleteBottleContext) NoContent() error {
-	return ctx.RespondBytes(204, nil)
-}
-
 // NotFound sends a HTTP response with status code 404.
 func (ctx *DeleteBottleContext) NotFound() error {
 	return ctx.RespondBytes(404, nil)
+}
+
+// NoContent sends a HTTP response with status code 204.
+func (ctx *DeleteBottleContext) NoContent() error {
+	return ctx.RespondBytes(204, nil)
 }
 
 // ListBottleContext provides the bottle list action context.
@@ -348,11 +348,6 @@ func NewListBottleContext(c *goa.Context) (*ListBottleContext, error) {
 	return &ctx, err
 }
 
-// NotFound sends a HTTP response with status code 404.
-func (ctx *ListBottleContext) NotFound() error {
-	return ctx.RespondBytes(404, nil)
-}
-
 // OK sends a HTTP response with status code 200.
 func (ctx *ListBottleContext) OK(resp BottleCollection) error {
 	ctx.Header().Set("Content-Type", "application/vnd.bottle+json; type=collection")
@@ -363,6 +358,11 @@ func (ctx *ListBottleContext) OK(resp BottleCollection) error {
 func (ctx *ListBottleContext) OKTiny(resp BottleTinyCollection) error {
 	ctx.Header().Set("Content-Type", "application/vnd.bottle+json; type=collection")
 	return ctx.Respond(200, resp)
+}
+
+// NotFound sends a HTTP response with status code 404.
+func (ctx *ListBottleContext) NotFound() error {
+	return ctx.RespondBytes(404, nil)
 }
 
 // RateBottleContext provides the bottle rate action context.
@@ -415,14 +415,14 @@ func (payload *RateBottlePayload) Validate() (err error) {
 	return
 }
 
-// NoContent sends a HTTP response with status code 204.
-func (ctx *RateBottleContext) NoContent() error {
-	return ctx.RespondBytes(204, nil)
-}
-
 // NotFound sends a HTTP response with status code 404.
 func (ctx *RateBottleContext) NotFound() error {
 	return ctx.RespondBytes(404, nil)
+}
+
+// NoContent sends a HTTP response with status code 204.
+func (ctx *RateBottleContext) NoContent() error {
+	return ctx.RespondBytes(204, nil)
 }
 
 // ShowBottleContext provides the bottle show action context.
@@ -456,11 +456,6 @@ func NewShowBottleContext(c *goa.Context) (*ShowBottleContext, error) {
 	return &ctx, err
 }
 
-// NotFound sends a HTTP response with status code 404.
-func (ctx *ShowBottleContext) NotFound() error {
-	return ctx.RespondBytes(404, nil)
-}
-
 // OK sends a HTTP response with status code 200.
 func (ctx *ShowBottleContext) OK(resp *Bottle) error {
 	ctx.Header().Set("Content-Type", "application/vnd.bottle")
@@ -477,6 +472,11 @@ func (ctx *ShowBottleContext) OKFull(resp *BottleFull) error {
 func (ctx *ShowBottleContext) OKTiny(resp *BottleTiny) error {
 	ctx.Header().Set("Content-Type", "application/vnd.bottle")
 	return ctx.Respond(200, resp)
+}
+
+// NotFound sends a HTTP response with status code 404.
+func (ctx *ShowBottleContext) NotFound() error {
+	return ctx.RespondBytes(404, nil)
 }
 
 // UpdateBottleContext provides the bottle update action context.
@@ -515,13 +515,13 @@ func NewUpdateBottleContext(c *goa.Context) (*UpdateBottleContext, error) {
 type UpdateBottlePayload struct {
 	Color         *string `json:"color,omitempty" xml:"color,omitempty"`
 	Country       *string `json:"country,omitempty" xml:"country,omitempty"`
-	Myvintage     *string `json:"myvintage,omitempty" xml:"myvintage,omitempty"`
 	Name          *string `json:"name,omitempty" xml:"name,omitempty"`
 	Region        *string `json:"region,omitempty" xml:"region,omitempty"`
 	Review        *string `json:"review,omitempty" xml:"review,omitempty"`
 	Sweetness     *int    `json:"sweetness,omitempty" xml:"sweetness,omitempty"`
 	Varietal      *string `json:"varietal,omitempty" xml:"varietal,omitempty"`
 	Vineyard      *string `json:"vineyard,omitempty" xml:"vineyard,omitempty"`
+	Vintage       *string `json:"vintage,omitempty" xml:"vintage,omitempty"`
 	VinyardCounty *string `json:"vinyard_county,omitempty" xml:"vinyard_county,omitempty"`
 }
 

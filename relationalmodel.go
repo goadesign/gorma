@@ -16,6 +16,10 @@ import (
 // RelationalModelDefinition
 func NewRelationalModelDefinition() *RelationalModelDefinition {
 	baseAttr := &design.AttributeDefinition{}
+	utd := &design.UserTypeDefinition{
+		AttributeDefinition: baseAttr,
+	}
+	utd.Type = design.Object{}
 	m := &RelationalModelDefinition{
 		RelationalFields: make(map[string]*RelationalFieldDefinition),
 		BuiltFrom:        make(map[string]*design.UserTypeDefinition),

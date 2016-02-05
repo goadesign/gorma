@@ -34,13 +34,13 @@ func (m *BottleDB) ListBottle(ctx goa.Context) []app.Bottle {
 
 func (m *Bottle) BottleToBottle() *app.Bottle {
 	bottle := &app.Bottle{}
+	bottle.Vintage = *m.Vintage
 	bottle.ID = m.ID
-	bottle.Varietal = *m.Varietal
 	bottle.Name = *m.Name
+	bottle.Rating = m.Rating
 	bottle.Vineyard = *m.Vineyard
 	bottle.Account = m.Account.AccountToAccount()
-	bottle.Vintage = *m.Vintage
-	bottle.Rating = m.Rating
+	bottle.Varietal = *m.Varietal
 
 	return bottle
 }
@@ -76,19 +76,19 @@ func (m *BottleDB) ListBottleFull(ctx goa.Context) []app.BottleFull {
 func (m *Bottle) BottleToBottleFull() *app.BottleFull {
 	bottle := &app.BottleFull{}
 	bottle.CreatedAt = &m.CreatedAt
-	bottle.Review = m.Review
-	bottle.Account = m.Account.AccountToAccount()
+	bottle.Region = m.Region
 	bottle.Vintage = *m.Vintage
-	bottle.VinyardCounty = m.VinyardCounty
-	bottle.Rating = m.Rating
 	bottle.ID = m.ID
 	bottle.UpdatedAt = &m.UpdatedAt
-	bottle.Color = *m.Color
-	bottle.Region = m.Region
-	bottle.Sweetness = m.Sweetness
-	bottle.Varietal = *m.Varietal
-	bottle.Country = m.Country
 	bottle.Name = *m.Name
+	bottle.Review = m.Review
+	bottle.VinyardCounty = m.VinyardCounty
+	bottle.Sweetness = m.Sweetness
+	bottle.Rating = m.Rating
+	bottle.Account = m.Account.AccountToAccount()
+	bottle.Color = *m.Color
+	bottle.Country = m.Country
+	bottle.Varietal = *m.Varietal
 	bottle.Vineyard = *m.Vineyard
 
 	return bottle
@@ -124,10 +124,9 @@ func (m *BottleDB) ListBottleTiny(ctx goa.Context) []app.BottleTiny {
 
 func (m *Bottle) BottleToBottleTiny() *app.BottleTiny {
 	bottle := &app.BottleTiny{}
-	bottle.Name = *m.Name
-	bottle.Account = m.Account.AccountToAccount()
-	bottle.Rating = m.Rating
 	bottle.ID = m.ID
+	bottle.Name = *m.Name
+	bottle.Rating = m.Rating
 
 	return bottle
 }

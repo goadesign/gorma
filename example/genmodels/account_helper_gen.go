@@ -34,8 +34,8 @@ func (m *AccountDB) ListAccount(ctx goa.Context) []app.Account {
 
 func (m *Account) AccountToAccount() *app.Account {
 	account := &app.Account{}
-	account.Name = m.Name
 	account.ID = m.ID
+	account.Name = m.Name
 	account.CreatedAt = &m.CreatedAt
 	account.CreatedBy = &m.CreatedBy
 	account.Href = m.Href
@@ -109,9 +109,9 @@ func (m *AccountDB) ListAccountTiny(ctx goa.Context) []app.AccountTiny {
 
 func (m *Account) AccountToAccountTiny() *app.AccountTiny {
 	account := &app.AccountTiny{}
-	account.Href = m.Href
-	account.ID = m.ID
 	account.Name = m.Name
+	account.ID = m.ID
+	account.Href = m.Href
 
 	return account
 }
