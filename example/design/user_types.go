@@ -17,7 +17,7 @@ var BottlePayload = Type("BottlePayload", func() {
 	Attribute("varietal", func() {
 		MinLength(4)
 	})
-	Attribute("myvintage", String, func() {
+	Attribute("vintage", String, func() {
 	})
 	Attribute("vinyard_county")
 	Attribute("color", func() {

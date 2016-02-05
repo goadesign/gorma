@@ -26,22 +26,45 @@ type (
 	// User types are data structures defined in the DSL with "Type".
 	UserTypesWriter struct {
 		*codegen.SourceFile
-		UserTypeTmpl *template.Template
+		UserTypeTmpl   *template.Template
+		UserHelperTmpl *template.Template
+	}
+
+	// UserHelpersWriter generate code for a goa application user types.
+	// User types are data structures defined in the DSL with "Type".
+	UserHelperWriter struct {
+		*codegen.SourceFile
+		UserHelperTmpl *template.Template
 	}
 )
 
-func fieldAssignmentModelToType(model *RelationalModelDefinition, ut *design.ViewDefinition, mtype, utype string) string {
+func fieldAssignmentModelToType(model *RelationalModelDefinition, ut *design.ViewDefinition, v, mtype, utype string) string {
 	//utPackage := "app"
 	var fieldAssignments []string
 	// type.Field = model.Field
 	for fname, field := range model.RelationalFields {
-		if field.Datatype == "" {
-			continue
-		}
+
 		var mpointer, upointer bool
 		mpointer = field.Nullable
 		obj := ut.Type.ToObject()
 		definition := ut.Parent.Definition()
+
+		fmt.Println(fname, field.Datatype)
+		if field.Datatype == "" {
+			continue
+		}
+		// Set the relational field
+		if field.Datatype == BelongsTo {
+			fn := strings.Replace(field.FieldName, "ID", "", -1)
+			_, ok := obj[codegen.Goify(fn, false)]
+			if ok {
+				fmt.Println("they match!")
+			} else {
+				fmt.Println("object has no", codegen.Goify(fn, false))
+			}
+			fa := fmt.Sprintf("%s.%s = %s.Account.AccountToAccount()", utype, codegen.Goify(fn, true), mtype)
+			fieldAssignments = append(fieldAssignments, fa)
+		}
 		for key := range obj {
 			gfield := obj[key]
 			if field.Underscore() == key || field.DatabaseFieldName == key {
@@ -53,18 +76,18 @@ func fieldAssignmentModelToType(model *RelationalModelDefinition, ut *design.Vie
 					upointer = false
 				}
 
-				prefix := "&"
+				prefix := ""
 				if upointer && !mpointer {
 					// ufield = &mfield
 					prefix = "&"
 				} else if mpointer && !upointer {
 					// ufield = *mfield (rare if never?)
-					prefix = ""
+					prefix = "*"
 				} else if !upointer && !mpointer {
 					prefix = ""
 				}
 
-				fa := fmt.Sprintf("\t%s.%s = %s%s", utype, codegen.Goify(key, true), prefix, codegen.Goify(fname, false))
+				fa := fmt.Sprintf("\t%s.%s = %s%s.%s", utype, codegen.Goify(key, true), prefix, v, codegen.Goify(fname, true))
 				fieldAssignments = append(fieldAssignments, fa)
 			}
 		}
@@ -170,6 +193,31 @@ func viewFieldNames(ut *RelationalModelDefinition, v *design.ViewDefinition) []s
 	return fields
 }
 
+// NewUserHelperWriter returns a contexts code writer.
+// User types contain custom data structured defined in the DSL with "Type".
+func NewUserHelperWriter(filename string) (*UserHelperWriter, error) {
+	file, err := codegen.SourceFileFor(filename)
+	if err != nil {
+		return nil, err
+	}
+	return &UserHelperWriter{SourceFile: file}, nil
+}
+
+// Execute writes the code for the context types to the writer.
+func (w *UserHelperWriter) Execute(data *UserTypeTemplateData) error {
+	fm := make(map[string]interface{})
+	fm["famt"] = fieldAssignmentModelToType
+	fm["fatm"] = fieldAssignmentTypeToModel
+	fm["viewSelect"] = viewSelect
+	fm["viewFields"] = viewFields
+	fm["viewFieldNames"] = viewFieldNames
+	fm["goDatatype"] = goDatatype
+	fm["plural"] = inflect.Pluralize
+	fm["gtt"] = codegen.GoTypeTransform
+	fm["gttn"] = codegen.GoTypeTransformName
+	return w.ExecuteTemplate("types", userHelperT, fm, data)
+}
+
 // NewUserTypesWriter returns a contexts code writer.
 // User types contain custom data structured defined in the DSL with "Type".
 func NewUserTypesWriter(filename string) (*UserTypesWriter, error) {
@@ -233,18 +281,13 @@ func New{{$ut.ModelName}}DB(db gorm.DB, logger log.Logger) *{{$ut.ModelName}}DB 
 func (m *{{$ut.ModelName}}DB) DB() interface{} {
 	return &m.Db
 }
-{{ if $ut.Roler }}
-// GetRole returns the value of the role field and satisfies the Roler interface.
-func (m {{$ut.ModelName}}) GetRole() string {
-	return {{$f := $ut.Fields.role}}{{if $f.Nullable}}*{{end}}m.Role
-}
-{{end}}
+
 
 // {{$ut.ModelName}}Storage represents the storage interface.
 type {{$ut.ModelName}}Storage interface {
 	DB() interface{}
 	List(ctx goa.Context{{ if $ut.DynamicTableName}}, tableName string{{ end }}) []{{$ut.ModelName}}
-	One(ctx goa.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, {{$ut.PKAttributes}}) ({{$ut.ModelName}}, error)
+	Get(ctx goa.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, {{$ut.PKAttributes}}) ({{$ut.ModelName}}, error)
 	Add(ctx goa.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, {{$ut.LowerName}} {{$ut.ModelName}}) ({{$ut.ModelName}}, error)
 	Update(ctx goa.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, {{$ut.LowerName}} {{$ut.ModelName}}) (error)
 	Delete(ctx goa.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, {{ $ut.PKAttributes}}) (error) 	
@@ -257,20 +300,27 @@ func (m *{{$ut.ModelName}}DB) TableName() string {
 return "{{ $ut.Alias}}" {{ else }} return "{{ $ut.TableName }}"
 {{end}}
 }
-{{ range $rname, $rmt := $ut.RenderTo }}
-{{ range $vname, $view := $rmt.Views}}
-// Transformation
-{{ $mtd := $ut.Project $rname $vname }}
-{{$functionName := gttn $rmt.UserTypeDefinition $mtd.UserTypeDefinition "App"}}
-{{ gtt $rmt.UserTypeDefinition $mtd.UserTypeDefinition "app" $functionName }}
+
+
 
 // CRUD Functions
-// List{{$rmt.TypeName}}{{if eq $vname "default"}}{{else}}{{goify $vname true}}{{end}} returns an array of view: {{$vname}}
-func (m *{{$ut.ModelName}}DB) List{{$rmt.TypeName}}{{if eq $vname "default"}}{{else}}{{goify $vname true}}{{end}} (ctx goa.Context{{ if $ut.DynamicTableName}}, tableName string{{ end }}) []app.{{$rmt.TypeName}}{{if eq $vname "default"}}{{else}}{{goify $vname true}}{{end}}{
+
+// Get returns a single {{$ut.ModelName}} as a Database Model
+// This is more for use internally, and probably not what you want in  your controllers
+func (m *{{$ut.ModelName}}DB) Get(ctx goa.Context{{ if $ut.DynamicTableName}}, tableName string{{ end }}, id int) {{$ut.ModelName}}{	
 	now := time.Now()
-	defer ctx.Info("List{{$rmt.TypeName}}{{if eq $vname "default"}}{{else}}{{goify $vname true}}{{end}}", "duration", time.Since(now))
-	var objs []app.{{$rmt.TypeName}}{{if eq $vname "default"}}{{else}}{{goify $vname true}}{{end}}
-	err := m.Db.Table({{ if $ut.DynamicTableName }}.Table(tableName){{else}}m.TableName(){{ end }}).{{ range $ln, $lv := $rmt.Links }}Preload("{{goify $ln true}}").{{end}}Find(&objs).Error
+	defer ctx.Info("{{$ut.ModelName}}:Get", "duration", time.Since(now))
+	var native {{$ut.ModelName}}
+	m.Db.Table({{ if $ut.DynamicTableName }}.Table(tableName){{else}}m.TableName(){{ end }}).Where("id = ?", id).Find(&native)
+	return native 
+}
+
+// List returns an array of {{$ut.ModelName}}
+func (m *{{$ut.ModelName}}DB) List{{$ut.TypeName}}(ctx goa.Context{{ if $ut.DynamicTableName}}, tableName string{{ end }}) []{{$ut.ModelName}}{
+	now := time.Now()
+	defer ctx.Info("{{$ut.ModelName}}:List", "duration", time.Since(now))
+	var objs []{{$ut.ModelName}}
+	err := m.Db.Table({{ if $ut.DynamicTableName }}.Table(tableName){{else}}m.TableName(){{ end }}).Find(&objs).Error
 	if err != nil {
 		ctx.Error("error listing {{$ut.ModelName}}", "error", err.Error())
 		return objs
@@ -278,39 +328,10 @@ func (m *{{$ut.ModelName}}DB) List{{$rmt.TypeName}}{{if eq $vname "default"}}{{e
 
 	return objs
 }
-	//{{$ut.LowerName}} := {{$ut.ModelName}}{}		
-	/*
- 	{{ fatm $ut $rmt.UserTypeDefinition "t" $ut.LowerName}}		
-	*/
- 	// return {{$ut.LowerName}}
-
-
-// One{{$rmt.TypeName}}{{if eq $vname "default"}}{{else}}{{goify $vname true}}{{end}} returns an array of view: {{$vname}}
-func (m *{{$ut.ModelName}}DB) One{{$rmt.TypeName}}{{if eq $vname "default"}}{{else}}{{goify $vname true}}{{end}} (ctx goa.Context{{ if $ut.DynamicTableName}}, tableName string{{ end }}, id int) app.{{$rmt.TypeName}}{{if eq $vname "default"}}{{else}}{{goify $vname true}}{{end}}{	
-	now := time.Now()
-	defer ctx.Info("One{{$rmt.TypeName}}{{if eq $vname "default"}}{{else}}{{goify $vname true}}{{end}}", "duration", time.Since(now))
-	var view app.{{$rmt.TypeName}}{{if eq $vname "default"}}{{else}}{{goify $vname true}}{{end}}
-	var native {{$ut.ModelName}}
-
-	m.Db.Table({{ if $ut.DynamicTableName }}.Table(tableName){{else}}m.TableName(){{ end }}){{range $na, $hm:= $ut.HasMany}}.Preload("{{$hm.ModelName}}"){{end}}{{range $nm, $bt := $ut.BelongsTo}}.Preload("{{$bt.ModelName}}"){{end}}.Where("id = ?", id).Find(&native)
-	fmt.Println(native)
-	return view 
-	
-}
-{{end}}{{end}}
-// Get{{$ut.ModelName}} returns a single {{$ut.ModelName}} as a Database Model
-// This is more for use internally, and probably not what you want in  your controllers
-func (m *{{$ut.ModelName}}DB) Get{{$ut.ModelName}}(ctx goa.Context{{ if $ut.DynamicTableName}}, tableName string{{ end }}, id int) {{$ut.ModelName}}{	
-	now := time.Now()
-	defer ctx.Info("Get{{$ut.ModelName}}", "duration", time.Since(now))
-	var native {{$ut.ModelName}}
-	m.Db.Table({{ if $ut.DynamicTableName }}.Table(tableName){{else}}m.TableName(){{ end }}).Where("id = ?", id).Find(&native)
-	return native 
-}
 // Add creates a new record.
 func (m *{{$ut.ModelName}}DB) Add(ctx goa.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, model {{$ut.ModelName}}) ({{$ut.ModelName}}, error) {
 	now := time.Now()
-	defer ctx.Info("Add{{$ut.ModelName}}", "duration", time.Since(now))
+	defer ctx.Info("{{$ut.ModelName}}:Add", "duration", time.Since(now))
 	err := m.Db{{ if $ut.DynamicTableName }}.Table(tableName){{ end }}.Create(&model).Error
 	if err != nil {
 		ctx.Error("error updating {{$ut.ModelName}}", "error", err.Error())
@@ -323,8 +344,8 @@ func (m *{{$ut.ModelName}}DB) Add(ctx goa.Context{{ if $ut.DynamicTableName }}, 
 // Update modifies a single record.
 func (m *{{$ut.ModelName}}DB) Update(ctx goa.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, model {{$ut.ModelName}}) error {
 	now := time.Now()
-	defer ctx.Info("Update{{$ut.ModelName}}", "duration", time.Since(now))
-	obj := m.Get{{$ut.ModelName}}(ctx{{ if $ut.DynamicTableName }}, tableName{{ end }}, {{$ut.PKUpdateFields "model"}})
+	defer ctx.Info("{{$ut.ModelName}}:Update", "duration", time.Since(now))
+	obj := m.Get(ctx{{ if $ut.DynamicTableName }}, tableName{{ end }}, {{$ut.PKUpdateFields "model"}})
 	err := m.Db{{ if $ut.DynamicTableName }}.Table(tableName){{ end }}.Model(&obj).Updates(model).Error
 	{{ if $ut.Cached }}go func(){
 	obj, err := m.One(ctx, model.ID)
@@ -338,7 +359,7 @@ func (m *{{$ut.ModelName}}DB) Update(ctx goa.Context{{ if $ut.DynamicTableName }
 // Delete removes a single record.
 func (m *{{$ut.ModelName}}DB) Delete(ctx goa.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, {{$ut.PKAttributes}})  error {
 	now := time.Now()
-	defer ctx.Info("Delete{{$ut.ModelName}}", "duration", time.Since(now))
+	defer ctx.Info("{{$ut.ModelName}}:Delete", "duration", time.Since(now))
 	var obj {{$ut.ModelName}}{{ $l := len $ut.PrimaryKeys }}
 	{{ if eq $l 1 }}
 	err := m.Db{{ if $ut.DynamicTableName }}.Table(tableName){{ end }}.Delete(&obj, id).Error
@@ -352,4 +373,61 @@ func (m *{{$ut.ModelName}}DB) Delete(ctx goa.Context{{ if $ut.DynamicTableName }
 	return  nil
 }
 `
+
+	userHelperT = `{{$ut := .UserType}}{{$ap := .AppPkg}}
+{{ if $ut.Roler }}
+// GetRole returns the value of the role field and satisfies the Roler interface.
+func (m {{$ut.ModelName}}) GetRole() string {
+	return {{$f := $ut.Fields.role}}{{if $f.Nullable}}*{{end}}m.Role
+}
+{{end}}
+
+
+{{ range $rname, $rmt := $ut.RenderTo }}
+{{ range $vname, $view := $rmt.Views}}
+{{ $mtd := $ut.Project $rname $vname }}
+
+
+// MediaType Retrieval Functions
+// List{{$rmt.TypeName}}{{if eq $vname "default"}}{{else}}{{goify $vname true}}{{end}} returns an array of view: {{$vname}}
+func (m *{{$ut.ModelName}}DB) List{{$rmt.TypeName}}{{if eq $vname "default"}}{{else}}{{goify $vname true}}{{end}} (ctx goa.Context{{ if $ut.DynamicTableName}}, tableName string{{ end }}) []app.{{$rmt.TypeName}}{{if eq $vname "default"}}{{else}}{{goify $vname true}}{{end}}{
+	now := time.Now()
+	defer ctx.Info("List{{$rmt.TypeName}}{{if eq $vname "default"}}{{else}}{{goify $vname true}}{{end}}", "duration", time.Since(now))
+	var objs []app.{{$rmt.TypeName}}{{if eq $vname "default"}}{{else}}{{goify $vname true}}{{end}}
+	err := m.Db.Table({{ if $ut.DynamicTableName }}.Table(tableName){{else}}m.TableName(){{ end }}).{{ range $ln, $lv := $rmt.Links }}Preload("{{goify $ln true}}").{{end}}Find(&objs).Error
+	if err != nil {
+		ctx.Error("error listing {{$ut.ModelName}}", "error", err.Error())
+		return objs
+	}
+
+	return objs
+}
+
+func (m *{{$ut.ModelName}}) {{$ut.ModelName}}To{{$rmt.UserTypeDefinition.TypeName}}{{if eq $vname "default"}}{{else}}{{goify $vname true}}{{end}}() *app.{{$rmt.TypeName}}{{if eq $vname "default"}}{{else}}{{goify $vname true}}{{end}} {
+	{{$ut.LowerName}} := &app.{{$rmt.TypeName}}{{if eq $vname "default"}}{{else}}{{goify $vname true}}{{end}}{}		
+ 	{{ famt $ut $view "m" "m" $ut.LowerName}}		
+
+ 	 return {{$ut.LowerName}}
+}
+
+// One{{$rmt.TypeName}}{{if eq $vname "default"}}{{else}}{{goify $vname true}}{{end}} returns an array of view: {{$vname}}
+func (m *{{$ut.ModelName}}DB) One{{$rmt.TypeName}}{{if eq $vname "default"}}{{else}}{{goify $vname true}}{{end}} (ctx goa.Context{{ if $ut.DynamicTableName}}, tableName string{{ end }}, id int) *app.{{$rmt.TypeName}}{{if eq $vname "default"}}{{else}}{{goify $vname true}}{{end}}{	
+	now := time.Now()
+	defer ctx.Info("One{{$rmt.TypeName}}{{if eq $vname "default"}}{{else}}{{goify $vname true}}{{end}}", "duration", time.Since(now))
+
+	var native {{$ut.ModelName}}
+
+	m.Db.Table({{ if $ut.DynamicTableName }}.Table(tableName){{else}}m.TableName(){{ end }}){{range $na, $hm:= $ut.HasMany}}.Preload("{{$hm.ModelName}}"){{end}}{{range $nm, $bt := $ut.BelongsTo}}.Preload("{{$bt.ModelName}}"){{end}}.Where("id = ?", id).Find(&native)
+	view := native.{{$ut.ModelName}}To{{$rmt.UserTypeDefinition.TypeName}}{{if eq $vname "default"}}{{else}}{{goify $vname true}}{{end}}()
+	return view 
+	
+}
+{{end}}{{end}}
+`
 )
+
+/*
+{{$functionName := gttn $rmt.UserTypeDefinition $mtd.UserTypeDefinition "App"}}
+{{ gtt $rmt.UserTypeDefinition $mtd.UserTypeDefinition "app" $functionName }}
+
+*/

@@ -20,15 +20,22 @@ var sg = StorageGroup("MyStorageGroup", func() {
 				PrimaryKey()
 				MapsFrom(BottlePayload, "id")
 			})
+			Field("rating", gorma.Integer, func() {
+				Nullable() // not required
+			}) // no payload to have to add it specifically
 			apidsl.Attribute("oauth_source", design.String) // manually specify one that doesn't exist
 			// everything else is auto populated from BuildsFrom()
 		})
 		Model("Account", func() {
 			Description("This is the Account model")
 			HasMany("Bottles", "Bottle")
+			RendersTo(Account)
 			Field("id", gorma.PKInteger, func() {
 				PrimaryKey()
 			})
+			Field("created_by", gorma.String)   // no payload to have to add it specifically
+			Field("name", gorma.String)         // no payload to have to add it specifically
+			Field("href", gorma.String)         // no payload to have to add it specifically
 			Field("oauth_source", gorma.String) // manually specify one that doesn't exist
 			// everything else is auto populated from BuildsFrom()
 		})

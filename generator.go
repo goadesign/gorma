@@ -100,6 +100,9 @@ func (g *Generator) Generate(api *design.APIDefinition) (_ []string, err error) 
 	if err := g.generateUserTypes(outdir, api); err != nil {
 		return g.genfiles, err
 	}
+	if err := g.generateUserHelpers(outdir, api); err != nil {
+		return g.genfiles, err
+	}
 
 	return g.genfiles, nil
 }
@@ -145,6 +148,81 @@ func (g *Generator) generateUserTypes(outdir string, api *design.APIDefinition) 
 					panic(err) // bug
 				}
 				title := fmt.Sprintf("%s: Models", version.Context())
+				ap, err := AppPackagePath()
+				if err != nil {
+					panic(err)
+				}
+				imports := []*codegen.ImportSpec{
+					codegen.SimpleImport(ap),
+					codegen.SimpleImport("github.com/goadesign/goa"),
+					codegen.SimpleImport("github.com/jinzhu/gorm"),
+					codegen.SimpleImport("golang.org/x/net/context"),
+					codegen.SimpleImport("golang.org/x/net/context"),
+					codegen.NewImport("log", "gopkg.in/inconshreveable/log15.v2"),
+				}
+				needDate := false
+				for _, field := range model.RelationalFields {
+					if field.Datatype == Timestamp || field.Datatype == NullableTimestamp {
+						needDate = true
+					}
+				}
+				if needDate {
+					imp := codegen.SimpleImport("time")
+					imports = append(imports, imp)
+				}
+				if model.Cached {
+					imp := codegen.SimpleImport("github.com/patrickmn/go-cache")
+					imports = append(imports, imp)
+				}
+				utWr.WriteHeader(title, "genmodels", imports)
+				data := &UserTypeTemplateData{
+					APIDefinition: api,
+					UserType:      model,
+					DefaultPkg:    TargetPackage,
+					AppPkg:        AppPackage,
+				}
+				err = utWr.Execute(data)
+				g.genfiles = append(g.genfiles, utFile)
+				if err != nil {
+					fmt.Println(err)
+					return err
+				}
+				err = utWr.FormatCode()
+				if err != nil {
+					fmt.Println(err)
+				}
+				return err
+			})
+			return err
+		})
+		return err
+	})
+	return err
+}
+
+// generateUserHelpers iterates through the user types and generates the data structures and
+// marshaling code.
+func (g *Generator) generateUserHelpers(outdir string, api *design.APIDefinition) error {
+	err := api.IterateVersions(func(version *design.APIVersionDefinition) error {
+		if version.Version != "" {
+			return nil
+		}
+		var modelname, filename string
+		err := GormaDesign.IterateStores(func(store *RelationalStoreDefinition) error {
+			err := store.IterateModels(func(model *RelationalModelDefinition) error {
+				modelname = strings.ToLower(codegen.Goify(model.ModelName, false))
+
+				filename = fmt.Sprintf("%s_helper_gen.go", modelname)
+				utFile := filepath.Join(outdir, filename)
+				err := os.RemoveAll(utFile)
+				if err != nil {
+					fmt.Println(err)
+				}
+				utWr, err := NewUserHelperWriter(utFile)
+				if err != nil {
+					panic(err) // bug
+				}
+				title := fmt.Sprintf("%s: Model Helpers", version.Context())
 				ap, err := AppPackagePath()
 				if err != nil {
 					panic(err)

@@ -295,10 +295,17 @@ func Cached(d string) {
 
 // Roler sets a boolean flag that cause the generation of a
 // Role() function that returns the model's Role value
-// Requires a field in the model named Role, type String
+// Creates a "Role" field in the table if it doesn't already exist
+// as a string type
 func Roler() {
 	if r, ok := relationalModelDefinition(false); ok {
 		r.Roler = true
+		if f, ok := r.RelationalFields["Role"]; !ok {
+			field := gorma.NewRelationalFieldDefinition()
+			field.FieldName = "Role"
+			field.Datatype = gorma.String
+			r.RelationalFields["Role"] = f
+		}
 	}
 }
 

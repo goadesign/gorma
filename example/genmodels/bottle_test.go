@@ -12,7 +12,6 @@ import (
 
 	"github.com/goadesign/goa"
 	"github.com/jinzhu/gorm"
-	"github.com/kr/pretty"
 	_ "github.com/lib/pq"
 )
 
@@ -48,26 +47,61 @@ func TestOneBottle(t *testing.T) {
 	db.LogMode(true)
 	bdb := NewBottleDB(db, logger)
 	btl := bdb.OneBottle(*ctx, 1)
-	pretty.Println("One Bottle: ", btl)
+	if btl.ID != 1 {
+		t.Error("Expected Bottle ID to be 1")
+	}
+}
+func TestOneBottleFull(t *testing.T) {
+	db.LogMode(true)
+	bdb := NewBottleDB(db, logger)
+	btl := bdb.OneBottleFull(*ctx, 1)
+	if *btl.Rating != 99 {
+		t.Error("Expected Bottle rating to be 99")
+	}
+	if btl.Account.ID != 1 {
+		t.Error("Expected account to be populated with bottle retrieval")
+	}
 }
 func TestGetBottle(t *testing.T) {
 	db.LogMode(true)
 	bdb := NewBottleDB(db, logger)
-	btl := bdb.GetBottle(*ctx, 1)
+	btl := bdb.Get(*ctx, 1)
 	if btl.ID != 1 {
 		t.Error("Expected Bottle")
 	}
+
 }
+func TestBottleToBottle(t *testing.T) {
+	db.LogMode(true)
+	bdb := NewBottleDB(db, logger)
+	btl := bdb.Get(*ctx, 1)
+	if btl.ID != 1 {
+		t.Error("Expected Bottle")
+	}
+	appbottle := btl.BottleToBottle()
+	if appbottle.ID != btl.ID {
+		t.Error("Expected bottle id to transfer")
+	}
+	if appbottle.Vintage != *btl.Vintage {
+		t.Error("Expected vintager to transfer")
+	}
+	if *appbottle.Rating != *btl.Rating {
+		t.Error("Expected rating to transfer")
+	}
+}
+
+/*
 func TestOneAccount(t *testing.T) {
 	db.LogMode(true)
 	adb := NewAccountDB(db, logger)
 	act := adb.OneAccount(*ctx, 1)
 	fmt.Println(act.ID)
 }
+*/
 func TestGetAccount(t *testing.T) {
 	db.LogMode(true)
 	adb := NewAccountDB(db, logger)
-	act := adb.GetAccount(*ctx, 1)
+	act := adb.Get(*ctx, 1)
 	if act.ID != 1 {
 		t.Error("Expected account")
 	}
@@ -76,7 +110,7 @@ func setup() error {
 	adb := NewAccountDB(db, logger)
 	cb := "Brian"
 	act, err := adb.Add(*ctx, Account{
-		CreatedBy: &cb,
+		CreatedBy: cb,
 		Href:      "href",
 		Name:      "Account1",
 	})
@@ -110,16 +144,16 @@ func setup() error {
 	VinyardCounty = "Cork"
 	btl, err := bdb.Add(*ctx, Bottle{
 		AccountID:     act.ID,
-		Color:         Color,
+		Color:         &Color,
 		Country:       &Country,
-		Name:          Name,
+		Name:          &Name,
 		Rating:        &Rating,
 		Region:        &Region,
 		Review:        &Review,
 		Sweetness:     &Sweetness,
-		Varietal:      Varietal,
-		Vineyard:      Vineyard,
-		Vintage:       Vintage,
+		Varietal:      &Varietal,
+		Vineyard:      &Vineyard,
+		Vintage:       &Vintage,
 		VinyardCounty: &VinyardCounty,
 	})
 	fmt.Println(btl.ID, btl.AccountID)
