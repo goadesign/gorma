@@ -18,39 +18,6 @@ import (
 	"github.com/goadesign/goa"
 )
 
-// A tenant account
-// Identifier: application/vnd.account+json
-type Account struct {
-	// Date of creation
-	CreatedAt *time.Time `json:"created_at,omitempty" xml:"created_at,omitempty"`
-	// Email of account owner
-	CreatedBy *string `json:"created_by,omitempty" xml:"created_by,omitempty"`
-	// API href of account
-	Href string `json:"href" xml:"href"`
-	// ID of account
-	ID int `json:"id" xml:"id"`
-	// Name of account
-	Name string `json:"name" xml:"name"`
-}
-
-// Validate validates the media type instance.
-func (mt *Account) Validate() (err error) {
-
-	if mt.Href == "" {
-		err = goa.MissingAttributeError(`response`, "href", err)
-	}
-	if mt.Name == "" {
-		err = goa.MissingAttributeError(`response`, "name", err)
-	}
-
-	if mt.CreatedBy != nil {
-		if err2 := goa.ValidateFormat(goa.FormatEmail, *mt.CreatedBy); err2 != nil {
-			err = goa.InvalidFormatError(`response.created_by`, *mt.CreatedBy, goa.FormatEmail, err2, err)
-		}
-	}
-	return
-}
-
 // A tenant account, tiny view
 // Identifier: application/vnd.account+json
 type AccountTiny struct {
@@ -91,6 +58,39 @@ func (mt *AccountLink) Validate() (err error) {
 		err = goa.MissingAttributeError(`response`, "href", err)
 	}
 
+	return
+}
+
+// A tenant account
+// Identifier: application/vnd.account+json
+type Account struct {
+	// Date of creation
+	CreatedAt *time.Time `json:"created_at,omitempty" xml:"created_at,omitempty"`
+	// Email of account owner
+	CreatedBy *string `json:"created_by,omitempty" xml:"created_by,omitempty"`
+	// API href of account
+	Href string `json:"href" xml:"href"`
+	// ID of account
+	ID int `json:"id" xml:"id"`
+	// Name of account
+	Name string `json:"name" xml:"name"`
+}
+
+// Validate validates the media type instance.
+func (mt *Account) Validate() (err error) {
+
+	if mt.Href == "" {
+		err = goa.MissingAttributeError(`response`, "href", err)
+	}
+	if mt.Name == "" {
+		err = goa.MissingAttributeError(`response`, "name", err)
+	}
+
+	if mt.CreatedBy != nil {
+		if err2 := goa.ValidateFormat(goa.FormatEmail, *mt.CreatedBy); err2 != nil {
+			err = goa.InvalidFormatError(`response.created_by`, *mt.CreatedBy, goa.FormatEmail, err2, err)
+		}
+	}
 	return
 }
 

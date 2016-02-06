@@ -18,6 +18,9 @@ var _ = API("cellar", func() {
 	Consumes("application/json", func() {
 		Package("github.com/goadesign/encoding/json")
 	})
+	Produces("application/json", func() {
+		Package("github.com/goadesign/encoding/json")
+	})
 	License(func() {
 		Name("MIT")
 		URL("https://github.com/goadesign/goa/blob/master/LICENSE")

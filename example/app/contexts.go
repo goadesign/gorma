@@ -106,6 +106,11 @@ func NewShowAccountContext(c *goa.Context) (*ShowAccountContext, error) {
 	return &ctx, err
 }
 
+// NotFound sends a HTTP response with status code 404.
+func (ctx *ShowAccountContext) NotFound() error {
+	return ctx.RespondBytes(404, nil)
+}
+
 // OK sends a HTTP response with status code 200.
 func (ctx *ShowAccountContext) OK(resp *Account) error {
 	ctx.Header().Set("Content-Type", "application/vnd.account")
@@ -116,11 +121,6 @@ func (ctx *ShowAccountContext) OK(resp *Account) error {
 func (ctx *ShowAccountContext) OKTiny(resp *AccountTiny) error {
 	ctx.Header().Set("Content-Type", "application/vnd.account")
 	return ctx.Respond(200, resp)
-}
-
-// NotFound sends a HTTP response with status code 404.
-func (ctx *ShowAccountContext) NotFound() error {
-	return ctx.RespondBytes(404, nil)
 }
 
 // UpdateAccountContext provides the account update action context.
@@ -415,14 +415,14 @@ func (payload *RateBottlePayload) Validate() (err error) {
 	return
 }
 
-// NotFound sends a HTTP response with status code 404.
-func (ctx *RateBottleContext) NotFound() error {
-	return ctx.RespondBytes(404, nil)
-}
-
 // NoContent sends a HTTP response with status code 204.
 func (ctx *RateBottleContext) NoContent() error {
 	return ctx.RespondBytes(204, nil)
+}
+
+// NotFound sends a HTTP response with status code 404.
+func (ctx *RateBottleContext) NotFound() error {
+	return ctx.RespondBytes(404, nil)
 }
 
 // ShowBottleContext provides the bottle show action context.
