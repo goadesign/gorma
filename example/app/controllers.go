@@ -12,7 +12,10 @@
 
 package app
 
-import "github.com/goadesign/goa"
+import (
+	"github.com/goadesign/encoding/json"
+	"github.com/goadesign/goa"
+)
 
 // AccountController is the controller interface for the Account actions.
 type AccountController interface {
@@ -29,9 +32,7 @@ func MountAccountController(service goa.Service, ctrl AccountController) {
 	service.SetEncoder(goa.GobEncoderFactory(), false, "application/gob", "application/x-gob")
 	service.SetEncoder(goa.JSONEncoderFactory(), true, "application/json")
 	service.SetEncoder(goa.XMLEncoderFactory(), false, "application/xml", "text/xml")
-	service.SetDecoder(goa.GobDecoderFactory(), false, "application/gob", "application/x-gob")
-	service.SetDecoder(goa.JSONDecoderFactory(), true, "application/json")
-	service.SetDecoder(goa.XMLDecoderFactory(), false, "application/xml", "text/xml")
+	service.SetDecoder(json.DecoderFactory(), true, "application/json")
 
 	// Setup endpoint handler
 	var h goa.Handler
@@ -119,9 +120,7 @@ func MountBottleController(service goa.Service, ctrl BottleController) {
 	service.SetEncoder(goa.GobEncoderFactory(), false, "application/gob", "application/x-gob")
 	service.SetEncoder(goa.JSONEncoderFactory(), true, "application/json")
 	service.SetEncoder(goa.XMLEncoderFactory(), false, "application/xml", "text/xml")
-	service.SetDecoder(goa.GobDecoderFactory(), false, "application/gob", "application/x-gob")
-	service.SetDecoder(goa.JSONDecoderFactory(), true, "application/json")
-	service.SetDecoder(goa.XMLDecoderFactory(), false, "application/xml", "text/xml")
+	service.SetDecoder(json.DecoderFactory(), true, "application/json")
 
 	// Setup endpoint handler
 	var h goa.Handler

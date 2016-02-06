@@ -74,14 +74,14 @@ func NewDeleteAccountContext(c *goa.Context) (*DeleteAccountContext, error) {
 	return &ctx, err
 }
 
-// NotFound sends a HTTP response with status code 404.
-func (ctx *DeleteAccountContext) NotFound() error {
-	return ctx.RespondBytes(404, nil)
-}
-
 // NoContent sends a HTTP response with status code 204.
 func (ctx *DeleteAccountContext) NoContent() error {
 	return ctx.RespondBytes(204, nil)
+}
+
+// NotFound sends a HTTP response with status code 404.
+func (ctx *DeleteAccountContext) NotFound() error {
+	return ctx.RespondBytes(404, nil)
 }
 
 // ShowAccountContext provides the account show action context.
@@ -302,14 +302,14 @@ func NewDeleteBottleContext(c *goa.Context) (*DeleteBottleContext, error) {
 	return &ctx, err
 }
 
-// NotFound sends a HTTP response with status code 404.
-func (ctx *DeleteBottleContext) NotFound() error {
-	return ctx.RespondBytes(404, nil)
-}
-
 // NoContent sends a HTTP response with status code 204.
 func (ctx *DeleteBottleContext) NoContent() error {
 	return ctx.RespondBytes(204, nil)
+}
+
+// NotFound sends a HTTP response with status code 404.
+func (ctx *DeleteBottleContext) NotFound() error {
+	return ctx.RespondBytes(404, nil)
 }
 
 // ListBottleContext provides the bottle list action context.
