@@ -15,6 +15,9 @@ var _ = API("cellar", func() {
 		Email("admin@goa.design")
 		URL("http://goa.design")
 	})
+	Consumes("application/json", func() {
+		Package("github.com/goadesign/encoding/json")
+	})
 	License(func() {
 		Name("MIT")
 		URL("https://github.com/goadesign/goa/blob/master/LICENSE")
