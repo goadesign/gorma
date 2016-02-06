@@ -330,7 +330,7 @@ return "{{ $ut.Alias}}" {{ else }} return "{{ $ut.TableName }}"
 
 // Get returns a single {{$ut.ModelName}} as a Database Model
 // This is more for use internally, and probably not what you want in  your controllers
-func (m *{{$ut.ModelName}}DB) Get(ctx goa.Context{{ if $ut.DynamicTableName}}, tableName string{{ end }}, id int) {{$ut.ModelName}}{	
+func (m *{{$ut.ModelName}}DB) Get(ctx *goa.Context{{ if $ut.DynamicTableName}}, tableName string{{ end }}, id int) {{$ut.ModelName}}{	
 	now := time.Now()
 	defer ctx.Info("{{$ut.ModelName}}:Get", "duration", time.Since(now))
 	var native {{$ut.ModelName}}
@@ -339,7 +339,7 @@ func (m *{{$ut.ModelName}}DB) Get(ctx goa.Context{{ if $ut.DynamicTableName}}, t
 }
 
 // List returns an array of {{$ut.ModelName}}
-func (m *{{$ut.ModelName}}DB) List{{$ut.TypeName}}(ctx goa.Context{{ if $ut.DynamicTableName}}, tableName string{{ end }}) []{{$ut.ModelName}}{
+func (m *{{$ut.ModelName}}DB) List{{$ut.TypeName}}(ctx *goa.Context{{ if $ut.DynamicTableName}}, tableName string{{ end }}) []{{$ut.ModelName}}{
 	now := time.Now()
 	defer ctx.Info("{{$ut.ModelName}}:List", "duration", time.Since(now))
 	var objs []{{$ut.ModelName}}
@@ -352,7 +352,7 @@ func (m *{{$ut.ModelName}}DB) List{{$ut.TypeName}}(ctx goa.Context{{ if $ut.Dyna
 	return objs
 }
 // Add creates a new record.
-func (m *{{$ut.ModelName}}DB) Add(ctx goa.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, model {{$ut.ModelName}}) ({{$ut.ModelName}}, error) {
+func (m *{{$ut.ModelName}}DB) Add(ctx *goa.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, model {{$ut.ModelName}}) ({{$ut.ModelName}}, error) {
 	now := time.Now()
 	defer ctx.Info("{{$ut.ModelName}}:Add", "duration", time.Since(now))
 	err := m.Db{{ if $ut.DynamicTableName }}.Table(tableName){{ end }}.Create(&model).Error
@@ -365,7 +365,7 @@ func (m *{{$ut.ModelName}}DB) Add(ctx goa.Context{{ if $ut.DynamicTableName }}, 
 	return model, err
 }
 // Update modifies a single record.
-func (m *{{$ut.ModelName}}DB) Update(ctx goa.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, model {{$ut.ModelName}}) error {
+func (m *{{$ut.ModelName}}DB) Update(ctx *goa.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, model {{$ut.ModelName}}) error {
 	now := time.Now()
 	defer ctx.Info("{{$ut.ModelName}}:Update", "duration", time.Since(now))
 	obj := m.Get(ctx{{ if $ut.DynamicTableName }}, tableName{{ end }}, {{$ut.PKUpdateFields "model"}})
@@ -380,7 +380,7 @@ func (m *{{$ut.ModelName}}DB) Update(ctx goa.Context{{ if $ut.DynamicTableName }
 	return err
 }
 // Delete removes a single record.
-func (m *{{$ut.ModelName}}DB) Delete(ctx goa.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, {{$ut.PKAttributes}})  error {
+func (m *{{$ut.ModelName}}DB) Delete(ctx *goa.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, {{$ut.PKAttributes}})  error {
 	now := time.Now()
 	defer ctx.Info("{{$ut.ModelName}}:Delete", "duration", time.Since(now))
 	var obj {{$ut.ModelName}}{{ $l := len $ut.PrimaryKeys }}
@@ -447,11 +447,11 @@ func (m *{{.Model.ModelName}}DB) One{{.Media.TypeName}}{{if eq .ViewName "defaul
 	now := time.Now()
 	defer ctx.Info("One{{.Media.TypeName}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}}", "duration", time.Since(now))
 
-	var native *{{.Model.ModelName}}
+	var native {{.Model.ModelName}}
 
-	m.Db.Table({{ if .Model.DynamicTableName }}.Table(tableName){{else}}m.TableName(){{ end }}){{range $na, $hm:= .Model.HasMany}}.Preload("{{$hm.ModelName}}"){{end}}{{range $nm, $bt := .Model.BelongsTo}}.Preload("{{$bt.ModelName}}"){{end}}.Where("id = ?", id).Find(&native)
-	view := native.{{.Model.ModelName}}To{{.VersionPackageName}}{{.Media.UserTypeDefinition.TypeName}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}}()
-	return view 
+	m.Db.Table({{ if .Model.DynamicTableName }}.Table(tableName){{else}}m.TableName(){{ end }}){{range $na, $hm:= .Model.HasMany}}.Preload("{{plural $hm.ModelName}}"){{end}}{{range $nm, $bt := .Model.BelongsTo}}.Preload("{{$bt.ModelName}}"){{end}}.Where("id = ?", id).Find(&native)
+	view := *native.{{.Model.ModelName}}To{{.VersionPackageName}}{{.Media.UserTypeDefinition.TypeName}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}}()
+	return &view 
 	
 }
 
