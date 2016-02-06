@@ -38,8 +38,10 @@ type (
 	}
 )
 
-func fieldAssignmentModelToType(model *RelationalModelDefinition, ut *design.ViewDefinition, v, mtype, utype string) string {
+func fieldAssignmentModelToType(model *RelationalModelDefinition, ut *design.ViewDefinition, verpkg, v, mtype, utype string) string {
 	//utPackage := "app"
+	var tmp int
+	tmp = 1
 	var fieldAssignments []string
 	// type.Field = model.Field
 	for fname, field := range model.RelationalFields {
@@ -59,7 +61,9 @@ func fieldAssignmentModelToType(model *RelationalModelDefinition, ut *design.Vie
 			fn := strings.Replace(field.FieldName, "ID", "", -1)
 			_, ok := obj[codegen.Goify(fn, false)]
 			if ok {
-				fa := fmt.Sprintf("%s.%s = %s.%s.%sTo%s()", utype, codegen.Goify(fn, true), mtype, codegen.Goify(fn, true), codegen.Goify(fn, true), codegen.Goify(fn, true))
+				fa := fmt.Sprintf("tmp%d := &%s.%s", tmp, mtype, codegen.Goify(fn, true))
+				fieldAssignments = append(fieldAssignments, fa)
+				fa = fmt.Sprintf("%s.%s = tmp%d.%sTo%s%s()", utype, codegen.Goify(fn, true), tmp, codegen.Goify(fn, true), verpkg, codegen.Goify(fn, true))
 				fieldAssignments = append(fieldAssignments, fa)
 			}
 		}
@@ -335,6 +339,8 @@ func (m *{{$ut.ModelName}}DB) Get(ctx *goa.Context{{ if $ut.DynamicTableName}}, 
 	defer ctx.Info("{{$ut.ModelName}}:Get", "duration", time.Since(now))
 	var native {{$ut.ModelName}}
 	m.Db.Table({{ if $ut.DynamicTableName }}.Table(tableName){{else}}m.TableName(){{ end }}).Where("id = ?", id).Find(&native)
+	{{ if $ut.Cached }}go m.cache.Set(strconv.Itoa(native.ID), native, cache.DefaultExpiration) 
+	{{end}}
 	return native 
 }
 
@@ -371,10 +377,7 @@ func (m *{{$ut.ModelName}}DB) Update(ctx *goa.Context{{ if $ut.DynamicTableName 
 	obj := m.Get(ctx{{ if $ut.DynamicTableName }}, tableName{{ end }}, {{$ut.PKUpdateFields "model"}})
 	err := m.Db{{ if $ut.DynamicTableName }}.Table(tableName){{ end }}.Model(&obj).Updates(model).Error
 	{{ if $ut.Cached }}go func(){
-	obj, err := m.One(ctx, model.ID)
-	if err == nil {
 		m.cache.Set(strconv.Itoa(model.ID), obj, cache.DefaultExpiration)
-	}
 	}()
 	{{ end }}
 	return err
@@ -437,7 +440,7 @@ func (m *{{.Model.ModelName}}DB) List{{.VersionPackageName}}{{.Media.TypeName}}{
 
 func (m *{{.Model.ModelName}}) {{$.Model.ModelName}}To{{.VersionPackageName}}{{.Media.UserTypeDefinition.TypeName}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}}() *{{.VersionPackage}}.{{.Media.TypeName}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}} {
 	{{.Model.LowerName}} := &{{.VersionPackage}}.{{.Media.TypeName}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}}{}		
- 	{{ famt .Model .View "m" "m" .Model.LowerName}}		
+ 	{{ famt .Model .View .VersionPackageName "m" "m" .Model.LowerName}}		
 
  	 return {{.Model.LowerName}}
 }
@@ -445,11 +448,26 @@ func (m *{{.Model.ModelName}}) {{$.Model.ModelName}}To{{.VersionPackageName}}{{.
 // One{{.VersionPackageName}}{{.Media.TypeName}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}} returns an array of view: {{.ViewName}}
 func (m *{{.Model.ModelName}}DB) One{{.Media.TypeName}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}} (ctx *goa.Context{{ if .Model.DynamicTableName}}, tableName string{{ end }}, id int) *{{.VersionPackage}}.{{.Media.TypeName}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}}{	
 	now := time.Now()
-	defer ctx.Info("One{{.Media.TypeName}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}}", "duration", time.Since(now))
-
 	var native {{.Model.ModelName}}
+	defer ctx.Info("One{{.Media.TypeName}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}}", "duration", time.Since(now))
+	{{ if .Model.Cached }}
+		idstr:= strconv.Itoa(id)
+		cached, ok := m.cache.Get(idstr)
+		if ok {
+			native = cached.({{.Model.ModelName}})
+			view := *native.{{.Model.ModelName}}To{{.VersionPackageName}}{{.Media.UserTypeDefinition.TypeName}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}}()
+	go func(){
+		m.cache.Set(strconv.Itoa(native.ID), native, cache.DefaultExpiration)
+	}()
+			return &view
+		}
+	{{ end }}
+
 
 	m.Db.Table({{ if .Model.DynamicTableName }}.Table(tableName){{else}}m.TableName(){{ end }}){{range $na, $hm:= .Model.HasMany}}.Preload("{{plural $hm.ModelName}}"){{end}}{{range $nm, $bt := .Model.BelongsTo}}.Preload("{{$bt.ModelName}}"){{end}}.Where("id = ?", id).Find(&native)
+	{{ if .Model.Cached }} go func(){
+		m.cache.Set(strconv.Itoa(native.ID), native, cache.DefaultExpiration)
+	}() {{ end }}
 	view := *native.{{.Model.ModelName}}To{{.VersionPackageName}}{{.Media.UserTypeDefinition.TypeName}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}}()
 	return &view 
 	

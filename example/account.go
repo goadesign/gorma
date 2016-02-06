@@ -27,7 +27,7 @@ func (c *AccountController) Delete(ctx *app.DeleteAccountContext) error {
 
 // Show runs the show action.
 func (c *AccountController) Show(ctx *app.ShowAccountContext) error {
-	res := adb.OneAccount(*ctx.Context, ctx.AccountID)
+	res := adb.OneAccount(ctx.Context, ctx.AccountID)
 	return ctx.OK(res)
 }
 

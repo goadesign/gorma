@@ -16,6 +16,7 @@ var sg = StorageGroup("MyStorageGroup", func() {
 			BuildsFrom(BottlePayload)
 			RendersTo(Bottle)
 			BelongsTo("Account")
+			Cached("60")
 			Field("id", gorma.PKInteger, func() {
 				PrimaryKey()
 				MapsFrom(BottlePayload, "id")
@@ -30,6 +31,7 @@ var sg = StorageGroup("MyStorageGroup", func() {
 			Description("This is the Account model")
 			HasMany("Bottles", "Bottle")
 			RendersTo(Account)
+			Cached("60")
 			Field("id", gorma.PKInteger, func() {
 				PrimaryKey()
 			})

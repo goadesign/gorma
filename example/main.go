@@ -27,7 +27,7 @@ func main() {
 	var err error
 	//port, err := strconv.Atoi(strings.Split(c.Port(5432), ":")[1])
 	//host := strings.Split(c.Port(5432), ":")[0]
-	url := fmt.Sprintf("dbname=xorapidb user=docker password=docker sslmode=disable port=%d host=%s", 32779, "192.168.100.5")
+	url := fmt.Sprintf("dbname=xorapidb user=docker password=docker sslmode=disable port=%d host=%s", 5432, "local.docker")
 	fmt.Println(url)
 	logger = log15.New("something", "example")
 	time.Sleep(10)
@@ -63,7 +63,7 @@ func setup() error {
 	ctx.Logger = logger
 	adb = genmodels.NewAccountDB(db, logger)
 	cb := "Brian"
-	act, err := adb.Add(*ctx, genmodels.Account{
+	act, err := adb.Add(ctx, genmodels.Account{
 		CreatedBy: cb,
 		Href:      "href",
 		Name:      "Account1",
@@ -96,7 +96,7 @@ func setup() error {
 	Vineyard = "Robert Mondavi"
 	Vintage = "1999"
 	VinyardCounty = "Cork"
-	btl, err := bdb.Add(*ctx, genmodels.Bottle{
+	btl, err := bdb.Add(ctx, genmodels.Bottle{
 		AccountID:     act.ID,
 		Color:         &Color,
 		Country:       &Country,

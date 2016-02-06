@@ -160,6 +160,7 @@ func (g *Generator) generateUserTypes(outdir string, api *design.APIDefinition) 
 					codegen.SimpleImport("golang.org/x/net/context"),
 					codegen.NewImport("log", "gopkg.in/inconshreveable/log15.v2"),
 				}
+
 				needDate := false
 				for _, field := range model.RelationalFields {
 					if field.Datatype == Timestamp || field.Datatype == NullableTimestamp {
@@ -171,7 +172,10 @@ func (g *Generator) generateUserTypes(outdir string, api *design.APIDefinition) 
 					imports = append(imports, imp)
 				}
 				if model.Cached {
-					imp := codegen.SimpleImport("github.com/patrickmn/go-cache")
+					fmt.Println("adding import for cache")
+					imp := codegen.NewImport("cache", "github.com/patrickmn/go-cache")
+					imports = append(imports, imp)
+					imp = codegen.SimpleImport("strconv")
 					imports = append(imports, imp)
 				}
 				utWr.WriteHeader(title, "genmodels", imports)
@@ -246,7 +250,10 @@ func (g *Generator) generateUserHelpers(outdir string, api *design.APIDefinition
 					imports = append(imports, imp)
 				}
 				if model.Cached {
-					imp := codegen.SimpleImport("github.com/patrickmn/go-cache")
+					fmt.Println("adding import for cache")
+					imp := codegen.NewImport("cache", "github.com/patrickmn/go-cache")
+					imports = append(imports, imp)
+					imp = codegen.SimpleImport("strconv")
 					imports = append(imports, imp)
 				}
 				utWr.WriteHeader(title, "genmodels", imports)

@@ -25,7 +25,7 @@ func TestMain(m *testing.M) {
 	var err error
 	//port, err := strconv.Atoi(strings.Split(c.Port(5432), ":")[1])
 	//host := strings.Split(c.Port(5432), ":")[0]
-	url := fmt.Sprintf("dbname=xorapidb user=docker password=docker sslmode=disable port=%d host=%s", 32779, "192.168.100.5")
+	url := fmt.Sprintf("dbname=xorapidb user=docker password=docker sslmode=disable port=%d host=%s", 5432, "local.docker")
 	fmt.Println(url)
 	time.Sleep(10)
 	db, err = gorm.Open("postgres", url)
@@ -46,7 +46,7 @@ func TestMain(m *testing.M) {
 func TestOneBottle(t *testing.T) {
 	db.LogMode(true)
 	bdb := NewBottleDB(db, logger)
-	btl := bdb.OneBottle(*ctx, 1)
+	btl := bdb.OneBottle(ctx, 1)
 	if btl.ID != 1 {
 		t.Error("Expected Bottle ID to be 1")
 	}
@@ -54,7 +54,15 @@ func TestOneBottle(t *testing.T) {
 func TestOneBottleFull(t *testing.T) {
 	db.LogMode(true)
 	bdb := NewBottleDB(db, logger)
-	btl := bdb.OneBottleFull(*ctx, 1)
+	btl := bdb.OneBottleFull(ctx, 1)
+	if *btl.Rating != 99 {
+		t.Error("Expected Bottle rating to be 99")
+	}
+	if btl.Account.ID != 1 {
+		t.Error("Expected account to be populated with bottle retrieval")
+	}
+	time.Sleep(1 * time.Second)
+	btl = bdb.OneBottleFull(ctx, 1)
 	if *btl.Rating != 99 {
 		t.Error("Expected Bottle rating to be 99")
 	}
@@ -66,7 +74,12 @@ func TestOneBottleFull(t *testing.T) {
 func TestOneBottleTiny(t *testing.T) {
 	db.LogMode(true)
 	bdb := NewBottleDB(db, logger)
-	btl := bdb.OneBottleTiny(*ctx, 1)
+	btl := bdb.OneBottleTiny(ctx, 1)
+	if btl.Name != "Red Horse" {
+		t.Error("Expected name to be set")
+	}
+	time.Sleep(1 * time.Second)
+	btl = bdb.OneBottleTiny(ctx, 1)
 	if btl.Name != "Red Horse" {
 		t.Error("Expected name to be set")
 	}
@@ -74,7 +87,7 @@ func TestOneBottleTiny(t *testing.T) {
 func TestGetBottle(t *testing.T) {
 	db.LogMode(true)
 	bdb := NewBottleDB(db, logger)
-	btl := bdb.Get(*ctx, 1)
+	btl := bdb.Get(ctx, 1)
 	if btl.ID != 1 {
 		t.Error("Expected Bottle")
 	}
@@ -83,11 +96,11 @@ func TestGetBottle(t *testing.T) {
 func TestBottleToBottle(t *testing.T) {
 	db.LogMode(true)
 	bdb := NewBottleDB(db, logger)
-	btl := bdb.Get(*ctx, 1)
+	btl := bdb.Get(ctx, 1)
 	if btl.ID != 1 {
 		t.Error("Expected Bottle")
 	}
-	appbottle := btl.BottleToBottle()
+	appbottle := btl.BottleToAppBottle()
 	if appbottle.ID != btl.ID {
 		t.Error("Expected bottle id to transfer")
 	}
@@ -110,7 +123,7 @@ func TestOneAccount(t *testing.T) {
 func TestGetAccount(t *testing.T) {
 	db.LogMode(true)
 	adb := NewAccountDB(db, logger)
-	act := adb.Get(*ctx, 1)
+	act := adb.Get(ctx, 1)
 	if act.ID != 1 {
 		t.Error("Expected account")
 	}
@@ -118,7 +131,7 @@ func TestGetAccount(t *testing.T) {
 func setup() error {
 	adb := NewAccountDB(db, logger)
 	cb := "Brian"
-	act, err := adb.Add(*ctx, Account{
+	act, err := adb.Add(ctx, Account{
 		CreatedBy: cb,
 		Href:      "href",
 		Name:      "Account1",
@@ -151,7 +164,7 @@ func setup() error {
 	Vineyard = "Robert Mondavi"
 	Vintage = "1999"
 	VinyardCounty = "Cork"
-	btl, err := bdb.Add(*ctx, Bottle{
+	btl, err := bdb.Add(ctx, Bottle{
 		AccountID:     act.ID,
 		Color:         &Color,
 		Country:       &Country,

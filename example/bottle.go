@@ -38,7 +38,7 @@ func (c *BottleController) Rate(ctx *app.RateBottleContext) error {
 
 // Show runs the show action.
 func (c *BottleController) Show(ctx *app.ShowBottleContext) error {
-	res := bdb.OneBottle(*ctx.Context, ctx.BottleID)
+	res := bdb.OneBottle(ctx.Context, ctx.BottleID)
 	return ctx.OK(res)
 }
 
