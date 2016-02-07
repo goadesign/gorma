@@ -1,5 +1,5 @@
 //************************************************************************//
-// API "cellar": Application Contexts
+// API "congo": Application Contexts
 //
 // Generated with goagen v0.0.1, command line:
 // $ goagen
@@ -15,572 +15,376 @@ package app
 import (
 	"github.com/goadesign/goa"
 	"strconv"
-	"strings"
 )
 
-// CreateAccountContext provides the account create action context.
-type CreateAccountContext struct {
+// CallbackAuthContext provides the auth callback action context.
+type CallbackAuthContext struct {
 	*goa.Context
-	Payload *CreateAccountPayload
+	APIVersion string
+	Provider   string
 }
 
-// NewCreateAccountContext parses the incoming request URL and body, performs validations and creates the
-// context used by the account controller create action.
-func NewCreateAccountContext(c *goa.Context) (*CreateAccountContext, error) {
+// NewCallbackAuthContext parses the incoming request URL and body, performs validations and creates the
+// context used by the auth controller callback action.
+func NewCallbackAuthContext(c *goa.Context) (*CallbackAuthContext, error) {
 	var err error
-	ctx := CreateAccountContext{Context: c}
-	return &ctx, err
-}
-
-// CreateAccountPayload is the account create action payload.
-type CreateAccountPayload struct {
-	// Name of account
-	Name string `json:"name" xml:"name"`
-}
-
-// Validate runs the validation rules defined in the design.
-func (payload *CreateAccountPayload) Validate() (err error) {
-	if payload.Name == "" {
-		err = goa.MissingAttributeError(`raw`, "name", err)
+	ctx := CallbackAuthContext{Context: c}
+	rawAPIVersion := c.Get("api_version")
+	if rawAPIVersion != "" {
+		ctx.APIVersion = rawAPIVersion
 	}
-
-	return
-}
-
-// Created sends a HTTP response with status code 201.
-func (ctx *CreateAccountContext) Created() error {
-	return ctx.RespondBytes(201, nil)
-}
-
-// DeleteAccountContext provides the account delete action context.
-type DeleteAccountContext struct {
-	*goa.Context
-	AccountID int
-}
-
-// NewDeleteAccountContext parses the incoming request URL and body, performs validations and creates the
-// context used by the account controller delete action.
-func NewDeleteAccountContext(c *goa.Context) (*DeleteAccountContext, error) {
-	var err error
-	ctx := DeleteAccountContext{Context: c}
-	rawAccountID := c.Get("accountID")
-	if rawAccountID != "" {
-		if accountID, err2 := strconv.Atoi(rawAccountID); err2 == nil {
-			ctx.AccountID = int(accountID)
-		} else {
-			err = goa.InvalidParamTypeError("accountID", rawAccountID, "integer", err)
-		}
+	rawProvider := c.Get("provider")
+	if rawProvider != "" {
+		ctx.Provider = rawProvider
 	}
 	return &ctx, err
-}
-
-// NoContent sends a HTTP response with status code 204.
-func (ctx *DeleteAccountContext) NoContent() error {
-	return ctx.RespondBytes(204, nil)
-}
-
-// NotFound sends a HTTP response with status code 404.
-func (ctx *DeleteAccountContext) NotFound() error {
-	return ctx.RespondBytes(404, nil)
-}
-
-// ShowAccountContext provides the account show action context.
-type ShowAccountContext struct {
-	*goa.Context
-	AccountID int
-}
-
-// NewShowAccountContext parses the incoming request URL and body, performs validations and creates the
-// context used by the account controller show action.
-func NewShowAccountContext(c *goa.Context) (*ShowAccountContext, error) {
-	var err error
-	ctx := ShowAccountContext{Context: c}
-	rawAccountID := c.Get("accountID")
-	if rawAccountID != "" {
-		if accountID, err2 := strconv.Atoi(rawAccountID); err2 == nil {
-			ctx.AccountID = int(accountID)
-		} else {
-			err = goa.InvalidParamTypeError("accountID", rawAccountID, "integer", err)
-		}
-	}
-	return &ctx, err
-}
-
-// NotFound sends a HTTP response with status code 404.
-func (ctx *ShowAccountContext) NotFound() error {
-	return ctx.RespondBytes(404, nil)
 }
 
 // OK sends a HTTP response with status code 200.
-func (ctx *ShowAccountContext) OK(resp *Account) error {
-	ctx.Header().Set("Content-Type", "application/vnd.account")
-	return ctx.Respond(200, resp)
+func (ctx *CallbackAuthContext) OK(resp []byte) error {
+	ctx.Header().Set("Content-Type", "text/html")
+	return ctx.RespondBytes(200, resp)
 }
 
-// OKTiny sends a HTTP response with status code 200.
-func (ctx *ShowAccountContext) OKTiny(resp *AccountTiny) error {
-	ctx.Header().Set("Content-Type", "application/vnd.account")
-	return ctx.Respond(200, resp)
-}
-
-// UpdateAccountContext provides the account update action context.
-type UpdateAccountContext struct {
+// OauthAuthContext provides the auth oauth action context.
+type OauthAuthContext struct {
 	*goa.Context
-	AccountID int
-	Payload   *UpdateAccountPayload
+	APIVersion string
+	Provider   string
 }
 
-// NewUpdateAccountContext parses the incoming request URL and body, performs validations and creates the
-// context used by the account controller update action.
-func NewUpdateAccountContext(c *goa.Context) (*UpdateAccountContext, error) {
+// NewOauthAuthContext parses the incoming request URL and body, performs validations and creates the
+// context used by the auth controller oauth action.
+func NewOauthAuthContext(c *goa.Context) (*OauthAuthContext, error) {
 	var err error
-	ctx := UpdateAccountContext{Context: c}
-	rawAccountID := c.Get("accountID")
-	if rawAccountID != "" {
-		if accountID, err2 := strconv.Atoi(rawAccountID); err2 == nil {
-			ctx.AccountID = int(accountID)
-		} else {
-			err = goa.InvalidParamTypeError("accountID", rawAccountID, "integer", err)
-		}
+	ctx := OauthAuthContext{Context: c}
+	rawAPIVersion := c.Get("api_version")
+	if rawAPIVersion != "" {
+		ctx.APIVersion = rawAPIVersion
+	}
+	rawProvider := c.Get("provider")
+	if rawProvider != "" {
+		ctx.Provider = rawProvider
 	}
 	return &ctx, err
 }
 
-// UpdateAccountPayload is the account update action payload.
-type UpdateAccountPayload struct {
-	// Name of account
-	Name string `json:"name" xml:"name"`
+// OK sends a HTTP response with status code 200.
+func (ctx *OauthAuthContext) OK(resp *Authorize) error {
+	ctx.Header().Set("Content-Type", "application/vnd.authorize")
+	return ctx.Respond(200, resp)
 }
 
-// Validate runs the validation rules defined in the design.
-func (payload *UpdateAccountPayload) Validate() (err error) {
-	if payload.Name == "" {
-		err = goa.MissingAttributeError(`raw`, "name", err)
-	}
-
-	return
-}
-
-// NoContent sends a HTTP response with status code 204.
-func (ctx *UpdateAccountContext) NoContent() error {
-	return ctx.RespondBytes(204, nil)
-}
-
-// NotFound sends a HTTP response with status code 404.
-func (ctx *UpdateAccountContext) NotFound() error {
-	return ctx.RespondBytes(404, nil)
-}
-
-// CreateBottleContext provides the bottle create action context.
-type CreateBottleContext struct {
+// RefreshAuthContext provides the auth refresh action context.
+type RefreshAuthContext struct {
 	*goa.Context
-	AccountID int
-	Payload   *CreateBottlePayload
+	APIVersion string
+	Payload    *RefreshAuthPayload
 }
 
-// NewCreateBottleContext parses the incoming request URL and body, performs validations and creates the
-// context used by the bottle controller create action.
-func NewCreateBottleContext(c *goa.Context) (*CreateBottleContext, error) {
+// NewRefreshAuthContext parses the incoming request URL and body, performs validations and creates the
+// context used by the auth controller refresh action.
+func NewRefreshAuthContext(c *goa.Context) (*RefreshAuthContext, error) {
 	var err error
-	ctx := CreateBottleContext{Context: c}
-	rawAccountID := c.Get("accountID")
-	if rawAccountID != "" {
-		if accountID, err2 := strconv.Atoi(rawAccountID); err2 == nil {
-			ctx.AccountID = int(accountID)
-		} else {
-			err = goa.InvalidParamTypeError("accountID", rawAccountID, "integer", err)
-		}
+	ctx := RefreshAuthContext{Context: c}
+	rawAPIVersion := c.Get("api_version")
+	if rawAPIVersion != "" {
+		ctx.APIVersion = rawAPIVersion
 	}
 	return &ctx, err
 }
 
-// CreateBottlePayload is the bottle create action payload.
-type CreateBottlePayload struct {
-	Color         string  `json:"color" xml:"color"`
-	Country       *string `json:"country,omitempty" xml:"country,omitempty"`
-	Name          string  `json:"name" xml:"name"`
-	Region        *string `json:"region,omitempty" xml:"region,omitempty"`
-	Review        *string `json:"review,omitempty" xml:"review,omitempty"`
-	Sweetness     *int    `json:"sweetness,omitempty" xml:"sweetness,omitempty"`
-	Varietal      string  `json:"varietal" xml:"varietal"`
-	Vineyard      string  `json:"vineyard" xml:"vineyard"`
-	Vintage       string  `json:"vintage" xml:"vintage"`
-	VinyardCounty *string `json:"vinyard_county,omitempty" xml:"vinyard_county,omitempty"`
+// RefreshAuthPayload is the auth refresh action payload.
+type RefreshAuthPayload struct {
+	// UUID of requesting application
+	Application *string `json:"application,omitempty" xml:"application,omitempty"`
+	// email
+	Email *string `json:"email,omitempty" xml:"email,omitempty"`
+	// password
+	Password *string `json:"password,omitempty" xml:"password,omitempty"`
+}
+
+// Created sends a HTTP response with status code 201.
+func (ctx *RefreshAuthContext) Created(resp *Authorize) error {
+	ctx.Header().Set("Content-Type", "application/vnd.authorize+json")
+	return ctx.Respond(201, resp)
+}
+
+// TokenAuthContext provides the auth token action context.
+type TokenAuthContext struct {
+	*goa.Context
+	APIVersion string
+	Payload    *TokenAuthPayload
+}
+
+// NewTokenAuthContext parses the incoming request URL and body, performs validations and creates the
+// context used by the auth controller token action.
+func NewTokenAuthContext(c *goa.Context) (*TokenAuthContext, error) {
+	var err error
+	ctx := TokenAuthContext{Context: c}
+	rawAPIVersion := c.Get("api_version")
+	if rawAPIVersion != "" {
+		ctx.APIVersion = rawAPIVersion
+	}
+	return &ctx, err
+}
+
+// TokenAuthPayload is the auth token action payload.
+type TokenAuthPayload struct {
+	// UUID of requesting application
+	Application *string `json:"application,omitempty" xml:"application,omitempty"`
+	// email
+	Email *string `json:"email,omitempty" xml:"email,omitempty"`
+	// password
+	Password *string `json:"password,omitempty" xml:"password,omitempty"`
+}
+
+// Created sends a HTTP response with status code 201.
+func (ctx *TokenAuthContext) Created(resp *Authorize) error {
+	ctx.Header().Set("Content-Type", "application/vnd.authorize+json")
+	return ctx.Respond(201, resp)
+}
+
+// BootstrapUiContext provides the ui bootstrap action context.
+type BootstrapUiContext struct {
+	*goa.Context
+}
+
+// NewBootstrapUiContext parses the incoming request URL and body, performs validations and creates the
+// context used by the ui controller bootstrap action.
+func NewBootstrapUiContext(c *goa.Context) (*BootstrapUiContext, error) {
+	var err error
+	ctx := BootstrapUiContext{Context: c}
+	return &ctx, err
+}
+
+// OK sends a HTTP response with status code 200.
+func (ctx *BootstrapUiContext) OK(resp []byte) error {
+	ctx.Header().Set("Content-Type", "text/html")
+	return ctx.RespondBytes(200, resp)
+}
+
+// CreateUserContext provides the user create action context.
+type CreateUserContext struct {
+	*goa.Context
+	APIVersion string
+	Payload    *CreateUserPayload
+}
+
+// NewCreateUserContext parses the incoming request URL and body, performs validations and creates the
+// context used by the user controller create action.
+func NewCreateUserContext(c *goa.Context) (*CreateUserContext, error) {
+	var err error
+	ctx := CreateUserContext{Context: c}
+	rawAPIVersion := c.Get("api_version")
+	if rawAPIVersion != "" {
+		ctx.APIVersion = rawAPIVersion
+	}
+	return &ctx, err
+}
+
+// CreateUserPayload is the user create action payload.
+type CreateUserPayload struct {
+	Bio       *string `json:"bio,omitempty" xml:"bio,omitempty"`
+	City      *string `json:"city,omitempty" xml:"city,omitempty"`
+	Country   *string `json:"country,omitempty" xml:"country,omitempty"`
+	Email     string  `json:"email" xml:"email"`
+	Firstname string  `json:"firstname" xml:"firstname"`
+	Lastname  string  `json:"lastname" xml:"lastname"`
+	State     *string `json:"state,omitempty" xml:"state,omitempty"`
 }
 
 // Validate runs the validation rules defined in the design.
-func (payload *CreateBottlePayload) Validate() (err error) {
-	if payload.Name == "" {
-		err = goa.MissingAttributeError(`raw`, "name", err)
-	}
-	if payload.Vineyard == "" {
-		err = goa.MissingAttributeError(`raw`, "vineyard", err)
-	}
-	if payload.Varietal == "" {
-		err = goa.MissingAttributeError(`raw`, "varietal", err)
-	}
-	if payload.Vintage == "" {
-		err = goa.MissingAttributeError(`raw`, "vintage", err)
-	}
-	if payload.Color == "" {
-		err = goa.MissingAttributeError(`raw`, "color", err)
+func (payload *CreateUserPayload) Validate() (err error) {
+	if payload.Firstname == "" {
+		err = goa.MissingAttributeError(`raw`, "firstname", err)
 	}
 
-	if !(payload.Color == "red" || payload.Color == "white" || payload.Color == "rose" || payload.Color == "yellow" || payload.Color == "sparkling") {
-		err = goa.InvalidEnumValueError(`raw.color`, payload.Color, []interface{}{"red", "white", "rose", "yellow", "sparkling"}, err)
+	if payload.Lastname == "" {
+		err = goa.MissingAttributeError(`raw`, "lastname", err)
 	}
-	if payload.Country != nil {
-		if len(*payload.Country) < 2 {
-			err = goa.InvalidLengthError(`raw.country`, *payload.Country, len(*payload.Country), 2, true, err)
+
+	if payload.Email == "" {
+		err = goa.MissingAttributeError(`raw`, "email", err)
+	}
+
+	if payload.Bio != nil {
+		if len(*payload.Bio) > 500 {
+			err = goa.InvalidLengthError(`raw.bio`, *payload.Bio, len(*payload.Bio), 500, false, err)
 		}
 	}
-	if len(payload.Name) < 2 {
-		err = goa.InvalidLengthError(`raw.name`, payload.Name, len(payload.Name), 2, true, err)
-	}
-	if payload.Review != nil {
-		if len(*payload.Review) < 3 {
-			err = goa.InvalidLengthError(`raw.review`, *payload.Review, len(*payload.Review), 3, true, err)
-		}
-	}
-	if payload.Review != nil {
-		if len(*payload.Review) > 300 {
-			err = goa.InvalidLengthError(`raw.review`, *payload.Review, len(*payload.Review), 300, false, err)
-		}
-	}
-	if payload.Sweetness != nil {
-		if *payload.Sweetness < 1 {
-			err = goa.InvalidRangeError(`raw.sweetness`, *payload.Sweetness, 1, true, err)
-		}
-	}
-	if payload.Sweetness != nil {
-		if *payload.Sweetness > 5 {
-			err = goa.InvalidRangeError(`raw.sweetness`, *payload.Sweetness, 5, false, err)
-		}
-	}
-	if len(payload.Varietal) < 4 {
-		err = goa.InvalidLengthError(`raw.varietal`, payload.Varietal, len(payload.Varietal), 4, true, err)
-	}
-	if len(payload.Vineyard) < 2 {
-		err = goa.InvalidLengthError(`raw.vineyard`, payload.Vineyard, len(payload.Vineyard), 2, true, err)
+	if err2 := goa.ValidateFormat(goa.FormatEmail, payload.Email); err2 != nil {
+		err = goa.InvalidFormatError(`raw.email`, payload.Email, goa.FormatEmail, err2, err)
 	}
 	return
 }
 
 // Created sends a HTTP response with status code 201.
-func (ctx *CreateBottleContext) Created() error {
+func (ctx *CreateUserContext) Created() error {
 	return ctx.RespondBytes(201, nil)
 }
 
-// DeleteBottleContext provides the bottle delete action context.
-type DeleteBottleContext struct {
+// DeleteUserContext provides the user delete action context.
+type DeleteUserContext struct {
 	*goa.Context
-	AccountID int
-	BottleID  int
+	APIVersion string
+	UserID     int
 }
 
-// NewDeleteBottleContext parses the incoming request URL and body, performs validations and creates the
-// context used by the bottle controller delete action.
-func NewDeleteBottleContext(c *goa.Context) (*DeleteBottleContext, error) {
+// NewDeleteUserContext parses the incoming request URL and body, performs validations and creates the
+// context used by the user controller delete action.
+func NewDeleteUserContext(c *goa.Context) (*DeleteUserContext, error) {
 	var err error
-	ctx := DeleteBottleContext{Context: c}
-	rawAccountID := c.Get("accountID")
-	if rawAccountID != "" {
-		if accountID, err2 := strconv.Atoi(rawAccountID); err2 == nil {
-			ctx.AccountID = int(accountID)
-		} else {
-			err = goa.InvalidParamTypeError("accountID", rawAccountID, "integer", err)
-		}
+	ctx := DeleteUserContext{Context: c}
+	rawAPIVersion := c.Get("api_version")
+	if rawAPIVersion != "" {
+		ctx.APIVersion = rawAPIVersion
 	}
-	rawBottleID := c.Get("bottleID")
-	if rawBottleID != "" {
-		if bottleID, err2 := strconv.Atoi(rawBottleID); err2 == nil {
-			ctx.BottleID = int(bottleID)
+	rawUserID := c.Get("userID")
+	if rawUserID != "" {
+		if userID, err2 := strconv.Atoi(rawUserID); err2 == nil {
+			ctx.UserID = int(userID)
 		} else {
-			err = goa.InvalidParamTypeError("bottleID", rawBottleID, "integer", err)
+			err = goa.InvalidParamTypeError("userID", rawUserID, "integer", err)
 		}
 	}
 	return &ctx, err
 }
 
 // NoContent sends a HTTP response with status code 204.
-func (ctx *DeleteBottleContext) NoContent() error {
+func (ctx *DeleteUserContext) NoContent() error {
 	return ctx.RespondBytes(204, nil)
 }
 
 // NotFound sends a HTTP response with status code 404.
-func (ctx *DeleteBottleContext) NotFound() error {
+func (ctx *DeleteUserContext) NotFound() error {
 	return ctx.RespondBytes(404, nil)
 }
 
-// ListBottleContext provides the bottle list action context.
-type ListBottleContext struct {
+// ListUserContext provides the user list action context.
+type ListUserContext struct {
 	*goa.Context
-	AccountID int
-	Years     []int
+	APIVersion string
 }
 
-// NewListBottleContext parses the incoming request URL and body, performs validations and creates the
-// context used by the bottle controller list action.
-func NewListBottleContext(c *goa.Context) (*ListBottleContext, error) {
+// NewListUserContext parses the incoming request URL and body, performs validations and creates the
+// context used by the user controller list action.
+func NewListUserContext(c *goa.Context) (*ListUserContext, error) {
 	var err error
-	ctx := ListBottleContext{Context: c}
-	rawAccountID := c.Get("accountID")
-	if rawAccountID != "" {
-		if accountID, err2 := strconv.Atoi(rawAccountID); err2 == nil {
-			ctx.AccountID = int(accountID)
-		} else {
-			err = goa.InvalidParamTypeError("accountID", rawAccountID, "integer", err)
-		}
-	}
-	rawYears := c.Get("years")
-	if rawYears != "" {
-		elemsYears := strings.Split(rawYears, ",")
-		elemsYears2 := make([]int, len(elemsYears))
-		for i, rawElem := range elemsYears {
-			if elem, err2 := strconv.Atoi(rawElem); err2 == nil {
-				elemsYears2[i] = int(elem)
-			} else {
-				err = goa.InvalidParamTypeError("elem", rawElem, "integer", err)
-			}
-		}
-		ctx.Years = elemsYears2
+	ctx := ListUserContext{Context: c}
+	rawAPIVersion := c.Get("api_version")
+	if rawAPIVersion != "" {
+		ctx.APIVersion = rawAPIVersion
 	}
 	return &ctx, err
 }
 
 // OK sends a HTTP response with status code 200.
-func (ctx *ListBottleContext) OK(resp BottleCollection) error {
-	ctx.Header().Set("Content-Type", "application/vnd.bottle+json; type=collection")
+func (ctx *ListUserContext) OK(resp UserCollection) error {
+	ctx.Header().Set("Content-Type", "application/vnd.user+json; type=collection")
 	return ctx.Respond(200, resp)
 }
 
-// OKTiny sends a HTTP response with status code 200.
-func (ctx *ListBottleContext) OKTiny(resp BottleTinyCollection) error {
-	ctx.Header().Set("Content-Type", "application/vnd.bottle+json; type=collection")
-	return ctx.Respond(200, resp)
-}
-
-// NotFound sends a HTTP response with status code 404.
-func (ctx *ListBottleContext) NotFound() error {
-	return ctx.RespondBytes(404, nil)
-}
-
-// RateBottleContext provides the bottle rate action context.
-type RateBottleContext struct {
+// ShowUserContext provides the user show action context.
+type ShowUserContext struct {
 	*goa.Context
-	AccountID int
-	BottleID  int
-	Payload   *RateBottlePayload
+	APIVersion string
+	UserID     int
 }
 
-// NewRateBottleContext parses the incoming request URL and body, performs validations and creates the
-// context used by the bottle controller rate action.
-func NewRateBottleContext(c *goa.Context) (*RateBottleContext, error) {
+// NewShowUserContext parses the incoming request URL and body, performs validations and creates the
+// context used by the user controller show action.
+func NewShowUserContext(c *goa.Context) (*ShowUserContext, error) {
 	var err error
-	ctx := RateBottleContext{Context: c}
-	rawAccountID := c.Get("accountID")
-	if rawAccountID != "" {
-		if accountID, err2 := strconv.Atoi(rawAccountID); err2 == nil {
-			ctx.AccountID = int(accountID)
+	ctx := ShowUserContext{Context: c}
+	rawAPIVersion := c.Get("api_version")
+	if rawAPIVersion != "" {
+		ctx.APIVersion = rawAPIVersion
+	}
+	rawUserID := c.Get("userID")
+	if rawUserID != "" {
+		if userID, err2 := strconv.Atoi(rawUserID); err2 == nil {
+			ctx.UserID = int(userID)
 		} else {
-			err = goa.InvalidParamTypeError("accountID", rawAccountID, "integer", err)
-		}
-	}
-	rawBottleID := c.Get("bottleID")
-	if rawBottleID != "" {
-		if bottleID, err2 := strconv.Atoi(rawBottleID); err2 == nil {
-			ctx.BottleID = int(bottleID)
-		} else {
-			err = goa.InvalidParamTypeError("bottleID", rawBottleID, "integer", err)
-		}
-	}
-	return &ctx, err
-}
-
-// RateBottlePayload is the bottle rate action payload.
-type RateBottlePayload struct {
-	// Rating of bottle between 1 and 5
-	Rating int `json:"rating" xml:"rating"`
-}
-
-// Validate runs the validation rules defined in the design.
-func (payload *RateBottlePayload) Validate() (err error) {
-
-	if payload.Rating < 1 {
-		err = goa.InvalidRangeError(`raw.rating`, payload.Rating, 1, true, err)
-	}
-	if payload.Rating > 5 {
-		err = goa.InvalidRangeError(`raw.rating`, payload.Rating, 5, false, err)
-	}
-	return
-}
-
-// NoContent sends a HTTP response with status code 204.
-func (ctx *RateBottleContext) NoContent() error {
-	return ctx.RespondBytes(204, nil)
-}
-
-// NotFound sends a HTTP response with status code 404.
-func (ctx *RateBottleContext) NotFound() error {
-	return ctx.RespondBytes(404, nil)
-}
-
-// ShowBottleContext provides the bottle show action context.
-type ShowBottleContext struct {
-	*goa.Context
-	AccountID int
-	BottleID  int
-}
-
-// NewShowBottleContext parses the incoming request URL and body, performs validations and creates the
-// context used by the bottle controller show action.
-func NewShowBottleContext(c *goa.Context) (*ShowBottleContext, error) {
-	var err error
-	ctx := ShowBottleContext{Context: c}
-	rawAccountID := c.Get("accountID")
-	if rawAccountID != "" {
-		if accountID, err2 := strconv.Atoi(rawAccountID); err2 == nil {
-			ctx.AccountID = int(accountID)
-		} else {
-			err = goa.InvalidParamTypeError("accountID", rawAccountID, "integer", err)
-		}
-	}
-	rawBottleID := c.Get("bottleID")
-	if rawBottleID != "" {
-		if bottleID, err2 := strconv.Atoi(rawBottleID); err2 == nil {
-			ctx.BottleID = int(bottleID)
-		} else {
-			err = goa.InvalidParamTypeError("bottleID", rawBottleID, "integer", err)
+			err = goa.InvalidParamTypeError("userID", rawUserID, "integer", err)
 		}
 	}
 	return &ctx, err
 }
 
 // OK sends a HTTP response with status code 200.
-func (ctx *ShowBottleContext) OK(resp *Bottle) error {
-	ctx.Header().Set("Content-Type", "application/vnd.bottle")
-	return ctx.Respond(200, resp)
-}
-
-// OKFull sends a HTTP response with status code 200.
-func (ctx *ShowBottleContext) OKFull(resp *BottleFull) error {
-	ctx.Header().Set("Content-Type", "application/vnd.bottle")
-	return ctx.Respond(200, resp)
-}
-
-// OKTiny sends a HTTP response with status code 200.
-func (ctx *ShowBottleContext) OKTiny(resp *BottleTiny) error {
-	ctx.Header().Set("Content-Type", "application/vnd.bottle")
+func (ctx *ShowUserContext) OK(resp *User) error {
+	ctx.Header().Set("Content-Type", "application/vnd.user")
 	return ctx.Respond(200, resp)
 }
 
 // NotFound sends a HTTP response with status code 404.
-func (ctx *ShowBottleContext) NotFound() error {
+func (ctx *ShowUserContext) NotFound() error {
 	return ctx.RespondBytes(404, nil)
 }
 
-// UpdateBottleContext provides the bottle update action context.
-type UpdateBottleContext struct {
+// UpdateUserContext provides the user update action context.
+type UpdateUserContext struct {
 	*goa.Context
-	AccountID int
-	BottleID  int
-	Payload   *UpdateBottlePayload
+	APIVersion string
+	UserID     int
+	Payload    *UpdateUserPayload
 }
 
-// NewUpdateBottleContext parses the incoming request URL and body, performs validations and creates the
-// context used by the bottle controller update action.
-func NewUpdateBottleContext(c *goa.Context) (*UpdateBottleContext, error) {
+// NewUpdateUserContext parses the incoming request URL and body, performs validations and creates the
+// context used by the user controller update action.
+func NewUpdateUserContext(c *goa.Context) (*UpdateUserContext, error) {
 	var err error
-	ctx := UpdateBottleContext{Context: c}
-	rawAccountID := c.Get("accountID")
-	if rawAccountID != "" {
-		if accountID, err2 := strconv.Atoi(rawAccountID); err2 == nil {
-			ctx.AccountID = int(accountID)
-		} else {
-			err = goa.InvalidParamTypeError("accountID", rawAccountID, "integer", err)
-		}
+	ctx := UpdateUserContext{Context: c}
+	rawAPIVersion := c.Get("api_version")
+	if rawAPIVersion != "" {
+		ctx.APIVersion = rawAPIVersion
 	}
-	rawBottleID := c.Get("bottleID")
-	if rawBottleID != "" {
-		if bottleID, err2 := strconv.Atoi(rawBottleID); err2 == nil {
-			ctx.BottleID = int(bottleID)
+	rawUserID := c.Get("userID")
+	if rawUserID != "" {
+		if userID, err2 := strconv.Atoi(rawUserID); err2 == nil {
+			ctx.UserID = int(userID)
 		} else {
-			err = goa.InvalidParamTypeError("bottleID", rawBottleID, "integer", err)
+			err = goa.InvalidParamTypeError("userID", rawUserID, "integer", err)
 		}
 	}
 	return &ctx, err
 }
 
-// UpdateBottlePayload is the bottle update action payload.
-type UpdateBottlePayload struct {
-	Color         *string `json:"color,omitempty" xml:"color,omitempty"`
-	Country       *string `json:"country,omitempty" xml:"country,omitempty"`
-	Name          *string `json:"name,omitempty" xml:"name,omitempty"`
-	Region        *string `json:"region,omitempty" xml:"region,omitempty"`
-	Review        *string `json:"review,omitempty" xml:"review,omitempty"`
-	Sweetness     *int    `json:"sweetness,omitempty" xml:"sweetness,omitempty"`
-	Varietal      *string `json:"varietal,omitempty" xml:"varietal,omitempty"`
-	Vineyard      *string `json:"vineyard,omitempty" xml:"vineyard,omitempty"`
-	Vintage       *string `json:"vintage,omitempty" xml:"vintage,omitempty"`
-	VinyardCounty *string `json:"vinyard_county,omitempty" xml:"vinyard_county,omitempty"`
+// UpdateUserPayload is the user update action payload.
+type UpdateUserPayload struct {
+	Bio       *string `json:"bio,omitempty" xml:"bio,omitempty"`
+	City      *string `json:"city,omitempty" xml:"city,omitempty"`
+	Country   *string `json:"country,omitempty" xml:"country,omitempty"`
+	Email     string  `json:"email" xml:"email"`
+	Firstname *string `json:"firstname,omitempty" xml:"firstname,omitempty"`
+	Lastname  *string `json:"lastname,omitempty" xml:"lastname,omitempty"`
+	State     *string `json:"state,omitempty" xml:"state,omitempty"`
 }
 
 // Validate runs the validation rules defined in the design.
-func (payload *UpdateBottlePayload) Validate() (err error) {
-	if payload.Color != nil {
-		if !(*payload.Color == "red" || *payload.Color == "white" || *payload.Color == "rose" || *payload.Color == "yellow" || *payload.Color == "sparkling") {
-			err = goa.InvalidEnumValueError(`raw.color`, *payload.Color, []interface{}{"red", "white", "rose", "yellow", "sparkling"}, err)
+func (payload *UpdateUserPayload) Validate() (err error) {
+	if payload.Email == "" {
+		err = goa.MissingAttributeError(`raw`, "email", err)
+	}
+
+	if payload.Bio != nil {
+		if len(*payload.Bio) > 500 {
+			err = goa.InvalidLengthError(`raw.bio`, *payload.Bio, len(*payload.Bio), 500, false, err)
 		}
 	}
-	if payload.Country != nil {
-		if len(*payload.Country) < 2 {
-			err = goa.InvalidLengthError(`raw.country`, *payload.Country, len(*payload.Country), 2, true, err)
-		}
-	}
-	if payload.Name != nil {
-		if len(*payload.Name) < 2 {
-			err = goa.InvalidLengthError(`raw.name`, *payload.Name, len(*payload.Name), 2, true, err)
-		}
-	}
-	if payload.Review != nil {
-		if len(*payload.Review) < 3 {
-			err = goa.InvalidLengthError(`raw.review`, *payload.Review, len(*payload.Review), 3, true, err)
-		}
-	}
-	if payload.Review != nil {
-		if len(*payload.Review) > 300 {
-			err = goa.InvalidLengthError(`raw.review`, *payload.Review, len(*payload.Review), 300, false, err)
-		}
-	}
-	if payload.Sweetness != nil {
-		if *payload.Sweetness < 1 {
-			err = goa.InvalidRangeError(`raw.sweetness`, *payload.Sweetness, 1, true, err)
-		}
-	}
-	if payload.Sweetness != nil {
-		if *payload.Sweetness > 5 {
-			err = goa.InvalidRangeError(`raw.sweetness`, *payload.Sweetness, 5, false, err)
-		}
-	}
-	if payload.Varietal != nil {
-		if len(*payload.Varietal) < 4 {
-			err = goa.InvalidLengthError(`raw.varietal`, *payload.Varietal, len(*payload.Varietal), 4, true, err)
-		}
-	}
-	if payload.Vineyard != nil {
-		if len(*payload.Vineyard) < 2 {
-			err = goa.InvalidLengthError(`raw.vineyard`, *payload.Vineyard, len(*payload.Vineyard), 2, true, err)
-		}
+	if err2 := goa.ValidateFormat(goa.FormatEmail, payload.Email); err2 != nil {
+		err = goa.InvalidFormatError(`raw.email`, payload.Email, goa.FormatEmail, err2, err)
 	}
 	return
 }
 
 // NoContent sends a HTTP response with status code 204.
-func (ctx *UpdateBottleContext) NoContent() error {
+func (ctx *UpdateUserContext) NoContent() error {
 	return ctx.RespondBytes(204, nil)
 }
 
 // NotFound sends a HTTP response with status code 404.
-func (ctx *UpdateBottleContext) NotFound() error {
+func (ctx *UpdateUserContext) NotFound() error {
 	return ctx.RespondBytes(404, nil)
 }

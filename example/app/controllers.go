@@ -1,5 +1,5 @@
 //************************************************************************//
-// API "cellar": Application Controllers
+// API "congo": Application Controllers
 //
 // Generated with goagen v0.0.1, command line:
 // $ goagen
@@ -12,177 +12,195 @@
 
 package app
 
-import (
-	"github.com/goadesign/encoding/json"
-	"github.com/goadesign/goa"
-)
+import "github.com/goadesign/goa"
 
-// AccountController is the controller interface for the Account actions.
-type AccountController interface {
+// AuthController is the controller interface for the Auth actions.
+type AuthController interface {
 	goa.Controller
-	Create(*CreateAccountContext) error
-	Delete(*DeleteAccountContext) error
-	Show(*ShowAccountContext) error
-	Update(*UpdateAccountContext) error
+	Callback(*CallbackAuthContext) error
+	Oauth(*OauthAuthContext) error
+	Refresh(*RefreshAuthContext) error
+	Token(*TokenAuthContext) error
 }
 
-// MountAccountController "mounts" a Account resource controller on the given service.
-func MountAccountController(service goa.Service, ctrl AccountController) {
+// MountAuthController "mounts" a Auth resource controller on the given service.
+func MountAuthController(service goa.Service, ctrl AuthController) {
 	// Setup encoders and decoders. This is idempotent and is done by each MountXXX function.
-	service.SetEncoder(json.EncoderFactory(), true, "application/json")
-	service.SetDecoder(json.DecoderFactory(), true, "application/json")
+	service.SetEncoder(goa.GobEncoderFactory(), false, "application/gob", "application/x-gob")
+	service.SetEncoder(goa.JSONEncoderFactory(), true, "application/json")
+	service.SetEncoder(goa.XMLEncoderFactory(), false, "application/xml", "text/xml")
+	service.SetDecoder(goa.GobDecoderFactory(), false, "application/gob", "application/x-gob")
+	service.SetDecoder(goa.JSONDecoderFactory(), true, "application/json")
+	service.SetDecoder(goa.XMLDecoderFactory(), false, "application/xml", "text/xml")
 
 	// Setup endpoint handler
 	var h goa.Handler
 	mux := service.ServeMux()
 	h = func(c *goa.Context) error {
-		ctx, err := NewCreateAccountContext(c)
-		ctx.Payload = ctx.RawPayload().(*CreateAccountPayload)
+		ctx, err := NewCallbackAuthContext(c)
 		if err != nil {
 			return goa.NewBadRequestError(err)
 		}
-		return ctrl.Create(ctx)
+		return ctrl.Callback(ctx)
 	}
-	mux.Handle("POST", "/cellar/accounts", ctrl.HandleFunc("Create", h, unmarshalCreateAccountPayload))
-	service.Info("mount", "ctrl", "Account", "action", "Create", "route", "POST /cellar/accounts")
+	mux.Handle("GET", "/api/auth/:provider/callback", ctrl.HandleFunc("Callback", h, nil))
+	service.Info("mount", "ctrl", "Auth", "action", "Callback", "route", "GET /api/auth/:provider/callback")
 	h = func(c *goa.Context) error {
-		ctx, err := NewDeleteAccountContext(c)
+		ctx, err := NewOauthAuthContext(c)
 		if err != nil {
 			return goa.NewBadRequestError(err)
 		}
-		return ctrl.Delete(ctx)
+		return ctrl.Oauth(ctx)
 	}
-	mux.Handle("DELETE", "/cellar/accounts/:accountID", ctrl.HandleFunc("Delete", h, nil))
-	service.Info("mount", "ctrl", "Account", "action", "Delete", "route", "DELETE /cellar/accounts/:accountID")
+	mux.Handle("GET", "/api/auth/:provider", ctrl.HandleFunc("Oauth", h, nil))
+	service.Info("mount", "ctrl", "Auth", "action", "Oauth", "route", "GET /api/auth/:provider")
 	h = func(c *goa.Context) error {
-		ctx, err := NewShowAccountContext(c)
+		ctx, err := NewRefreshAuthContext(c)
+		ctx.Payload = ctx.RawPayload().(*RefreshAuthPayload)
 		if err != nil {
 			return goa.NewBadRequestError(err)
 		}
-		return ctrl.Show(ctx)
+		return ctrl.Refresh(ctx)
 	}
-	mux.Handle("GET", "/cellar/accounts/:accountID", ctrl.HandleFunc("Show", h, nil))
-	service.Info("mount", "ctrl", "Account", "action", "Show", "route", "GET /cellar/accounts/:accountID")
+	mux.Handle("POST", "/api/auth/refresh", ctrl.HandleFunc("Refresh", h, unmarshalRefreshAuthPayload))
+	service.Info("mount", "ctrl", "Auth", "action", "Refresh", "route", "POST /api/auth/refresh")
 	h = func(c *goa.Context) error {
-		ctx, err := NewUpdateAccountContext(c)
-		ctx.Payload = ctx.RawPayload().(*UpdateAccountPayload)
+		ctx, err := NewTokenAuthContext(c)
+		ctx.Payload = ctx.RawPayload().(*TokenAuthPayload)
 		if err != nil {
 			return goa.NewBadRequestError(err)
 		}
-		return ctrl.Update(ctx)
+		return ctrl.Token(ctx)
 	}
-	mux.Handle("PUT", "/cellar/accounts/:accountID", ctrl.HandleFunc("Update", h, unmarshalUpdateAccountPayload))
-	service.Info("mount", "ctrl", "Account", "action", "Update", "route", "PUT /cellar/accounts/:accountID")
+	mux.Handle("POST", "/api/auth/token", ctrl.HandleFunc("Token", h, unmarshalTokenAuthPayload))
+	service.Info("mount", "ctrl", "Auth", "action", "Token", "route", "POST /api/auth/token")
 }
 
-// unmarshalCreateAccountPayload unmarshals the request body.
-func unmarshalCreateAccountPayload(ctx *goa.Context) error {
-	payload := &CreateAccountPayload{}
+// unmarshalRefreshAuthPayload unmarshals the request body.
+func unmarshalRefreshAuthPayload(ctx *goa.Context) error {
+	payload := &RefreshAuthPayload{}
 	if err := ctx.Service().DecodeRequest(ctx, payload); err != nil {
-		return err
-	}
-	if err := payload.Validate(); err != nil {
 		return err
 	}
 	ctx.SetPayload(payload)
 	return nil
 }
 
-// unmarshalUpdateAccountPayload unmarshals the request body.
-func unmarshalUpdateAccountPayload(ctx *goa.Context) error {
-	payload := &UpdateAccountPayload{}
+// unmarshalTokenAuthPayload unmarshals the request body.
+func unmarshalTokenAuthPayload(ctx *goa.Context) error {
+	payload := &TokenAuthPayload{}
 	if err := ctx.Service().DecodeRequest(ctx, payload); err != nil {
-		return err
-	}
-	if err := payload.Validate(); err != nil {
 		return err
 	}
 	ctx.SetPayload(payload)
 	return nil
 }
 
-// BottleController is the controller interface for the Bottle actions.
-type BottleController interface {
+// UiController is the controller interface for the Ui actions.
+type UiController interface {
 	goa.Controller
-	Create(*CreateBottleContext) error
-	Delete(*DeleteBottleContext) error
-	List(*ListBottleContext) error
-	Rate(*RateBottleContext) error
-	Show(*ShowBottleContext) error
-	Update(*UpdateBottleContext) error
+	Bootstrap(*BootstrapUiContext) error
 }
 
-// MountBottleController "mounts" a Bottle resource controller on the given service.
-func MountBottleController(service goa.Service, ctrl BottleController) {
+// MountUiController "mounts" a Ui resource controller on the given service.
+func MountUiController(service goa.Service, ctrl UiController) {
 	// Setup encoders and decoders. This is idempotent and is done by each MountXXX function.
-	service.SetEncoder(json.EncoderFactory(), true, "application/json")
-	service.SetDecoder(json.DecoderFactory(), true, "application/json")
+	service.SetEncoder(goa.GobEncoderFactory(), false, "application/gob", "application/x-gob")
+	service.SetEncoder(goa.JSONEncoderFactory(), true, "application/json")
+	service.SetEncoder(goa.XMLEncoderFactory(), false, "application/xml", "text/xml")
+	service.SetDecoder(goa.GobDecoderFactory(), false, "application/gob", "application/x-gob")
+	service.SetDecoder(goa.JSONDecoderFactory(), true, "application/json")
+	service.SetDecoder(goa.XMLDecoderFactory(), false, "application/xml", "text/xml")
 
 	// Setup endpoint handler
 	var h goa.Handler
 	mux := service.ServeMux()
 	h = func(c *goa.Context) error {
-		ctx, err := NewCreateBottleContext(c)
-		ctx.Payload = ctx.RawPayload().(*CreateBottlePayload)
+		ctx, err := NewBootstrapUiContext(c)
+		if err != nil {
+			return goa.NewBadRequestError(err)
+		}
+		return ctrl.Bootstrap(ctx)
+	}
+	mux.Handle("GET", "/", ctrl.HandleFunc("Bootstrap", h, nil))
+	service.Info("mount", "ctrl", "Ui", "action", "Bootstrap", "route", "GET /")
+}
+
+// UserController is the controller interface for the User actions.
+type UserController interface {
+	goa.Controller
+	Create(*CreateUserContext) error
+	Delete(*DeleteUserContext) error
+	List(*ListUserContext) error
+	Show(*ShowUserContext) error
+	Update(*UpdateUserContext) error
+}
+
+// MountUserController "mounts" a User resource controller on the given service.
+func MountUserController(service goa.Service, ctrl UserController) {
+	// Setup encoders and decoders. This is idempotent and is done by each MountXXX function.
+	service.SetEncoder(goa.GobEncoderFactory(), false, "application/gob", "application/x-gob")
+	service.SetEncoder(goa.JSONEncoderFactory(), true, "application/json")
+	service.SetEncoder(goa.XMLEncoderFactory(), false, "application/xml", "text/xml")
+	service.SetDecoder(goa.GobDecoderFactory(), false, "application/gob", "application/x-gob")
+	service.SetDecoder(goa.JSONDecoderFactory(), true, "application/json")
+	service.SetDecoder(goa.XMLDecoderFactory(), false, "application/xml", "text/xml")
+
+	// Setup endpoint handler
+	var h goa.Handler
+	mux := service.ServeMux()
+	h = func(c *goa.Context) error {
+		ctx, err := NewCreateUserContext(c)
+		ctx.Payload = ctx.RawPayload().(*CreateUserPayload)
 		if err != nil {
 			return goa.NewBadRequestError(err)
 		}
 		return ctrl.Create(ctx)
 	}
-	mux.Handle("POST", "/cellar/accounts/:accountID/bottles", ctrl.HandleFunc("Create", h, unmarshalCreateBottlePayload))
-	service.Info("mount", "ctrl", "Bottle", "action", "Create", "route", "POST /cellar/accounts/:accountID/bottles")
+	mux.Handle("POST", "/api/users", ctrl.HandleFunc("Create", h, unmarshalCreateUserPayload))
+	service.Info("mount", "ctrl", "User", "action", "Create", "route", "POST /api/users")
 	h = func(c *goa.Context) error {
-		ctx, err := NewDeleteBottleContext(c)
+		ctx, err := NewDeleteUserContext(c)
 		if err != nil {
 			return goa.NewBadRequestError(err)
 		}
 		return ctrl.Delete(ctx)
 	}
-	mux.Handle("DELETE", "/cellar/accounts/:accountID/bottles/:bottleID", ctrl.HandleFunc("Delete", h, nil))
-	service.Info("mount", "ctrl", "Bottle", "action", "Delete", "route", "DELETE /cellar/accounts/:accountID/bottles/:bottleID")
+	mux.Handle("DELETE", "/api/users/:userID", ctrl.HandleFunc("Delete", h, nil))
+	service.Info("mount", "ctrl", "User", "action", "Delete", "route", "DELETE /api/users/:userID")
 	h = func(c *goa.Context) error {
-		ctx, err := NewListBottleContext(c)
+		ctx, err := NewListUserContext(c)
 		if err != nil {
 			return goa.NewBadRequestError(err)
 		}
 		return ctrl.List(ctx)
 	}
-	mux.Handle("GET", "/cellar/accounts/:accountID/bottles", ctrl.HandleFunc("List", h, nil))
-	service.Info("mount", "ctrl", "Bottle", "action", "List", "route", "GET /cellar/accounts/:accountID/bottles")
+	mux.Handle("GET", "/api/users", ctrl.HandleFunc("List", h, nil))
+	service.Info("mount", "ctrl", "User", "action", "List", "route", "GET /api/users")
 	h = func(c *goa.Context) error {
-		ctx, err := NewRateBottleContext(c)
-		ctx.Payload = ctx.RawPayload().(*RateBottlePayload)
-		if err != nil {
-			return goa.NewBadRequestError(err)
-		}
-		return ctrl.Rate(ctx)
-	}
-	mux.Handle("PUT", "/cellar/accounts/:accountID/bottles/:bottleID/actions/rate", ctrl.HandleFunc("Rate", h, unmarshalRateBottlePayload))
-	service.Info("mount", "ctrl", "Bottle", "action", "Rate", "route", "PUT /cellar/accounts/:accountID/bottles/:bottleID/actions/rate")
-	h = func(c *goa.Context) error {
-		ctx, err := NewShowBottleContext(c)
+		ctx, err := NewShowUserContext(c)
 		if err != nil {
 			return goa.NewBadRequestError(err)
 		}
 		return ctrl.Show(ctx)
 	}
-	mux.Handle("GET", "/cellar/accounts/:accountID/bottles/:bottleID", ctrl.HandleFunc("Show", h, nil))
-	service.Info("mount", "ctrl", "Bottle", "action", "Show", "route", "GET /cellar/accounts/:accountID/bottles/:bottleID")
+	mux.Handle("GET", "/api/users/:userID", ctrl.HandleFunc("Show", h, nil))
+	service.Info("mount", "ctrl", "User", "action", "Show", "route", "GET /api/users/:userID")
 	h = func(c *goa.Context) error {
-		ctx, err := NewUpdateBottleContext(c)
-		ctx.Payload = ctx.RawPayload().(*UpdateBottlePayload)
+		ctx, err := NewUpdateUserContext(c)
+		ctx.Payload = ctx.RawPayload().(*UpdateUserPayload)
 		if err != nil {
 			return goa.NewBadRequestError(err)
 		}
 		return ctrl.Update(ctx)
 	}
-	mux.Handle("PATCH", "/cellar/accounts/:accountID/bottles/:bottleID", ctrl.HandleFunc("Update", h, unmarshalUpdateBottlePayload))
-	service.Info("mount", "ctrl", "Bottle", "action", "Update", "route", "PATCH /cellar/accounts/:accountID/bottles/:bottleID")
+	mux.Handle("PATCH", "/api/users/:userID", ctrl.HandleFunc("Update", h, unmarshalUpdateUserPayload))
+	service.Info("mount", "ctrl", "User", "action", "Update", "route", "PATCH /api/users/:userID")
 }
 
-// unmarshalCreateBottlePayload unmarshals the request body.
-func unmarshalCreateBottlePayload(ctx *goa.Context) error {
-	payload := &CreateBottlePayload{}
+// unmarshalCreateUserPayload unmarshals the request body.
+func unmarshalCreateUserPayload(ctx *goa.Context) error {
+	payload := &CreateUserPayload{}
 	if err := ctx.Service().DecodeRequest(ctx, payload); err != nil {
 		return err
 	}
@@ -193,22 +211,9 @@ func unmarshalCreateBottlePayload(ctx *goa.Context) error {
 	return nil
 }
 
-// unmarshalRateBottlePayload unmarshals the request body.
-func unmarshalRateBottlePayload(ctx *goa.Context) error {
-	payload := &RateBottlePayload{}
-	if err := ctx.Service().DecodeRequest(ctx, payload); err != nil {
-		return err
-	}
-	if err := payload.Validate(); err != nil {
-		return err
-	}
-	ctx.SetPayload(payload)
-	return nil
-}
-
-// unmarshalUpdateBottlePayload unmarshals the request body.
-func unmarshalUpdateBottlePayload(ctx *goa.Context) error {
-	payload := &UpdateBottlePayload{}
+// unmarshalUpdateUserPayload unmarshals the request body.
+func unmarshalUpdateUserPayload(ctx *goa.Context) error {
+	payload := &UpdateUserPayload{}
 	if err := ctx.Service().DecodeRequest(ctx, payload); err != nil {
 		return err
 	}

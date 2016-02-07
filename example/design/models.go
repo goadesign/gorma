@@ -1,45 +1,57 @@
 package design
 
 import (
-	"github.com/goadesign/goa/design"
-	"github.com/goadesign/goa/design/apidsl"
 	"github.com/goadesign/gorma"
 	. "github.com/goadesign/gorma/dsl"
 )
 
-var sg = StorageGroup("MyStorageGroup", func() {
+var _ = StorageGroup("CongoStorageGroup", func() {
 	Description("This is the global storage group")
-	Store("mysql", gorma.MySQL, func() {
-		Description("This is the mysql relational store")
-		Model("Bottle", func() {
-			Description("This is the Bottle model")
-			BuildsFrom(BottlePayload)
-			RendersTo(Bottle)
-			BelongsTo("Account")
-			Cached("60")
+	Store("postgres", gorma.Postgres, func() {
+		Description("This is the Postgres relational store")
+		Model("User", func() {
+			BuildsFrom(UserPayload)
+			RendersTo(User)
+			Description("User Model")
+			HasMany("Reviews", "Review")
+			HasMany("Proposals", "Proposal")
 			Field("id", gorma.PKInteger, func() {
-				PrimaryKey()
-				MapsFrom(BottlePayload, "id")
+				Description("This is the User Model PK field")
 			})
-			Field("rating", gorma.Integer, func() {
-				Nullable() // not required
-			}) // no payload to have to add it specifically
-			apidsl.Attribute("oauth_source", design.String) // manually specify one that doesn't exist
-			// everything else is auto populated from BuildsFrom()
+			Field("created_at", gorma.Timestamp, func() {})
+			Field("updated_at", gorma.Timestamp, func() {})
+			Field("deleted_at", gorma.NullableTimestamp, func() {})
 		})
-		Model("Account", func() {
-			Description("This is the Account model")
-			HasMany("Bottles", "Bottle")
-			RendersTo(Account)
-			Cached("60")
+
+		Model("Proposal", func() {
+			BuildsFrom(ProposalPayload)
+			RendersTo(Proposal)
+			Description("Proposal Model")
+			BelongsTo("User")
+			HasMany("Reviews", "Review")
 			Field("id", gorma.PKInteger, func() {
-				PrimaryKey()
+				Description("This is the Payload Model PK field")
 			})
-			Field("created_by", gorma.String)   // no payload to have to add it specifically
-			Field("name", gorma.String)         // no payload to have to add it specifically
-			Field("href", gorma.String)         // no payload to have to add it specifically
-			Field("oauth_source", gorma.String) // manually specify one that doesn't exist
-			// everything else is auto populated from BuildsFrom()
+			Field("title", func() {
+				Alias("proposal_title")
+			})
+			Field("created_at", gorma.Timestamp, func() {})
+			Field("updated_at", gorma.Timestamp, func() {})
+			Field("deleted_at", gorma.NullableTimestamp, func() {})
+		})
+
+		Model("Review", func() {
+			BuildsFrom(ReviewPayload)
+			RendersTo(Review)
+			Description("Review Model")
+			BelongsTo("User")
+			BelongsTo("Proposal")
+			Field("id", gorma.PKInteger, func() {
+				Description("This is the Review Model PK field")
+			})
+			Field("created_at", gorma.Timestamp, func() {})
+			Field("updated_at", gorma.Timestamp, func() {})
+			Field("deleted_at", gorma.NullableTimestamp, func() {})
 		})
 	})
 })

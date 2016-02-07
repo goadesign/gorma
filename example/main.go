@@ -8,7 +8,8 @@ import (
 
 	"github.com/goadesign/goa"
 	"github.com/goadesign/gorma/example/app"
-	"github.com/goadesign/gorma/example/genmodels"
+	"github.com/goadesign/gorma/example/app/v1"
+	"github.com/goadesign/gorma/example/models"
 	"github.com/goadesign/gorma/example/swagger"
 	"github.com/goadesign/middleware"
 	"github.com/jinzhu/gorm"
@@ -18,38 +19,53 @@ import (
 
 var db gorm.DB
 var logger log15.Logger
-var adb *genmodels.AccountDB
-var bdb *genmodels.BottleDB
+var udb *models.UserDB
+var rdb *models.ReviewDB
+var pdb *models.ProposalDB
 
 func main() {
 	// Create service
-	service := goa.New("API")
 	var err error
 	//port, err := strconv.Atoi(strings.Split(c.Port(5432), ":")[1])
 	//host := strings.Split(c.Port(5432), ":")[0]
 	url := fmt.Sprintf("dbname=xorapidb user=docker password=docker sslmode=disable port=%d host=%s", 5432, "local.docker")
 	fmt.Println(url)
-	logger = log15.New("something", "example")
+	logger = log15.New("gorma", "example")
 	time.Sleep(10)
 	db, err = gorm.Open("postgres", url)
 	if err != nil {
 		panic(err)
 	}
-	db.DropTable(&genmodels.Bottle{}, &genmodels.Account{})
-	db.AutoMigrate(&genmodels.Bottle{}, &genmodels.Account{})
+	db.DropTable(&models.Proposal{}, &models.Review{}, &models.User{})
+	db.AutoMigrate(&models.Proposal{}, &models.Review{}, &models.User{})
 
 	setup()
+	// Create service
+	service := goa.New("Congo")
+
 	// Setup middleware
 	service.Use(middleware.RequestID())
 	service.Use(middleware.LogRequest())
 	service.Use(middleware.Recover())
 
-	// Mount "account" controller
-	c := NewAccountController(service)
-	app.MountAccountController(service, c)
-	// Mount "bottle" controller
-	c2 := NewBottleController(service)
-	app.MountBottleController(service, c2)
+	// Mount "auth" controller
+	c := NewAuthController(service)
+	app.MountAuthController(service, c)
+	// Mount "ui" controller
+	c2 := NewUiController(service)
+	app.MountUiController(service, c2)
+	// Mount "user" controller
+	c3 := NewUserController(service)
+	app.MountUserController(service, c3)
+
+	// Version v1
+	// Mount "proposal" controller
+	c4 := NewProposalV1Controller(service)
+	v1.MountProposalController(service, c4)
+	// Mount "review" controller
+	c5 := NewReviewV1Controller(service)
+	v1.MountReviewController(service, c5)
+
 	// Mount Swagger spec provider controller
 	swagger.MountController(service)
 
@@ -59,57 +75,53 @@ func main() {
 
 func setup() error {
 	gctx := context.Background()
-	ctx := goa.NewContext(gctx, goa.New("test"), nil, nil, nil)
+	ctx := goa.NewContext(gctx, goa.New("setup"), nil, nil, nil)
 	ctx.Logger = logger
-	adb = genmodels.NewAccountDB(db, logger)
-	cb := "Brian"
-	act, err := adb.Add(ctx, genmodels.Account{
-		CreatedBy: cb,
-		Href:      "href",
-		Name:      "Account1",
+	udb = models.NewUserDB(db, logger)
+
+	bio := "A prolific debugger"
+	city := "Tampa"
+	country := "USA"
+	email := "dude@congo.com"
+	firstname := "Joe"
+	lastname := "Bloggs"
+	state := "Florida"
+	act, err := udb.Add(ctx, models.User{
+		Bio:       &bio,
+		City:      &city,
+		Country:   &country,
+		Email:     &email,
+		Firstname: &firstname,
+		Lastname:  &lastname,
+		State:     &state,
 	})
 	if err != nil {
 		panic(err)
 	}
+	ctx.Info("created first acct", "account", act)
+	abstract := "This is the abstract"
+	detail := "This is the detail"
+	title := "The TITLE"
+	pdb := models.NewProposalDB(db, logger)
 
-	bdb = genmodels.NewBottleDB(db, logger)
-
-	var Color string
-	var Country string
-	var Name string
-	var Region string
-	var Review string
-	var Sweetness int
-	var Varietal string
-	var Vineyard string
-	var Vintage string
-	var Rating int
-	var VinyardCounty string
-	Color = "Blue"
-	Country = "Australia"
-	Name = "Red Horse"
-	Region = "South"
-	Review = "crappy"
-	Sweetness = 4
-	Rating = 99
-	Varietal = "Merlot"
-	Vineyard = "Robert Mondavi"
-	Vintage = "1999"
-	VinyardCounty = "Cork"
-	btl, err := bdb.Add(ctx, genmodels.Bottle{
-		AccountID:     act.ID,
-		Color:         &Color,
-		Country:       &Country,
-		Name:          &Name,
-		Rating:        &Rating,
-		Region:        &Region,
-		Review:        &Review,
-		Sweetness:     &Sweetness,
-		Varietal:      &Varietal,
-		Vineyard:      &Vineyard,
-		Vintage:       &Vintage,
-		VinyardCounty: &VinyardCounty,
+	prop, err := pdb.Add(ctx, models.Proposal{
+		Abstract: &abstract,
+		Detail:   &detail,
+		Title:    &title,
+		User:     act,
 	})
-	fmt.Println(btl.ID, btl.AccountID)
+	ctx.Info("created first proposal", "proposal", prop)
+	comment := "Great Proposal!"
+	rating := 5
+
+	rdb := models.NewReviewDB(db, logger)
+
+	rvw, err := rdb.Add(ctx, models.Review{
+		Comment:  &comment,
+		Rating:   &rating,
+		User:     act,
+		Proposal: prop,
+	})
+	ctx.Info("created first review", "review", rvw)
 	return err
 }

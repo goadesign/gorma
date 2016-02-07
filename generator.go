@@ -137,7 +137,7 @@ func (g *Generator) generateUserTypes(outdir string, api *design.APIDefinition) 
 			err := store.IterateModels(func(model *RelationalModelDefinition) error {
 				modelname = strings.ToLower(codegen.Goify(model.ModelName, false))
 
-				filename = fmt.Sprintf("%s_gen.go", modelname)
+				filename = fmt.Sprintf("%s.go", modelname)
 				utFile := filepath.Join(outdir, filename)
 				err := os.RemoveAll(utFile)
 				if err != nil {
@@ -172,13 +172,12 @@ func (g *Generator) generateUserTypes(outdir string, api *design.APIDefinition) 
 					imports = append(imports, imp)
 				}
 				if model.Cached {
-					fmt.Println("adding import for cache")
 					imp := codegen.NewImport("cache", "github.com/patrickmn/go-cache")
 					imports = append(imports, imp)
 					imp = codegen.SimpleImport("strconv")
 					imports = append(imports, imp)
 				}
-				utWr.WriteHeader(title, "genmodels", imports)
+				utWr.WriteHeader(title, "models", imports)
 				data := &UserTypeTemplateData{
 					APIDefinition: api,
 					UserType:      model,
@@ -216,7 +215,7 @@ func (g *Generator) generateUserHelpers(outdir string, api *design.APIDefinition
 			err := store.IterateModels(func(model *RelationalModelDefinition) error {
 				modelname = strings.ToLower(codegen.Goify(model.ModelName, false))
 
-				filename = fmt.Sprintf("%s_helper_gen.go", modelname)
+				filename = fmt.Sprintf("%s_helper.go", modelname)
 				utFile := filepath.Join(outdir, filename)
 				err := os.RemoveAll(utFile)
 				if err != nil {
@@ -256,7 +255,7 @@ func (g *Generator) generateUserHelpers(outdir string, api *design.APIDefinition
 					imp = codegen.SimpleImport("strconv")
 					imports = append(imports, imp)
 				}
-				utWr.WriteHeader(title, "genmodels", imports)
+				utWr.WriteHeader(title, "models", imports)
 				data := &UserTypeTemplateData{
 					APIDefinition: api,
 					UserType:      model,

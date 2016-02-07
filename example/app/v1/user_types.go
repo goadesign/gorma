@@ -1,5 +1,5 @@
 //************************************************************************//
-// API "congo": Application Resource Href Factories
+// API "congo" version v1: Application User Types
 //
 // Generated with goagen v0.0.1, command line:
 // $ goagen
@@ -10,11 +10,4 @@
 // The content of this file is auto-generated, DO NOT MODIFY
 //************************************************************************//
 
-package app
-
-import "fmt"
-
-// UserHref returns the resource href.
-func UserHref(userID interface{}) string {
-	return fmt.Sprintf("/api/users/%v", userID)
-}
+package v1
