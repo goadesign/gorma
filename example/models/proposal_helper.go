@@ -12,9 +12,9 @@
 package models
 
 import (
-	"time"
-
 	"github.com/goadesign/goa"
+
+	"time"
 
 	"github.com/goadesign/gorma/example/app/v1"
 )
@@ -22,11 +22,13 @@ import (
 // v1
 // MediaType Retrieval Functions
 // ListProposal returns an array of view: default
-func (m *ProposalDB) ListV1Proposal(ctx *goa.Context) []*v1.Proposal {
+func (m *ProposalDB) ListV1Proposal(ctx *goa.Context, userid int) []*v1.Proposal {
 	now := time.Now()
 	defer ctx.Info("ListProposal", "duration", time.Since(now))
 	var objs []*v1.Proposal
-	err := m.Db.Table(m.TableName()).Find(&objs).Error
+	err := m.Db.Scopes(ProposalFilterByUser(userid, &m.Db)).Table(m.TableName()).Find(&objs).Error
+
+	//	err := m.Db.Table(m.TableName()).Find(&objs).Error
 	if err != nil {
 		ctx.Error("error listing Proposal", "error", err.Error())
 		return objs
@@ -37,10 +39,10 @@ func (m *ProposalDB) ListV1Proposal(ctx *goa.Context) []*v1.Proposal {
 
 func (m *Proposal) ProposalToV1Proposal() *v1.Proposal {
 	proposal := &v1.Proposal{}
-	proposal.Title = m.Title
-	proposal.Abstract = m.Abstract
-	proposal.Detail = m.Detail
 	proposal.ID = &m.ID
+	proposal.Abstract = m.Abstract
+	proposal.Title = m.Title
+	proposal.Detail = m.Detail
 
 	return proposal
 }
@@ -61,11 +63,13 @@ func (m *ProposalDB) OneProposal(ctx *goa.Context, id int) *v1.Proposal {
 // v1
 // MediaType Retrieval Functions
 // ListProposalLink returns an array of view: link
-func (m *ProposalDB) ListV1ProposalLink(ctx *goa.Context) []*v1.ProposalLink {
+func (m *ProposalDB) ListV1ProposalLink(ctx *goa.Context, userid int) []*v1.ProposalLink {
 	now := time.Now()
 	defer ctx.Info("ListProposalLink", "duration", time.Since(now))
 	var objs []*v1.ProposalLink
-	err := m.Db.Table(m.TableName()).Find(&objs).Error
+	err := m.Db.Scopes(ProposalFilterByUser(userid, &m.Db)).Table(m.TableName()).Find(&objs).Error
+
+	//	err := m.Db.Table(m.TableName()).Find(&objs).Error
 	if err != nil {
 		ctx.Error("error listing Proposal", "error", err.Error())
 		return objs
@@ -76,8 +80,8 @@ func (m *ProposalDB) ListV1ProposalLink(ctx *goa.Context) []*v1.ProposalLink {
 
 func (m *Proposal) ProposalToV1ProposalLink() *v1.ProposalLink {
 	proposal := &v1.ProposalLink{}
-	proposal.ID = &m.ID
 	proposal.Title = m.Title
+	proposal.ID = &m.ID
 
 	return proposal
 }

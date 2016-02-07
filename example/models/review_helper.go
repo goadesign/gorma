@@ -15,17 +15,20 @@ import (
 	"time"
 
 	"github.com/goadesign/goa"
-	"github.com/gopheracademy/congo/app/v1"
+
+	"github.com/goadesign/gorma/example/app/v1"
 )
 
 // v1
 // MediaType Retrieval Functions
 // ListReview returns an array of view: default
-func (m *ReviewDB) ListV1Review(ctx *goa.Context) []*v1.Review {
+func (m *ReviewDB) ListV1Review(ctx *goa.Context, proposalid int, userid int) []*v1.Review {
 	now := time.Now()
 	defer ctx.Info("ListReview", "duration", time.Since(now))
 	var objs []*v1.Review
-	err := m.Db.Table(m.TableName()).Find(&objs).Error
+	err := m.Db.Scopes(ReviewFilterByProposal(proposalid, &m.Db), ReviewFilterByUser(userid, &m.Db)).Table(m.TableName()).Find(&objs).Error
+
+	//	err := m.Db.Table(m.TableName()).Find(&objs).Error
 	if err != nil {
 		ctx.Error("error listing Review", "error", err.Error())
 		return objs
@@ -36,9 +39,9 @@ func (m *ReviewDB) ListV1Review(ctx *goa.Context) []*v1.Review {
 
 func (m *Review) ReviewToV1Review() *v1.Review {
 	review := &v1.Review{}
-	review.ID = &m.ID
 	review.Comment = m.Comment
 	review.Rating = m.Rating
+	review.ID = &m.ID
 
 	return review
 }
@@ -59,11 +62,13 @@ func (m *ReviewDB) OneReview(ctx *goa.Context, id int) *v1.Review {
 // v1
 // MediaType Retrieval Functions
 // ListReviewLink returns an array of view: link
-func (m *ReviewDB) ListV1ReviewLink(ctx *goa.Context) []*v1.ReviewLink {
+func (m *ReviewDB) ListV1ReviewLink(ctx *goa.Context, proposalid int, userid int) []*v1.ReviewLink {
 	now := time.Now()
 	defer ctx.Info("ListReviewLink", "duration", time.Since(now))
 	var objs []*v1.ReviewLink
-	err := m.Db.Table(m.TableName()).Find(&objs).Error
+	err := m.Db.Scopes(ReviewFilterByProposal(proposalid, &m.Db), ReviewFilterByUser(userid, &m.Db)).Table(m.TableName()).Find(&objs).Error
+
+	//	err := m.Db.Table(m.TableName()).Find(&objs).Error
 	if err != nil {
 		ctx.Error("error listing Review", "error", err.Error())
 		return objs

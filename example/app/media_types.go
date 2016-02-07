@@ -36,6 +36,32 @@ type Login struct {
 	Password *string `json:"password,omitempty" xml:"password,omitempty"`
 }
 
+// A user belonging to a tenant account, link view
+// Identifier: application/vnd.user+json
+type UserLink struct {
+	// Email address of user
+	Email *string `json:"email,omitempty" xml:"email,omitempty"`
+	// API href of user
+	Href *string `json:"href,omitempty" xml:"href,omitempty"`
+	// ID of user
+	ID *int `json:"id,omitempty" xml:"id,omitempty"`
+}
+
+// Validate validates the media type instance.
+func (mt *UserLink) Validate() (err error) {
+	if mt.Email != nil {
+		if err2 := goa.ValidateFormat(goa.FormatEmail, *mt.Email); err2 != nil {
+			err = goa.InvalidFormatError(`response.email`, *mt.Email, goa.FormatEmail, err2, err)
+		}
+	}
+	if mt.Email != nil {
+		if err2 := goa.ValidateFormat(goa.FormatEmail, *mt.Email); err2 != nil {
+			err = goa.InvalidFormatError(`response.email`, *mt.Email, goa.FormatEmail, err2, err)
+		}
+	}
+	return
+}
+
 // A user belonging to a tenant account
 // Identifier: application/vnd.user+json
 type User struct {
@@ -68,32 +94,6 @@ func (mt *User) Validate() (err error) {
 			err = goa.InvalidLengthError(`response.bio`, *mt.Bio, len(*mt.Bio), 500, false, err)
 		}
 	}
-	if mt.Email != nil {
-		if err2 := goa.ValidateFormat(goa.FormatEmail, *mt.Email); err2 != nil {
-			err = goa.InvalidFormatError(`response.email`, *mt.Email, goa.FormatEmail, err2, err)
-		}
-	}
-	if mt.Email != nil {
-		if err2 := goa.ValidateFormat(goa.FormatEmail, *mt.Email); err2 != nil {
-			err = goa.InvalidFormatError(`response.email`, *mt.Email, goa.FormatEmail, err2, err)
-		}
-	}
-	return
-}
-
-// A user belonging to a tenant account, link view
-// Identifier: application/vnd.user+json
-type UserLink struct {
-	// Email address of user
-	Email *string `json:"email,omitempty" xml:"email,omitempty"`
-	// API href of user
-	Href *string `json:"href,omitempty" xml:"href,omitempty"`
-	// ID of user
-	ID *int `json:"id,omitempty" xml:"id,omitempty"`
-}
-
-// Validate validates the media type instance.
-func (mt *UserLink) Validate() (err error) {
 	if mt.Email != nil {
 		if err2 := goa.ValidateFormat(goa.FormatEmail, *mt.Email); err2 != nil {
 			err = goa.InvalidFormatError(`response.email`, *mt.Email, goa.FormatEmail, err2, err)

@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/goadesign/goa"
 	"github.com/goadesign/gorma/example/app/v1"
+	"github.com/kr/pretty"
 )
 
 // ProposalV1Controller implements the v1 proposal resource.
@@ -27,14 +28,16 @@ func (c *ProposalV1Controller) Delete(ctx *v1.DeleteProposalContext) error {
 
 // List runs the list action.
 func (c *ProposalV1Controller) List(ctx *v1.ListProposalContext) error {
-	res := v1.ProposalCollection{}
-	return ctx.OK(res)
+	proposals1 := pdb.List(ctx.Context)
+	pretty.Println(proposals1)
+	proposals := pdb.ListV1Proposal(ctx.Context, ctx.UserID)
+	return ctx.OK(proposals)
 }
 
 // Show runs the show action.
 func (c *ProposalV1Controller) Show(ctx *v1.ShowProposalContext) error {
-	res := &v1.Proposal{}
-	return ctx.OK(res)
+	proposal := pdb.OneProposal(ctx.Context, ctx.ProposalID)
+	return ctx.OK(proposal)
 }
 
 // Update runs the update action.

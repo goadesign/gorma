@@ -36,6 +36,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	db.LogMode(true)
 	db.DropTable(&models.Proposal{}, &models.Review{}, &models.User{})
 	db.AutoMigrate(&models.Proposal{}, &models.Review{}, &models.User{})
 
@@ -102,7 +103,7 @@ func setup() error {
 	abstract := "This is the abstract"
 	detail := "This is the detail"
 	title := "The TITLE"
-	pdb := models.NewProposalDB(db, logger)
+	pdb = models.NewProposalDB(db, logger)
 
 	prop, err := pdb.Add(ctx, models.Proposal{
 		Abstract: &abstract,

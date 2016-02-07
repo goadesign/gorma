@@ -24,7 +24,9 @@ func (m *UserDB) ListAppUser(ctx *goa.Context) []*app.User {
 	now := time.Now()
 	defer ctx.Info("ListUser", "duration", time.Since(now))
 	var objs []*app.User
-	err := m.Db.Table(m.TableName()).Find(&objs).Error
+	err := m.Db.Scopes().Table(m.TableName()).Find(&objs).Error
+
+	//	err := m.Db.Table(m.TableName()).Find(&objs).Error
 	if err != nil {
 		ctx.Error("error listing User", "error", err.Error())
 		return objs
@@ -35,14 +37,14 @@ func (m *UserDB) ListAppUser(ctx *goa.Context) []*app.User {
 
 func (m *User) UserToAppUser() *app.User {
 	user := &app.User{}
-	user.Lastname = m.Lastname
-	user.Bio = m.Bio
+	user.City = m.City
 	user.Country = m.Country
+	user.Email = m.Email
+	user.Lastname = m.Lastname
+	user.State = m.State
+	user.Bio = m.Bio
 	user.Firstname = m.Firstname
 	user.ID = &m.ID
-	user.City = m.City
-	user.Email = m.Email
-	user.State = m.State
 
 	return user
 }
@@ -66,7 +68,9 @@ func (m *UserDB) ListAppUserLink(ctx *goa.Context) []*app.UserLink {
 	now := time.Now()
 	defer ctx.Info("ListUserLink", "duration", time.Since(now))
 	var objs []*app.UserLink
-	err := m.Db.Table(m.TableName()).Find(&objs).Error
+	err := m.Db.Scopes().Table(m.TableName()).Find(&objs).Error
+
+	//	err := m.Db.Table(m.TableName()).Find(&objs).Error
 	if err != nil {
 		ctx.Error("error listing User", "error", err.Error())
 		return objs
@@ -77,8 +81,8 @@ func (m *UserDB) ListAppUserLink(ctx *goa.Context) []*app.UserLink {
 
 func (m *User) UserToAppUserLink() *app.UserLink {
 	user := &app.UserLink{}
-	user.ID = &m.ID
 	user.Email = m.Email
+	user.ID = &m.ID
 
 	return user
 }

@@ -30,8 +30,8 @@ type User struct {
 	Proposals []Proposal // has many Proposals
 	Reviews   []Review   // has many Reviews
 	State     *string
-	CreatedAt time.Time  // timestamp
 	UpdatedAt time.Time  // timestamp
+	CreatedAt time.Time  // timestamp
 	DeletedAt *time.Time // nullable timestamp (soft delete)
 }
 

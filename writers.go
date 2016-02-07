@@ -328,7 +328,21 @@ return "{{ $ut.Alias}}" {{ else }} return "{{ $ut.TableName }}"
 {{end}}
 }
 
-
+{{ range $idx, $bt := $ut.BelongsTo}}
+// Belongs To Relationships
+// {{$ut.ModelName}}FilterBy{{$bt.ModelName}} is a gorm filter for a Belongs To relationship.
+func {{$ut.ModelName}}FilterBy{{$bt.ModelName}}({{goify $bt.ModelName false}}id int, originaldb *gorm.DB) func(db *gorm.DB) *gorm.DB {
+	if {{goify $bt.ModelName false}}id > 0 {
+		return func(db *gorm.DB) *gorm.DB {
+			return db.Where("{{$bt.LowerName}}_id = ?", {{goify $bt.ModelName false}}id)
+		}
+	} else {
+		return func(db *gorm.DB) *gorm.DB {
+			return db
+		}
+	}
+}
+{{end}}
 
 // CRUD Functions
 
@@ -409,7 +423,6 @@ func (m {{$ut.ModelName}}) GetRole() string {
 {{end}}
 
 
-
 {{ range $rname, $rmt := $ut.RenderTo }}
 {{ range $vname, $view := $rmt.Views}}
 {{ $mtd := $ut.Project $rname $vname }}
@@ -421,15 +434,20 @@ func (m {{$ut.ModelName}}) GetRole() string {
 {{ range $version :=  $rmt.Versions }} {{$vp := vp $version}}{{$vpn := goify $vp true}}
 // {{$version}}  
 {{ template "MediaVersion" (newMediaTemplateVersion $rmt $vname $view $ut $vp $vpn)}}
-{{end}}{{end}}{{end}}`
+{{end}}{{end}}{{end}}
+
+`
 
 	mediaVersionT = `// MediaType Retrieval Functions
 // List{{.Media.TypeName}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}} returns an array of view: {{.ViewName}}
-func (m *{{.Model.ModelName}}DB) List{{.VersionPackageName}}{{.Media.TypeName}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}} (ctx *goa.Context{{ if .Model.DynamicTableName}}, tableName string{{ end }}) []*{{.VersionPackage}}.{{.Media.TypeName}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}}{
+func (m *{{.Model.ModelName}}DB) List{{.VersionPackageName}}{{.Media.TypeName}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}} (ctx *goa.Context{{ if .Model.DynamicTableName}}, tableName string{{ end }} {{range $nm, $bt := .Model.BelongsTo}},{{goify $bt.ModelName false}}id int{{end}}) []*{{.VersionPackage}}.{{.Media.TypeName}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}}{
 	now := time.Now()
 	defer ctx.Info("List{{.Media.TypeName}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}}", "duration", time.Since(now))
-	var objs []*{{.VersionPackage}}.{{.Media.TypeName}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}}
-	err := m.Db.Table({{ if .Model.DynamicTableName }}.Table(tableName){{else}}m.TableName(){{ end }}).{{ range $ln, $lv := .Media.Links }}Preload("{{goify $ln true}}").{{end}}Find(&objs).Error
+	var objs []*{{.VersionPackage}}.{{.Media.TypeName}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}} {{$ctx:= .}}
+	err := m.Db.Scopes({{range $nm, $bt := .Model.BelongsTo}}{{$ctx.Model.ModelName}}FilterBy{{goify $bt.ModelName true}}({{goify $bt.ModelName false}}id, &m.Db), {{end}}).Table({{ if .Model.DynamicTableName }}.Table(tableName){{else}}m.TableName(){{ end }}).{{ range $ln, $lv := .Media.Links }}Preload("{{goify $ln true}}").{{end}}Find(&objs).Error
+
+
+//	err := m.Db.Table({{ if .Model.DynamicTableName }}.Table(tableName){{else}}m.TableName(){{ end }}).{{ range $ln, $lv := .Media.Links }}Preload("{{goify $ln true}}").{{end}}Find(&objs).Error
 	if err != nil {
 		ctx.Error("error listing {{.Model.ModelName}}", "error", err.Error())
 		return objs
@@ -472,7 +490,6 @@ func (m *{{.Model.ModelName}}DB) One{{.Media.TypeName}}{{if eq .ViewName "defaul
 	return &view 
 	
 }
-
 `
 )
 

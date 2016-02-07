@@ -27,9 +27,9 @@ type Proposal struct {
 	Title     *string  `gorm:"column:proposal_title"`
 	UserID    int      // has many Proposal
 	Withdrawn *bool
-	DeletedAt *time.Time // nullable timestamp (soft delete)
-	UpdatedAt time.Time  // timestamp
 	CreatedAt time.Time  // timestamp
+	UpdatedAt time.Time  // timestamp
+	DeletedAt *time.Time // nullable timestamp (soft delete)
 	User      User
 }
 
@@ -73,6 +73,20 @@ type ProposalStorage interface {
 func (m *ProposalDB) TableName() string {
 	return "proposals"
 
+}
+
+// Belongs To Relationships
+// ProposalFilterByUser is a gorm filter for a Belongs To relationship.
+func ProposalFilterByUser(userid int, originaldb *gorm.DB) func(db *gorm.DB) *gorm.DB {
+	if userid > 0 {
+		return func(db *gorm.DB) *gorm.DB {
+			return db.Where("user_id = ?", userid)
+		}
+	} else {
+		return func(db *gorm.DB) *gorm.DB {
+			return db
+		}
+	}
 }
 
 // CRUD Functions
