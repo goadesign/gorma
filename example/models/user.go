@@ -31,8 +31,8 @@ type User struct {
 	Reviews   []Review   // has many Reviews
 	State     *string
 	UpdatedAt time.Time  // timestamp
-	CreatedAt time.Time  // timestamp
 	DeletedAt *time.Time // nullable timestamp (soft delete)
+	CreatedAt time.Time  // timestamp
 }
 
 // TableName overrides the table name settings in Gorm to force a specific table name

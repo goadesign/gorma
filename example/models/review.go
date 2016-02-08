@@ -25,9 +25,9 @@ type Review struct {
 	ProposalID int // Belongs To Proposal
 	Rating     *int
 	UserID     int        // has many Review
-	DeletedAt  *time.Time // nullable timestamp (soft delete)
 	CreatedAt  time.Time  // timestamp
 	UpdatedAt  time.Time  // timestamp
+	DeletedAt  *time.Time // nullable timestamp (soft delete)
 	User       User
 	Proposal   Proposal
 }

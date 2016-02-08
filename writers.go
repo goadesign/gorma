@@ -464,11 +464,11 @@ func (m *{{.Model.ModelName}}) {{$.Model.ModelName}}To{{.VersionPackageName}}{{.
 }
 
 // One{{.VersionPackageName}}{{.Media.TypeName}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}} returns an array of view: {{.ViewName}}
-func (m *{{.Model.ModelName}}DB) One{{.Media.TypeName}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}} (ctx *goa.Context{{ if .Model.DynamicTableName}}, tableName string{{ end }}, id int) *{{.VersionPackage}}.{{.Media.TypeName}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}}{	
+func (m *{{.Model.ModelName}}DB) One{{.Media.TypeName}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}} (ctx *goa.Context{{ if .Model.DynamicTableName}}, tableName string{{ end }}, id int{{range $nm, $bt := .Model.BelongsTo}},{{goify $bt.ModelName false}}id int{{end}}) *{{.VersionPackage}}.{{.Media.TypeName}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}}{	
 	now := time.Now()
 	var native {{.Model.ModelName}}
 	defer ctx.Info("One{{.Media.TypeName}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}}", "duration", time.Since(now))
-	{{ if .Model.Cached }}
+/*	{{ if .Model.Cached }} //cache
 		idstr:= strconv.Itoa(id)
 		cached, ok := m.cache.Get(idstr)
 		if ok {
@@ -479,10 +479,11 @@ func (m *{{.Model.ModelName}}DB) One{{.Media.TypeName}}{{if eq .ViewName "defaul
 	}()
 			return &view
 		}
-	{{ end }}
+	{{ end }} 
+*/
 
 
-	m.Db.Table({{ if .Model.DynamicTableName }}.Table(tableName){{else}}m.TableName(){{ end }}){{range $na, $hm:= .Model.HasMany}}.Preload("{{plural $hm.ModelName}}"){{end}}{{range $nm, $bt := .Model.BelongsTo}}.Preload("{{$bt.ModelName}}"){{end}}.Where("id = ?", id).Find(&native)
+	m.Db.Scopes({{range $nm, $bt := .Model.BelongsTo}}{{$ctx.Model.ModelName}}FilterBy{{goify $bt.ModelName true}}({{goify $bt.ModelName false}}id, &m.Db), {{end}}).Table({{ if .Model.DynamicTableName }}.Table(tableName){{else}}m.TableName(){{ end }}){{range $na, $hm:= .Model.HasMany}}.Preload("{{plural $hm.ModelName}}"){{end}}{{range $nm, $bt := .Model.BelongsTo}}.Preload("{{$bt.ModelName}}"){{end}}.Where("id = ?", id).Find(&native)
 	{{ if .Model.Cached }} go func(){
 		m.cache.Set(strconv.Itoa(native.ID), native, cache.DefaultExpiration)
 	}() {{ end }}

@@ -12,10 +12,9 @@
 package models
 
 import (
-	"github.com/goadesign/goa"
-
 	"time"
 
+	"github.com/goadesign/goa"
 	"github.com/goadesign/gorma/example/app/v1"
 )
 
@@ -39,21 +38,23 @@ func (m *ProposalDB) ListV1Proposal(ctx *goa.Context, userid int) []*v1.Proposal
 
 func (m *Proposal) ProposalToV1Proposal() *v1.Proposal {
 	proposal := &v1.Proposal{}
-	proposal.ID = &m.ID
 	proposal.Abstract = m.Abstract
-	proposal.Title = m.Title
 	proposal.Detail = m.Detail
+	proposal.Title = m.Title
+	proposal.ID = &m.ID
 
 	return proposal
 }
 
 // OneV1Proposal returns an array of view: default
-func (m *ProposalDB) OneProposal(ctx *goa.Context, id int) *v1.Proposal {
+func (m *ProposalDB) OneProposal(ctx *goa.Context, id int, userid int) *v1.Proposal {
 	now := time.Now()
 	var native Proposal
 	defer ctx.Info("OneProposal", "duration", time.Since(now))
+	/*
+	 */
 
-	m.Db.Table(m.TableName()).Preload("Reviews").Preload("User").Where("id = ?", id).Find(&native)
+	m.Db.Scopes(ProposalFilterByUser(userid, &m.Db)).Table(m.TableName()).Preload("Reviews").Preload("User").Where("id = ?", id).Find(&native)
 
 	view := *native.ProposalToV1Proposal()
 	return &view
@@ -80,19 +81,21 @@ func (m *ProposalDB) ListV1ProposalLink(ctx *goa.Context, userid int) []*v1.Prop
 
 func (m *Proposal) ProposalToV1ProposalLink() *v1.ProposalLink {
 	proposal := &v1.ProposalLink{}
-	proposal.Title = m.Title
 	proposal.ID = &m.ID
+	proposal.Title = m.Title
 
 	return proposal
 }
 
 // OneV1ProposalLink returns an array of view: link
-func (m *ProposalDB) OneProposalLink(ctx *goa.Context, id int) *v1.ProposalLink {
+func (m *ProposalDB) OneProposalLink(ctx *goa.Context, id int, userid int) *v1.ProposalLink {
 	now := time.Now()
 	var native Proposal
 	defer ctx.Info("OneProposalLink", "duration", time.Since(now))
+	/*
+	 */
 
-	m.Db.Table(m.TableName()).Preload("Reviews").Preload("User").Where("id = ?", id).Find(&native)
+	m.Db.Scopes(ProposalFilterByUser(userid, &m.Db)).Table(m.TableName()).Preload("Reviews").Preload("User").Where("id = ?", id).Find(&native)
 
 	view := *native.ProposalToV1ProposalLink()
 	return &view

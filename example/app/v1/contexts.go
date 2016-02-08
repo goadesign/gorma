@@ -299,14 +299,14 @@ func (payload *UpdateProposalPayload) Validate() (err error) {
 	return
 }
 
-// NoContent sends a HTTP response with status code 204.
-func (ctx *UpdateProposalContext) NoContent() error {
-	return ctx.RespondBytes(204, nil)
-}
-
 // NotFound sends a HTTP response with status code 404.
 func (ctx *UpdateProposalContext) NotFound() error {
 	return ctx.RespondBytes(404, nil)
+}
+
+// NoContent sends a HTTP response with status code 204.
+func (ctx *UpdateProposalContext) NoContent() error {
+	return ctx.RespondBytes(204, nil)
 }
 
 // CreateReviewContext provides the review create action context.
@@ -609,12 +609,12 @@ func (payload *UpdateReviewPayload) Validate() (err error) {
 	return
 }
 
-// NotFound sends a HTTP response with status code 404.
-func (ctx *UpdateReviewContext) NotFound() error {
-	return ctx.RespondBytes(404, nil)
-}
-
 // NoContent sends a HTTP response with status code 204.
 func (ctx *UpdateReviewContext) NoContent() error {
 	return ctx.RespondBytes(204, nil)
+}
+
+// NotFound sends a HTTP response with status code 404.
+func (ctx *UpdateReviewContext) NotFound() error {
+	return ctx.RespondBytes(404, nil)
 }

@@ -28,8 +28,8 @@ type Proposal struct {
 	UserID    int      // has many Proposal
 	Withdrawn *bool
 	CreatedAt time.Time  // timestamp
-	UpdatedAt time.Time  // timestamp
 	DeletedAt *time.Time // nullable timestamp (soft delete)
+	UpdatedAt time.Time  // timestamp
 	User      User
 }
 

@@ -12,9 +12,9 @@
 package models
 
 import (
-	"time"
-
 	"github.com/goadesign/goa"
+
+	"time"
 
 	"github.com/goadesign/gorma/example/app/v1"
 )
@@ -39,20 +39,22 @@ func (m *ReviewDB) ListV1Review(ctx *goa.Context, proposalid int, userid int) []
 
 func (m *Review) ReviewToV1Review() *v1.Review {
 	review := &v1.Review{}
+	review.ID = &m.ID
 	review.Comment = m.Comment
 	review.Rating = m.Rating
-	review.ID = &m.ID
 
 	return review
 }
 
 // OneV1Review returns an array of view: default
-func (m *ReviewDB) OneReview(ctx *goa.Context, id int) *v1.Review {
+func (m *ReviewDB) OneReview(ctx *goa.Context, id int, proposalid int, userid int) *v1.Review {
 	now := time.Now()
 	var native Review
 	defer ctx.Info("OneReview", "duration", time.Since(now))
+	/*
+	 */
 
-	m.Db.Table(m.TableName()).Preload("Proposal").Preload("User").Where("id = ?", id).Find(&native)
+	m.Db.Scopes(ReviewFilterByProposal(proposalid, &m.Db), ReviewFilterByUser(userid, &m.Db)).Table(m.TableName()).Preload("Proposal").Preload("User").Where("id = ?", id).Find(&native)
 
 	view := *native.ReviewToV1Review()
 	return &view
@@ -85,12 +87,14 @@ func (m *Review) ReviewToV1ReviewLink() *v1.ReviewLink {
 }
 
 // OneV1ReviewLink returns an array of view: link
-func (m *ReviewDB) OneReviewLink(ctx *goa.Context, id int) *v1.ReviewLink {
+func (m *ReviewDB) OneReviewLink(ctx *goa.Context, id int, proposalid int, userid int) *v1.ReviewLink {
 	now := time.Now()
 	var native Review
 	defer ctx.Info("OneReviewLink", "duration", time.Since(now))
+	/*
+	 */
 
-	m.Db.Table(m.TableName()).Preload("Proposal").Preload("User").Where("id = ?", id).Find(&native)
+	m.Db.Scopes(ReviewFilterByProposal(proposalid, &m.Db), ReviewFilterByUser(userid, &m.Db)).Table(m.TableName()).Preload("Proposal").Preload("User").Where("id = ?", id).Find(&native)
 
 	view := *native.ReviewToV1ReviewLink()
 	return &view

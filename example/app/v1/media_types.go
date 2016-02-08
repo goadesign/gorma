@@ -14,6 +14,32 @@ package v1
 
 import "github.com/goadesign/goa"
 
+// A response to a CFP, link view
+// Identifier: application/vnd.proposal+json
+type ProposalLink struct {
+	// API href of user
+	Href *string `json:"href,omitempty" xml:"href,omitempty"`
+	// ID of user
+	ID *int `json:"id,omitempty" xml:"id,omitempty"`
+	// Response title
+	Title *string `json:"title,omitempty" xml:"title,omitempty"`
+}
+
+// Validate validates the media type instance.
+func (mt *ProposalLink) Validate() (err error) {
+	if mt.Title != nil {
+		if len(*mt.Title) < 10 {
+			err = goa.InvalidLengthError(`response.title`, *mt.Title, len(*mt.Title), 10, true, err)
+		}
+	}
+	if mt.Title != nil {
+		if len(*mt.Title) > 200 {
+			err = goa.InvalidLengthError(`response.title`, *mt.Title, len(*mt.Title), 200, false, err)
+		}
+	}
+	return
+}
+
 // A response to a CFP
 // Identifier: application/vnd.proposal+json
 type Proposal struct {
@@ -51,32 +77,6 @@ func (mt *Proposal) Validate() (err error) {
 			err = goa.InvalidLengthError(`response.detail`, *mt.Detail, len(*mt.Detail), 2000, false, err)
 		}
 	}
-	if mt.Title != nil {
-		if len(*mt.Title) < 10 {
-			err = goa.InvalidLengthError(`response.title`, *mt.Title, len(*mt.Title), 10, true, err)
-		}
-	}
-	if mt.Title != nil {
-		if len(*mt.Title) > 200 {
-			err = goa.InvalidLengthError(`response.title`, *mt.Title, len(*mt.Title), 200, false, err)
-		}
-	}
-	return
-}
-
-// A response to a CFP, link view
-// Identifier: application/vnd.proposal+json
-type ProposalLink struct {
-	// API href of user
-	Href *string `json:"href,omitempty" xml:"href,omitempty"`
-	// ID of user
-	ID *int `json:"id,omitempty" xml:"id,omitempty"`
-	// Response title
-	Title *string `json:"title,omitempty" xml:"title,omitempty"`
-}
-
-// Validate validates the media type instance.
-func (mt *ProposalLink) Validate() (err error) {
 	if mt.Title != nil {
 		if len(*mt.Title) < 10 {
 			err = goa.InvalidLengthError(`response.title`, *mt.Title, len(*mt.Title), 10, true, err)
