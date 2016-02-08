@@ -65,6 +65,7 @@ func fieldAssignmentModelToType(model *RelationalModelDefinition, ut *design.Vie
 				fieldAssignments = append(fieldAssignments, fa)
 				fa = fmt.Sprintf("%s.%s = tmp%d.%sTo%s%s()", utype, codegen.Goify(fn, true), tmp, codegen.Goify(fn, true), verpkg, codegen.Goify(fn, true))
 				fieldAssignments = append(fieldAssignments, fa)
+				tmp++
 			}
 		}
 

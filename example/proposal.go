@@ -36,7 +36,7 @@ func (c *ProposalV1Controller) List(ctx *v1.ListProposalContext) error {
 
 // Show runs the show action.
 func (c *ProposalV1Controller) Show(ctx *v1.ShowProposalContext) error {
-	proposal := pdb.OneProposal(ctx.Context, ctx.ProposalID)
+	proposal := pdb.OneProposal(ctx.Context, ctx.ProposalID, ctx.UserID)
 	return ctx.OK(proposal)
 }
 
