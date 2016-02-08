@@ -314,11 +314,11 @@ func (m *{{$ut.ModelName}}DB) DB() interface{} {
 // {{$ut.ModelName}}Storage represents the storage interface.
 type {{$ut.ModelName}}Storage interface {
 	DB() interface{}
-	List(ctx goa.Context{{ if $ut.DynamicTableName}}, tableName string{{ end }}) []{{$ut.ModelName}}
-	Get(ctx goa.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, {{$ut.PKAttributes}}) ({{$ut.ModelName}}, error)
-	Add(ctx goa.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, {{$ut.LowerName}} *{{$ut.ModelName}}) ({{$ut.ModelName}}, error)
-	Update(ctx goa.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, {{$ut.LowerName}} *{{$ut.ModelName}}) (error)
-	Delete(ctx goa.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, {{ $ut.PKAttributes}}) (error) 	
+	List(ctx *goa.Context{{ if $ut.DynamicTableName}}, tableName string{{ end }}) []{{$ut.ModelName}}
+	Get(ctx *goa.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, {{$ut.PKAttributes}}) ({{$ut.ModelName}}, error)
+	Add(ctx *goa.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, {{$ut.LowerName}} *{{$ut.ModelName}}) ({{$ut.ModelName}}, error)
+	Update(ctx *goa.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, {{$ut.LowerName}} *{{$ut.ModelName}}) (error)
+	Delete(ctx *goa.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, {{ $ut.PKAttributes}}) (error) 	
 }
 
 // TableName overrides the table name settings in Gorm to force a specific table name
@@ -349,11 +349,11 @@ func {{$ut.ModelName}}FilterBy{{$bt.ModelName}}({{goify $bt.ModelName false}}id 
 
 // Get returns a single {{$ut.ModelName}} as a Database Model
 // This is more for use internally, and probably not what you want in  your controllers
-func (m *{{$ut.ModelName}}DB) Get(ctx *goa.Context{{ if $ut.DynamicTableName}}, tableName string{{ end }}, id int) {{$ut.ModelName}}{	
+func (m *{{$ut.ModelName}}DB) Get(ctx *goa.Context{{ if $ut.DynamicTableName}}, tableName string{{ end }}, {{$ut.PKAttributes}}) {{$ut.ModelName}}{	
 	now := time.Now()
 	defer ctx.Info("{{$ut.ModelName}}:Get", "duration", time.Since(now))
 	var native {{$ut.ModelName}}
-	m.Db.Table({{ if $ut.DynamicTableName }}.Table(tableName){{else}}m.TableName(){{ end }}).Where("id = ?", id).Find(&native)
+	m.Db.Table({{ if $ut.DynamicTableName }}.Table(tableName){{else}}m.TableName(){{ end }}).Where("{{$ut.PKWhere}}",{{$ut.PKWhereFields}} ).Find(&native)
 	{{ if $ut.Cached }}go m.cache.Set(strconv.Itoa(native.ID), native, cache.DefaultExpiration) 
 	{{end}}
 	return native 

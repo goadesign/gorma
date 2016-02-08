@@ -48,6 +48,7 @@ func Field(name string, args ...interface{}) {
 
 		if fieldType == gorma.PKUUID || fieldType == gorma.PKInteger || fieldType == gorma.PKBigInteger {
 			field.PrimaryKey = true
+			field.Nullable = false
 			field.Description = "primary key"
 			s.PrimaryKeys = append(s.PrimaryKeys, field)
 		}

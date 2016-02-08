@@ -41,6 +41,7 @@ func Model(name string, dsl func()) {
 			field.Parent = model
 			field.Datatype = gorma.PKInteger
 			field.PrimaryKey = true
+			field.Nullable = false
 			field.DatabaseFieldName = SanitizeDBFieldName("ID")
 			model.RelationalFields[field.FieldName] = field
 		}
