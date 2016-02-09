@@ -403,7 +403,7 @@ func (m *{{$ut.ModelName}}DB) Update(ctx *goa.Context{{ if $ut.DynamicTableName 
 	defer ctx.Info("{{$ut.ModelName}}:Update", "duration", time.Since(now))
 	obj, err := m.Get(ctx{{ if $ut.DynamicTableName }}, tableName{{ end }}, {{$ut.PKUpdateFields "model"}})
 	if err != nil {
-		return obj, err
+		return  err
 	}
 	err = m.Db{{ if $ut.DynamicTableName }}.Table(tableName){{ end }}.Model(&obj).Updates(model).Error
 	{{ if $ut.Cached }}go func(){
