@@ -75,6 +75,16 @@ func relationalFieldDefinition(failIfNotSD bool) (*gorma.RelationalFieldDefiniti
 	return a, ok
 }
 
+// buildSourceDefinition returns true and current context if it is an BuildSource
+// nil and false otherwise.
+func buildSourceDefinition(failIfNotSD bool) (*gorma.BuildSource, bool) {
+	a, ok := dslengine.CurrentDefinition().(*gorma.BuildSource)
+	if !ok && failIfNotSD {
+		incompatibleDSL(caller())
+	}
+	return a, ok
+}
+
 // attributeDefinition returns true and current context if it is an AttributeDefinition
 // nil and false otherwise.
 func attributeDefinition(failIfNotSD bool) (*design.AttributeDefinition, bool) {

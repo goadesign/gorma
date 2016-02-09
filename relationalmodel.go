@@ -142,6 +142,17 @@ func (f *RelationalModelDefinition) LowerName() string {
 	return strings.ToLower(f.ModelName)
 }
 
+// IterateBuildSources runs an iterator function once per Model in the Store's model list.
+func (sd *RelationalModelDefinition) IterateBuildSources(it BuildSourceIterator) error {
+
+	for _, bs := range sd.BuildSources {
+		if err := it(bs); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 // IterateFields returns an iterator function useful for iterating through
 // this model's field list.
 func (f *RelationalModelDefinition) IterateFields(it FieldIterator) error {
@@ -219,6 +230,8 @@ func (f *RelationalModelDefinition) PopulateFromModeledType() {
 			rf, ok := f.RelationalFields[codegen.Goify(name, true)]
 			if ok {
 				// We already have a mapping for this field.  What to do?
+				fmt.Println("DUP mapping", f.ModelName, name)
+				return nil
 			}
 
 			rf = &RelationalFieldDefinition{}

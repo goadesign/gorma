@@ -38,6 +38,58 @@ type (
 	}
 )
 
+func fieldAssignmentPayloadToModel(model *RelationalModelDefinition, ut *design.UserTypeDefinition, verpkg, v, mtype, utype string) string {
+	//utPackage := "app"
+	fmt.Println("Model: ", model.ModelName)
+	var fieldAssignments []string
+	// type.Field = model.Field
+	for fname, field := range model.RelationalFields {
+		fmt.Println("\tcomparing field", fname)
+
+		var mpointer, upointer bool
+		mpointer = field.Nullable
+		obj := ut.Type.ToObject()
+		definition := ut.Definition()
+
+		if field.Datatype == "" {
+			continue
+		}
+
+		for key := range obj {
+			fmt.Println("\t\tto field", key)
+			gfield := obj[key]
+
+			fmt.Println("\t\t", fname, field.Underscore(), field.DatabaseFieldName, key)
+			if field.Underscore() == key || field.DatabaseFieldName == key {
+				fmt.Println("\t\t\tMatched ", fname, key)
+				// this is our field
+				if gfield.Type.IsObject() || definition.IsPrimitivePointer(key) {
+					upointer = true
+				} else {
+					// set it explicity because we're reusing the same bool
+					upointer = false
+				}
+
+				prefix := ""
+				if upointer && !mpointer {
+					// ufield = &mfield
+					prefix = "*"
+				} else if mpointer && !upointer {
+					// ufield = *mfield (rare if never?)
+					prefix = "&"
+				} else if !upointer && !mpointer {
+					prefix = ""
+				}
+
+				fa := fmt.Sprintf("\t%s.%s = %s%s.%s", utype, fname, prefix, v, codegen.Goify(key, true))
+				fieldAssignments = append(fieldAssignments, fa)
+			}
+		}
+	}
+	fmt.Println("\t\t\t\t", fieldAssignments)
+	return strings.Join(fieldAssignments, "\n")
+}
+
 func fieldAssignmentModelToType(model *RelationalModelDefinition, ut *design.ViewDefinition, verpkg, v, mtype, utype string) string {
 	//utPackage := "app"
 	var tmp int
@@ -51,7 +103,6 @@ func fieldAssignmentModelToType(model *RelationalModelDefinition, ut *design.Vie
 		obj := ut.Type.ToObject()
 		definition := ut.Parent.Definition()
 
-		fmt.Println(fname, field.Datatype)
 		if field.Datatype == "" {
 			continue
 		}
@@ -168,7 +219,7 @@ func viewFields(ut *RelationalModelDefinition, v *design.ViewDefinition) []*Rela
 				}
 			} else if name == "links" {
 				for n, ld := range v.Parent.Links {
-					fmt.Println(n)
+					fmt.Println("LINK:", n)
 					pretty.Println(ld.Name, ld.View)
 				}
 			}
@@ -240,6 +291,7 @@ func (w *UserTypesWriter) Execute(data *UserTypeTemplateData) error {
 	fm := make(map[string]interface{})
 	fm["famt"] = fieldAssignmentModelToType
 	fm["fatm"] = fieldAssignmentTypeToModel
+	fm["fapm"] = fieldAssignmentPayloadToModel
 	fm["viewSelect"] = viewSelect
 	fm["viewFields"] = viewFields
 	fm["viewFieldNames"] = viewFieldNames
@@ -428,6 +480,17 @@ func (m *{{$ut.ModelName}}DB) Delete(ctx *goa.Context{{ if $ut.DynamicTableName 
 	{{ if $ut.Cached }} go m.cache.Delete(strconv.Itoa(id)) {{ end }}
 	return  nil
 }
+
+{{ range $bfn, $bf := $ut.BuiltFrom }}
+	func {{$ut.ModelName}}From{{$bfn}}(payload app.{{goify $bfn true}}) *{{$ut.ModelName}} {
+	{{$ut.LowerName}} := &{{$ut.ModelName}}{}
+ 	{{ fapm $ut $bf "app" "payload" "payload" $ut.LowerName}}		
+
+ 	 return {{$ut.LowerName}}
+}
+{{ end  }}
+
+
 `
 
 	userHelperT = `{{define "MediaVersion"}}` + mediaVersionT + `{{end}}` + `{{$ut := .UserType}}{{$ap := .AppPkg}}

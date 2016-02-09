@@ -66,20 +66,18 @@ func (sd *StorageGroupDefinition) IterateSets(iterator dslengine.SetIterator) {
 	iterator([]dslengine.Definition{sd})
 	sd.IterateStores(func(store *RelationalStoreDefinition) error {
 		iterator([]dslengine.Definition{store})
-		//	i := 0
-		//	typeAttributes := make([]dslengine.Definition, len(store.RelationalModels))
 		store.IterateModels(func(model *RelationalModelDefinition) error {
-			//		model.AttributeDefinition.DSLFunc = model.DefinitionDSL
-			//		typeAttributes[i] = model.AttributeDefinition
-			//		i++
-
 			iterator([]dslengine.Definition{model})
 
 			model.IterateFields(func(field *RelationalFieldDefinition) error {
 				iterator([]dslengine.Definition{field})
 				return nil
 			})
-			//		iterator(typeAttributes)
+			model.IterateBuildSources(func(bs *BuildSource) error {
+				iterator([]dslengine.Definition{bs})
+				return nil
+			})
+
 			return nil
 		})
 		return nil

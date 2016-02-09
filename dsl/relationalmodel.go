@@ -1,6 +1,7 @@
 package dsl
 
 import (
+	"fmt"
 	"strconv"
 	"strings"
 
@@ -94,16 +95,52 @@ func RendersTo(rt interface{}) {
 // from a Goa UserType.  Conversion functions
 // will be generated to convert from the payload to the model.
 // Usage:  BuildsFrom(YourType)
-func BuildsFrom(bf interface{}) {
+func BuildsFrom(dsl func()) {
 	checkInit()
 	if m, ok := relationalModelDefinition(false); ok {
-		mts, ok := bf.(*design.UserTypeDefinition)
-		if ok {
-			m.BuiltFrom[mts.TypeName] = mts
-		} else if mts, ok := bf.(*design.MediaTypeDefinition); ok {
-			m.BuiltFrom[mts.TypeName] = mts.UserTypeDefinition
+		/*		mts, ok := bf.(*design.UserTypeDefinition)
+				if ok {
+					m.BuiltFrom[mts.TypeName] = mts
+				} else if mts, ok := bf.(*design.MediaTypeDefinition); ok {
+					m.BuiltFrom[mts.TypeName] = mts.UserTypeDefinition
+				}
+				m.PopulateFromModeledType()
+		*/
+		bf := gorma.NewBuildSource()
+		bf.DefinitionDSL = dsl
+		bf.Parent = m
+		m.BuildSources = append(m.BuildSources, bf)
+	}
+
+}
+
+func Payload(r interface{}, act string) {
+	if bs, ok := buildSourceDefinition(true); ok {
+
+		var res *design.ResourceDefinition
+		if n, ok := r.(string); ok {
+			fmt.Println("Got a string")
+			res = design.Design.Resources[n]
+		} else {
+			fmt.Println("Got a Resource Definition")
+			res, _ = r.(*design.ResourceDefinition)
 		}
-		m.PopulateFromModeledType()
+		if res == nil {
+			dslengine.ReportError("...")
+			return
+		}
+		a, ok := res.Actions[act]
+		if !ok {
+			dslengine.ReportError("...")
+			return
+		}
+		payload := a.Payload
+		fmt.Println("I'm a PAYLOAD!", payload.TypeName)
+
+		// Set UTD in BuildsFrom parent context
+
+		bs.Parent.BuiltFrom[payload.TypeName] = payload
+		bs.Parent.PopulateFromModeledType()
 
 	}
 }

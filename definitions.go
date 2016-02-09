@@ -46,6 +46,7 @@ type RelationalModelDefinition struct {
 	GoaType          *design.MediaTypeDefinition
 	Parent           *RelationalStoreDefinition
 	BuiltFrom        map[string]*design.UserTypeDefinition
+	BuildSources     []*BuildSource
 	RenderTo         map[string]*design.MediaTypeDefinition
 	BelongsTo        map[string]*RelationalModelDefinition
 	HasMany          map[string]*RelationalModelDefinition
@@ -60,6 +61,13 @@ type RelationalModelDefinition struct {
 	RelationalFields map[string]*RelationalFieldDefinition
 	PrimaryKeys      []*RelationalFieldDefinition
 	many2many        []string
+}
+
+type BuildSource struct {
+	dslengine.Definition
+	DefinitionDSL   func()
+	Parent          *RelationalModelDefinition
+	BuildSourceName string
 }
 
 // MapDefinition represents something
@@ -114,3 +122,7 @@ type ModelIterator func(m *RelationalModelDefinition) error
 // FieldIterator is a function that iterates over Fields
 // in a RelationalModel
 type FieldIterator func(m *RelationalFieldDefinition) error
+
+// BuildSourceIterator is a function that iterates over Fields
+// in a RelationalModel
+type BuildSourceIterator func(m *BuildSource) error

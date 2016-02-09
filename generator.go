@@ -249,7 +249,6 @@ func (g *Generator) generateUserHelpers(outdir string, api *design.APIDefinition
 					imports = append(imports, imp)
 				}
 				if model.Cached {
-					fmt.Println("adding import for cache")
 					imp := codegen.NewImport("cache", "github.com/patrickmn/go-cache")
 					imports = append(imports, imp)
 					imp = codegen.SimpleImport("strconv")
