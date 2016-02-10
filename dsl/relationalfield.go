@@ -107,6 +107,11 @@ func Nullable() {
 func PrimaryKey() {
 	if f, ok := relationalFieldDefinition(true); ok {
 		checkInit()
+		if f.Datatype != gorma.Integer {
+			dslengine.ReportError("Integer is the only supported Primary Key field type for now.")
+
+		}
+
 		f.PrimaryKey = true
 		f.Nullable = false
 		f.Description = "primary key"

@@ -177,14 +177,14 @@ var _ = Describe("RelationalField", func() {
 			})
 			Run()
 
-			Ω(Errors).ShouldNot(HaveOccurred())
 			Ω(Design.Validate()).ShouldNot(HaveOccurred())
 		})
 
-		Context("sets Primary Key flags", func() {
+		Context("sets Primary Key flags for an integer field", func() {
 
 			BeforeEach(func() {
 				name = "random"
+				ft = gorma.Integer
 				dsl = func() {
 					gdsl.PrimaryKey()
 				}
@@ -193,21 +193,37 @@ var _ = Describe("RelationalField", func() {
 				sg := gorma.GormaDesign
 				rs := sg.RelationalStores[storename]
 				rm := rs.RelationalModels[modelname]
+				Ω(Errors).ShouldNot(HaveOccurred())
 				Ω(rm.RelationalFields["ID"].PrimaryKey).Should(Equal(true))
 			})
 		})
-		Context("doesn't set Primary Key flag", func() {
+		Context("won't set Primary Key flags for string", func() {
 
 			BeforeEach(func() {
 				name = "random"
 				dsl = func() {
+					gdsl.PrimaryKey()
 				}
+			})
+			It("doesnt set the pk flag", func() {
+				Ω(Errors).Should(HaveOccurred())
+			})
+		})
+		Context("doesn't set Primary Key flag with no PrimaryKey() dsl", func() {
+
+			BeforeEach(func() {
+				name = "random"
+				dsl = func() {
+					gdsl.Description("Test description")
+				}
+
 			})
 			It("the pk flag", func() {
 				sg := gorma.GormaDesign
 				rs := sg.RelationalStores[storename]
 				rm := rs.RelationalModels[modelname]
-				Ω(rm.RelationalFields["ID"].PrimaryKey).Should(Equal(false))
+				Ω(Errors).ShouldNot(HaveOccurred())
+				Ω(rm.RelationalFields["Random"].PrimaryKey).Should(Equal(false))
 			})
 		})
 
