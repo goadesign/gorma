@@ -2,45 +2,48 @@ package main
 
 import (
 	"github.com/goadesign/goa"
-	"github.com/goadesign/gorma/example/app/v1"
-	"github.com/kr/pretty"
+	"github.com/goadesign/gorma/example/app"
+	"github.com/jinzhu/gorm"
 )
 
-// ProposalV1Controller implements the v1 proposal resource.
-type ProposalV1Controller struct {
+// ProposalController implements the proposal resource.
+type ProposalController struct {
 	goa.Controller
 }
 
-// NewProposalV1Controller creates a proposal controller.
-func NewProposalV1Controller(service goa.Service) v1.ProposalController {
-	return &ProposalV1Controller{Controller: service.NewController("proposal v1")}
+// NewProposalController creates a proposal controller.
+func NewProposalController(service goa.Service) app.ProposalController {
+	return &ProposalController{Controller: service.NewController("proposal")}
 }
 
 // Create runs the create action.
-func (c *ProposalV1Controller) Create(ctx *v1.CreateProposalContext) error {
+func (c *ProposalController) Create(ctx *app.CreateProposalContext) error {
 	return nil
 }
 
 // Delete runs the delete action.
-func (c *ProposalV1Controller) Delete(ctx *v1.DeleteProposalContext) error {
+func (c *ProposalController) Delete(ctx *app.DeleteProposalContext) error {
 	return nil
 }
 
 // List runs the list action.
-func (c *ProposalV1Controller) List(ctx *v1.ListProposalContext) error {
-	proposals1 := pdb.List(ctx.Context)
-	pretty.Println(proposals1)
-	proposals := pdb.ListV1Proposal(ctx.Context, ctx.UserID)
+func (c *ProposalController) List(ctx *app.ListProposalContext) error {
+	proposals := pdb.ListAppProposal(ctx.Context, ctx.UserID)
 	return ctx.OK(proposals)
 }
 
 // Show runs the show action.
-func (c *ProposalV1Controller) Show(ctx *v1.ShowProposalContext) error {
-	proposal := pdb.OneProposal(ctx.Context, ctx.ProposalID, ctx.UserID)
+func (c *ProposalController) Show(ctx *app.ShowProposalContext) error {
+	proposal, err := pdb.OneProposal(ctx.Context, ctx.ProposalID, ctx.UserID)
+	if err == gorm.RecordNotFound {
+		return ctx.NotFound()
+	} else if err != nil {
+		ctx.Respond(500, err.Error())
+	}
 	return ctx.OK(proposal)
 }
 
 // Update runs the update action.
-func (c *ProposalV1Controller) Update(ctx *v1.UpdateProposalContext) error {
+func (c *ProposalController) Update(ctx *app.UpdateProposalContext) error {
 	return nil
 }

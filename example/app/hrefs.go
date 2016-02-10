@@ -14,6 +14,16 @@ package app
 
 import "fmt"
 
+// ProposalHref returns the resource href.
+func ProposalHref(userID, proposalID interface{}) string {
+	return fmt.Sprintf("/api/users/%v/proposals/%v", userID, proposalID)
+}
+
+// ReviewHref returns the resource href.
+func ReviewHref(userID, proposalID, reviewID interface{}) string {
+	return fmt.Sprintf("/api/users/%v/proposals/%v/review/%v", userID, proposalID, reviewID)
+}
+
 // UserHref returns the resource href.
 func UserHref(userID interface{}) string {
 	return fmt.Sprintf("/api/users/%v", userID)

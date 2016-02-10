@@ -14,13 +14,14 @@ import (
 var _ = Describe("RelationalField", func() {
 	var sgname, storename, modelname, name string
 	var ft gorma.FieldType
-	var dsl func()
+	var dsl, modeldsl func()
 	var RandomPayload *UserTypeDefinition
 	BeforeEach(func() {
 		Design = nil
 		Errors = nil
 		sgname = "production"
 		dsl = nil
+		modeldsl = nil
 		storename = "mysql"
 		modelname = "Users"
 		name = ""
@@ -35,17 +36,20 @@ var _ = Describe("RelationalField", func() {
 	})
 
 	JustBeforeEach(func() {
+
+		modeldsl = func() {
+			//gdsl.BuildsFrom(RandomPayload)
+			gdsl.Field(name, ft, dsl)
+			gdsl.Field("id", gorma.Integer, dsl) // use lowercase "id" to test sanitizer
+			gdsl.Field("MiddleName", gorma.String)
+			gdsl.Field("CreatedAt", gorma.Timestamp)
+			gdsl.Field("UpdatedAt", gorma.Timestamp)
+			gdsl.Field("DeletedAt", gorma.NullableTimestamp)
+
+		}
 		gdsl.StorageGroup(sgname, func() {
 			gdsl.Store(storename, gorma.MySQL, func() {
-				gdsl.Model(modelname, func() {
-					//gdsl.BuildsFrom(RandomPayload)
-					gdsl.Field(name, ft, dsl)
-					gdsl.Field("id", gorma.Integer, dsl) // use lowercase "id" to test sanitizer
-					gdsl.Field("MiddleName", gorma.String)
-					gdsl.Field("CreatedAt", gorma.Timestamp)
-					gdsl.Field("UpdatedAt", gorma.Timestamp)
-					gdsl.Field("DeletedAt", gorma.NullableTimestamp)
-				})
+				gdsl.Model(modelname, modeldsl)
 			})
 		})
 		Run()
@@ -72,14 +76,12 @@ var _ = Describe("RelationalField", func() {
 		})
 
 		It("does not produce an error", func() {
-			gdsl.StorageGroup(sgname, func() {
-				gdsl.Store(storename, gorma.MySQL, func() {
-					gdsl.Model(modelname, func() {
-						gdsl.Field(name, ft, dsl)
-					})
-				})
-			})
-			Ω(Errors).Should(HaveOccurred())
+
+			modeldsl = func() {
+				gdsl.Field(name, ft, dsl)
+			}
+
+			Ω(Errors).Should(Not(HaveOccurred()))
 		})
 	})
 

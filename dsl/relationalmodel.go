@@ -21,9 +21,7 @@ import (
 // Similarly, use NoAutomaticTimestamps() and NoAutomaticSoftDelete() to
 // prevent CreatedAt, UpdatedAt and DeletedAt fields from being created.
 func Model(name string, dsl func()) {
-	// We can't rely on this being run first, any of the top level DSL could run
-	// in any order. The top level DSLs are API, Version, Resource, MediaType and Type.
-	// The first one to be called executes InitDesign.
+
 	checkInit()
 	if s, ok := relationalStoreDefinition(true); ok {
 		var model *gorma.RelationalModelDefinition
@@ -36,7 +34,8 @@ func Model(name string, dsl func()) {
 			model.Parent = s
 			model.RelationalFields = make(map[string]*gorma.RelationalFieldDefinition)
 		} else {
-			model.DefinitionDSL = dsl
+			dslengine.ReportError("Model %s already exists", name)
+			return
 		}
 		s.RelationalModels[name] = model
 		// much stutter here

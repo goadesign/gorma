@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/goadesign/goa"
 	"github.com/goadesign/gorma/example/app"
+	"github.com/jinzhu/gorm"
 )
 
 // UserController implements theuser resource.
@@ -33,7 +34,12 @@ func (c *UserController) List(ctx *app.ListUserContext) error {
 
 // Show runs the show action.
 func (c *UserController) Show(ctx *app.ShowUserContext) error {
-	user := udb.OneUser(ctx.Context, ctx.UserID)
+	user, err := udb.OneUser(ctx.Context, ctx.UserID)
+	if err == gorm.RecordNotFound {
+		return ctx.NotFound()
+	} else if err != nil {
+		return ctx.Respond(500, err.Error)
+	}
 	return ctx.OK(user)
 }
 

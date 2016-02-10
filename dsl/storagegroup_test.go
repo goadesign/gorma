@@ -6,6 +6,7 @@ import (
 
 	. "github.com/goadesign/goa/design"
 	. "github.com/goadesign/goa/design/apidsl"
+	"github.com/goadesign/goa/dslengine"
 	. "github.com/goadesign/goa/dslengine"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -16,6 +17,7 @@ var _ = Describe("StorageGroup", func() {
 	var dsl func()
 
 	BeforeEach(func() {
+		dslengine.Roots = []dslengine.Root{}
 		Design = nil
 		Errors = nil
 		name = "mysql"
@@ -62,7 +64,7 @@ var _ = Describe("StorageGroup", func() {
 
 		It("return an error", func() {
 			gdsl.StorageGroup("news", dsl)
-			Ω(Errors).Should(HaveOccurred())
+			Ω(Errors).Should(Not(HaveOccurred()))
 		})
 	})
 

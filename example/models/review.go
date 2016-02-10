@@ -29,8 +29,8 @@ type Review struct {
 	CreatedAt  time.Time  // timestamp
 	UpdatedAt  time.Time  // timestamp
 	DeletedAt  *time.Time // nullable timestamp (soft delete)
-	User       User
 	Proposal   Proposal
+	User       User
 }
 
 // TableName overrides the table name settings in Gorm to force a specific table name
@@ -67,10 +67,11 @@ type ReviewStorage interface {
 	Update(ctx *goa.Context, review *Review) error
 	Delete(ctx *goa.Context, id int) error
 
-	// v1 I don't remember why I put this here.  Don't delete until I remember.  What versioned things might we add to the Interface?
+	ListAppReview(ctx *goa.Context, proposalid int, userid int) []*app.Review
+	OneReview(ctx *goa.Context, id int, proposalid int, userid int) (*app.Review, error)
 
-	// v1 I don't remember why I put this here.  Don't delete until I remember.  What versioned things might we add to the Interface?
-
+	ListAppReviewLink(ctx *goa.Context, proposalid int, userid int) []*app.ReviewLink
+	OneReviewLink(ctx *goa.Context, id int, proposalid int, userid int) (*app.ReviewLink, error)
 }
 
 // TableName overrides the table name settings in Gorm to force a specific table name

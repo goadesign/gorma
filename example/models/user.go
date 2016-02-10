@@ -32,8 +32,8 @@ type User struct {
 	Reviews   []Review   // has many Reviews
 	State     *string
 	UpdatedAt time.Time  // timestamp
-	DeletedAt *time.Time // nullable timestamp (soft delete)
 	CreatedAt time.Time  // timestamp
+	DeletedAt *time.Time // nullable timestamp (soft delete)
 }
 
 // TableName overrides the table name settings in Gorm to force a specific table name
@@ -158,26 +158,26 @@ func (m *UserDB) Delete(ctx *goa.Context, id int) error {
 
 func UserFromCreateUserPayload(payload *app.CreateUserPayload) *User {
 	user := &User{}
-	user.City = payload.City
+	user.Country = payload.Country
+	user.State = payload.State
 	user.Lastname = payload.Lastname
 	user.Bio = payload.Bio
-	user.Country = payload.Country
+	user.City = payload.City
 	user.Email = payload.Email
 	user.Firstname = payload.Firstname
-	user.State = payload.State
 
 	return user
 }
 
 func UserFromUpdateUserPayload(payload *app.UpdateUserPayload) *User {
 	user := &User{}
-	user.Firstname = *payload.Firstname
-	user.State = payload.State
 	user.Bio = payload.Bio
-	user.Country = payload.Country
-	user.Email = payload.Email
 	user.City = payload.City
+	user.Email = payload.Email
+	user.Firstname = *payload.Firstname
 	user.Lastname = *payload.Lastname
+	user.Country = payload.Country
+	user.State = payload.State
 
 	return user
 }

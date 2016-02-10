@@ -86,7 +86,6 @@ var Login = MediaType("application/vnd.login+json", func() {
 
 // Review is the review resource mediatype
 var Review = MediaType("application/vnd.review+json", func() {
-	APIVersion("v1")
 	Description("A review is submitted by a reviewer")
 	Reference(ReviewPayload)
 	Attributes(func() {
@@ -109,7 +108,6 @@ var Review = MediaType("application/vnd.review+json", func() {
 
 // Proposal is the proposal resource mediatype
 var Proposal = MediaType("application/vnd.proposal+json", func() {
-	APIVersion("v1")
 	Description("A response to a CFP")
 	Reference(ProposalPayload)
 	Attributes(func() {

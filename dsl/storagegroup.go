@@ -19,9 +19,12 @@ func StorageGroup(name string, dsli func()) *gorma.StorageGroupDefinition {
 	if name == "" {
 		dslengine.ReportError("Storage Group name cannot be empty")
 	}
-	//if gorma.GormaDesign != nil {
-	//	dslengine.ReportError("Only one StorageGroup is allowed")
-	//}
+
+	if gorma.GormaDesign != nil {
+		if gorma.GormaDesign.Name == name {
+			dslengine.ReportError("Only one StorageGroup is allowed")
+		}
+	}
 	gorma.GormaDesign.Name = name
 	gorma.GormaDesign.RelationalStores = make(map[string]*gorma.RelationalStoreDefinition)
 	gorma.GormaDesign.DefinitionDSL = dsli

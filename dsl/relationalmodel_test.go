@@ -13,7 +13,7 @@ import (
 
 var _ = Describe("RelationalModel", func() {
 	var sgname, storename, name string
-	var dsl func()
+	var dsl, storedsl, modeldsl func()
 	var RandomPayload *UserTypeDefinition
 	var ChildPayload *UserTypeDefinition
 	var HasOnePayload *UserTypeDefinition
@@ -23,14 +23,17 @@ var _ = Describe("RelationalModel", func() {
 	var TestResource *ResourceDefinition
 
 	BeforeEach(func() {
+		Roots = []Root{}
 		Design = nil
 		Errors = nil
 		sgname = "production"
 		dsl = nil
 		storename = "mysql"
 		name = ""
+		modeldsl = nil
 		gorma.GormaDesign = nil
 		InitDesign()
+
 		TestResource = Resource("testresource", func() {
 			BasePath("/tests")
 			Action("create", func() {
@@ -83,30 +86,31 @@ var _ = Describe("RelationalModel", func() {
 	})
 
 	JustBeforeEach(func() {
-		gdsl.StorageGroup(sgname, func() {
-			gdsl.Store(storename, gorma.MySQL, func() {
-				gdsl.Model(name, dsl)
-				gdsl.Model("Child", func() {
-					gdsl.BuildsFrom(func() {
-						gdsl.Payload("testresource", "create")
-					})
-					gdsl.RendersTo(ChildMedia)
-					gdsl.BelongsTo(name)
+		storedsl = func() {
+			gdsl.Model(name, dsl)
+			gdsl.Model("Child", func() {
+				gdsl.BuildsFrom(func() {
+					gdsl.Payload("testresource", "create")
 				})
-				gdsl.Model("One", func() {
-					gdsl.BuildsFrom(func() {
-						gdsl.Payload("testresource", "create")
-					})
-					gdsl.HasOne("Child")
-				})
-				gdsl.Model("Many", func() {
-					gdsl.BuildsFrom(func() {
-						gdsl.Payload("testresource", "update")
-					})
-					gdsl.HasMany("Children", "Child")
-				})
-
+				gdsl.RendersTo(ChildMedia)
+				gdsl.BelongsTo(name)
 			})
+			gdsl.Model("One", func() {
+				gdsl.BuildsFrom(func() {
+					gdsl.Payload("testresource", "create")
+				})
+				gdsl.HasOne("Child")
+			})
+			gdsl.Model("Many", func() {
+				gdsl.BuildsFrom(func() {
+					gdsl.Payload("testresource", "update")
+				})
+				gdsl.HasMany("Children", "Child")
+			})
+
+		}
+		gdsl.StorageGroup(sgname, func() {
+			gdsl.Store(storename, gorma.MySQL, storedsl)
 		})
 
 		Run()
@@ -125,18 +129,25 @@ var _ = Describe("RelationalModel", func() {
 			Ω(rs.RelationalModels[name].ModelName).Should(Equal(name))
 		})
 	})
+	Context("with an valid name", func() {
+		BeforeEach(func() {
+			name = "good"
+		})
 
+		It("does not produce an error", func() {
+			storedsl = func() {
+				gdsl.Model(name, dsl)
+			}
+			Ω(Errors).ShouldNot(HaveOccurred())
+		})
+	})
 	Context("with an already defined Relational Model with the same name", func() {
 		BeforeEach(func() {
-			name = "duplicate"
+			name = "Child"
 		})
 
 		It("produce an error", func() {
-			gdsl.StorageGroup(sgname, func() {
-				gdsl.Store(storename, gorma.MySQL, func() {
-					gdsl.Model(name, dsl)
-				})
-			})
+
 			Ω(Errors).Should(HaveOccurred())
 		})
 	})
@@ -147,12 +158,10 @@ var _ = Describe("RelationalModel", func() {
 		})
 
 		It("does not return an error", func() {
-			gdsl.StorageGroup(sgname, func() {
-				gdsl.Store(storename, gorma.MySQL, func() {
-					gdsl.Model(name, dsl)
-				})
-			})
-			Ω(Errors).Should(HaveOccurred())
+			storedsl = func() {
+				gdsl.Model(name, dsl)
+			}
+			Ω(Errors).Should(Not(HaveOccurred()))
 		})
 	})
 
@@ -240,9 +249,9 @@ var _ = Describe("RelationalModel", func() {
 			})
 
 			It("Creates a Role field", func() {
-				//	sg := gorma.GormaDesign
-				//	rs := sg.RelationalStores[storename]
-				//	Ω(rs.RelationalModels[name].Roler).Should(Equal(true))
+				sg := gorma.GormaDesign
+				rs := sg.RelationalStores[storename]
+				Ω(rs.RelationalModels[name].Roler).Should(Equal(true))
 			})
 		})
 

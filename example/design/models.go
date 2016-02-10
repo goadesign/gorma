@@ -65,5 +65,13 @@ var _ = StorageGroup("CongoStorageGroup", func() {
 			Field("updated_at", gorma.Timestamp, func() {})
 			Field("deleted_at", gorma.NullableTimestamp, func() {})
 		})
+
+		Model("Test", func() {
+			Description("TestModel")
+			NoAutomaticIDFields()
+			Field("created_at", gorma.Timestamp, func() {})
+			Field("updated_at", gorma.Timestamp, func() {})
+			Field("deleted_at", gorma.NullableTimestamp, func() {})
+		})
 	})
 })

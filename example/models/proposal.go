@@ -28,9 +28,9 @@ type Proposal struct {
 	Title     string
 	UserID    int // has many Proposal
 	Withdrawn *bool
-	DeletedAt *time.Time // nullable timestamp (soft delete)
 	CreatedAt time.Time  // timestamp
 	UpdatedAt time.Time  // timestamp
+	DeletedAt *time.Time // nullable timestamp (soft delete)
 	User      User
 }
 
@@ -68,10 +68,11 @@ type ProposalStorage interface {
 	Update(ctx *goa.Context, proposal *Proposal) error
 	Delete(ctx *goa.Context, id int) error
 
-	// v1 I don't remember why I put this here.  Don't delete until I remember.  What versioned things might we add to the Interface?
+	ListAppProposal(ctx *goa.Context, userid int) []*app.Proposal
+	OneProposal(ctx *goa.Context, id int, userid int) (*app.Proposal, error)
 
-	// v1 I don't remember why I put this here.  Don't delete until I remember.  What versioned things might we add to the Interface?
-
+	ListAppProposalLink(ctx *goa.Context, userid int) []*app.ProposalLink
+	OneProposalLink(ctx *goa.Context, id int, userid int) (*app.ProposalLink, error)
 }
 
 // TableName overrides the table name settings in Gorm to force a specific table name
@@ -169,20 +170,20 @@ func (m *ProposalDB) Delete(ctx *goa.Context, id int) error {
 
 func ProposalFromCreateProposalPayload(payload *app.CreateProposalPayload) *Proposal {
 	proposal := &Proposal{}
-	proposal.Withdrawn = payload.Withdrawn
 	proposal.Title = payload.Title
 	proposal.Abstract = payload.Abstract
 	proposal.Detail = payload.Detail
+	proposal.Withdrawn = payload.Withdrawn
 
 	return proposal
 }
 
 func ProposalFromUpdateProposalPayload(payload *app.UpdateProposalPayload) *Proposal {
 	proposal := &Proposal{}
-	proposal.Withdrawn = payload.Withdrawn
 	proposal.Title = *payload.Title
 	proposal.Abstract = *payload.Abstract
 	proposal.Detail = *payload.Detail
+	proposal.Withdrawn = payload.Withdrawn
 
 	return proposal
 }

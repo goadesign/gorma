@@ -13,17 +13,17 @@ package models
 
 import (
 	"github.com/goadesign/goa"
+	"github.com/goadesign/gorma/example/app"
 	"github.com/jinzhu/gorm"
 	"time"
 )
 
-// v1
 // MediaType Retrieval Functions
 // ListProposal returns an array of view: default
-func (m *ProposalDB) ListV1Proposal(ctx *goa.Context, userid int) []*v1.Proposal {
+func (m *ProposalDB) ListAppProposal(ctx *goa.Context, userid int) []*app.Proposal {
 	now := time.Now()
 	defer ctx.Info("ListProposal", "duration", time.Since(now))
-	var objs []*v1.Proposal
+	var objs []*app.Proposal
 	err := m.Db.Scopes(ProposalFilterByUser(userid, &m.Db)).Table(m.TableName()).Find(&objs).Error
 
 	//	err := m.Db.Table(m.TableName()).Find(&objs).Error
@@ -35,18 +35,18 @@ func (m *ProposalDB) ListV1Proposal(ctx *goa.Context, userid int) []*v1.Proposal
 	return objs
 }
 
-func (m *Proposal) ProposalToV1Proposal() *v1.Proposal {
-	proposal := &v1.Proposal{}
+func (m *Proposal) ProposalToAppProposal() *app.Proposal {
+	proposal := &app.Proposal{}
 	proposal.Title = &m.Title
 	proposal.Abstract = &m.Abstract
-	proposal.Detail = &m.Detail
 	proposal.ID = &m.ID
+	proposal.Detail = &m.Detail
 
 	return proposal
 }
 
-// OneV1Proposal returns an array of view: default
-func (m *ProposalDB) OneProposal(ctx *goa.Context, id int, userid int) (*v1.Proposal, error) {
+// OneAppProposal returns an array of view: default
+func (m *ProposalDB) OneProposal(ctx *goa.Context, id int, userid int) (*app.Proposal, error) {
 	now := time.Now()
 	var native Proposal
 	defer ctx.Info("OneProposal", "duration", time.Since(now))
@@ -57,18 +57,17 @@ func (m *ProposalDB) OneProposal(ctx *goa.Context, id int, userid int) (*v1.Prop
 		return nil, err
 	}
 
-	view := *native.ProposalToV1Proposal()
+	view := *native.ProposalToAppProposal()
 	return &view, err
 
 }
 
-// v1
 // MediaType Retrieval Functions
 // ListProposalLink returns an array of view: link
-func (m *ProposalDB) ListV1ProposalLink(ctx *goa.Context, userid int) []*v1.ProposalLink {
+func (m *ProposalDB) ListAppProposalLink(ctx *goa.Context, userid int) []*app.ProposalLink {
 	now := time.Now()
 	defer ctx.Info("ListProposalLink", "duration", time.Since(now))
-	var objs []*v1.ProposalLink
+	var objs []*app.ProposalLink
 	err := m.Db.Scopes(ProposalFilterByUser(userid, &m.Db)).Table(m.TableName()).Find(&objs).Error
 
 	//	err := m.Db.Table(m.TableName()).Find(&objs).Error
@@ -80,16 +79,16 @@ func (m *ProposalDB) ListV1ProposalLink(ctx *goa.Context, userid int) []*v1.Prop
 	return objs
 }
 
-func (m *Proposal) ProposalToV1ProposalLink() *v1.ProposalLink {
-	proposal := &v1.ProposalLink{}
+func (m *Proposal) ProposalToAppProposalLink() *app.ProposalLink {
+	proposal := &app.ProposalLink{}
 	proposal.ID = &m.ID
 	proposal.Title = &m.Title
 
 	return proposal
 }
 
-// OneV1ProposalLink returns an array of view: link
-func (m *ProposalDB) OneProposalLink(ctx *goa.Context, id int, userid int) (*v1.ProposalLink, error) {
+// OneAppProposalLink returns an array of view: link
+func (m *ProposalDB) OneProposalLink(ctx *goa.Context, id int, userid int) (*app.ProposalLink, error) {
 	now := time.Now()
 	var native Proposal
 	defer ctx.Info("OneProposalLink", "duration", time.Since(now))
@@ -100,7 +99,7 @@ func (m *ProposalDB) OneProposalLink(ctx *goa.Context, id int, userid int) (*v1.
 		return nil, err
 	}
 
-	view := *native.ProposalToV1ProposalLink()
+	view := *native.ProposalToAppProposalLink()
 	return &view, err
 
 }

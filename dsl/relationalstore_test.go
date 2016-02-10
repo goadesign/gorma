@@ -13,15 +13,20 @@ import (
 
 var _ = Describe("RelationalStore", func() {
 	var sgname, name string
-	var dsl func()
+	var storetype gorma.RelationalStorageType
+	var dsl, storedsl func()
+	var store *gorma.RelationalStoreDefinition
 
 	BeforeEach(func() {
+		Roots = []Root{}
 		Design = nil
 		Errors = nil
 		sgname = "production"
+		storedsl = nil
 		dsl = nil
 		name = ""
 		gorma.GormaDesign = nil
+		Errors = nil
 		InitDesign()
 
 	})
@@ -29,22 +34,35 @@ var _ = Describe("RelationalStore", func() {
 	JustBeforeEach(func() {
 
 		gdsl.StorageGroup(sgname, func() {
-			gdsl.Store(name, gorma.MySQL, dsl)
+			gdsl.Store(name, storetype, dsl)
 		})
 
 		Run()
 
+		store = gorma.GormaDesign.RelationalStores[name]
 	})
 
-	Context("with no DSL", func() {
+	Context("with no name", func() {
+		BeforeEach(func() {
+			name = ""
+		})
+
+		It("does not produce a valid Relational Store definition", func() {
+			Ω(Design.Validate()).ShouldNot(HaveOccurred())
+			sg := gorma.GormaDesign
+			Ω(len(sg.RelationalStores)).Should(Equal(0))
+		})
+	})
+
+	Context("with no DSL and no type", func() {
 		BeforeEach(func() {
 			name = "mysql"
 		})
 
-		It("produces a valid Relational Store definition", func() {
+		It("does not produce a valid Relational Store definition", func() {
 			Ω(Design.Validate()).ShouldNot(HaveOccurred())
 			sg := gorma.GormaDesign
-			Ω(sg.RelationalStores[name].Name).Should(Equal(name))
+			Ω(len(sg.RelationalStores)).Should(Equal(0))
 		})
 	})
 
@@ -53,22 +71,27 @@ var _ = Describe("RelationalStore", func() {
 			name = "mysql"
 		})
 
-		It("does not produce an error", func() {
+		It("produce an error", func() {
 			gdsl.StorageGroup(sgname, func() {
 				gdsl.Store(name, gorma.MySQL, dsl)
 			})
 			Ω(Errors).Should(HaveOccurred())
 		})
 	})
-
 	Context("with an already defined Relational Store with a different name", func() {
 		BeforeEach(func() {
 			sgname = "mysql"
+			storetype = gorma.Postgres
+			name = "model"
+			dsl = func() {}
+			storedsl = func() {
+				gdsl.Store("media", gorma.MySQL, dsl)
+			}
 		})
 
 		It("doesn't return an error", func() {
-			gdsl.StorageGroup("news", dsl)
-			Ω(Errors).Should(HaveOccurred())
+			gdsl.StorageGroup("news", storedsl)
+			Ω(Errors).Should(Not(HaveOccurred()))
 		})
 	})
 
@@ -105,6 +128,7 @@ var _ = Describe("RelationalStore", func() {
 				Ω(sg.RelationalStores[name].NoAutoSoftDelete).Should(Equal(false))
 			})
 		})
+
 		Context("with NoAutomaticIDFields", func() {
 			BeforeEach(func() {
 				name = "mysql"
@@ -126,6 +150,7 @@ var _ = Describe("RelationalStore", func() {
 				Ω(sg.RelationalStores[name].NoAutoSoftDelete).Should(Equal(false))
 			})
 		})
+
 		Context("with NoAutomaticTimestamps", func() {
 			BeforeEach(func() {
 				name = "mysql"
@@ -147,27 +172,7 @@ var _ = Describe("RelationalStore", func() {
 				Ω(sg.RelationalStores[name].NoAutoSoftDelete).Should(Equal(false))
 			})
 		})
-		Context("with NoAutomaticSoftDelete", func() {
-			BeforeEach(func() {
-				name = "mysql"
-				dsl = func() {
-					gdsl.NoAutomaticSoftDelete()
-				}
-			})
-
-			It("auto id generation should be on", func() {
-				sg := gorma.GormaDesign
-				Ω(sg.RelationalStores[name].NoAutoIDFields).Should(Equal(false))
-			})
-			It("auto timestamps should be on", func() {
-				sg := gorma.GormaDesign
-				Ω(sg.RelationalStores[name].NoAutoTimestamps).Should(Equal(false))
-			})
-			It("auto soft delete should be off", func() {
-				sg := gorma.GormaDesign
-				Ω(sg.RelationalStores[name].NoAutoSoftDelete).Should(Equal(true))
-			})
-		})
 
 	})
+
 })
