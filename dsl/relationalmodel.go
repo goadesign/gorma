@@ -336,11 +336,11 @@ func Cached(d string) {
 func Roler() {
 	if r, ok := relationalModelDefinition(false); ok {
 		r.Roler = true
-		if f, ok := r.RelationalFields["Role"]; !ok {
+		if _, ok := r.RelationalFields["Role"]; !ok {
 			field := gorma.NewRelationalFieldDefinition()
 			field.FieldName = "Role"
 			field.Datatype = gorma.String
-			r.RelationalFields["Role"] = f
+			r.RelationalFields["Role"] = field
 		}
 	}
 }

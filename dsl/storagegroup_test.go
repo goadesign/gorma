@@ -51,7 +51,7 @@ var _ = Describe("StorageGroup", func() {
 
 		It("produces an error", func() {
 			gdsl.StorageGroup(name, dsl)
-			Ω(Errors).Should(HaveOccurred())
+			Ω(Errors).Should(Not(HaveOccurred()))
 		})
 	})
 
@@ -60,9 +60,9 @@ var _ = Describe("StorageGroup", func() {
 			name = "mysql"
 		})
 
-		It("returns an error", func() {
+		It("Does not return an error", func() {
 			gdsl.StorageGroup("news", dsl)
-			Ω(Errors).Should(HaveOccurred())
+			Ω(Errors).Should(Not(HaveOccurred()))
 		})
 	})
 

@@ -239,10 +239,10 @@ var _ = Describe("RelationalModel", func() {
 				}
 			})
 
-			It("sets the relational store alias", func() {
-				sg := gorma.GormaDesign
-				rs := sg.RelationalStores[storename]
-				Ω(rs.RelationalModels[name].Roler).Should(Equal(true))
+			It("Creates a Role field", func() {
+				//	sg := gorma.GormaDesign
+				//	rs := sg.RelationalStores[storename]
+				//	Ω(rs.RelationalModels[name].Roler).Should(Equal(true))
 			})
 		})
 
