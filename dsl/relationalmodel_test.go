@@ -41,6 +41,14 @@ var _ = Describe("RelationalModel", func() {
 					Required("first_name")
 				})
 			})
+			Action("update", func() {
+				Routing(
+					POST(""),
+				)
+				Payload(HasManyPayload, func() {
+					Required("first_name")
+				})
+			})
 
 		})
 
@@ -92,7 +100,9 @@ var _ = Describe("RelationalModel", func() {
 					gdsl.HasOne("Child")
 				})
 				gdsl.Model("Many", func() {
-					//gdsl.BuildsFrom(HasManyPayload)
+					gdsl.BuildsFrom(func() {
+						gdsl.Payload("testresource", "update")
+					})
 					gdsl.HasMany("Children", "Child")
 				})
 
