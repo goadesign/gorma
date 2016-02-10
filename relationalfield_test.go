@@ -53,7 +53,7 @@ func TestFieldDefinitions(t *testing.T) {
 		many2many   string
 		expected    string
 	}{
-		{"id", gorma.PKInteger, "description", false, "", "", "", "", "ID\tint  // description\n"},
+		{"id", gorma.Integer, "description", false, "", "", "", "", "ID\tint  // description\n"},
 		{"name", gorma.String, "name", true, "", "", "", "", "Name\t*string  // name\n"},
 		{"user", gorma.HasOne, "has one", false, "", "", "User", "", "User\tUser  // has one\n"},
 		{"user_id", gorma.BelongsTo, "belongs to", false, "", "", "", "", "UserID\tint  // belongs to\n"},
