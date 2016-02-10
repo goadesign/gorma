@@ -61,9 +61,9 @@ const (
 	BelongsTo FieldType = "belongsto"
 )
 
-// Init creates the necessary data structures for parsing a DSL
+// Init creates the necessary data structures for parsing a DSL.
 // Should not be called directly, but instead is called
-// by many of the DSL functions to ensure that the design is initialized
+// by many of the DSL functions to ensure that the design is initialized.
 func Init() {
 	sg := NewStorageGroupDefinition()
 	dslengine.Roots = append(dslengine.Roots, sg)

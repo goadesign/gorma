@@ -10,7 +10,7 @@ import (
 )
 
 // NewRelationalFieldDefinition returns an initialized
-// RelationalFieldDefinition
+// RelationalFieldDefinition.
 func NewRelationalFieldDefinition() *RelationalFieldDefinition {
 	m := &RelationalFieldDefinition{
 		Mappings: make(map[string]*MapDefinition),
@@ -26,25 +26,24 @@ func (f *RelationalFieldDefinition) Context() string {
 	return "unnamed RelationalField"
 }
 
-// DSL returns this object's DSL
+// DSL returns this object's DSL.
 func (f *RelationalFieldDefinition) DSL() func() {
 	return f.DefinitionDSL
 }
 
-// Children returnsa slice of this objects children
+// Children returns a slice of this objects children.
 func (f RelationalFieldDefinition) Children() []dslengine.Definition {
 	// no children yet
 	return []dslengine.Definition{}
 }
 
 // Attribute implements the Container interface of the goa Attribute
-// model
+// model.
 func (f *RelationalFieldDefinition) Attribute() *design.AttributeDefinition {
 	return f.a
-
 }
 
-// FieldDefinition returns the field's struct definition
+// FieldDefinition returns the field's struct definition.
 func (f *RelationalFieldDefinition) FieldDefinition() string {
 	var comment string
 	if f.Description != "" {
@@ -54,7 +53,7 @@ func (f *RelationalFieldDefinition) FieldDefinition() string {
 	return def
 }
 
-// Tags returns the sql and gorm struct tags for the Definition
+// Tags returns the sql and gorm struct tags for the Definition.
 func (f *RelationalFieldDefinition) Tags() string {
 	return tags(f)
 }
@@ -64,7 +63,7 @@ func (f *RelationalFieldDefinition) LowerName() string {
 	return strings.ToLower(f.FieldName)
 }
 
-// Underscore returns the field name as a lowercase string in snake case
+// Underscore returns the field name as a lowercase string in snake case.
 func (f *RelationalFieldDefinition) Underscore() string {
 	return inflect.Underscore(f.FieldName)
 }
