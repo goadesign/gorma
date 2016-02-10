@@ -13,6 +13,7 @@ package models
 
 import (
 	"github.com/goadesign/goa"
+	"github.com/goadesign/gorma/example/app"
 	"github.com/jinzhu/gorm"
 	log "gopkg.in/inconshreveable/log15.v2"
 	"time"
@@ -23,11 +24,11 @@ type Review struct {
 	ID         int `gorm:"primary_key"` // This is the Review Model PK field
 	Comment    *string
 	ProposalID int // Belongs To Proposal
-	Rating     *int
+	Rating     int
 	UserID     int        // has many Review
+	DeletedAt  *time.Time // nullable timestamp (soft delete)
 	CreatedAt  time.Time  // timestamp
 	UpdatedAt  time.Time  // timestamp
-	DeletedAt  *time.Time // nullable timestamp (soft delete)
 	User       User
 	Proposal   Proposal
 }
@@ -60,11 +61,16 @@ func (m *ReviewDB) DB() interface{} {
 // ReviewStorage represents the storage interface.
 type ReviewStorage interface {
 	DB() interface{}
-	List(ctx goa.Context) []Review
-	Get(ctx goa.Context, id int) (Review, error)
-	Add(ctx goa.Context, review *Review) (Review, error)
-	Update(ctx goa.Context, review *Review) error
-	Delete(ctx goa.Context, id int) error
+	List(ctx *goa.Context) []Review
+	Get(ctx *goa.Context, id int) (Review, error)
+	Add(ctx *goa.Context, review *Review) (*Review, error)
+	Update(ctx *goa.Context, review *Review) error
+	Delete(ctx *goa.Context, id int) error
+
+	// v1
+
+	// v1
+
 }
 
 // TableName overrides the table name settings in Gorm to force a specific table name
@@ -106,13 +112,16 @@ func ReviewFilterByUser(userid int, originaldb *gorm.DB) func(db *gorm.DB) *gorm
 
 // Get returns a single Review as a Database Model
 // This is more for use internally, and probably not what you want in  your controllers
-func (m *ReviewDB) Get(ctx *goa.Context, id int) Review {
+func (m *ReviewDB) Get(ctx *goa.Context, id int) (Review, error) {
 	now := time.Now()
 	defer ctx.Info("Review:Get", "duration", time.Since(now))
 	var native Review
-	m.Db.Table(m.TableName()).Where("id = ?", id).Find(&native)
+	err := m.Db.Table(m.TableName()).Where("id = ?", id).Find(&native).Error
+	if err == gorm.RecordNotFound {
+		return Review{}, nil
+	}
 
-	return native
+	return native, err
 }
 
 // List returns an array of Review
@@ -121,7 +130,7 @@ func (m *ReviewDB) List(ctx *goa.Context) []Review {
 	defer ctx.Info("Review:List", "duration", time.Since(now))
 	var objs []Review
 	err := m.Db.Table(m.TableName()).Find(&objs).Error
-	if err != nil {
+	if err != nil && err != gorm.RecordNotFound {
 		ctx.Error("error listing Review", "error", err.Error())
 		return objs
 	}
@@ -129,11 +138,11 @@ func (m *ReviewDB) List(ctx *goa.Context) []Review {
 	return objs
 }
 
-// Add creates a new record.
-func (m *ReviewDB) Add(ctx *goa.Context, model Review) (Review, error) {
+// Add creates a new record.  /// Maybe shouldn't return the model, it's a pointer.
+func (m *ReviewDB) Add(ctx *goa.Context, model *Review) (*Review, error) {
 	now := time.Now()
 	defer ctx.Info("Review:Add", "duration", time.Since(now))
-	err := m.Db.Create(&model).Error
+	err := m.Db.Create(model).Error
 	if err != nil {
 		ctx.Error("error updating Review", "error", err.Error())
 		return model, err
@@ -143,11 +152,14 @@ func (m *ReviewDB) Add(ctx *goa.Context, model Review) (Review, error) {
 }
 
 // Update modifies a single record.
-func (m *ReviewDB) Update(ctx *goa.Context, model Review) error {
+func (m *ReviewDB) Update(ctx *goa.Context, model *Review) error {
 	now := time.Now()
 	defer ctx.Info("Review:Update", "duration", time.Since(now))
-	obj := m.Get(ctx, model.ID)
-	err := m.Db.Model(&obj).Updates(model).Error
+	obj, err := m.Get(ctx, model.ID)
+	if err != nil {
+		return err
+	}
+	err = m.Db.Model(&obj).Updates(model).Error
 
 	return err
 }
@@ -166,4 +178,20 @@ func (m *ReviewDB) Delete(ctx *goa.Context, id int) error {
 	}
 
 	return nil
+}
+
+func ReviewFromCreateReviewPayload(payload *app.CreateReviewPayload) *Review {
+	review := &Review{}
+	review.Comment = payload.Comment
+	review.Rating = payload.Rating
+
+	return review
+}
+
+func ReviewFromUpdateReviewPayload(payload *app.UpdateReviewPayload) *Review {
+	review := &Review{}
+	review.Comment = payload.Comment
+	review.Rating = *payload.Rating
+
+	return review
 }

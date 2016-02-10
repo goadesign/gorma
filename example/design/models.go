@@ -15,7 +15,7 @@ var _ = StorageGroup("CongoStorageGroup", func() {
 				Payload("user", "update")
 			})
 			RendersTo(User)
-			Description("User Model")
+			Description("User Model Description")
 			HasMany("Reviews", "Review")
 			HasMany("Proposals", "Proposal")
 			Field("id", gorma.PKInteger, func() {

@@ -40,11 +40,9 @@ type (
 
 func fieldAssignmentPayloadToModel(model *RelationalModelDefinition, ut *design.UserTypeDefinition, verpkg, v, mtype, utype string) string {
 	//utPackage := "app"
-	fmt.Println("Model: ", model.ModelName)
 	var fieldAssignments []string
 	// type.Field = model.Field
 	for fname, field := range model.RelationalFields {
-		fmt.Println("\tcomparing field", fname)
 
 		var mpointer, upointer bool
 		mpointer = field.Nullable
@@ -56,12 +54,9 @@ func fieldAssignmentPayloadToModel(model *RelationalModelDefinition, ut *design.
 		}
 
 		for key := range obj {
-			fmt.Println("\t\tto field", key)
 			gfield := obj[key]
 
-			fmt.Println("\t\t", fname, field.Underscore(), field.DatabaseFieldName, key)
 			if field.Underscore() == key || field.DatabaseFieldName == key {
-				fmt.Println("\t\t\tMatched ", fname, key)
 				// this is our field
 				if gfield.Type.IsObject() || definition.IsPrimitivePointer(key) {
 					upointer = true
@@ -86,7 +81,6 @@ func fieldAssignmentPayloadToModel(model *RelationalModelDefinition, ut *design.
 			}
 		}
 	}
-	fmt.Println("\t\t\t\t", fieldAssignments)
 	return strings.Join(fieldAssignments, "\n")
 }
 
@@ -378,7 +372,7 @@ List{{$vpn}}{{$rmt.TypeName}}{{if eq $vname "default"}}{{else}}{{goify $vname tr
 One{{$rmt.TypeName}}{{if eq $vname "default"}}{{else}}{{goify $vname true}}{{end}} (ctx *goa.Context{{ if $ut.DynamicTableName}}, tableName string{{ end }}, id int{{range $nm, $bt := $ut.BelongsTo}},{{goify $bt.ModelName false}}id int{{end}}) (*{{goify $vpn false}}.{{$rmt.TypeName}}{{if eq $vname "default"}}{{else}}{{goify $vname true}}{{end}}, error)
 {{ end }}
 {{ range $version :=  $rmt.Versions }} {{$vp := vp $version}}{{$vpn := goify $vp true}}
-// {{$version}}  
+// {{$version}} I don't remember why I put this here.  Don't delete until I remember.  What versioned things might we add to the Interface? 
 {{end}}{{end}}{{end}}
 }
 

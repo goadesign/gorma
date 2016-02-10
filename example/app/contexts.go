@@ -379,12 +379,12 @@ func (payload *UpdateUserPayload) Validate() (err error) {
 	return
 }
 
-// NoContent sends a HTTP response with status code 204.
-func (ctx *UpdateUserContext) NoContent() error {
-	return ctx.RespondBytes(204, nil)
-}
-
 // NotFound sends a HTTP response with status code 404.
 func (ctx *UpdateUserContext) NotFound() error {
 	return ctx.RespondBytes(404, nil)
+}
+
+// NoContent sends a HTTP response with status code 204.
+func (ctx *UpdateUserContext) NoContent() error {
+	return ctx.RespondBytes(204, nil)
 }

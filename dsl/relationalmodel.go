@@ -315,6 +315,7 @@ func Alias(d string) {
 	if r, ok := relationalModelDefinition(false); ok {
 		r.Alias = d
 	} else if f, ok := relationalFieldDefinition(false); ok {
+		fmt.Println("alias field ", d)
 		f.Alias = d
 	}
 }

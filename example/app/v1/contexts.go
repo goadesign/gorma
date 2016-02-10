@@ -129,14 +129,14 @@ func NewDeleteProposalContext(c *goa.Context) (*DeleteProposalContext, error) {
 	return &ctx, err
 }
 
-// NoContent sends a HTTP response with status code 204.
-func (ctx *DeleteProposalContext) NoContent() error {
-	return ctx.RespondBytes(204, nil)
-}
-
 // NotFound sends a HTTP response with status code 404.
 func (ctx *DeleteProposalContext) NotFound() error {
 	return ctx.RespondBytes(404, nil)
+}
+
+// NoContent sends a HTTP response with status code 204.
+func (ctx *DeleteProposalContext) NoContent() error {
+	return ctx.RespondBytes(204, nil)
 }
 
 // ListProposalContext provides the proposal list action context.

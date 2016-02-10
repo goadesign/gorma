@@ -19,6 +19,9 @@ var _ = Describe("RelationalModel", func() {
 	var HasOnePayload *UserTypeDefinition
 	var HasManyPayload *UserTypeDefinition
 	var ChildMedia *MediaTypeDefinition
+
+	var TestResource *ResourceDefinition
+
 	BeforeEach(func() {
 		Design = nil
 		Errors = nil
@@ -28,6 +31,18 @@ var _ = Describe("RelationalModel", func() {
 		name = ""
 		gorma.GormaDesign = nil
 		InitDesign()
+		TestResource = Resource("testresource", func() {
+			BasePath("/tests")
+			Action("create", func() {
+				Routing(
+					POST(""),
+				)
+				Payload(ChildPayload, func() {
+					Required("first_name")
+				})
+			})
+
+		})
 
 		RandomPayload = Type("RandomPayload", func() {
 			Attribute("first_name", String)
@@ -64,16 +79,20 @@ var _ = Describe("RelationalModel", func() {
 			gdsl.Store(storename, gorma.MySQL, func() {
 				gdsl.Model(name, dsl)
 				gdsl.Model("Child", func() {
-					gdsl.BuildsFrom(ChildPayload)
+					gdsl.BuildsFrom(func() {
+						gdsl.Payload("test", "create")
+					})
 					gdsl.RendersTo(ChildMedia)
 					gdsl.BelongsTo(name)
 				})
 				gdsl.Model("One", func() {
-					gdsl.BuildsFrom(HasOnePayload)
+					gdsl.BuildsFrom(func() {
+						gdsl.Payload("test", "create")
+					})
 					gdsl.HasOne("Child")
 				})
 				gdsl.Model("Many", func() {
-					gdsl.BuildsFrom(HasManyPayload)
+					//gdsl.BuildsFrom(HasManyPayload)
 					gdsl.HasMany("Children", "Child")
 				})
 
@@ -143,7 +162,7 @@ var _ = Describe("RelationalModel", func() {
 				}
 			})
 
-			It("sets the relational store description", func() {
+			It("sets the relational model description", func() {
 				sg := gorma.GormaDesign
 				rs := sg.RelationalStores[storename]
 				Ω(rs.RelationalModels[name].Description).Should(Equal(description))
@@ -387,15 +406,15 @@ var _ = Describe("RelationalModel with auto fields enabled and auto fields set i
 			gdsl.Store(storename, gorma.MySQL, func() {
 				gdsl.Model(name, dsl)
 				gdsl.Model("Child", func() {
-					gdsl.BuildsFrom(ChildPayload)
+					//		gdsl.BuildsFrom(ChildPayload)
 					gdsl.BelongsTo(name)
 				})
 				gdsl.Model("One", func() {
-					gdsl.BuildsFrom(HasOnePayload)
+					//		gdsl.BuildsFrom(HasOnePayload)
 					gdsl.HasOne("Child")
 				})
 				gdsl.Model("Many", func() {
-					gdsl.BuildsFrom(HasManyPayload)
+					//		gdsl.BuildsFrom(HasManyPayload)
 					gdsl.HasMany("Children", "Child")
 				})
 
@@ -480,15 +499,15 @@ var _ = Describe("RelationalModel with auto fields explicitly enabled", func() {
 			gdsl.Store(storename, gorma.MySQL, func() {
 				gdsl.Model(name, dsl)
 				gdsl.Model("Child", func() {
-					gdsl.BuildsFrom(ChildPayload)
+					//		gdsl.BuildsFrom(ChildPayload)
 					gdsl.BelongsTo(name)
 				})
 				gdsl.Model("One", func() {
-					gdsl.BuildsFrom(HasOnePayload)
+					//		gdsl.BuildsFrom(HasOnePayload)
 					gdsl.HasOne("Child")
 				})
 				gdsl.Model("Many", func() {
-					gdsl.BuildsFrom(HasManyPayload)
+					//		gdsl.BuildsFrom(HasManyPayload)
 					gdsl.HasMany("Children", "Child")
 				})
 
@@ -570,15 +589,15 @@ var _ = Describe("RelationalModel with auto fields disabled", func() {
 				gdsl.NoAutomaticSoftDelete()
 				gdsl.Model(name, dsl)
 				gdsl.Model("Child", func() {
-					gdsl.BuildsFrom(ChildPayload)
+					//		gdsl.BuildsFrom(ChildPayload)
 					gdsl.BelongsTo(name)
 				})
 				gdsl.Model("One", func() {
-					gdsl.BuildsFrom(HasOnePayload)
+					//		gdsl.BuildsFrom(HasOnePayload)
 					gdsl.HasOne("Child")
 				})
 				gdsl.Model("Many", func() {
-					gdsl.BuildsFrom(HasManyPayload)
+					//		gdsl.BuildsFrom(HasManyPayload)
 					gdsl.HasMany("Children", "Child")
 				})
 
@@ -657,15 +676,15 @@ var _ = Describe("RelationalModel with auto fields unset", func() {
 			gdsl.Store(storename, gorma.MySQL, func() {
 				gdsl.Model(name, dsl)
 				gdsl.Model("Child", func() {
-					gdsl.BuildsFrom(ChildPayload)
+					//	gdsl.BuildsFrom(ChildPayload)
 					gdsl.BelongsTo(name)
 				})
 				gdsl.Model("One", func() {
-					gdsl.BuildsFrom(HasOnePayload)
+					//		gdsl.BuildsFrom(HasOnePayload)
 					gdsl.HasOne("Child")
 				})
 				gdsl.Model("Many", func() {
-					gdsl.BuildsFrom(HasManyPayload)
+					//		gdsl.BuildsFrom(HasManyPayload)
 					gdsl.HasMany("Children", "Child")
 				})
 

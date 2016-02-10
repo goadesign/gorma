@@ -231,7 +231,33 @@ func (f *RelationalModelDefinition) PopulateFromModeledType() {
 			if ok {
 				// We already have a mapping for this field.  What to do?
 				fmt.Println("DUP mapping", f.ModelName, name)
-				return nil
+				if rf.Datatype != "" {
+					return nil
+				}
+				// we may have seen the field but don't know its type
+				// TODO(BJK) refactor this into separate func later
+				switch att.Type.Kind() {
+				case design.BooleanKind:
+					rf.Datatype = Boolean
+				case design.IntegerKind:
+					rf.Datatype = Integer
+				case design.NumberKind:
+					rf.Datatype = Decimal
+				case design.StringKind:
+					rf.Datatype = String
+				case design.DateTimeKind:
+					rf.Datatype = Timestamp
+				case design.MediaTypeKind:
+					// Embedded MediaType
+					// Skip for now?
+					return nil
+
+				default:
+					dslengine.ReportError("Unsupported type: %#v %s", att.Type.Kind(), att.Type.Name())
+				}
+				if !utd.IsRequired(name) {
+					rf.Nullable = true
+				}
 			}
 
 			rf = &RelationalFieldDefinition{}

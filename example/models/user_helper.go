@@ -14,6 +14,7 @@ package models
 import (
 	"github.com/goadesign/goa"
 	"github.com/goadesign/gorma/example/app"
+	"github.com/jinzhu/gorm"
 	"time"
 )
 
@@ -36,30 +37,32 @@ func (m *UserDB) ListAppUser(ctx *goa.Context) []*app.User {
 
 func (m *User) UserToAppUser() *app.User {
 	user := &app.User{}
-	user.Lastname = m.Lastname
-	user.State = m.State
+	user.Firstname = &m.Firstname
+	user.Lastname = &m.Lastname
 	user.ID = &m.ID
-	user.Country = m.Country
-	user.Email = m.Email
-	user.Bio = m.Bio
 	user.City = m.City
-	user.Firstname = m.Firstname
+	user.Country = m.Country
+	user.State = m.State
+	user.Bio = m.Bio
+	user.Email = &m.Email
 
 	return user
 }
 
 // OneAppUser returns an array of view: default
-func (m *UserDB) OneUser(ctx *goa.Context, id int) *app.User {
+func (m *UserDB) OneUser(ctx *goa.Context, id int) (*app.User, error) {
 	now := time.Now()
 	var native User
 	defer ctx.Info("OneUser", "duration", time.Since(now))
-	/*
-	 */
+	err := m.Db.Scopes().Table(m.TableName()).Preload("Proposals").Preload("Reviews").Where("id = ?", id).Find(&native).Error
 
-	m.Db.Scopes().Table(m.TableName()).Preload("Proposals").Preload("Reviews").Where("id = ?", id).Find(&native)
+	if err != nil && err != gorm.RecordNotFound {
+		ctx.Error("error getting User", "error", err.Error())
+		return nil, err
+	}
 
 	view := *native.UserToAppUser()
-	return &view
+	return &view, err
 
 }
 
@@ -82,23 +85,25 @@ func (m *UserDB) ListAppUserLink(ctx *goa.Context) []*app.UserLink {
 
 func (m *User) UserToAppUserLink() *app.UserLink {
 	user := &app.UserLink{}
+	user.Email = &m.Email
 	user.ID = &m.ID
-	user.Email = m.Email
 
 	return user
 }
 
 // OneAppUserLink returns an array of view: link
-func (m *UserDB) OneUserLink(ctx *goa.Context, id int) *app.UserLink {
+func (m *UserDB) OneUserLink(ctx *goa.Context, id int) (*app.UserLink, error) {
 	now := time.Now()
 	var native User
 	defer ctx.Info("OneUserLink", "duration", time.Since(now))
-	/*
-	 */
+	err := m.Db.Scopes().Table(m.TableName()).Preload("Proposals").Preload("Reviews").Where("id = ?", id).Find(&native).Error
 
-	m.Db.Scopes().Table(m.TableName()).Preload("Proposals").Preload("Reviews").Where("id = ?", id).Find(&native)
+	if err != nil && err != gorm.RecordNotFound {
+		ctx.Error("error getting User", "error", err.Error())
+		return nil, err
+	}
 
 	view := *native.UserToAppUserLink()
-	return &view
+	return &view, err
 
 }

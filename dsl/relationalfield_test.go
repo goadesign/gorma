@@ -38,7 +38,7 @@ var _ = Describe("RelationalField", func() {
 		gdsl.StorageGroup(sgname, func() {
 			gdsl.Store(storename, gorma.MySQL, func() {
 				gdsl.Model(modelname, func() {
-					gdsl.BuildsFrom(RandomPayload)
+					//gdsl.BuildsFrom(RandomPayload)
 					gdsl.Field(name, ft, dsl)
 					gdsl.Field("id", gorma.PKInteger, dsl) // use lowercase "id" to test sanitizer
 					gdsl.Field("MiddleName", gorma.String)
@@ -71,7 +71,7 @@ var _ = Describe("RelationalField", func() {
 			name = "FirstName"
 		})
 
-		It("produces an error", func() {
+		It("does not produce an error", func() {
 			gdsl.StorageGroup(sgname, func() {
 				gdsl.Store(storename, gorma.MySQL, func() {
 					gdsl.Model(modelname, func() {
@@ -79,7 +79,7 @@ var _ = Describe("RelationalField", func() {
 					})
 				})
 			})
-			Ω(Errors).Should(HaveOccurred())
+			Ω(Errors).Should(Not(HaveOccurred()))
 		})
 	})
 
