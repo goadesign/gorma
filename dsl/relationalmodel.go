@@ -40,7 +40,7 @@ func Model(name string, dsl func()) {
 			field := gorma.NewRelationalFieldDefinition()
 			field.FieldName = SanitizeFieldName("ID")
 			field.Parent = model
-			field.Datatype = gorma.PKInteger
+			field.Datatype = gorma.Integer
 			field.PrimaryKey = true
 			field.Nullable = false
 			field.DatabaseFieldName = SanitizeDBFieldName("ID")

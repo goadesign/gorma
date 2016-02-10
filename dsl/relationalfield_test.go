@@ -40,7 +40,7 @@ var _ = Describe("RelationalField", func() {
 				gdsl.Model(modelname, func() {
 					//gdsl.BuildsFrom(RandomPayload)
 					gdsl.Field(name, ft, dsl)
-					gdsl.Field("id", gorma.PKInteger, dsl) // use lowercase "id" to test sanitizer
+					gdsl.Field("id", gorma.Integer, dsl) // use lowercase "id" to test sanitizer
 					gdsl.Field("MiddleName", gorma.String)
 					gdsl.Field("CreatedAt", gorma.Timestamp)
 					gdsl.Field("UpdatedAt", gorma.Timestamp)
@@ -123,7 +123,7 @@ var _ = Describe("RelationalField", func() {
 				sg := gorma.GormaDesign
 				rs := sg.RelationalStores[storename]
 				rm := rs.RelationalModels[modelname]
-				Ω(rm.RelationalFields["ID"].Datatype).Should(Equal(gorma.PKInteger))
+				Ω(rm.RelationalFields["ID"].Datatype).Should(Equal(gorma.Integer))
 			})
 			It("sets the pk flag", func() {
 				sg := gorma.GormaDesign

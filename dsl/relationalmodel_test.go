@@ -439,7 +439,7 @@ var _ = Describe("RelationalModel with auto fields enabled and auto fields set i
 		BeforeEach(func() {
 			name = "Users"
 			dsl = func() {
-				gdsl.Field("ID", gorma.PKInteger)
+				gdsl.Field("ID", gorma.Integer)
 				gdsl.Field("CreatedAt", gorma.Timestamp)
 				gdsl.Field("UpdatedAt", gorma.Timestamp)
 				gdsl.Field("DeletedAt", gorma.NullableTimestamp)
@@ -717,7 +717,7 @@ var _ = Describe("RelationalModel with auto fields unset", func() {
 			Ω(rs.RelationalModels[name].ModelName).Should(Equal(name))
 			f, ok := rs.RelationalModels[name].RelationalFields["ID"]
 			Ω(ok).Should(Equal(true))
-			Ω(f.Datatype).Should(Equal(gorma.PKInteger))
+			Ω(f.Datatype).Should(Equal(gorma.Integer))
 			f, ok = rs.RelationalModels[name].RelationalFields["UpdatedAt"]
 			Ω(ok).Should(Equal(true))
 			Ω(f.Datatype).Should(Equal(gorma.Timestamp))

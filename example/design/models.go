@@ -18,7 +18,8 @@ var _ = StorageGroup("CongoStorageGroup", func() {
 			Description("User Model Description")
 			HasMany("Reviews", "Review")
 			HasMany("Proposals", "Proposal")
-			Field("id", gorma.PKInteger, func() {
+			Field("id", gorma.Integer, func() {
+				PrimaryKey()
 				Description("This is the User Model PK field")
 			})
 			Field("created_at", gorma.Timestamp, func() {})
@@ -35,7 +36,8 @@ var _ = StorageGroup("CongoStorageGroup", func() {
 			Description("Proposal Model")
 			BelongsTo("User")
 			HasMany("Reviews", "Review")
-			Field("id", gorma.PKInteger, func() {
+			Field("id", gorma.Integer, func() {
+				PrimaryKey()
 				Description("This is the Payload Model PK field")
 			})
 			Field("title", func() {
@@ -55,7 +57,8 @@ var _ = StorageGroup("CongoStorageGroup", func() {
 			Description("Review Model")
 			BelongsTo("User")
 			BelongsTo("Proposal")
-			Field("id", gorma.PKInteger, func() {
+			Field("id", gorma.Integer, func() {
+				PrimaryKey()
 				Description("This is the Review Model PK field")
 			})
 			Field("created_at", gorma.Timestamp, func() {})

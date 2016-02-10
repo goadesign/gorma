@@ -88,12 +88,6 @@ func goDatatype(f *RelationalFieldDefinition, includePtr bool) string {
 		return ptr + "string"
 	case UUID:
 		return ptr + "string" // what to do about UUIDS?
-	case PKInteger:
-		return ptr + "int"
-	case PKBigInteger:
-		return ptr + "int"
-	case PKUUID:
-		return ptr + "string " // TBD
 	case Timestamp, NullableTimestamp:
 		return ptr + "time.Time"
 	case BelongsTo:

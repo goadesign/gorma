@@ -46,13 +46,6 @@ func Field(name string, args ...interface{}) {
 
 		}
 
-		if fieldType == gorma.PKUUID || fieldType == gorma.PKInteger || fieldType == gorma.PKBigInteger {
-			field.PrimaryKey = true
-			field.Nullable = false
-			field.Description = "primary key"
-			s.PrimaryKeys = append(s.PrimaryKeys, field)
-		}
-
 		if fieldType == gorma.Timestamp {
 			field.Timestamp = true
 			field.Description = "timestamp"
@@ -115,6 +108,9 @@ func PrimaryKey() {
 	if f, ok := relationalFieldDefinition(true); ok {
 		checkInit()
 		f.PrimaryKey = true
+		f.Nullable = false
+		f.Description = "primary key"
+		f.Parent.PrimaryKeys = append(f.Parent.PrimaryKeys, f)
 	}
 }
 
