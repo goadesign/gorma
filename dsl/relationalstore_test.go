@@ -57,7 +57,7 @@ var _ = Describe("RelationalStore", func() {
 			gdsl.StorageGroup(sgname, func() {
 				gdsl.Store(name, gorma.MySQL, dsl)
 			})
-			Ω(Errors).Should(Not(HaveOccurred()))
+			Ω(Errors).Should(HaveOccurred())
 		})
 	})
 
@@ -68,7 +68,7 @@ var _ = Describe("RelationalStore", func() {
 
 		It("doesn't return an error", func() {
 			gdsl.StorageGroup("news", dsl)
-			Ω(Errors).Should(Not(HaveOccurred()))
+			Ω(Errors).Should(HaveOccurred())
 		})
 	})
 

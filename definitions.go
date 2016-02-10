@@ -2,7 +2,6 @@ package gorma
 
 import (
 	"github.com/goadesign/goa/design"
-
 	"github.com/goadesign/goa/dslengine"
 )
 
@@ -74,6 +73,43 @@ type BuildSource struct {
 type MapDefinition struct {
 	RemoteType  *design.UserTypeDefinition
 	RemoteField string
+}
+
+// MediaTypeAdapterDefinition represents the transformation of a
+// Goa media type into a Gorma Model
+// Unimplemented at this time
+type MediaTypeAdapterDefinition struct {
+	dslengine.Definition
+	DefinitionDSL func()
+	Name          string
+	Description   string
+	Left          *design.MediaTypeDefinition
+	Right         *RelationalModelDefinition
+}
+
+// UserTypeAdapterDefinition represents the transformation of a Goa
+// user type into a Gorma Model
+// Unimplemented at this time
+type UserTypeAdapterDefinition struct {
+	dslengine.Definition
+	DefinitionDSL func()
+	Name          string
+	Description   string
+	Left          *RelationalModelDefinition
+	Right         *RelationalModelDefinition
+}
+
+// PayloadAdapterDefinition represents the transformation of a Goa
+// Payload (which is really a UserTypeDefinition
+// into a Gorma model
+// Unimplemented at this time
+type PayloadAdapterDefinition struct {
+	dslengine.Definition
+	DefinitionDSL func()
+	Name          string
+	Description   string
+	Left          *design.UserTypeDefinition
+	Right         *RelationalModelDefinition
 }
 
 // RelationalFieldDefinition represents

@@ -131,13 +131,13 @@ var _ = Describe("RelationalModel", func() {
 			name = "duplicate"
 		})
 
-		It("does not produce an error", func() {
+		It("produce an error", func() {
 			gdsl.StorageGroup(sgname, func() {
 				gdsl.Store(storename, gorma.MySQL, func() {
 					gdsl.Model(name, dsl)
 				})
 			})
-			Ω(Errors).Should(Not(HaveOccurred()))
+			Ω(Errors).Should(HaveOccurred())
 		})
 	})
 
@@ -152,7 +152,7 @@ var _ = Describe("RelationalModel", func() {
 					gdsl.Model(name, dsl)
 				})
 			})
-			Ω(Errors).Should(Not(HaveOccurred()))
+			Ω(Errors).Should(HaveOccurred())
 		})
 	})
 

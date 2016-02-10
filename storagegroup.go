@@ -68,7 +68,6 @@ func (sd *StorageGroupDefinition) IterateSets(iterator dslengine.SetIterator) {
 		iterator([]dslengine.Definition{store})
 		store.IterateModels(func(model *RelationalModelDefinition) error {
 			iterator([]dslengine.Definition{model})
-
 			model.IterateFields(func(field *RelationalFieldDefinition) error {
 				iterator([]dslengine.Definition{field})
 				return nil

@@ -79,7 +79,7 @@ var _ = Describe("RelationalField", func() {
 					})
 				})
 			})
-			Ω(Errors).Should(Not(HaveOccurred()))
+			Ω(Errors).Should(HaveOccurred())
 		})
 	})
 
