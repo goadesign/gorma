@@ -80,14 +80,14 @@ var _ = Describe("RelationalModel", func() {
 				gdsl.Model(name, dsl)
 				gdsl.Model("Child", func() {
 					gdsl.BuildsFrom(func() {
-						gdsl.Payload("test", "create")
+						gdsl.Payload("testresource", "create")
 					})
 					gdsl.RendersTo(ChildMedia)
 					gdsl.BelongsTo(name)
 				})
 				gdsl.Model("One", func() {
 					gdsl.BuildsFrom(func() {
-						gdsl.Payload("test", "create")
+						gdsl.Payload("testresource", "create")
 					})
 					gdsl.HasOne("Child")
 				})

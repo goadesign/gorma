@@ -152,7 +152,7 @@ var _ = Describe("RelationalField", func() {
 				rs := sg.RelationalStores[storename]
 				rm := rs.RelationalModels[modelname]
 				length := len(rm.RelationalFields)
-				Ω(length).Should(Equal(7))
+				Ω(length).Should(Equal(6))
 			})
 		})
 

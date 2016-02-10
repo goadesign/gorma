@@ -66,9 +66,9 @@ var _ = Describe("RelationalStore", func() {
 			sgname = "mysql"
 		})
 
-		It("returns an error", func() {
+		It("doesn't return an error", func() {
 			gdsl.StorageGroup("news", dsl)
-			Ω(Errors).Should(HaveOccurred())
+			Ω(Errors).Should(Not(HaveOccurred()))
 		})
 	})
 

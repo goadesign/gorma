@@ -119,23 +119,20 @@ func Payload(r interface{}, act string) {
 
 		var res *design.ResourceDefinition
 		if n, ok := r.(string); ok {
-			fmt.Println("Got a string")
 			res = design.Design.Resources[n]
 		} else {
-			fmt.Println("Got a Resource Definition")
 			res, _ = r.(*design.ResourceDefinition)
 		}
 		if res == nil {
-			dslengine.ReportError("...")
+			dslengine.ReportError("There is no resource")
 			return
 		}
 		a, ok := res.Actions[act]
 		if !ok {
-			dslengine.ReportError("...")
+			dslengine.ReportError("There is no action")
 			return
 		}
 		payload := a.Payload
-		fmt.Println("I'm a PAYLOAD!", payload.TypeName)
 
 		// Set UTD in BuildsFrom parent context
 
