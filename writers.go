@@ -30,7 +30,7 @@ type (
 		UserHelperTmpl *template.Template
 	}
 
-	// UserHelpersWriter generate code for a goa application user types.
+	// UserHelperWriter generate code for a goa application user types.
 	// User types are data structures defined in the DSL with "Type".
 	UserHelperWriter struct {
 		*codegen.SourceFile

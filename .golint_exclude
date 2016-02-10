@@ -1,4 +1,5 @@
-^example/design
+^example
 ^example/app
 ^example/client
 ^example/swagger
+^example/design

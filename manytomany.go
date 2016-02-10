@@ -30,7 +30,7 @@ func (m *ManyToManyDefinition) RightName() string {
 	return m.Right.ModelName
 }
 
-//  LowerLeftName returns the lower case name of the "owner" of the
+// LowerLeftName returns the lower case name of the "owner" of the
 // m2m relationship
 func (m *ManyToManyDefinition) LowerLeftName() string {
 	return strings.ToLower(m.Left.ModelName)

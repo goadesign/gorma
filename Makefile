@@ -9,7 +9,7 @@
 # Meta targets:
 # - "all" is the default target, it runs all the targets in the order above.
 #
-DIRS=$(shell go list -f {{.Dir}} ./...)
+DIRS=$(shell go list -f {{.Dir}} ./... | grep -v /example)
 DEPEND=\
 	github.com/goadesign/goa.design/tools/mdc \
 	github.com/goadesign/goa.design/tools/godoc2md \
@@ -38,7 +38,7 @@ depend:
 
 lint:
 	@for d in $(DIRS) ; do \
-		if [ "`goimports -l $$d/*.go | tee /dev/stderr`" ]; then \
+		if [ "`goimports -l $$d/*.go | grep -vf .golint_exclude | tee /dev/stderr`" ]; then \
 			echo "^ - Repo contains improperly formatted go files" && echo && exit 1; \
 		fi \
 	done
@@ -48,5 +48,5 @@ lint:
 
 
 test:
-	@ginkgo -r --randomizeAllSpecs --failOnPending --randomizeSuites --race -skipPackage vendor
+	@ginkgo -r  --failOnPending  --race -skipPackage vendor
 

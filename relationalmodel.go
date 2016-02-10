@@ -123,7 +123,7 @@ func (f *RelationalModelDefinition) StructDefinition() string {
 
 }
 
-// Attributes implements the Container interface of goa.
+// Attribute implements the Container interface of goa.
 func (f *RelationalModelDefinition) Attribute() *design.AttributeDefinition {
 	return f.AttributeDefinition
 
@@ -143,9 +143,9 @@ func (f *RelationalModelDefinition) LowerName() string {
 }
 
 // IterateBuildSources runs an iterator function once per Model in the Store's model list.
-func (sd *RelationalModelDefinition) IterateBuildSources(it BuildSourceIterator) error {
+func (f *RelationalModelDefinition) IterateBuildSources(it BuildSourceIterator) error {
 
-	for _, bs := range sd.BuildSources {
+	for _, bs := range f.BuildSources {
 		if err := it(bs); err != nil {
 			return err
 		}
