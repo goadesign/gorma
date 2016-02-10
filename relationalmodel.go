@@ -230,7 +230,6 @@ func (f *RelationalModelDefinition) PopulateFromModeledType() {
 			rf, ok := f.RelationalFields[codegen.Goify(name, true)]
 			if ok {
 				// We already have a mapping for this field.  What to do?
-				fmt.Println("DUP mapping", f.ModelName, name)
 				if rf.Datatype != "" {
 					return nil
 				}
