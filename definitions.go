@@ -38,17 +38,19 @@ type RelationalStoreDefinition struct {
 // table in a relational database
 type RelationalModelDefinition struct {
 	dslengine.Definition
+	*design.UserTypeDefinition
 	DefinitionDSL    func()
-	Name             string
-	Description      string //
+	ModelName        string
+	Description      string
+	GoaType          *design.MediaTypeDefinition
 	Parent           *RelationalStoreDefinition
-	BuiltFrom        []*design.UserTypeDefinition
-	RenderTo         []*design.MediaTypeDefinition
+	BuiltFrom        map[string]*design.UserTypeDefinition
+	BuildSources     []*BuildSource
+	RenderTo         map[string]*design.MediaTypeDefinition
 	BelongsTo        map[string]*RelationalModelDefinition
 	HasMany          map[string]*RelationalModelDefinition
 	HasOne           map[string]*RelationalModelDefinition
 	ManyToMany       map[string]*ManyToManyDefinition
-	Adapters         map[string]func()
 	Alias            string // gorm:tablename
 	Cached           bool
 	CacheDuration    int
@@ -58,6 +60,19 @@ type RelationalModelDefinition struct {
 	RelationalFields map[string]*RelationalFieldDefinition
 	PrimaryKeys      []*RelationalFieldDefinition
 	many2many        []string
+}
+
+type BuildSource struct {
+	dslengine.Definition
+	DefinitionDSL   func()
+	Parent          *RelationalModelDefinition
+	BuildSourceName string
+}
+
+// MapDefinition represents something
+type MapDefinition struct {
+	RemoteType  *design.UserTypeDefinition
+	RemoteField string
 }
 
 // MediaTypeAdapterDefinition represents the transformation of a
@@ -104,7 +119,7 @@ type RelationalFieldDefinition struct {
 	DefinitionDSL     func()
 	Parent            *RelationalModelDefinition
 	a                 *design.AttributeDefinition
-	Name              string
+	FieldName         string
 	Datatype          FieldType
 	SQLTag            string
 	DatabaseFieldName string
@@ -118,6 +133,7 @@ type RelationalFieldDefinition struct {
 	HasOne            string
 	HasMany           string
 	Many2Many         string
+	Mappings          map[string]*MapDefinition
 }
 
 // ManyToManyDefinition stores information about a ManyToMany
@@ -142,3 +158,7 @@ type ModelIterator func(m *RelationalModelDefinition) error
 // FieldIterator is a function that iterates over Fields
 // in a RelationalModel
 type FieldIterator func(m *RelationalFieldDefinition) error
+
+// BuildSourceIterator is a function that iterates over Fields
+// in a RelationalModel
+type BuildSourceIterator func(m *BuildSource) error

@@ -40,14 +40,6 @@ const (
 	Text FieldType = "text"
 	// UUID is not implemented yet
 	UUID FieldType = "uuid"
-	// PKInteger is a field that will serve as the primary key
-	// and store as an integer
-	PKInteger FieldType = "pkinteger"
-	// PKBigInteger is a field that will serve as the primary key
-	// and store as a large integer
-	PKBigInteger FieldType = "pkbiginteger"
-	// PKUUID is not implemented yet
-	PKUUID FieldType = "pkuuid"
 	// Timestamp is a date/time field in the database
 	Timestamp FieldType = "timestamp"
 	// NullableTimestamp is a timestamp that may not be
@@ -69,7 +61,7 @@ const (
 
 // Init creates the necessary data structures for parsing a DSL
 func Init() {
-	sg := &StorageGroupDefinition{}
+	sg := NewStorageGroupDefinition()
 	dslengine.Roots = append(dslengine.Roots, sg)
 	GormaDesign = sg
 }

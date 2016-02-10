@@ -75,6 +75,26 @@ func relationalFieldDefinition(failIfNotSD bool) (*gorma.RelationalFieldDefiniti
 	return a, ok
 }
 
+// buildSourceDefinition returns true and current context if it is an BuildSource
+// nil and false otherwise.
+func buildSourceDefinition(failIfNotSD bool) (*gorma.BuildSource, bool) {
+	a, ok := dslengine.CurrentDefinition().(*gorma.BuildSource)
+	if !ok && failIfNotSD {
+		incompatibleDSL(caller())
+	}
+	return a, ok
+}
+
+// attributeDefinition returns true and current context if it is an AttributeDefinition
+// nil and false otherwise.
+func attributeDefinition(failIfNotSD bool) (*design.AttributeDefinition, bool) {
+	a, ok := dslengine.CurrentDefinition().(*design.AttributeDefinition)
+	if !ok && failIfNotSD {
+		incompatibleDSL(caller())
+	}
+	return a, ok
+}
+
 // invalidArgError records an invalid argument error.
 // It is used by DSL functions that take dynamic arguments.
 func invalidArgError(expected string, actual interface{}) {

@@ -7,6 +7,15 @@ import (
 	"github.com/goadesign/goa/dslengine"
 )
 
+// NewStorageGroupDefinition returns an initialized
+// StorageGroupDefinition
+func NewStorageGroupDefinition() *StorageGroupDefinition {
+	m := &StorageGroupDefinition{
+		RelationalStores: make(map[string]*RelationalStoreDefinition),
+	}
+	return m
+}
+
 // IterateStores runs an iterator function once per Relational Store in the
 // StorageGroup's Store list.
 func (sd *StorageGroupDefinition) IterateStores(it StoreIterator) error {
@@ -63,6 +72,11 @@ func (sd *StorageGroupDefinition) IterateSets(iterator dslengine.SetIterator) {
 				iterator([]dslengine.Definition{field})
 				return nil
 			})
+			model.IterateBuildSources(func(bs *BuildSource) error {
+				iterator([]dslengine.Definition{bs})
+				return nil
+			})
+
 			return nil
 		})
 		return nil

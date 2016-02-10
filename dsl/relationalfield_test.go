@@ -6,6 +6,7 @@ import (
 
 	. "github.com/goadesign/goa/design"
 	. "github.com/goadesign/goa/design/apidsl"
+	. "github.com/goadesign/goa/dslengine"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
@@ -26,7 +27,7 @@ var _ = Describe("RelationalField", func() {
 		ft = gorma.String
 		gorma.GormaDesign = nil
 		InitDesign()
-		RandomPayload = Type("UserPayload", func() {
+		RandomPayload = Type("RandomPayload", func() {
 			Attribute("first_name", String)
 			Attribute("last_name", String)
 		})
@@ -37,9 +38,10 @@ var _ = Describe("RelationalField", func() {
 		gdsl.StorageGroup(sgname, func() {
 			gdsl.Store(storename, gorma.MySQL, func() {
 				gdsl.Model(modelname, func() {
-					gdsl.BuiltFrom(RandomPayload)
+					//gdsl.BuildsFrom(RandomPayload)
 					gdsl.Field(name, ft, dsl)
-					gdsl.Field("id", gorma.PKInteger, dsl) // use lowercase "id" to test sanitizer
+					gdsl.Field("id", gorma.Integer, dsl) // use lowercase "id" to test sanitizer
+					gdsl.Field("MiddleName", gorma.String)
 					gdsl.Field("CreatedAt", gorma.Timestamp)
 					gdsl.Field("UpdatedAt", gorma.Timestamp)
 					gdsl.Field("DeletedAt", gorma.NullableTimestamp)
@@ -60,7 +62,7 @@ var _ = Describe("RelationalField", func() {
 			sg := gorma.GormaDesign
 			rs := sg.RelationalStores[storename]
 			rm := rs.RelationalModels[modelname]
-			Ω(rm.RelationalFields[name].Name).Should(Equal(name))
+			Ω(rm.RelationalFields[name].FieldName).Should(Equal(name))
 		})
 	})
 
@@ -69,7 +71,7 @@ var _ = Describe("RelationalField", func() {
 			name = "FirstName"
 		})
 
-		It("produces an error", func() {
+		It("does not produce an error", func() {
 			gdsl.StorageGroup(sgname, func() {
 				gdsl.Store(storename, gorma.MySQL, func() {
 					gdsl.Model(modelname, func() {
@@ -115,13 +117,13 @@ var _ = Describe("RelationalField", func() {
 				sg := gorma.GormaDesign
 				rs := sg.RelationalStores[storename]
 				rm := rs.RelationalModels[modelname]
-				Ω(rm.RelationalFields["ID"].Name).Should(Equal("ID"))
+				Ω(rm.RelationalFields["ID"].FieldName).Should(Equal("ID"))
 			})
 			It("sets the field type", func() {
 				sg := gorma.GormaDesign
 				rs := sg.RelationalStores[storename]
 				rm := rs.RelationalModels[modelname]
-				Ω(rm.RelationalFields["ID"].Datatype).Should(Equal(gorma.PKInteger))
+				Ω(rm.RelationalFields["ID"].Datatype).Should(Equal(gorma.Integer))
 			})
 			It("sets the pk flag", func() {
 				sg := gorma.GormaDesign
@@ -133,7 +135,7 @@ var _ = Describe("RelationalField", func() {
 				sg := gorma.GormaDesign
 				rs := sg.RelationalStores[storename]
 				rm := rs.RelationalModels[modelname]
-				Ω(rm.RelationalFields["CreatedAt"].Name).Should(Equal("CreatedAt"))
+				Ω(rm.RelationalFields["CreatedAt"].FieldName).Should(Equal("CreatedAt"))
 				Ω(rm.RelationalFields["CreatedAt"].Datatype).Should(Equal(gorma.Timestamp))
 				Ω(rm.RelationalFields["CreatedAt"].Nullable).Should(Equal(false))
 			})
@@ -141,7 +143,7 @@ var _ = Describe("RelationalField", func() {
 				sg := gorma.GormaDesign
 				rs := sg.RelationalStores[storename]
 				rm := rs.RelationalModels[modelname]
-				Ω(rm.RelationalFields["DeletedAt"].Name).Should(Equal("DeletedAt"))
+				Ω(rm.RelationalFields["DeletedAt"].FieldName).Should(Equal("DeletedAt"))
 				Ω(rm.RelationalFields["DeletedAt"].Datatype).Should(Equal(gorma.NullableTimestamp))
 				Ω(rm.RelationalFields["DeletedAt"].Nullable).Should(Equal(true))
 			})
@@ -151,6 +153,77 @@ var _ = Describe("RelationalField", func() {
 				rm := rs.RelationalModels[modelname]
 				length := len(rm.RelationalFields)
 				Ω(length).Should(Equal(6))
+			})
+		})
+
+	})
+
+	Context("Primary Keys", func() {
+		JustBeforeEach(func() {
+
+			gdsl.StorageGroup(sgname, func() {
+				gdsl.Store(storename, gorma.MySQL, func() {
+					gdsl.NoAutomaticIDFields()
+					gdsl.Model(modelname, func() {
+						//gdsl.BuildsFrom(RandomPayload)
+						gdsl.Field(name, ft, dsl)
+						gdsl.Field("id", gorma.Integer, dsl) // use lowercase "id" to test sanitizer
+						gdsl.Field("MiddleName", gorma.String)
+						gdsl.Field("CreatedAt", gorma.Timestamp)
+						gdsl.Field("UpdatedAt", gorma.Timestamp)
+						gdsl.Field("DeletedAt", gorma.NullableTimestamp)
+					})
+				})
+			})
+			Run()
+
+			Ω(Design.Validate()).ShouldNot(HaveOccurred())
+		})
+
+		Context("sets Primary Key flags for an integer field", func() {
+
+			BeforeEach(func() {
+				name = "random"
+				ft = gorma.Integer
+				dsl = func() {
+					gdsl.PrimaryKey()
+				}
+			})
+			It("sets the pk flag", func() {
+				sg := gorma.GormaDesign
+				rs := sg.RelationalStores[storename]
+				rm := rs.RelationalModels[modelname]
+				Ω(Errors).ShouldNot(HaveOccurred())
+				Ω(rm.RelationalFields["ID"].PrimaryKey).Should(Equal(true))
+			})
+		})
+		Context("won't set Primary Key flags for string", func() {
+
+			BeforeEach(func() {
+				name = "random"
+				dsl = func() {
+					gdsl.PrimaryKey()
+				}
+			})
+			It("doesnt set the pk flag", func() {
+				Ω(Errors).Should(HaveOccurred())
+			})
+		})
+		Context("doesn't set Primary Key flag with no PrimaryKey() dsl", func() {
+
+			BeforeEach(func() {
+				name = "random"
+				dsl = func() {
+					gdsl.Description("Test description")
+				}
+
+			})
+			It("the pk flag", func() {
+				sg := gorma.GormaDesign
+				rs := sg.RelationalStores[storename]
+				rm := rs.RelationalModels[modelname]
+				Ω(Errors).ShouldNot(HaveOccurred())
+				Ω(rm.RelationalFields["Random"].PrimaryKey).Should(Equal(false))
 			})
 		})
 

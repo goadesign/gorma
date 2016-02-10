@@ -10,15 +10,15 @@ import (
 
 func TestFieldContext(t *testing.T) {
 	sg := &gorma.RelationalFieldDefinition{}
-	sg.Name = "SG"
+	sg.FieldName = "SG"
 
 	c := sg.Context()
-	exp := fmt.Sprintf("RelationalField %#v", sg.Name)
+	exp := fmt.Sprintf("RelationalField %#v", sg.FieldName)
 	if c != exp {
 		t.Errorf("Expected %s, got %s", exp, c)
 	}
 
-	sg.Name = ""
+	sg.FieldName = ""
 
 	c = sg.Context()
 	exp = "unnamed RelationalField"
@@ -60,7 +60,7 @@ func TestFieldDefinitions(t *testing.T) {
 	}
 	for _, tt := range fieldtests {
 		f := &gorma.RelationalFieldDefinition{}
-		f.Name = dsl.SanitizeFieldName(tt.name)
+		f.FieldName = dsl.SanitizeFieldName(tt.name)
 		f.Datatype = tt.datatype
 		f.Description = tt.description
 		f.Nullable = tt.nullable

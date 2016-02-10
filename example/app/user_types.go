@@ -1,5 +1,5 @@
 //************************************************************************//
-// API "cellar": Application User Types
+// API "congo": Application User Types
 //
 // Generated with goagen v0.0.1, command line:
 // $ goagen
@@ -14,97 +14,102 @@ package app
 
 import "github.com/goadesign/goa"
 
-// BottlePayload type
-type BottlePayload struct {
-	Color     *string `json:"color,omitempty"`
-	Country   *string `json:"country,omitempty"`
-	Name      *string `json:"name,omitempty"`
-	Region    *string `json:"region,omitempty"`
-	Review    *string `json:"review,omitempty"`
-	Sweetness *int    `json:"sweetness,omitempty"`
-	Varietal  *string `json:"varietal,omitempty"`
-	Vineyard  *string `json:"vineyard,omitempty"`
-	Vintage   *int    `json:"vintage,omitempty"`
+// ProposalPayload type
+type ProposalPayload struct {
+	Abstract  *string `json:"abstract,omitempty" xml:"abstract,omitempty"`
+	Detail    *string `json:"detail,omitempty" xml:"detail,omitempty"`
+	Title     *string `json:"title,omitempty" xml:"title,omitempty"`
+	Withdrawn *bool   `json:"withdrawn,omitempty" xml:"withdrawn,omitempty"`
 }
 
 // Validate validates the type instance.
-func (ut *BottlePayload) Validate() (err error) {
-	if ut.Color != nil {
-		if !(*ut.Color == "red" || *ut.Color == "white" || *ut.Color == "rose" || *ut.Color == "yellow" || *ut.Color == "sparkling") {
-			err = goa.InvalidEnumValueError(`response.color`, *ut.Color, []interface{}{"red", "white", "rose", "yellow", "sparkling"}, err)
+func (ut *ProposalPayload) Validate() (err error) {
+	if ut.Abstract != nil {
+		if len(*ut.Abstract) < 50 {
+			err = goa.InvalidLengthError(`response.abstract`, *ut.Abstract, len(*ut.Abstract), 50, true, err)
 		}
 	}
-	if ut.Country != nil {
-		if len(*ut.Country) < 2 {
-			err = goa.InvalidLengthError(`response.country`, *ut.Country, len(*ut.Country), 2, true, err)
+	if ut.Abstract != nil {
+		if len(*ut.Abstract) > 500 {
+			err = goa.InvalidLengthError(`response.abstract`, *ut.Abstract, len(*ut.Abstract), 500, false, err)
 		}
 	}
-	if ut.Name != nil {
-		if len(*ut.Name) < 2 {
-			err = goa.InvalidLengthError(`response.name`, *ut.Name, len(*ut.Name), 2, true, err)
+	if ut.Detail != nil {
+		if len(*ut.Detail) < 100 {
+			err = goa.InvalidLengthError(`response.detail`, *ut.Detail, len(*ut.Detail), 100, true, err)
 		}
 	}
-	if ut.Review != nil {
-		if len(*ut.Review) < 3 {
-			err = goa.InvalidLengthError(`response.review`, *ut.Review, len(*ut.Review), 3, true, err)
+	if ut.Detail != nil {
+		if len(*ut.Detail) > 2000 {
+			err = goa.InvalidLengthError(`response.detail`, *ut.Detail, len(*ut.Detail), 2000, false, err)
 		}
 	}
-	if ut.Review != nil {
-		if len(*ut.Review) > 300 {
-			err = goa.InvalidLengthError(`response.review`, *ut.Review, len(*ut.Review), 300, false, err)
+	if ut.Title != nil {
+		if len(*ut.Title) < 10 {
+			err = goa.InvalidLengthError(`response.title`, *ut.Title, len(*ut.Title), 10, true, err)
 		}
 	}
-	if ut.Sweetness != nil {
-		if *ut.Sweetness < 1 {
-			err = goa.InvalidRangeError(`response.sweetness`, *ut.Sweetness, 1, true, err)
-		}
-	}
-	if ut.Sweetness != nil {
-		if *ut.Sweetness > 5 {
-			err = goa.InvalidRangeError(`response.sweetness`, *ut.Sweetness, 5, false, err)
-		}
-	}
-	if ut.Varietal != nil {
-		if len(*ut.Varietal) < 4 {
-			err = goa.InvalidLengthError(`response.varietal`, *ut.Varietal, len(*ut.Varietal), 4, true, err)
-		}
-	}
-	if ut.Vineyard != nil {
-		if len(*ut.Vineyard) < 2 {
-			err = goa.InvalidLengthError(`response.vineyard`, *ut.Vineyard, len(*ut.Vineyard), 2, true, err)
-		}
-	}
-	if ut.Vintage != nil {
-		if *ut.Vintage < 1900 {
-			err = goa.InvalidRangeError(`response.vintage`, *ut.Vintage, 1900, true, err)
-		}
-	}
-	if ut.Vintage != nil {
-		if *ut.Vintage > 2020 {
-			err = goa.InvalidRangeError(`response.vintage`, *ut.Vintage, 2020, false, err)
+	if ut.Title != nil {
+		if len(*ut.Title) > 200 {
+			err = goa.InvalidLengthError(`response.title`, *ut.Title, len(*ut.Title), 200, false, err)
 		}
 	}
 	return
 }
 
-// MarshalBottlePayload validates and renders an instance of BottlePayload into a interface{}
-func MarshalBottlePayload(source *BottlePayload, inErr error) (target map[string]interface{}, err error) {
-	err = inErr
-	if err2 := source.Validate(); err2 != nil {
-		err = goa.ReportError(err, err2)
-		return
+// ReviewPayload type
+type ReviewPayload struct {
+	Comment *string `json:"comment,omitempty" xml:"comment,omitempty"`
+	Rating  *int    `json:"rating,omitempty" xml:"rating,omitempty"`
+}
+
+// Validate validates the type instance.
+func (ut *ReviewPayload) Validate() (err error) {
+	if ut.Comment != nil {
+		if len(*ut.Comment) < 10 {
+			err = goa.InvalidLengthError(`response.comment`, *ut.Comment, len(*ut.Comment), 10, true, err)
+		}
 	}
-	tmp37 := map[string]interface{}{
-		"color":     source.Color,
-		"country":   source.Country,
-		"name":      source.Name,
-		"region":    source.Region,
-		"review":    source.Review,
-		"sweetness": source.Sweetness,
-		"varietal":  source.Varietal,
-		"vineyard":  source.Vineyard,
-		"vintage":   source.Vintage,
+	if ut.Comment != nil {
+		if len(*ut.Comment) > 200 {
+			err = goa.InvalidLengthError(`response.comment`, *ut.Comment, len(*ut.Comment), 200, false, err)
+		}
 	}
-	target = tmp37
+	if ut.Rating != nil {
+		if *ut.Rating < 1 {
+			err = goa.InvalidRangeError(`response.rating`, *ut.Rating, 1, true, err)
+		}
+	}
+	if ut.Rating != nil {
+		if *ut.Rating > 5 {
+			err = goa.InvalidRangeError(`response.rating`, *ut.Rating, 5, false, err)
+		}
+	}
+	return
+}
+
+// UserPayload type
+type UserPayload struct {
+	Bio       *string `json:"bio,omitempty" xml:"bio,omitempty"`
+	City      *string `json:"city,omitempty" xml:"city,omitempty"`
+	Country   *string `json:"country,omitempty" xml:"country,omitempty"`
+	Email     *string `json:"email,omitempty" xml:"email,omitempty"`
+	Firstname *string `json:"firstname,omitempty" xml:"firstname,omitempty"`
+	Lastname  *string `json:"lastname,omitempty" xml:"lastname,omitempty"`
+	State     *string `json:"state,omitempty" xml:"state,omitempty"`
+}
+
+// Validate validates the type instance.
+func (ut *UserPayload) Validate() (err error) {
+	if ut.Bio != nil {
+		if len(*ut.Bio) > 500 {
+			err = goa.InvalidLengthError(`response.bio`, *ut.Bio, len(*ut.Bio), 500, false, err)
+		}
+	}
+	if ut.Email != nil {
+		if err2 := goa.ValidateFormat(goa.FormatEmail, *ut.Email); err2 != nil {
+			err = goa.InvalidFormatError(`response.email`, *ut.Email, goa.FormatEmail, err2, err)
+		}
+	}
 	return
 }

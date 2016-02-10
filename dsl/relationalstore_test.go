@@ -6,6 +6,7 @@ import (
 
 	. "github.com/goadesign/goa/design"
 	. "github.com/goadesign/goa/design/apidsl"
+	. "github.com/goadesign/goa/dslengine"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
@@ -52,7 +53,7 @@ var _ = Describe("RelationalStore", func() {
 			name = "mysql"
 		})
 
-		It("produces an error", func() {
+		It("does not produce an error", func() {
 			gdsl.StorageGroup(sgname, func() {
 				gdsl.Store(name, gorma.MySQL, dsl)
 			})
@@ -65,7 +66,7 @@ var _ = Describe("RelationalStore", func() {
 			sgname = "mysql"
 		})
 
-		It("returns an error", func() {
+		It("doesn't return an error", func() {
 			gdsl.StorageGroup("news", dsl)
 			Ω(Errors).Should(HaveOccurred())
 		})

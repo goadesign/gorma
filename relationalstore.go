@@ -7,6 +7,15 @@ import (
 	"github.com/goadesign/goa/dslengine"
 )
 
+// NewRelationalStoreDefinition returns an initialized
+// RelationalStoreDefinition
+func NewRelationalStoreDefinition() *RelationalStoreDefinition {
+	m := &RelationalStoreDefinition{
+		RelationalModels: make(map[string]*RelationalModelDefinition),
+	}
+	return m
+}
+
 // Context returns the generic definition name used in error messages.
 func (sd *RelationalStoreDefinition) Context() string {
 	if sd.Name != "" {

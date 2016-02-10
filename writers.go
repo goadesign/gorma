@@ -2,11 +2,15 @@ package gorma
 
 import (
 	"fmt"
+	"sort"
 	"strings"
 	"text/template"
 
+	"bitbucket.org/pkg/inflect"
+
 	"github.com/goadesign/goa/design"
 	"github.com/goadesign/goa/goagen/codegen"
+	"github.com/kr/pretty"
 )
 
 type (
@@ -22,22 +26,94 @@ type (
 	// User types are data structures defined in the DSL with "Type".
 	UserTypesWriter struct {
 		*codegen.SourceFile
-		UserTypeTmpl *template.Template
+		UserTypeTmpl   *template.Template
+		UserHelperTmpl *template.Template
+	}
+
+	// UserHelpersWriter generate code for a goa application user types.
+	// User types are data structures defined in the DSL with "Type".
+	UserHelperWriter struct {
+		*codegen.SourceFile
+		UserHelperTmpl *template.Template
 	}
 )
 
-func fieldAssignmentModelToType(model *RelationalModelDefinition, ut *design.MediaTypeDefinition, mtype, utype string) string {
+func fieldAssignmentPayloadToModel(model *RelationalModelDefinition, ut *design.UserTypeDefinition, verpkg, v, mtype, utype string) string {
 	//utPackage := "app"
 	var fieldAssignments []string
 	// type.Field = model.Field
 	for fname, field := range model.RelationalFields {
+
+		var mpointer, upointer bool
+		mpointer = field.Nullable
+		obj := ut.Type.ToObject()
+		definition := ut.Definition()
+
 		if field.Datatype == "" {
 			continue
 		}
+
+		for key := range obj {
+			gfield := obj[key]
+
+			if field.Underscore() == key || field.DatabaseFieldName == key {
+				// this is our field
+				if gfield.Type.IsObject() || definition.IsPrimitivePointer(key) {
+					upointer = true
+				} else {
+					// set it explicity because we're reusing the same bool
+					upointer = false
+				}
+
+				prefix := ""
+				if upointer && !mpointer {
+					// ufield = &mfield
+					prefix = "*"
+				} else if mpointer && !upointer {
+					// ufield = *mfield (rare if never?)
+					prefix = "&"
+				} else if !upointer && !mpointer {
+					prefix = ""
+				}
+
+				fa := fmt.Sprintf("\t%s.%s = %s%s.%s", utype, fname, prefix, v, codegen.Goify(key, true))
+				fieldAssignments = append(fieldAssignments, fa)
+			}
+		}
+	}
+	return strings.Join(fieldAssignments, "\n")
+}
+
+func fieldAssignmentModelToType(model *RelationalModelDefinition, ut *design.ViewDefinition, verpkg, v, mtype, utype string) string {
+	//utPackage := "app"
+	var tmp int
+	tmp = 1
+	var fieldAssignments []string
+	// type.Field = model.Field
+	for fname, field := range model.RelationalFields {
+
 		var mpointer, upointer bool
 		mpointer = field.Nullable
-		obj := ut.ToObject()
-		definition := ut.Definition()
+		obj := ut.Type.ToObject()
+		definition := ut.Parent.Definition()
+
+		if field.Datatype == "" {
+			continue
+		}
+		// Set the relational field
+		// if the view has one of them
+		if field.Datatype == BelongsTo {
+			fn := strings.Replace(field.FieldName, "ID", "", -1)
+			_, ok := obj[codegen.Goify(fn, false)]
+			if ok {
+				fa := fmt.Sprintf("tmp%d := &%s.%s", tmp, mtype, codegen.Goify(fn, true))
+				fieldAssignments = append(fieldAssignments, fa)
+				fa = fmt.Sprintf("%s.%s = tmp%d.%sTo%s%s()", utype, codegen.Goify(fn, true), tmp, codegen.Goify(fn, true), verpkg, codegen.Goify(fn, true))
+				fieldAssignments = append(fieldAssignments, fa)
+				tmp++
+			}
+		}
+
 		for key := range obj {
 			gfield := obj[key]
 			if field.Underscore() == key || field.DatabaseFieldName == key {
@@ -49,16 +125,18 @@ func fieldAssignmentModelToType(model *RelationalModelDefinition, ut *design.Med
 					upointer = false
 				}
 
-				var prefix string
+				prefix := ""
 				if upointer && !mpointer {
 					// ufield = &mfield
 					prefix = "&"
 				} else if mpointer && !upointer {
 					// ufield = *mfield (rare if never?)
 					prefix = "*"
+				} else if !upointer && !mpointer {
+					prefix = ""
 				}
 
-				fa := fmt.Sprintf("\t%s.%s = %s%s.%s", utype, codegen.Goify(key, true), prefix, mtype, fname)
+				fa := fmt.Sprintf("\t%s.%s = %s%s.%s", utype, codegen.Goify(key, true), prefix, v, codegen.Goify(fname, true))
 				fieldAssignments = append(fieldAssignments, fa)
 			}
 		}
@@ -103,6 +181,95 @@ func fieldAssignmentTypeToModel(model *RelationalModelDefinition, ut *design.Use
 	return strings.Join(fieldAssignments, "\n")
 }
 
+func viewSelect(ut *RelationalModelDefinition, v *design.ViewDefinition) string {
+	obj := v.Type.(design.Object)
+	var fields []string
+	for name := range obj {
+		if obj[name].Type.IsPrimitive() {
+			if strings.TrimSpace(name) != "" && name != "links" {
+				bf, ok := ut.RelationalFields[codegen.Goify(name, true)]
+				if ok {
+					if bf.Alias != "" {
+						fields = append(fields, bf.Alias)
+					} else {
+						fields = append(fields, bf.DatabaseFieldName)
+					}
+				}
+			}
+		}
+	}
+	sort.Strings(fields)
+	return strings.Join(fields, ",")
+}
+func viewFields(ut *RelationalModelDefinition, v *design.ViewDefinition) []*RelationalFieldDefinition {
+	obj := v.Type.(design.Object)
+	var fields []*RelationalFieldDefinition
+	for name := range obj {
+		if obj[name].Type.IsPrimitive() {
+			if strings.TrimSpace(name) != "" && name != "links" {
+				bf, ok := ut.RelationalFields[codegen.Goify(name, true)]
+				if ok {
+					fields = append(fields, bf)
+				}
+			} else if name == "links" {
+				for n, ld := range v.Parent.Links {
+					fmt.Println("LINK:", n)
+					pretty.Println(ld.Name, ld.View)
+				}
+			}
+		}
+	}
+
+	return fields
+}
+
+func viewFieldNames(ut *RelationalModelDefinition, v *design.ViewDefinition) []string {
+	obj := v.Type.(design.Object)
+	var fields []string
+	for name := range obj {
+		if obj[name].Type.IsPrimitive() {
+			if strings.TrimSpace(name) != "" && name != "links" {
+				bf, ok := ut.RelationalFields[codegen.Goify(name, true)]
+
+				if ok {
+					fields = append(fields, "&"+codegen.Goify(bf.FieldName, false))
+				}
+			}
+		}
+	}
+
+	sort.Strings(fields)
+	return fields
+}
+
+// NewUserHelperWriter returns a contexts code writer.
+// User types contain custom data structured defined in the DSL with "Type".
+func NewUserHelperWriter(filename string) (*UserHelperWriter, error) {
+	file, err := codegen.SourceFileFor(filename)
+	if err != nil {
+		return nil, err
+	}
+	return &UserHelperWriter{SourceFile: file}, nil
+}
+
+// Execute writes the code for the context types to the writer.
+func (w *UserHelperWriter) Execute(data *UserTypeTemplateData) error {
+	fm := make(map[string]interface{})
+	fm["famt"] = fieldAssignmentModelToType
+	fm["fatm"] = fieldAssignmentTypeToModel
+	fm["viewSelect"] = viewSelect
+	fm["viewFields"] = viewFields
+	fm["viewFieldNames"] = viewFieldNames
+	fm["goDatatype"] = goDatatype
+	fm["plural"] = inflect.Pluralize
+	fm["gtt"] = codegen.GoTypeTransform
+	fm["gttn"] = codegen.GoTypeTransformName
+	fm["gptn"] = codegen.GoPackageTypeName
+	fm["vp"] = codegen.VersionPackage
+	fm["newMediaTemplateVersion"] = newMediaTemplateVersion
+	return w.ExecuteTemplate("types", userHelperT, fm, data)
+}
+
 // NewUserTypesWriter returns a contexts code writer.
 // User types contain custom data structured defined in the DSL with "Type".
 func NewUserTypesWriter(filename string) (*UserTypesWriter, error) {
@@ -118,6 +285,15 @@ func (w *UserTypesWriter) Execute(data *UserTypeTemplateData) error {
 	fm := make(map[string]interface{})
 	fm["famt"] = fieldAssignmentModelToType
 	fm["fatm"] = fieldAssignmentTypeToModel
+	fm["fapm"] = fieldAssignmentPayloadToModel
+	fm["viewSelect"] = viewSelect
+	fm["viewFields"] = viewFields
+	fm["viewFieldNames"] = viewFieldNames
+	fm["goDatatype"] = goDatatype
+	fm["plural"] = inflect.Pluralize
+	fm["gtt"] = codegen.GoTypeTransform
+	fm["gttn"] = codegen.GoTypeTransformName
+	fm["vp"] = codegen.VersionPackage
 	return w.ExecuteTemplate("types", userTypeT, fm, data)
 }
 
@@ -126,125 +302,95 @@ func arrayAttribute(a *design.AttributeDefinition) *design.AttributeDefinition {
 	return a.Type.(*design.Array).ElemType
 }
 
+type mediaTemplateVersion struct {
+	Media              *design.MediaTypeDefinition
+	ViewName           string
+	Model              *RelationalModelDefinition
+	View               *design.ViewDefinition
+	VersionPackage     string //v1
+	VersionPackageName string // goified version package V1
+}
+
+// {{ template "MediaVersion" (newMediaTemplateVersion $rmt $vname $ut $vp $vpn)}}
+func newMediaTemplateVersion(mtd *design.MediaTypeDefinition, vn string, view *design.ViewDefinition, model *RelationalModelDefinition, vp, vpn string) *mediaTemplateVersion {
+	return &mediaTemplateVersion{
+		Media:              mtd,
+		ViewName:           vn,
+		View:               view,
+		Model:              model,
+		VersionPackage:     vp,
+		VersionPackageName: vpn,
+	}
+}
+
 const (
 	// userTypeT generates the code for a user type.
 	// template input: UserTypeTemplateData
 	userTypeT = `{{$ut := .UserType}}{{$ap := .AppPkg}}// {{if $ut.Description}}{{$ut.Description}} {{end}}
 {{$ut.StructDefinition}}
-{{ if ne $ut.Alias "" }}
 // TableName overrides the table name settings in Gorm to force a specific table name
 // in the database.
-func (m {{$ut.Name}}) TableName() string {
-	return "{{ $ut.Alias}}"
-}{{end}}
-// {{$ut.Name}}DB is the implementation of the storage interface for
-// {{$ut.Name}}.
-type {{$ut.Name}}DB struct {
+func (m {{$ut.ModelName}}) TableName() string {
+{{ if ne $ut.Alias "" }}
+return "{{ $ut.Alias}}" {{ else }} return "{{ $ut.TableName }}"
+{{end}}
+}
+// {{$ut.ModelName}}DB is the implementation of the storage interface for
+// {{$ut.ModelName}}.
+type {{$ut.ModelName}}DB struct {
 	Db gorm.DB
+	log.Logger
 	{{ if $ut.Cached }}cache *cache.Cache{{end}}
 }
-// New{{$ut.Name}}DB creates a new storage type.
-func New{{$ut.Name}}DB(db gorm.DB) *{{$ut.Name}}DB {
-	{{ if $ut.Cached }}return &{{$ut.Name}}DB{
+// New{{$ut.ModelName}}DB creates a new storage type.
+func New{{$ut.ModelName}}DB(db gorm.DB, logger log.Logger) *{{$ut.ModelName}}DB {
+	glog := logger.New("db", "{{$ut.ModelName}}")
+	{{ if $ut.Cached }}return &{{$ut.ModelName}}DB{
 		Db: db,
+		Logger: glog,
 		cache: cache.New(5*time.Minute, 30*time.Second),
 	}
-	{{ else  }}return &{{$ut.Name}}DB{Db: db}{{ end  }}
+	{{ else  }}return &{{$ut.ModelName}}DB{Db: db, Logger: glog}{{ end  }}
 }
 // DB returns the underlying database.
-func (m *{{$ut.Name}}DB) DB() interface{} {
+func (m *{{$ut.ModelName}}DB) DB() interface{} {
 	return &m.Db
 }
-{{ if $ut.Roler }}
-// GetRole returns the value of the role field and satisfies the Roler interface.
-func (m {{$ut.Name}}) GetRole() string {
-	return {{$f := $ut.Fields.role}}{{if $f.Nullable}}*{{end}}m.Role
-}
-{{end}}
 
-// {{$ut.Name}}Storage represents the storage interface.
-type {{$ut.Name}}Storage interface {
+
+// {{$ut.ModelName}}Storage represents the storage interface.
+type {{$ut.ModelName}}Storage interface {
 	DB() interface{}
-	List(ctx context.Context{{ if $ut.DynamicTableName}}, tableName string{{ end }}) []{{$ut.Name}}
-	One(ctx context.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, {{$ut.PKAttributes}}) ({{$ut.Name}}, error)
-	Add(ctx context.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, {{$ut.LowerName}} {{$ut.Name}}) ({{$ut.Name}}, error)
-	Update(ctx context.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, {{$ut.LowerName}} {{$ut.Name}}) (error)
-	Delete(ctx context.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, {{ $ut.PKAttributes}}) (error) 	{{$dtn:=$ut.DynamicTableName}}{{ range $idx, $bt := $ut.BelongsTo}}
-	ListBy{{$bt.Name}}(ctx context.Context{{ if $dtn}}, tableName string{{ end }},{{$bt.LowerName}}_id int) []{{$ut.Name}}
-	OneBy{{$bt.Name}}(ctx context.Context{{ if $dtn}}, tableName string{{ end }}, {{$bt.LowerName}}_id, id int) ({{$ut.Name}}, error){{end}}
-	{{range $i, $m2m := $ut.ManyToMany}}
-	List{{$m2m.RightNamePlural}}(context.Context, int) []{{$m2m.RightName}}
-	Add{{$m2m.RightNamePlural}}(context.Context, int, int) (error)
-	Delete{{$m2m.RightNamePlural}}(context.Context, int, int) error
-	{{end}}
+	List(ctx *goa.Context{{ if $ut.DynamicTableName}}, tableName string{{ end }}) []{{$ut.ModelName}}
+	Get(ctx *goa.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, {{$ut.PKAttributes}}) ({{$ut.ModelName}}, error)
+	Add(ctx *goa.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, {{$ut.LowerName}} *{{$ut.ModelName}}) (*{{$ut.ModelName}}, error)
+	Update(ctx *goa.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, {{$ut.LowerName}} *{{$ut.ModelName}}) (error)
+	Delete(ctx *goa.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, {{ $ut.PKAttributes}}) (error) 	
+{{ range $rname, $rmt := $ut.RenderTo }}{{ range $vname, $view := $rmt.Views}}{{ $mtd := $ut.Project $rname $vname }}{{$vp := vp "app"}}{{$vpn := goify $vp true}}
+{{ if $rmt.UserTypeDefinition.SupportsNoVersion }}
+List{{$vpn}}{{$rmt.TypeName}}{{if eq $vname "default"}}{{else}}{{goify $vname true}}{{end}} (ctx *goa.Context{{ if $ut.DynamicTableName}}, tableName string{{ end }} {{range $nm, $bt := $ut.BelongsTo}},{{goify $bt.ModelName false}}id int{{end}}) []*{{goify $vpn false}}.{{$rmt.TypeName}}{{if eq $vname "default"}}{{else}}{{goify $vname true}}{{end}}
+One{{$rmt.TypeName}}{{if eq $vname "default"}}{{else}}{{goify $vname true}}{{end}} (ctx *goa.Context{{ if $ut.DynamicTableName}}, tableName string{{ end }}, id int{{range $nm, $bt := $ut.BelongsTo}},{{goify $bt.ModelName false}}id int{{end}}) (*{{goify $vpn false}}.{{$rmt.TypeName}}{{if eq $vname "default"}}{{else}}{{goify $vname true}}{{end}}, error)
+{{ end }}
+{{ range $version :=  $rmt.Versions }} {{$vp := vp $version}}{{$vpn := goify $vp true}}
+// {{$version}} I don't remember why I put this here.  Don't delete until I remember.  What versioned things might we add to the Interface? 
+{{end}}{{end}}{{end}}
 }
 
-// CRUD Functions
-
-// List returns an array of records.
-func (m *{{$ut.Name}}DB) List(ctx context.Context{{ if $ut.DynamicTableName}}, tableName string{{ end }}) []{{$ut.Name}} {
-	var objs []{{$ut.Name}}
-	m.Db{{ if $ut.DynamicTableName }}.Table(tableName){{ end }}.Find(&objs)
-	return objs
+// TableName overrides the table name settings in Gorm to force a specific table name
+// in the database.
+func (m *{{$ut.ModelName}}DB) TableName() string {
+{{ if ne $ut.Alias "" }}
+return "{{ $ut.Alias}}" {{ else }} return "{{ $ut.TableName }}"
+{{end}}
 }
 
-// One returns a single record by ID.
-func (m *{{$ut.Name}}DB) One(ctx context.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, {{$ut.PKAttributes}}) ({{$ut.Name}}, error) {
-	{{ if $ut.Cached }}//first attempt to retrieve from cache
-	o,found := m.cache.Get(strconv.Itoa(id))
-	if found {
-		return o.({{$ut.Name}}), nil
-	}
-	// fallback to database if not found{{ end }}
-	var obj {{$ut.Name}}{{ $l := len $ut.PrimaryKeys }}
-	{{ if eq $l 1 }}
-	err := m.Db{{ if $ut.DynamicTableName }}.Table(tableName){{ end }}.Find(&obj, id).Error{{ else  }}err := m.Db{{ if $ut.DynamicTableName }}.Table(tableName){{ end }}.Find(&obj).Where("{{$ut.PKWhere}}", {{$ut.PKWhereFields }}).Error{{ end }}
-	{{ if $ut.Cached }} go m.cache.Set(strconv.Itoa(id), obj, cache.DefaultExpiration) {{ end }}
-	return obj, err
-}
-// Add creates a new record.
-func (m *{{$ut.Name}}DB) Add(ctx context.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, model {{$ut.Name}}) ({{$ut.Name}}, error) {
-	err := m.Db{{ if $ut.DynamicTableName }}.Table(tableName){{ end }}.Create(&model).Error{{ if $ut.Cached }}
-	go m.cache.Set(strconv.Itoa(model.ID), model, cache.DefaultExpiration) {{ end }}
-	return model, err
-}
-// Update modifies a single record.
-func (m *{{$ut.Name}}DB) Update(ctx context.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, model {{$ut.Name}}) error {
-	obj, err := m.One(ctx{{ if $ut.DynamicTableName }}, tableName{{ end }}, {{$ut.PKUpdateFields "model"}})
-	if err != nil {
-		return  err
-	}
-	err = m.Db{{ if $ut.DynamicTableName }}.Table(tableName){{ end }}.Model(&obj).Updates(model).Error
-	{{ if $ut.Cached }}go func(){
-	obj, err := m.One(ctx, model.ID)
-	if err == nil {
-		m.cache.Set(strconv.Itoa(model.ID), obj, cache.DefaultExpiration)
-	}
-	}()
-	{{ end }}
-	return err
-}
-// Delete removes a single record.
-func (m *{{$ut.Name}}DB) Delete(ctx context.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, {{$ut.PKAttributes}})  error {
-	var obj {{$ut.Name}}{{ $l := len $ut.PrimaryKeys }}
-	{{ if eq $l 1 }}
-	err := m.Db{{ if $ut.DynamicTableName }}.Table(tableName){{ end }}.Delete(&obj, id).Error
-	{{ else  }}err := m.Db{{ if $ut.DynamicTableName }}.Table(tableName){{ end }}.Delete(&obj).Where("{{$ut.PKWhere}}", {{$ut.PKWhereFields}}).Error
-	{{ end }}
-	if err != nil {
-		return  err
-	}
-	{{ if $ut.Cached }} go m.cache.Delete(strconv.Itoa(id)) {{ end }}
-	return  nil
-}
 {{ range $idx, $bt := $ut.BelongsTo}}
 // Belongs To Relationships
-
-// {{$ut.Name}}FilterBy{{$bt.Name}} is a gorm filter for a Belongs To relationship.
-func {{$ut.Name}}FilterBy{{$bt.Name}}(parentid int, originaldb *gorm.DB) func(db *gorm.DB) *gorm.DB {
-	if parentid > 0 {
+// {{$ut.ModelName}}FilterBy{{$bt.ModelName}} is a gorm filter for a Belongs To relationship.
+func {{$ut.ModelName}}FilterBy{{$bt.ModelName}}({{goify $bt.ModelName false}}id int, originaldb *gorm.DB) func(db *gorm.DB) *gorm.DB {
+	if {{goify $bt.ModelName false}}id > 0 {
 		return func(db *gorm.DB) *gorm.DB {
-			return db.Where("{{$bt.LowerName}}_id = ?", parentid)
+			return db.Where("{{$bt.LowerName}}_id = ?", {{goify $bt.ModelName false}}id)
 		}
 	} else {
 		return func(db *gorm.DB) *gorm.DB {
@@ -252,115 +398,167 @@ func {{$ut.Name}}FilterBy{{$bt.Name}}(parentid int, originaldb *gorm.DB) func(db
 		}
 	}
 }
-// ListBy{{$bt.Name}} returns an array of associated {{$bt.Name}} models.
-func (m *{{$ut.Name}}DB) ListBy{{$bt.Name}}(ctx context.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, parentid int) []{{$ut.Name}} {
-	var objs []{{$ut.Name}}
-	m.Db{{ if $ut.DynamicTableName }}.Table(tableName){{ end }}.Scopes({{$ut.Name}}FilterBy{{$bt.Name}}(parentid, &m.Db)).Find(&objs)
+{{end}}
+
+// CRUD Functions
+
+// Get returns a single {{$ut.ModelName}} as a Database Model
+// This is more for use internally, and probably not what you want in  your controllers
+func (m *{{$ut.ModelName}}DB) Get(ctx *goa.Context{{ if $ut.DynamicTableName}}, tableName string{{ end }}, {{$ut.PKAttributes}}) ({{$ut.ModelName}}, error){	
+	now := time.Now()
+	defer ctx.Info("{{$ut.ModelName}}:Get", "duration", time.Since(now))
+	var native {{$ut.ModelName}}
+	err := m.Db.Table({{ if $ut.DynamicTableName }}.Table(tableName){{else}}m.TableName(){{ end }}).Where("{{$ut.PKWhere}}",{{$ut.PKWhereFields}} ).Find(&native).Error
+	if err == gorm.RecordNotFound {
+		return {{$ut.ModelName}}{}, nil
+	}
+	{{ if $ut.Cached }}go m.cache.Set(strconv.Itoa(native.ID), native, cache.DefaultExpiration) 
+	{{end}}
+	return native, err
+}
+
+// List returns an array of {{$ut.ModelName}}
+func (m *{{$ut.ModelName}}DB) List{{$ut.TypeName}}(ctx *goa.Context{{ if $ut.DynamicTableName}}, tableName string{{ end }}) []{{$ut.ModelName}}{
+	now := time.Now()
+	defer ctx.Info("{{$ut.ModelName}}:List", "duration", time.Since(now))
+	var objs []{{$ut.ModelName}}
+	err := m.Db.Table({{ if $ut.DynamicTableName }}.Table(tableName){{else}}m.TableName(){{ end }}).Find(&objs).Error
+	if err != nil && err != gorm.RecordNotFound {
+		ctx.Error("error listing {{$ut.ModelName}}", "error", err.Error())
+		return objs
+	}
+
 	return objs
 }
-// OneBy{{$bt.Name}} returns a single associated {{$bt.Name}} model.
-func (m *{{$ut.Name}}DB) OneBy{{$bt.Name}}(ctx context.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, parentid, {{ $ut.PKAttributes}}) ({{$ut.Name}}, error) {
-	{{ if $ut.Cached }}//first attempt to retrieve from cache
-	o,found := m.cache.Get(strconv.Itoa(id))
-	if found {
-		return o.({{$ut.Name}}), nil
-	}
-	// fallback to database if not found{{ end }}
-	var obj {{$ut.Name}}
-	err := m.Db{{ if $ut.DynamicTableName }}.Table(tableName){{ end }}.Scopes({{$ut.Name}}FilterBy{{$bt.Name}}(parentid, &m.Db)).Find(&obj, id).Error
-	{{ if $ut.Cached }} go m.cache.Set(strconv.Itoa(id), obj, cache.DefaultExpiration) {{ end }}
-	return obj, err
-}
-{{end}}
-
-{{ range $idx, $bt := $ut.ManyToMany}}
-// Many To Many Relationships
-
-// Delete{{goify $bt.RightName true}} removes a {{$bt.RightName}}/{{$bt.LeftName}} entry from the join table.
-func (m *{{$ut.Name}}DB) Delete{{goify $bt.RightName true}}(ctx context.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, {{$ut.LowerName}}ID,  {{$bt.LowerRightName}}ID int)  error {
-	var obj {{$ut.Name}}
-	obj.ID = {{$ut.LowerName}}ID
-	var assoc {{$bt.RightName}}
-	var err error
-	assoc.ID = {{$bt.LowerRightName}}ID
+// Add creates a new record.  /// Maybe shouldn't return the model, it's a pointer.
+func (m *{{$ut.ModelName}}DB) Add(ctx *goa.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, model *{{$ut.ModelName}}) (*{{$ut.ModelName}}, error) {
+	now := time.Now()
+	defer ctx.Info("{{$ut.ModelName}}:Add", "duration", time.Since(now))
+	err := m.Db{{ if $ut.DynamicTableName }}.Table(tableName){{ end }}.Create(model).Error
 	if err != nil {
-		return err
+		ctx.Error("error updating {{$ut.ModelName}}", "error", err.Error())
+		return model, err
 	}
-	err = m.Db{{ if $ut.DynamicTableName }}.Table(tableName){{ end }}.Model(&obj).Association("{{$bt.RightNamePlural}}").Delete(assoc).Error
+	{{ if $ut.Cached }}
+	go m.cache.Set(strconv.Itoa(model.ID), model, cache.DefaultExpiration) {{ end }}
+	return model, err
+}
+// Update modifies a single record.
+func (m *{{$ut.ModelName}}DB) Update(ctx *goa.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, model *{{$ut.ModelName}}) error {
+	now := time.Now()
+	defer ctx.Info("{{$ut.ModelName}}:Update", "duration", time.Since(now))
+	obj, err := m.Get(ctx{{ if $ut.DynamicTableName }}, tableName{{ end }}, {{$ut.PKUpdateFields "model"}})
 	if err != nil {
 		return  err
 	}
-	return  nil
+	err = m.Db{{ if $ut.DynamicTableName }}.Table(tableName){{ end }}.Model(&obj).Updates(model).Error
+	{{ if $ut.Cached }}go func(){
+		m.cache.Set(strconv.Itoa(model.ID), obj, cache.DefaultExpiration)
+	}()
+	{{ end }}
+	return err
 }
-// Add{{goify $bt.RightName true}} creates a new {{$bt.RightName}}/{{$bt.LeftName}} entry in the join table.
-func (m *{{$ut.Name}}DB) Add{{goify $bt.RightName true}}(ctx context.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, {{$ut.LowerName}}ID, {{$bt.LowerRightName}}ID int) error {
-	var {{$ut.LowerName}} {{$ut.Name}}
-	{{$ut.LowerName}}.ID = {{$ut.LowerName}}ID
-	var assoc {{$bt.RightName}}
-	assoc.ID = {{$bt.LowerRightName}}ID
-	err := m.Db{{ if $ut.DynamicTableName }}.Table(tableName){{ end }}.Model(&{{$ut.LowerName}}).Association("{{$bt.RightNamePlural}}").Append(assoc).Error
+// Delete removes a single record.
+func (m *{{$ut.ModelName}}DB) Delete(ctx *goa.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, {{$ut.PKAttributes}})  error {
+	now := time.Now()
+	defer ctx.Info("{{$ut.ModelName}}:Delete", "duration", time.Since(now))
+	var obj {{$ut.ModelName}}{{ $l := len $ut.PrimaryKeys }}
+	{{ if eq $l 1 }}
+	err := m.Db{{ if $ut.DynamicTableName }}.Table(tableName){{ end }}.Delete(&obj, id).Error
+	{{ else  }}err := m.Db{{ if $ut.DynamicTableName }}.Table(tableName){{ end }}.Delete(&obj).Where("{{$ut.PKWhere}}", {{$ut.PKWhereFields}}).Error
+	{{ end }}
 	if err != nil {
+		ctx.Error("error retrieving {{$ut.ModelName}}", "error", err.Error())
 		return  err
 	}
+	{{ if $ut.Cached }} go m.cache.Delete(strconv.Itoa(id)) {{ end }}
 	return  nil
 }
-// List{{goify $bt.RightName true}} returns a list of the {{$bt.RightName}} models related to this {{$bt.LeftName}}.
-func (m *{{$ut.Name}}DB) List{{goify $bt.RightName true}}(ctx context.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, {{$ut.LowerName}}ID int)  []{{$bt.RightName}} {
-	var list []{{$bt.RightName}}
-	var obj {{$ut.Name}}
-	obj.ID = {{$ut.LowerName}}ID
-	m.Db{{ if $ut.DynamicTableName }}.Table(tableName){{ end }}.Model(&obj).Association("{{$bt.RightNamePlural}}").Find(&list)
-	return  list
+
+{{ range $bfn, $bf := $ut.BuiltFrom }}
+	func {{$ut.ModelName}}From{{$bfn}}(payload *app.{{goify $bfn true}}) *{{$ut.ModelName}} {
+	{{$ut.LowerName}} := &{{$ut.ModelName}}{}
+ 	{{ fapm $ut $bf "app" "payload" "payload" $ut.LowerName}}		
+
+ 	 return {{$ut.LowerName}}
+}
+{{ end  }}
+
+
+`
+
+	userHelperT = `{{define "MediaVersion"}}` + mediaVersionT + `{{end}}` + `{{$ut := .UserType}}{{$ap := .AppPkg}}
+{{ if $ut.Roler }}
+// GetRole returns the value of the role field and satisfies the Roler interface.
+func (m {{$ut.ModelName}}) GetRole() string {
+	return {{$f := $ut.Fields.role}}{{if $f.Nullable}}*{{end}}m.Role
 }
 {{end}}
-{{ range $idx, $bt := $ut.BelongsTo}}
-// Filter{{$ut.Name}}By{{$bt.Name}} iterates a list and returns only those with the foreign key provided.
-func Filter{{$ut.Name}}By{{$bt.Name}}(parent *int, list []{{$ut.Name}}) []{{$ut.Name}} {
-	var filtered []{{$ut.Name}}
-	for _,o := range list {
-		if o.{{$bt.Name}}ID == int(*parent) {
-			filtered = append(filtered,o)
-		}
+
+
+{{ range $rname, $rmt := $ut.RenderTo }}
+{{ range $vname, $view := $rmt.Views}}
+{{ $mtd := $ut.Project $rname $vname }}
+
+{{$vp := vp "app"}}{{$vpn := goify $vp true}}
+{{ if $rmt.UserTypeDefinition.SupportsNoVersion }}
+{{ template "MediaVersion" (newMediaTemplateVersion $rmt $vname $view $ut $vp $vpn)}}
+{{ end }}
+{{ range $version :=  $rmt.Versions }} {{$vp := vp $version}}{{$vpn := goify $vp true}}
+// {{$version}}  
+{{ template "MediaVersion" (newMediaTemplateVersion $rmt $vname $view $ut $vp $vpn)}}
+{{end}}{{end}}{{end}}
+
+`
+
+	mediaVersionT = `// MediaType Retrieval Functions
+// List{{.Media.TypeName}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}} returns an array of view: {{.ViewName}}
+func (m *{{.Model.ModelName}}DB) List{{.VersionPackageName}}{{.Media.TypeName}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}} (ctx *goa.Context{{ if .Model.DynamicTableName}}, tableName string{{ end }} {{range $nm, $bt := .Model.BelongsTo}},{{goify $bt.ModelName false}}id int{{end}}) []*{{.VersionPackage}}.{{.Media.TypeName}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}}{
+	now := time.Now()
+	defer ctx.Info("List{{.Media.TypeName}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}}", "duration", time.Since(now))
+	var objs []*{{.VersionPackage}}.{{.Media.TypeName}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}} {{$ctx:= .}}
+	err := m.Db.Scopes({{range $nm, $bt := .Model.BelongsTo}}{{$ctx.Model.ModelName}}FilterBy{{goify $bt.ModelName true}}({{goify $bt.ModelName false}}id, &m.Db), {{end}}).Table({{ if .Model.DynamicTableName }}.Table(tableName){{else}}m.TableName(){{ end }}).{{ range $ln, $lv := .Media.Links }}Preload("{{goify $ln true}}").{{end}}Find(&objs).Error
+
+
+//	err := m.Db.Table({{ if .Model.DynamicTableName }}.Table(tableName){{else}}m.TableName(){{ end }}).{{ range $ln, $lv := .Media.Links }}Preload("{{goify $ln true}}").{{end}}Find(&objs).Error
+	if err != nil {
+		ctx.Error("error listing {{.Model.ModelName}}", "error", err.Error())
+		return objs
 	}
-	return filtered
-}
-{{end}}
 
-{{ if gt (len $ut.RenderTo) 0 }}// Useful conversion functions
-{{range  $tcd := $ut.RenderTo }}{{if $tcd.SupportsNoVersion}}{{ $tcdTypeName := goify $tcd.TypeName true }}
-// To{{$tcdTypeName}} converts a model {{$ut.Name}} to an app {{$tcdTypeName}}.
-func (m *{{$ut.Name}}) To{{$tcdTypeName}}() {{$ap}}.{{$tcdTypeName}} {
-	payload := {{$ap}}.{{$tcdTypeName}}{}
-	{{ famt $ut $tcd "m" "payload"}}
-	return payload
-}
-{{end}}{{end}}{{end}}
-
-{{ if gt (len $ut.RenderTo) 0 }}{{range  $tcd := $ut.RenderTo }}{{ range $version := $tcd.APIVersions }}{{ $tcdTypeName := goify $tcd.TypeName true }}
-// To{{if eq $version ""}}{{title $ap}}{{else}}{{title $version}}{{end}}{{$tcdTypeName}} converts to goa types.
-func (m *{{$ut.Name}}) To{{if eq $version ""}}{{title $ap}}{{else}}{{title $version}}{{end}}{{$tcdTypeName}}() {{if eq $version ""}}{{$ap}}{{else}}{{$version}}{{end}}.{{$tcdTypeName}} {
-	payload := {{if eq $version ""}}{{$ap}}{{else}}{{$version}}{{end}}.{{$tcdTypeName}}{}
-	{{ famt $ut $tcd "m" "payload"}}
-	return payload
-}
-{{end}}{{end}}{{end}}
-
-{{ range $tcd := $ut.BuiltFrom}}{{ range $version := $tcd.APIVersions }} // v{{$version}}
-// Convert from	{{if eq $version ""}}default version{{else}}Version {{$version}}{{end}} {{$tcd.TypeName}} to {{$ut.Name}}.
-func {{$ut.Name}}From{{$version}}{{$tcd.Name}}(t {{if ne $version ""}}{{$version}}.{{else}}{{$ap}}.{{end}}{{$tcd.Name}}) {{$ut.Name}} {
-	{{$ut.LowerName}} := {{$ut.Name}}{}
-	{{ fatm $ut $tcd.Type "m" $ut.LowerName}}
-	return {{$ut.LowerName}}
-}
-{{end}}{{end}}
-{{ range $tcd := $ut.BuiltFrom}}
-// Convert from	default version {{$tcd.TypeName}} to {{$ut.Name}}.
-func {{$ut.Name}}From{{$tcd.TypeName}}(t {{$ap}}.{{$tcd.TypeName}}) {{$ut.Name}} {
-	{{$ut.LowerName}} := {{$ut.Name}}{}
-	{{ fatm $ut $tcd "t" $ut.LowerName}}
-	return {{$ut.LowerName}}
+	return objs
 }
 
-{{end}}
+func (m *{{.Model.ModelName}}) {{$.Model.ModelName}}To{{.VersionPackageName}}{{.Media.UserTypeDefinition.TypeName}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}}() *{{.VersionPackage}}.{{.Media.TypeName}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}} {
+	{{.Model.LowerName}} := &{{.VersionPackage}}.{{.Media.TypeName}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}}{}		
+ 	{{ famt .Model .View .VersionPackageName "m" "m" .Model.LowerName}}		
+
+ 	 return {{.Model.LowerName}}
+}
+
+// One{{.VersionPackageName}}{{.Media.TypeName}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}} returns an array of view: {{.ViewName}}
+func (m *{{.Model.ModelName}}DB) One{{.Media.TypeName}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}} (ctx *goa.Context{{ if .Model.DynamicTableName}}, tableName string{{ end }}, id int{{range $nm, $bt := .Model.BelongsTo}},{{goify $bt.ModelName false}}id int{{end}}) (*{{.VersionPackage}}.{{.Media.TypeName}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}}, error){	
+	now := time.Now()
+	var native {{.Model.ModelName}}
+	defer ctx.Info("One{{.Media.TypeName}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}}", "duration", time.Since(now))
+	err := m.Db.Scopes({{range $nm, $bt := .Model.BelongsTo}}{{$ctx.Model.ModelName}}FilterBy{{goify $bt.ModelName true}}({{goify $bt.ModelName false}}id, &m.Db), {{end}}).Table({{ if .Model.DynamicTableName }}.Table(tableName){{else}}m.TableName(){{ end }}){{range $na, $hm:= .Model.HasMany}}.Preload("{{plural $hm.ModelName}}"){{end}}{{range $nm, $bt := .Model.BelongsTo}}.Preload("{{$bt.ModelName}}"){{end}}.Where("id = ?", id).Find(&native).Error
+
+	if err != nil && err != gorm.RecordNotFound {
+		ctx.Error("error getting {{.Model.ModelName}}", "error", err.Error())
+		return nil , err 
+	}
+	{{ if .Model.Cached }} go func(){
+		m.cache.Set(strconv.Itoa(native.ID), native, cache.DefaultExpiration)
+	}() {{ end }}
+	view := *native.{{.Model.ModelName}}To{{.VersionPackageName}}{{.Media.UserTypeDefinition.TypeName}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}}()
+	return &view, err 
+	
+}
 `
 )
+
+/*
+{{$functionName := gttn $rmt.UserTypeDefinition $mtd.UserTypeDefinition "App"}}
+{{ gtt $rmt.UserTypeDefinition $mtd.UserTypeDefinition "app" $functionName }}
+
+*/

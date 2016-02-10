@@ -5,35 +5,101 @@ import (
 	. "github.com/goadesign/goa/design/apidsl"
 )
 
-// Account is the account resource media type.
-var Account = MediaType("application/vnd.account+json", func() {
-	Description("A tenant account")
+// User is the user resource media type.
+var User = MediaType("application/vnd.user+json", func() {
+	Description("A user belonging to a tenant account")
+	Reference(UserPayload)
 	Attributes(func() {
-		Attribute("id", Integer, "ID of account")
-		Attribute("href", String, "API href of account")
-		Attribute("name", String, "Name of account")
-		Attribute("created_at", String, "Date of creation", func() {
-			Format("date-time")
-		})
-		Attribute("created_by", String, "Email of account owner", func() {
+		Attribute("id", Integer, "ID of user")
+		Attribute("href", String, "API href of user")
+		Attribute("firstname", String, "First name of user")
+		Attribute("lastname", String, "Last name of user")
+		Attribute("city", String, "City of residence")
+		Attribute("state", String, "State of residence")
+		Attribute("country", String, "Country of residence")
+		Attribute("bio", String, "Biography of user")
+		Attribute("role", String, "Role of user")
+		Attribute("email", String, "Email address of user", func() {
 			Format("email")
 		})
-
-		Required("id", "href", "name")
 	})
-
 	View("default", func() {
 		Attribute("id")
 		Attribute("href")
-		Attribute("name")
-		Attribute("created_at")
-		Attribute("created_by")
+		Attribute("firstname")
+		Attribute("lastname")
+		Attribute("email")
+		Attribute("city")
+		Attribute("state")
+		Attribute("country")
+		Attribute("bio")
+		Attribute("role")
 	})
-
-	View("tiny", func() {
+	View("link", func() {
 		Attribute("id")
 		Attribute("href")
-		Attribute("name")
+		Attribute("email")
+	})
+})
+
+// Authorize is the authorize resource media type.
+var Authorize = MediaType("application/vnd.authorize+json", func() {
+	Description("Token authorization response")
+	Attributes(func() {
+		Attribute("access_token", String, "access token", func() {
+		})
+		Attribute("expires_in", Integer, "Time to expiration in seconds", func() {
+		})
+		Attribute("token_type", String, "type of token", func() {
+		})
+
+	})
+
+	View("default", func() {
+		Attribute("access_token")
+		Attribute("expires_in")
+		Attribute("token_type")
+	})
+
+})
+
+// Login is the Login resource media type.
+var Login = MediaType("application/vnd.login+json", func() {
+	Description("")
+	Attributes(func() {
+		Attribute("email", String, "email", func() {
+		})
+		Attribute("password", String, "password", func() {
+		})
+		Attribute("application", String, "UUID of requesting application", func() {
+		})
+
+	})
+
+	View("default", func() {
+		Attribute("email")
+		Attribute("password")
+		Attribute("application")
+	})
+
+})
+
+// Review is the review resource mediatype
+var Review = MediaType("application/vnd.review+json", func() {
+	APIVersion("v1")
+	Description("A review is submitted by a reviewer")
+	Reference(ReviewPayload)
+	Attributes(func() {
+		Attribute("id", Integer, "ID of user")
+		Attribute("href", String, "API href of user")
+		Attribute("comment", String, "Review comments")
+		Attribute("rating", Integer, "Rating of proposal, from 1-5")
+	})
+	View("default", func() {
+		Attribute("id")
+		Attribute("href")
+		Attribute("comment")
+		Attribute("rating")
 	})
 	View("link", func() {
 		Attribute("id")
@@ -41,81 +107,28 @@ var Account = MediaType("application/vnd.account+json", func() {
 	})
 })
 
-// Bottle is the bottle resource media type.
-var Bottle = MediaType("application/vnd.bottle+json", func() {
-	Description("A bottle of wine")
-	Reference(BottlePayload)
+// Proposal is the proposal resource mediatype
+var Proposal = MediaType("application/vnd.proposal+json", func() {
+	APIVersion("v1")
+	Description("A response to a CFP")
+	Reference(ProposalPayload)
 	Attributes(func() {
-		Attribute("id", Integer, "ID of bottle")
-		Attribute("href", String, "API href of bottle")
-		Attribute("rating", Integer, "Rating of bottle between 1 and 5", func() {
-			Minimum(1)
-			Maximum(5)
-		})
-		Attribute("account", Account, "Account that owns bottle")
-		Attribute("created_at", String, "Date of creation", func() {
-			Format("date-time")
-		})
-		Attribute("updated_at", String, "Date of last update", func() {
-			Format("date-time")
-		})
-		// Attributes below inherit from the base type
-		Attribute("name")
-		Attribute("vineyard")
-		Attribute("varietal")
-		Attribute("vintage")
-		Attribute("color")
-		Attribute("sweetness")
-		Attribute("country")
-		Attribute("region")
-		Attribute("review")
-		Attribute("vinyard_county")
-
-		Required("id", "href", "name", "vineyard", "varietal", "vintage", "color")
+		Attribute("id", Integer, "ID of user")
+		Attribute("href", String, "API href of user")
+		Attribute("title", String, "Response title")
+		Attribute("abstract", String, "Response abstract")
+		Attribute("detail", String, "Response detail")
 	})
-
-	Links(func() {
-		Link("account")
-	})
-
 	View("default", func() {
 		Attribute("id")
 		Attribute("href")
-		Attribute("name")
-		Attribute("rating")
-		Attribute("vineyard")
-		Attribute("varietal")
-		Attribute("vintage")
-		Attribute("account", func() {
-			View("tiny")
-		})
-		Attribute("links")
+		Attribute("title")
+		Attribute("abstract")
+		Attribute("detail")
 	})
-
-	View("tiny", func() {
+	View("link", func() {
 		Attribute("id")
 		Attribute("href")
-		Attribute("name")
-		Attribute("rating")
-		Attribute("links")
-	})
-
-	View("full", func() {
-		Attribute("id")
-		Attribute("href")
-		Attribute("name")
-		Attribute("account")
-		Attribute("rating")
-		Attribute("vineyard")
-		Attribute("varietal")
-		Attribute("vintage")
-		Attribute("color")
-		Attribute("sweetness")
-		Attribute("country")
-		Attribute("region")
-		Attribute("review")
-		Attribute("created_at")
-		Attribute("updated_at")
-		Attribute("links")
+		Attribute("title")
 	})
 })

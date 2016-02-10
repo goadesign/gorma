@@ -4,15 +4,24 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/goadesign/goa/dslengine"
-
 	"bitbucket.org/pkg/inflect"
+	"github.com/goadesign/goa/design"
+	"github.com/goadesign/goa/dslengine"
 )
+
+// NewRelationalFieldDefinition returns an initialized
+// RelationalFieldDefinition
+func NewRelationalFieldDefinition() *RelationalFieldDefinition {
+	m := &RelationalFieldDefinition{
+		Mappings: make(map[string]*MapDefinition),
+	}
+	return m
+}
 
 // Context returns the generic definition name used in error messages.
 func (f *RelationalFieldDefinition) Context() string {
-	if f.Name != "" {
-		return fmt.Sprintf("RelationalField %#v", f.Name)
+	if f.FieldName != "" {
+		return fmt.Sprintf("RelationalField %#v", f.FieldName)
 	}
 	return "unnamed RelationalField"
 }
@@ -28,13 +37,20 @@ func (f RelationalFieldDefinition) Children() []dslengine.Definition {
 	return []dslengine.Definition{}
 }
 
+// Attribute implements the Container interface of the goa Attribute
+// model
+func (f *RelationalFieldDefinition) Attribute() *design.AttributeDefinition {
+	return f.a
+
+}
+
 // FieldDefinition returns the field's struct definition
 func (f *RelationalFieldDefinition) FieldDefinition() string {
 	var comment string
 	if f.Description != "" {
 		comment = "// " + f.Description
 	}
-	def := fmt.Sprintf("%s\t%s %s %s\n", f.Name, goDatatype(f), tags(f), comment)
+	def := fmt.Sprintf("%s\t%s %s %s\n", f.FieldName, goDatatype(f, true), tags(f), comment)
 	return def
 }
 
@@ -45,16 +61,16 @@ func (f *RelationalFieldDefinition) Tags() string {
 
 // LowerName returns the field name as a lowercase string.
 func (f *RelationalFieldDefinition) LowerName() string {
-	return strings.ToLower(f.Name)
+	return strings.ToLower(f.FieldName)
 }
 
 // Underscore returns the field name as a lowercase string in snake case
 func (f *RelationalFieldDefinition) Underscore() string {
-	return inflect.Underscore(f.Name)
+	return inflect.Underscore(f.FieldName)
 }
-func goDatatype(f *RelationalFieldDefinition) string {
+func goDatatype(f *RelationalFieldDefinition, includePtr bool) string {
 	var ptr string
-	if f.Nullable {
+	if f.Nullable && includePtr {
 		ptr = "*"
 	}
 	switch f.Datatype {
@@ -72,12 +88,6 @@ func goDatatype(f *RelationalFieldDefinition) string {
 		return ptr + "string"
 	case UUID:
 		return ptr + "string" // what to do about UUIDS?
-	case PKInteger:
-		return ptr + "int"
-	case PKBigInteger:
-		return ptr + "int"
-	case PKUUID:
-		return ptr + "string " // TBD
 	case Timestamp, NullableTimestamp:
 		return ptr + "time.Time"
 	case BelongsTo:
@@ -110,6 +120,11 @@ func tags(f *RelationalFieldDefinition) string {
 	}
 	if f.PrimaryKey {
 		gormtags = append(gormtags, "primary_key")
+	}
+	if f.Many2Many != "" {
+		p := strings.ToLower(f.Parent.ModelName)
+		j := strings.ToLower(f.Many2Many)
+		gormtags = append(gormtags, "many2many:"+p+"_"+j)
 	}
 
 	var tags []string

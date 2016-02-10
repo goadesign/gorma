@@ -43,7 +43,7 @@ func (a *RelationalStoreDefinition) Validate() *dslengine.ValidationErrors {
 func (a *RelationalModelDefinition) Validate() *dslengine.ValidationErrors {
 	fmt.Println("Validating Model")
 	verr := new(dslengine.ValidationErrors)
-	if a.Name == "" {
+	if a.ModelName == "" {
 		verr.Add(a, "model name not defined")
 	}
 	if a.Parent == nil {
@@ -65,7 +65,7 @@ func (field *RelationalFieldDefinition) Validate() *dslengine.ValidationErrors {
 	if field.Parent == nil {
 		verr.Add(field, "missing relational model parent")
 	}
-	if field.Name == "" {
+	if field.FieldName == "" {
 		verr.Add(field, "field name not defined")
 	}
 	return verr.AsError()

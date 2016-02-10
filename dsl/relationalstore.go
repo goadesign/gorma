@@ -1,6 +1,9 @@
 package dsl
 
-import "github.com/goadesign/gorma"
+import (
+	"github.com/goadesign/goa/dslengine"
+	"github.com/goadesign/gorma"
+)
 
 // Store represents a database.  Gorma lets you specify
 // a database type, but it's currently not used for any generation
@@ -24,6 +27,8 @@ func Store(name string, storeType gorma.RelationalStorageType, dsl func()) {
 				Type:             storeType,
 				RelationalModels: make(map[string]*gorma.RelationalModelDefinition),
 			}
+		} else {
+			dslengine.ReportError("Relational Store %s can only be declared once.", name)
 		}
 		s.RelationalStores[name] = store
 	}
