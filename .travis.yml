@@ -1,16 +1,32 @@
 language: go
 go:
-  - 1.4
-  - 1.5
-  - tip
-
+- 1.4.3
+- 1.5.3
+- tip
 sudo: false
 install:
 - go get -v ./...
 - export PATH=$PATH:$HOME/gopath/bin
+- curl https://bitbucket.org/birkenfeld/pygments-main/get/2.1.tar.gz -L -o 2.1.tar.gz
+- mkdir -p ${HOME}/bin
+- tar -xf 2.1.tar.gz
+- mv birkenfeld-pygments-main-34530db252d3/* ${HOME}/bin
+- rm -rf birkenfeld-pygments-main-34530db252d3
 script:
+- export PATH=${PATH}:${HOME}/bin
 - make
+- make docs
 notifications:
   slack:
     secure: tcNpappojuA4O9obbQBX4uyph8J00UyK57yjdYzzVW4WDAFx8KBuaLV7GJoL3c3+nUSwOrp2XzF65JZdQIWf4sjMvIc5wxhPUWXWHY/zIHnlrA3DrOBmr+fEemzUjkPiexfu5C2jwqPNrUyNQchxIGJ+kN3xvHPgXAVdLWQaumO9tVA56VPQlxNfDSPpbuwrEURlWpRBsOYJ8MKD9ZRsgd3FLibc1S8vGb/kIYauQRqqMUg7eBiNigVMFZzcGhNHuHmRiZtHch4HQRNT/SBHga8/6kFfT25UuGDI1JFZVT46nO4r3fGQ5ZnC7f016JjCvVBHJcfw4NDJeSFGTECiJ0WFT6qs+m5dVVKuWZsjJU/92hRMshaK73OEvjljAy9hwapNQj2DMgx38E6zVfhoJn6q+yHYfuXf5Y3x6XscGXlhKpFhgY6o4OvbumggoCBaPPl9avgImifB016aSg8NCPoWODwA0HP+nwEzSbeczEj03gvk27c+KixAKse6vLmdMhtFsd2cloJdjDngrXsDote/vuAF9WWy8KcFDRlNkc+7RIEzNvJYDNS5+yxZAA7gr6eLo9H67lcsJPK9ljz5ZodGCZxmcXYtH/yC1dO38AKyXLZnwJkT8wcbqTJmpdCw7ME+dTY8xHiyCLwmyxI9cOlAN5HTGSEujxYWS7fCnT8=
-
+deploy:
+  provider: gcs
+  access_key_id: GOOGDIIIVPY7O6DG3PSZ
+  secret_access_key:
+    secure: wweE3suXU9B8UWGYUSrqUlxNoH+pLp+sd1ayGMtsjOzTN+U1BveRIwavkJCOUVq1A2hHhe7oC/24XdS+MdxylQcnDTyHwRFBcf/Q+TTfLM4EPmOErQkw15Zy/MP/8velLGrNZk6Je1XiJnNLRbFVcCJRIC384Ka1LVe4e3yooMPt5vVNtJEYdiv08ANNGD3ge/Am5JdQ3ZjRr4ARTIyLUYi2RNeDn0Faj2M4i60/Jo9mcm9pyZHA1sZxnUNxwYNb12qwi02rl60ZCbBhI22yeUhzeNC2cBPOjTwaI0+w+rY1D0bv7/JeQyk0eMK5MZm6cVmQl3tFpyesr9ayWdpTz36EbzbgW81wedHfDlYBbq5HkAd4uxaF6hUknYKcq83arOhXrlqvpxs6/IN/RqlIyjjKvfwM+1Pl+E2j+mXX+RYNwLSR4YCiqFWwwRkRCOIEuopCqs/2ZaZSoqpILRvE/vBSPC4k4p4xUam3ne+1EkugwLMr6nxo8jVw4l0UmQaQtYhy9jge0J9nGe/X2OUXhio4wAAk5+Vh979j6KBTwjdCf2IJrYNHN3nWZnFH3EM424junHcJXFhTsC+KHVIEXUcR1nkeJNfFp275SJVPGcGhEjTVcCsQ/NDTwfY0Xr4INbkJR81/w36Edk8xOfGiXZtuWwJJJk4/8dL+zHAXWVI=
+  bucket: goa.design
+  local-dir: public/reference
+  upload-dir: reference
+  on:
+    repo: goadesign/gorma
+    go: '1.5.3'

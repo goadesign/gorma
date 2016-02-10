@@ -11,6 +11,8 @@
 #
 DIRS=$(shell go list -f {{.Dir}} ./...)
 DEPEND=\
+	github.com/goadesign/goa.design/tools/mdc \
+	github.com/goadesign/goa.design/tools/godoc2md \
 	github.com/golang/lint/golint \
 	github.com/onsi/ginkgo \
 	github.com/onsi/ginkgo/ginkgo \
@@ -20,6 +22,15 @@ DEPEND=\
 .PHONY: goagen
 
 all: depend lint test
+
+docs:
+	@git clone https://github.com/goadesign/goa.design
+	@rm -rf goa.design/content/reference goa.design/public
+	@mdc github.com/goadesign/gorma goa.design/content/reference --exclude goa.design
+	@cd goa.design && hugo --theme goa --uglyURLs=true
+	@rm -rf public
+	@mv goa.design/public public
+	@rm -rf goa.design
 
 depend:
 	@go get $(DEPEND)
