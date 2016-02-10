@@ -482,7 +482,7 @@ func (m *{{$ut.ModelName}}DB) Delete(ctx *goa.Context{{ if $ut.DynamicTableName 
 }
 
 {{ range $bfn, $bf := $ut.BuiltFrom }}
-	func {{$ut.ModelName}}From{{$bfn}}(payload app.{{goify $bfn true}}) *{{$ut.ModelName}} {
+	func {{$ut.ModelName}}From{{$bfn}}(payload *app.{{goify $bfn true}}) *{{$ut.ModelName}} {
 	{{$ut.LowerName}} := &{{$ut.ModelName}}{}
  	{{ fapm $ut $bf "app" "payload" "payload" $ut.LowerName}}		
 

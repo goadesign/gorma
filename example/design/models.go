@@ -10,7 +10,10 @@ var _ = StorageGroup("CongoStorageGroup", func() {
 	Store("postgres", gorma.Postgres, func() {
 		Description("This is the Postgres relational store")
 		Model("User", func() {
-			BuildsFrom(UserPayload)
+			BuildsFrom(func() {
+				Payload("user", "create")
+				Payload("user", "update")
+			})
 			RendersTo(User)
 			Description("User Model")
 			HasMany("Reviews", "Review")
@@ -24,7 +27,10 @@ var _ = StorageGroup("CongoStorageGroup", func() {
 		})
 
 		Model("Proposal", func() {
-			BuildsFrom(ProposalPayload)
+			BuildsFrom(func() {
+				Payload("proposal", "create")
+				Payload("proposal", "update")
+			})
 			RendersTo(Proposal)
 			Description("Proposal Model")
 			BelongsTo("User")
@@ -41,7 +47,10 @@ var _ = StorageGroup("CongoStorageGroup", func() {
 		})
 
 		Model("Review", func() {
-			BuildsFrom(ReviewPayload)
+			BuildsFrom(func() {
+				Payload("review", "create")
+				Payload("review", "update")
+			})
 			RendersTo(Review)
 			Description("Review Model")
 			BelongsTo("User")
