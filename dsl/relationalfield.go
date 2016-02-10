@@ -12,12 +12,14 @@ import (
 )
 
 // Field is a DSL definition for a field in a Relational Model.
-// TODO: Examples and more docs here later.
-//
 // Parameter Options:
+// A field called "Title" with type String
 // Field("Title")
+// Explicitly specify the type
 // Field("Title", gorma.String)
+// "Title" field, as String with other DSL included
 // Field("Title", func(){... other field level dsl ...})
+// All options specified, name, type and dsl
 // Field("Title", gorma.String, func(){... other field level dsl ...})
 func Field(name string, args ...interface{}) {
 	// We can't rely on this being run first, any of the top level DSL could run
@@ -75,7 +77,7 @@ func MapsFrom(utd *design.UserTypeDefinition, field string) {
 	}
 }
 
-// MapsTo establishes a relationship between a field in model and
+// MapsTo establishes a mapping relationship between a field in model and
 // a MediaType in goa.
 func MapsTo(mtd *design.MediaTypeDefinition, field string) {
 	if f, ok := relationalFieldDefinition(true); ok {
@@ -95,7 +97,9 @@ func fixID(s string) string {
 
 }
 
-//Nullable sets the fields nullability
+// Nullable sets the fields nullability
+// A Nullable field will be stored as a pointer.  A field that is
+// not Nullable won't be stored as a pointer.
 func Nullable() {
 	if f, ok := relationalFieldDefinition(false); ok {
 		f.Nullable = true
@@ -104,6 +108,7 @@ func Nullable() {
 
 // PrimaryKey establishes a field as a Primary Key by
 // seting the struct tags necessary to create the PK in gorm.
+// Valid only for `Integer` datatypes currently
 func PrimaryKey() {
 	if f, ok := relationalFieldDefinition(true); ok {
 		checkInit()

@@ -2,8 +2,7 @@ package gorma
 
 import "fmt"
 
-// NewRelationalModelDefinition returns an initialized
-// RelationalModelDefinition
+// NewBuildSource returns an initialized BuildSource
 func NewBuildSource() *BuildSource {
 	bs := &BuildSource{}
 	return bs

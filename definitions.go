@@ -62,6 +62,8 @@ type RelationalModelDefinition struct {
 	many2many        []string
 }
 
+// BuildSource stores the BuildsFrom sources
+// for parsing
 type BuildSource struct {
 	dslengine.Definition
 	DefinitionDSL   func()
@@ -69,7 +71,8 @@ type BuildSource struct {
 	BuildSourceName string
 }
 
-// MapDefinition represents something
+// MapDefinition represents field mapping to and from
+// Gorma models
 type MapDefinition struct {
 	RemoteType  *design.UserTypeDefinition
 	RemoteField string

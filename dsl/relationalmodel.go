@@ -16,6 +16,11 @@ import (
 // Model is the DSL that represents a Relational Model.
 // Model name should be Title cased.  Use BuildsFrom() and RendersTo() DSL
 // to define the mapping between a Model and a Goa Type.
+// Models may contain multiple instances of the `Field` DSL to
+// add fields to the model.
+// To control whether the ID field is auto-generated, use `NoAutomaticIDFields()`
+// Similarly, use NoAutomaticTimestamps() and NoAutomaticSoftDelete() to
+// prevent CreatedAt, UpdatedAt and DeletedAt fields from being created.
 func Model(name string, dsl func()) {
 	// We can't rely on this being run first, any of the top level DSL could run
 	// in any order. The top level DSLs are API, Version, Resource, MediaType and Type.
@@ -35,7 +40,8 @@ func Model(name string, dsl func()) {
 			model.DefinitionDSL = dsl
 		}
 		s.RelationalModels[name] = model
-
+		// much stutter here
+		// TODO(BJK) refactor
 		if !s.NoAutoIDFields {
 			field := gorma.NewRelationalFieldDefinition()
 			field.FieldName = SanitizeFieldName("ID")
@@ -95,6 +101,8 @@ func RendersTo(rt interface{}) {
 // from a Goa UserType.  Conversion functions
 // will be generated to convert from the payload to the model.
 // Usage:  BuildsFrom(YourType)
+// Fields not in `YourType` that you want in your model must be
+// added explicitly with the `Field` DSL.
 func BuildsFrom(dsl func()) {
 	checkInit()
 	if m, ok := relationalModelDefinition(false); ok {
@@ -114,6 +122,10 @@ func BuildsFrom(dsl func()) {
 
 }
 
+// Payload specifies the Resource and Action containing
+// a User Type (Payload)
+// Gorma will generate a conversion function for the Payload to
+// the Model.
 func Payload(r interface{}, act string) {
 	if bs, ok := buildSourceDefinition(true); ok {
 
@@ -183,6 +195,8 @@ func HasOne(child string) {
 		field.Parent = r
 		r.RelationalFields[field.FieldName] = field
 		bt, ok := r.Parent.RelationalModels[child]
+
+		// Refactor (BJK)
 		if ok {
 			r.HasOne[child] = bt
 			// create the fk field
@@ -221,7 +235,7 @@ func HasOne(child string) {
 // appended to the field list.  The Parent model definition will use
 // the first parameter as the field name in the struct definition.
 // Usage:  HasMany("Orders", "Order")
-// Struct field definition:  Children	[]Child
+// Generated struct field definition:  Children	[]Child
 func HasMany(name, child string) {
 	if r, ok := relationalModelDefinition(false); ok {
 		field := gorma.NewRelationalFieldDefinition()
@@ -286,6 +300,7 @@ func ManyToMany(other, tablename string) {
 		model, ok := r.Parent.RelationalModels[other]
 		var m2m *gorma.ManyToManyDefinition
 
+		// refactor (BJK)
 		if ok {
 			m2m = &gorma.ManyToManyDefinition{
 				Left:          r,
@@ -318,6 +333,9 @@ func Alias(d string) {
 }
 
 // Cached caches the models for `duration` seconds.
+// Not fully implemented yet, and not guaranteed to stay
+// in Gorma long-term because of the complex rendering
+// that happens in the conversion functions.
 func Cached(d string) {
 	if r, ok := relationalModelDefinition(false); ok {
 		r.Cached = true

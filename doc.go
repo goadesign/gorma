@@ -5,6 +5,8 @@ on how to create a definition for your API.
 
 The `example` folder contains an example Goa design package.
 The `models.go` file is the Gorma definition, which is responsible
-for generating all the files in the `example\genmodels` folder.
+for generating all the files in the `example\models` folder.
+
+See specific documentation in the `dsl` package.
 */
 package gorma

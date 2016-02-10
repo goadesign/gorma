@@ -20,24 +20,40 @@ Gorma generates Go code that uses [gorm](https://github.com/jinzhu/gorm) to acce
 By default, a primary key field is created as type `int` with name ID.  Also Gorm's magic date stamp fields `created_at`, `updated_at` and `deleted_at` are created.  Override this behavior with the Automatic* DSL functions on the Store.
 
 
+## Translations
+Use the `BuildsFrom` and `RendersTo` DSL to have Gorma generate translation functions to translate your model
+to Media Types and from Payloads (User Types).  If you don't have any complex business logic in your controllers, this makes a typical controller function 3-4 lines long.
+
 ## Use
 Write a storage definition using DSL from the `dsl` package.  Example:
 
 ```
+
 	var sg = StorageGroup("MyStorageGroup", func() {
 		Description("This is the global storage group")
 		Store("mysql", gorma.MySQL, func() {
 			Description("This is the mysql relational store")
 			Model("Bottle", func() {
-				BuiltFrom(BottlePayload)
-				RenderTo(Bottle)
-				Description("This is the bottle model")
-				Field("Vintage", gorma.Integer, func() {
-					SQLTag("index")
+				BuildsFrom(func() {
+					Payload("myresource","actionname")  // e.g. "bottle", "create" resource definition
 				})
+				RendersTo(Bottle)						// a Media Type definition
+				Description("This is the bottle model")
+				Field("ID", gorma.Integer, func() {    //  redundant
+					PrimaryKey()
+					Description("This is the ID PK field")
+				})
+				Field("Vintage", gorma.Integer, func() {
+					SQLTag("index")						// Add an index
+				})
+				Field("CreatedAt", gorma.Timestamp)
+				Field("UpdatedAt", gorma.Timestamp)			 // Shown for demonstration
+				Field("DeletedAt", gorma.NullableTimestamp)  // These are added by default
 			})
 		})
 	})
+
+
 ```
 
 See the `dsl` GoDoc for all the details and options.

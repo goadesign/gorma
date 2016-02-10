@@ -142,22 +142,3 @@ func tags(f *RelationalFieldDefinition) string {
 	}
 	return ""
 }
-
-/*
-	Boolean           FieldType             = "bool"
-	Integer           FieldType             = "integer"
-	BigInteger        FieldType             = "biginteger"
-	AutoInteger       FieldType             = "auto_integer"
-	AutoBigInteger    FieldType             = "auto_biginteger"
-	Decimal           FieldType             = "decimal"
-	BigDecimal        FieldType             = "bigdecimal"
-	String            FieldType             = "string"
-	Text              FieldType             = "text"
-	UUID              FieldType             = "uuid"
-	PKInteger         FieldType             = "pkinteger"
-	PKBigInteger      FieldType             = "pkbiginteger"
-	PKUUID            FieldType             = "pkuuid"
-	Timestamp         FieldType             = "timestamp"
-	NullableTimestamp FieldType             = "nulltimestamp"
-
-*/
