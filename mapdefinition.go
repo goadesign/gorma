@@ -1,7 +1,7 @@
 package gorma
 
 // NewMapDefinition returns an initialized
-// MapDefinition
+// MapDefinition.
 func NewMapDefinition() *MapDefinition {
 	return &MapDefinition{}
 }

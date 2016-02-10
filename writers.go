@@ -201,6 +201,7 @@ func viewSelect(ut *RelationalModelDefinition, v *design.ViewDefinition) string 
 	sort.Strings(fields)
 	return strings.Join(fields, ",")
 }
+
 func viewFields(ut *RelationalModelDefinition, v *design.ViewDefinition) []*RelationalFieldDefinition {
 	obj := v.Type.(design.Object)
 	var fields []*RelationalFieldDefinition

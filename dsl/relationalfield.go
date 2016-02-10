@@ -13,14 +13,18 @@ import (
 
 // Field is a DSL definition for a field in a Relational Model.
 // Parameter Options:
-// A field called "Title" with type String
-// Field("Title")
-// Explicitly specify the type
-// Field("Title", gorma.String)
-// "Title" field, as String with other DSL included
-// Field("Title", func(){... other field level dsl ...})
-// All options specified, name, type and dsl
-// Field("Title", gorma.String, func(){... other field level dsl ...})
+//
+//	// A field called "Title" with default type `String`.
+//	Field("Title")
+//
+//	// Explicitly specify the type.
+//	Field("Title", gorma.String)
+//
+//	// "Title" field, as `String` with other DSL included.
+//	Field("Title", func(){... other field level dsl ...})
+//
+//	// All options specified: name, type and dsl.
+//	Field("Title", gorma.String, func(){... other field level dsl ...})
 func Field(name string, args ...interface{}) {
 	// We can't rely on this being run first, any of the top level DSL could run
 	// in any order. The top level DSLs are API, Version, Resource, MediaType and Type.

@@ -8,7 +8,7 @@ import (
 )
 
 // NewStorageGroupDefinition returns an initialized
-// StorageGroupDefinition
+// StorageGroupDefinition.
 func NewStorageGroupDefinition() *StorageGroupDefinition {
 	m := &StorageGroupDefinition{
 		RelationalStores: make(map[string]*RelationalStoreDefinition),

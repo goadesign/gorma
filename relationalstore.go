@@ -8,7 +8,7 @@ import (
 )
 
 // NewRelationalStoreDefinition returns an initialized
-// RelationalStoreDefinition
+// RelationalStoreDefinition.
 func NewRelationalStoreDefinition() *RelationalStoreDefinition {
 	m := &RelationalStoreDefinition{
 		RelationalModels: make(map[string]*RelationalModelDefinition),
