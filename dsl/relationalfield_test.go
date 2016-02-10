@@ -158,4 +158,59 @@ var _ = Describe("RelationalField", func() {
 
 	})
 
+	Context("Primary Keys", func() {
+		JustBeforeEach(func() {
+
+			gdsl.StorageGroup(sgname, func() {
+				gdsl.Store(storename, gorma.MySQL, func() {
+					gdsl.NoAutomaticIDFields()
+					gdsl.Model(modelname, func() {
+						//gdsl.BuildsFrom(RandomPayload)
+						gdsl.Field(name, ft, dsl)
+						gdsl.Field("id", gorma.Integer, dsl) // use lowercase "id" to test sanitizer
+						gdsl.Field("MiddleName", gorma.String)
+						gdsl.Field("CreatedAt", gorma.Timestamp)
+						gdsl.Field("UpdatedAt", gorma.Timestamp)
+						gdsl.Field("DeletedAt", gorma.NullableTimestamp)
+					})
+				})
+			})
+			Run()
+
+			Ω(Errors).ShouldNot(HaveOccurred())
+			Ω(Design.Validate()).ShouldNot(HaveOccurred())
+		})
+
+		Context("sets Primary Key flags", func() {
+
+			BeforeEach(func() {
+				name = "random"
+				dsl = func() {
+					gdsl.PrimaryKey()
+				}
+			})
+			It("sets the pk flag", func() {
+				sg := gorma.GormaDesign
+				rs := sg.RelationalStores[storename]
+				rm := rs.RelationalModels[modelname]
+				Ω(rm.RelationalFields["ID"].PrimaryKey).Should(Equal(true))
+			})
+		})
+		Context("doesn't set Primary Key flag", func() {
+
+			BeforeEach(func() {
+				name = "random"
+				dsl = func() {
+				}
+			})
+			It("the pk flag", func() {
+				sg := gorma.GormaDesign
+				rs := sg.RelationalStores[storename]
+				rm := rs.RelationalModels[modelname]
+				Ω(rm.RelationalFields["ID"].PrimaryKey).Should(Equal(false))
+			})
+		})
+
+	})
+
 })
