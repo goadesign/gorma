@@ -56,7 +56,9 @@ func MountAuthController(service goa.Service, ctrl AuthController) {
 	service.Info("mount", "ctrl", "Auth", "action", "Oauth", "route", "GET /api/auth/:provider")
 	h = func(c *goa.Context) error {
 		ctx, err := NewRefreshAuthContext(c)
-		ctx.Payload = ctx.RawPayload().(*RefreshAuthPayload)
+		if rawPayload := ctx.RawPayload(); rawPayload != nil {
+			ctx.Payload = rawPayload.(*RefreshAuthPayload)
+		}
 		if err != nil {
 			return goa.NewBadRequestError(err)
 		}
@@ -66,7 +68,9 @@ func MountAuthController(service goa.Service, ctrl AuthController) {
 	service.Info("mount", "ctrl", "Auth", "action", "Refresh", "route", "POST /api/auth/refresh")
 	h = func(c *goa.Context) error {
 		ctx, err := NewTokenAuthContext(c)
-		ctx.Payload = ctx.RawPayload().(*TokenAuthPayload)
+		if rawPayload := ctx.RawPayload(); rawPayload != nil {
+			ctx.Payload = rawPayload.(*TokenAuthPayload)
+		}
 		if err != nil {
 			return goa.NewBadRequestError(err)
 		}
@@ -151,7 +155,9 @@ func MountUserController(service goa.Service, ctrl UserController) {
 	mux := service.ServeMux()
 	h = func(c *goa.Context) error {
 		ctx, err := NewCreateUserContext(c)
-		ctx.Payload = ctx.RawPayload().(*CreateUserPayload)
+		if rawPayload := ctx.RawPayload(); rawPayload != nil {
+			ctx.Payload = rawPayload.(*CreateUserPayload)
+		}
 		if err != nil {
 			return goa.NewBadRequestError(err)
 		}
@@ -188,7 +194,9 @@ func MountUserController(service goa.Service, ctrl UserController) {
 	service.Info("mount", "ctrl", "User", "action", "Show", "route", "GET /api/users/:userID")
 	h = func(c *goa.Context) error {
 		ctx, err := NewUpdateUserContext(c)
-		ctx.Payload = ctx.RawPayload().(*UpdateUserPayload)
+		if rawPayload := ctx.RawPayload(); rawPayload != nil {
+			ctx.Payload = rawPayload.(*UpdateUserPayload)
+		}
 		if err != nil {
 			return goa.NewBadRequestError(err)
 		}

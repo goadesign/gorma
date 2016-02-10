@@ -26,9 +26,9 @@ type Review struct {
 	ProposalID int // Belongs To Proposal
 	Rating     int
 	UserID     int        // has many Review
-	DeletedAt  *time.Time // nullable timestamp (soft delete)
 	CreatedAt  time.Time  // timestamp
 	UpdatedAt  time.Time  // timestamp
+	DeletedAt  *time.Time // nullable timestamp (soft delete)
 	User       User
 	Proposal   Proposal
 }
@@ -67,9 +67,9 @@ type ReviewStorage interface {
 	Update(ctx *goa.Context, review *Review) error
 	Delete(ctx *goa.Context, id int) error
 
-	// v1
+	// v1 I don't remember why I put this here.  Don't delete until I remember.  What versioned things might we add to the Interface?
 
-	// v1
+	// v1 I don't remember why I put this here.  Don't delete until I remember.  What versioned things might we add to the Interface?
 
 }
 

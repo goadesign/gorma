@@ -29,8 +29,8 @@ type Proposal struct {
 	UserID    int // has many Proposal
 	Withdrawn *bool
 	DeletedAt *time.Time // nullable timestamp (soft delete)
-	UpdatedAt time.Time  // timestamp
 	CreatedAt time.Time  // timestamp
+	UpdatedAt time.Time  // timestamp
 	User      User
 }
 
@@ -68,9 +68,9 @@ type ProposalStorage interface {
 	Update(ctx *goa.Context, proposal *Proposal) error
 	Delete(ctx *goa.Context, id int) error
 
-	// v1
+	// v1 I don't remember why I put this here.  Don't delete until I remember.  What versioned things might we add to the Interface?
 
-	// v1
+	// v1 I don't remember why I put this here.  Don't delete until I remember.  What versioned things might we add to the Interface?
 
 }
 
@@ -170,8 +170,8 @@ func (m *ProposalDB) Delete(ctx *goa.Context, id int) error {
 func ProposalFromCreateProposalPayload(payload *app.CreateProposalPayload) *Proposal {
 	proposal := &Proposal{}
 	proposal.Withdrawn = payload.Withdrawn
-	proposal.Abstract = payload.Abstract
 	proposal.Title = payload.Title
+	proposal.Abstract = payload.Abstract
 	proposal.Detail = payload.Detail
 
 	return proposal
@@ -179,10 +179,10 @@ func ProposalFromCreateProposalPayload(payload *app.CreateProposalPayload) *Prop
 
 func ProposalFromUpdateProposalPayload(payload *app.UpdateProposalPayload) *Proposal {
 	proposal := &Proposal{}
-	proposal.Title = *payload.Title
-	proposal.Detail = *payload.Detail
 	proposal.Withdrawn = payload.Withdrawn
+	proposal.Title = *payload.Title
 	proposal.Abstract = *payload.Abstract
+	proposal.Detail = *payload.Detail
 
 	return proposal
 }

@@ -37,10 +37,10 @@ func (m *ProposalDB) ListV1Proposal(ctx *goa.Context, userid int) []*v1.Proposal
 
 func (m *Proposal) ProposalToV1Proposal() *v1.Proposal {
 	proposal := &v1.Proposal{}
-	proposal.ID = &m.ID
-	proposal.Abstract = &m.Abstract
 	proposal.Title = &m.Title
+	proposal.Abstract = &m.Abstract
 	proposal.Detail = &m.Detail
+	proposal.ID = &m.ID
 
 	return proposal
 }

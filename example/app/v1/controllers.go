@@ -40,7 +40,9 @@ func MountProposalController(service goa.Service, ctrl ProposalController) {
 	h = func(c *goa.Context) error {
 		ctx, err := NewCreateProposalContext(c)
 		ctx.APIVersion = service.Version("v1").VersionName()
-		ctx.Payload = ctx.RawPayload().(*CreateProposalPayload)
+		if rawPayload := ctx.RawPayload(); rawPayload != nil {
+			ctx.Payload = rawPayload.(*CreateProposalPayload)
+		}
 		if err != nil {
 			return goa.NewBadRequestError(err)
 		}
@@ -81,7 +83,9 @@ func MountProposalController(service goa.Service, ctrl ProposalController) {
 	h = func(c *goa.Context) error {
 		ctx, err := NewUpdateProposalContext(c)
 		ctx.APIVersion = service.Version("v1").VersionName()
-		ctx.Payload = ctx.RawPayload().(*UpdateProposalPayload)
+		if rawPayload := ctx.RawPayload(); rawPayload != nil {
+			ctx.Payload = rawPayload.(*UpdateProposalPayload)
+		}
 		if err != nil {
 			return goa.NewBadRequestError(err)
 		}
@@ -143,7 +147,9 @@ func MountReviewController(service goa.Service, ctrl ReviewController) {
 	h = func(c *goa.Context) error {
 		ctx, err := NewCreateReviewContext(c)
 		ctx.APIVersion = service.Version("v1").VersionName()
-		ctx.Payload = ctx.RawPayload().(*CreateReviewPayload)
+		if rawPayload := ctx.RawPayload(); rawPayload != nil {
+			ctx.Payload = rawPayload.(*CreateReviewPayload)
+		}
 		if err != nil {
 			return goa.NewBadRequestError(err)
 		}
@@ -184,7 +190,9 @@ func MountReviewController(service goa.Service, ctrl ReviewController) {
 	h = func(c *goa.Context) error {
 		ctx, err := NewUpdateReviewContext(c)
 		ctx.APIVersion = service.Version("v1").VersionName()
-		ctx.Payload = ctx.RawPayload().(*UpdateReviewPayload)
+		if rawPayload := ctx.RawPayload(); rawPayload != nil {
+			ctx.Payload = rawPayload.(*UpdateReviewPayload)
+		}
 		if err != nil {
 			return goa.NewBadRequestError(err)
 		}
