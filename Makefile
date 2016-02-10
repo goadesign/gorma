@@ -15,6 +15,7 @@ DEPEND=\
 	github.com/goadesign/goa.design/tools/godoc2md \
 	github.com/golang/lint/golint \
 	github.com/onsi/ginkgo \
+	github.com/spf13/hugo \
 	github.com/onsi/ginkgo/ginkgo \
 	github.com/onsi/gomega \
  	golang.org/x/tools/cmd/goimports \
