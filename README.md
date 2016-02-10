@@ -7,6 +7,7 @@ Gorma is a storage generator for [goa](http://goa.design).
 
 - [Purpose](#purpose)
 - [Opinionated](#opinionated)
+- [Translations](#translations)
 - [Use](#use)
 
 
