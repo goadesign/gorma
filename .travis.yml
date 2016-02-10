@@ -23,7 +23,7 @@ deploy:
   provider: gcs
   access_key_id: GOOGDIIIVPY7O6DG3PSZ
   secret_access_key:
-    secure: wweE3suXU9B8UWGYUSrqUlxNoH+pLp+sd1ayGMtsjOzTN+U1BveRIwavkJCOUVq1A2hHhe7oC/24XdS+MdxylQcnDTyHwRFBcf/Q+TTfLM4EPmOErQkw15Zy/MP/8velLGrNZk6Je1XiJnNLRbFVcCJRIC384Ka1LVe4e3yooMPt5vVNtJEYdiv08ANNGD3ge/Am5JdQ3ZjRr4ARTIyLUYi2RNeDn0Faj2M4i60/Jo9mcm9pyZHA1sZxnUNxwYNb12qwi02rl60ZCbBhI22yeUhzeNC2cBPOjTwaI0+w+rY1D0bv7/JeQyk0eMK5MZm6cVmQl3tFpyesr9ayWdpTz36EbzbgW81wedHfDlYBbq5HkAd4uxaF6hUknYKcq83arOhXrlqvpxs6/IN/RqlIyjjKvfwM+1Pl+E2j+mXX+RYNwLSR4YCiqFWwwRkRCOIEuopCqs/2ZaZSoqpILRvE/vBSPC4k4p4xUam3ne+1EkugwLMr6nxo8jVw4l0UmQaQtYhy9jge0J9nGe/X2OUXhio4wAAk5+Vh979j6KBTwjdCf2IJrYNHN3nWZnFH3EM424junHcJXFhTsC+KHVIEXUcR1nkeJNfFp275SJVPGcGhEjTVcCsQ/NDTwfY0Xr4INbkJR81/w36Edk8xOfGiXZtuWwJJJk4/8dL+zHAXWVI=
+    secure: JRgLO+aCMRgMEQHujG9Xjxez6CmTiSxE14dNGc+iG16jcgUjmRnyY1adNcp/gxzmi274qRC8OYT10+NVNVRl4lK7HTtCcWuCWOI3N1o77RZqNA+e2k4GrNrsAmfnlbUu2Eg8XCrlQfctwJmN6058oQ8r/hdq36JUk0xDPgA8hws=
   bucket: goa.design
   local-dir: public/reference
   upload-dir: reference
