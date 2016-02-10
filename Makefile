@@ -27,7 +27,7 @@ all: depend lint test
 docs:
 	@git clone https://github.com/goadesign/goa.design
 	@rm -rf goa.design/content/reference goa.design/public
-	@mdc github.com/goadesign/gorma goa.design/content/reference --exclude goa.design
+	@mdc github.com/goadesign/gorma goa.design/content/reference --exclude goa.design --exclude example
 	@cd goa.design && hugo --theme goa --uglyURLs=true
 	@rm -rf public
 	@mv goa.design/public public
