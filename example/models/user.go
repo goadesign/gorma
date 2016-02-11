@@ -31,9 +31,9 @@ type User struct {
 	Proposals []Proposal // has many Proposals
 	Reviews   []Review   // has many Reviews
 	State     *string
-	UpdatedAt time.Time  // timestamp
-	CreatedAt time.Time  // timestamp
 	DeletedAt *time.Time // nullable timestamp (soft delete)
+	CreatedAt time.Time  // timestamp
+	UpdatedAt time.Time  // timestamp
 }
 
 // TableName overrides the table name settings in Gorm to force a specific table name
@@ -156,28 +156,52 @@ func (m *UserDB) Delete(ctx *goa.Context, id int) error {
 	return nil
 }
 
+// UserFromCreateUserPayload Converts source CreateUserPayload to target User model
+// only copying the non-nil fields from the source.
 func UserFromCreateUserPayload(payload *app.CreateUserPayload) *User {
 	user := &User{}
-	user.Country = payload.Country
-	user.State = payload.State
-	user.Lastname = payload.Lastname
-	user.Bio = payload.Bio
-	user.City = payload.City
 	user.Email = payload.Email
+	user.Lastname = payload.Lastname
+	if payload.Country != nil {
+		user.Country = payload.Country
+	}
+	if payload.State != nil {
+		user.State = payload.State
+	}
+	if payload.Bio != nil {
+		user.Bio = payload.Bio
+	}
+	if payload.City != nil {
+		user.City = payload.City
+	}
 	user.Firstname = payload.Firstname
 
 	return user
 }
 
+// UserFromUpdateUserPayload Converts source UpdateUserPayload to target User model
+// only copying the non-nil fields from the source.
 func UserFromUpdateUserPayload(payload *app.UpdateUserPayload) *User {
 	user := &User{}
-	user.Bio = payload.Bio
-	user.City = payload.City
+	if payload.Lastname != nil {
+		user.Lastname = *payload.Lastname
+	}
+	if payload.Country != nil {
+		user.Country = payload.Country
+	}
 	user.Email = payload.Email
-	user.Firstname = *payload.Firstname
-	user.Lastname = *payload.Lastname
-	user.Country = payload.Country
-	user.State = payload.State
+	if payload.State != nil {
+		user.State = payload.State
+	}
+	if payload.Bio != nil {
+		user.Bio = payload.Bio
+	}
+	if payload.City != nil {
+		user.City = payload.City
+	}
+	if payload.Firstname != nil {
+		user.Firstname = *payload.Firstname
+	}
 
 	return user
 }

@@ -168,22 +168,36 @@ func (m *ProposalDB) Delete(ctx *goa.Context, id int) error {
 	return nil
 }
 
+// ProposalFromCreateProposalPayload Converts source CreateProposalPayload to target Proposal model
+// only copying the non-nil fields from the source.
 func ProposalFromCreateProposalPayload(payload *app.CreateProposalPayload) *Proposal {
 	proposal := &Proposal{}
+	if payload.Withdrawn != nil {
+		proposal.Withdrawn = payload.Withdrawn
+	}
+	proposal.Detail = payload.Detail
 	proposal.Title = payload.Title
 	proposal.Abstract = payload.Abstract
-	proposal.Detail = payload.Detail
-	proposal.Withdrawn = payload.Withdrawn
 
 	return proposal
 }
 
+// ProposalFromUpdateProposalPayload Converts source UpdateProposalPayload to target Proposal model
+// only copying the non-nil fields from the source.
 func ProposalFromUpdateProposalPayload(payload *app.UpdateProposalPayload) *Proposal {
 	proposal := &Proposal{}
-	proposal.Title = *payload.Title
-	proposal.Abstract = *payload.Abstract
-	proposal.Detail = *payload.Detail
-	proposal.Withdrawn = payload.Withdrawn
+	if payload.Withdrawn != nil {
+		proposal.Withdrawn = payload.Withdrawn
+	}
+	if payload.Detail != nil {
+		proposal.Detail = *payload.Detail
+	}
+	if payload.Title != nil {
+		proposal.Title = *payload.Title
+	}
+	if payload.Abstract != nil {
+		proposal.Abstract = *payload.Abstract
+	}
 
 	return proposal
 }

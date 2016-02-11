@@ -76,8 +76,18 @@ func fieldAssignmentPayloadToModel(model *RelationalModelDefinition, ut *design.
 					prefix = ""
 				}
 
+				if upointer {
+					ifa := fmt.Sprintf("if %s.%s != nil {", v, codegen.Goify(key, true))
+					fieldAssignments = append(fieldAssignments, ifa)
+				}
+
 				fa := fmt.Sprintf("\t%s.%s = %s%s.%s", utype, fname, prefix, v, codegen.Goify(key, true))
 				fieldAssignments = append(fieldAssignments, fa)
+
+				if upointer {
+					ifa := fmt.Sprintf("}")
+					fieldAssignments = append(fieldAssignments, ifa)
+				}
 			}
 		}
 	}
@@ -477,6 +487,8 @@ func (m *{{$ut.ModelName}}DB) Delete(ctx *goa.Context{{ if $ut.DynamicTableName 
 }
 
 {{ range $bfn, $bf := $ut.BuiltFrom }}
+	// {{$ut.ModelName}}From{{$bfn}} Converts source {{goify $bfn true}} to target {{$ut.ModelName}} model
+	// only copying the non-nil fields from the source.
 	func {{$ut.ModelName}}From{{$bfn}}(payload *app.{{goify $bfn true}}) *{{$ut.ModelName}} {
 	{{$ut.LowerName}} := &{{$ut.ModelName}}{}
  	{{ fapm $ut $bf "app" "payload" "payload" $ut.LowerName}}		

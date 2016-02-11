@@ -39,8 +39,8 @@ func (m *Proposal) ProposalToAppProposal() *app.Proposal {
 	proposal := &app.Proposal{}
 	proposal.Title = &m.Title
 	proposal.Abstract = &m.Abstract
-	proposal.ID = &m.ID
 	proposal.Detail = &m.Detail
+	proposal.ID = &m.ID
 
 	return proposal
 }
