@@ -31,9 +31,9 @@ type User struct {
 	Proposals []Proposal // has many Proposals
 	Reviews   []Review   // has many Reviews
 	State     *string
-	UpdatedAt time.Time  // timestamp
 	DeletedAt *time.Time // nullable timestamp (soft delete)
 	CreatedAt time.Time  // timestamp
+	UpdatedAt time.Time  // timestamp
 }
 
 // TableName overrides the table name settings in Gorm to force a specific table name
@@ -75,6 +75,10 @@ type UserStorage interface {
 
 	ListAppUserLink(ctx *goa.Context) []*app.UserLink
 	OneUserLink(ctx *goa.Context, id int) (*app.UserLink, error)
+
+	UpdateFromCreateUserPayload(ctx *goa.Context, payload *app.CreateUserPayload, id int) error
+
+	UpdateFromUpdateUserPayload(ctx *goa.Context, payload *app.UpdateUserPayload, id int) error
 }
 
 // TableName overrides the table name settings in Gorm to force a specific table name
@@ -160,20 +164,20 @@ func (m *UserDB) Delete(ctx *goa.Context, id int) error {
 // only copying the non-nil fields from the source.
 func UserFromCreateUserPayload(payload *app.CreateUserPayload) *User {
 	user := &User{}
-	if payload.City != nil {
-		user.City = payload.City
-	}
 	if payload.Country != nil {
 		user.Country = payload.Country
 	}
 	user.Email = payload.Email
-	user.Lastname = payload.Lastname
-	if payload.Bio != nil {
-		user.Bio = payload.Bio
-	}
 	user.Firstname = payload.Firstname
+	if payload.City != nil {
+		user.City = payload.City
+	}
+	user.Lastname = payload.Lastname
 	if payload.State != nil {
 		user.State = payload.State
+	}
+	if payload.Bio != nil {
+		user.Bio = payload.Bio
 	}
 
 	return user
@@ -190,20 +194,20 @@ func (m *UserDB) UpdateFromCreateUserPayload(ctx *goa.Context, payload *app.Crea
 		ctx.Error("error retrieving User", "error", err.Error())
 		return err
 	}
-	obj.Lastname = payload.Lastname
-	if payload.City != nil {
-		obj.City = payload.City
-	}
-	if payload.Country != nil {
-		obj.Country = payload.Country
-	}
-	obj.Email = payload.Email
-	obj.Firstname = payload.Firstname
 	if payload.State != nil {
 		obj.State = payload.State
 	}
 	if payload.Bio != nil {
 		obj.Bio = payload.Bio
+	}
+	if payload.City != nil {
+		obj.City = payload.City
+	}
+	obj.Lastname = payload.Lastname
+	obj.Email = payload.Email
+	obj.Firstname = payload.Firstname
+	if payload.Country != nil {
+		obj.Country = payload.Country
 	}
 
 	err = m.Db.Save(&obj).Error
@@ -214,15 +218,12 @@ func (m *UserDB) UpdateFromCreateUserPayload(ctx *goa.Context, payload *app.Crea
 // only copying the non-nil fields from the source.
 func UserFromUpdateUserPayload(payload *app.UpdateUserPayload) *User {
 	user := &User{}
-	if payload.City != nil {
-		user.City = payload.City
+	user.Email = payload.Email
+	if payload.Firstname != nil {
+		user.Firstname = *payload.Firstname
 	}
 	if payload.Country != nil {
 		user.Country = payload.Country
-	}
-	user.Email = payload.Email
-	if payload.Lastname != nil {
-		user.Lastname = *payload.Lastname
 	}
 	if payload.State != nil {
 		user.State = payload.State
@@ -230,8 +231,11 @@ func UserFromUpdateUserPayload(payload *app.UpdateUserPayload) *User {
 	if payload.Bio != nil {
 		user.Bio = payload.Bio
 	}
-	if payload.Firstname != nil {
-		user.Firstname = *payload.Firstname
+	if payload.City != nil {
+		user.City = payload.City
+	}
+	if payload.Lastname != nil {
+		user.Lastname = *payload.Lastname
 	}
 
 	return user
@@ -248,24 +252,24 @@ func (m *UserDB) UpdateFromUpdateUserPayload(ctx *goa.Context, payload *app.Upda
 		ctx.Error("error retrieving User", "error", err.Error())
 		return err
 	}
-	if payload.Bio != nil {
-		obj.Bio = payload.Bio
-	}
-	if payload.Firstname != nil {
-		obj.Firstname = *payload.Firstname
-	}
-	if payload.State != nil {
-		obj.State = payload.State
-	}
-	if payload.City != nil {
-		obj.City = payload.City
-	}
 	if payload.Country != nil {
 		obj.Country = payload.Country
 	}
 	obj.Email = payload.Email
+	if payload.Firstname != nil {
+		obj.Firstname = *payload.Firstname
+	}
+	if payload.Bio != nil {
+		obj.Bio = payload.Bio
+	}
+	if payload.City != nil {
+		obj.City = payload.City
+	}
 	if payload.Lastname != nil {
 		obj.Lastname = *payload.Lastname
+	}
+	if payload.State != nil {
+		obj.State = payload.State
 	}
 
 	err = m.Db.Save(&obj).Error
