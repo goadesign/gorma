@@ -5,13 +5,13 @@ import (
 	"github.com/goadesign/goa/dslengine"
 )
 
-// RelationalStorageType is the type of database
+// RelationalStorageType is the type of database.
 type RelationalStorageType string
 
-// FieldType is the storage data type for a database field
+// FieldType is the storage data type for a database field.
 type FieldType string
 
-// StorageGroupDefinition is the parent configuration structure for Gorma definitions
+// StorageGroupDefinition is the parent configuration structure for Gorma definitions.
 type StorageGroupDefinition struct {
 	dslengine.Definition
 	DefinitionDSL    func()
@@ -20,7 +20,7 @@ type StorageGroupDefinition struct {
 	RelationalStores map[string]*RelationalStoreDefinition
 }
 
-// RelationalStoreDefinition is the parent configuration structure for Gorm relational model definitions
+// RelationalStoreDefinition is the parent configuration structure for Gorm relational model definitions.
 type RelationalStoreDefinition struct {
 	dslengine.Definition
 	DefinitionDSL    func()
@@ -35,7 +35,7 @@ type RelationalStoreDefinition struct {
 }
 
 // RelationalModelDefinition implements the storage of a domain model into a
-// table in a relational database
+// table in a relational database.
 type RelationalModelDefinition struct {
 	dslengine.Definition
 	*design.UserTypeDefinition
@@ -63,7 +63,7 @@ type RelationalModelDefinition struct {
 }
 
 // BuildSource stores the BuildsFrom sources
-// for parsing
+// for parsing.
 type BuildSource struct {
 	dslengine.Definition
 	DefinitionDSL   func()
@@ -72,15 +72,16 @@ type BuildSource struct {
 }
 
 // MapDefinition represents field mapping to and from
-// Gorma models
+// Gorma models.
 type MapDefinition struct {
 	RemoteType  *design.UserTypeDefinition
 	RemoteField string
 }
 
 // MediaTypeAdapterDefinition represents the transformation of a
-// Goa media type into a Gorma Model
-// Unimplemented at this time
+// Goa media type into a Gorma Model.
+//
+// Unimplemented at this time.
 type MediaTypeAdapterDefinition struct {
 	dslengine.Definition
 	DefinitionDSL func()
@@ -91,8 +92,9 @@ type MediaTypeAdapterDefinition struct {
 }
 
 // UserTypeAdapterDefinition represents the transformation of a Goa
-// user type into a Gorma Model
-// Unimplemented at this time
+// user type into a Gorma Model.
+//
+// Unimplemented at this time.
 type UserTypeAdapterDefinition struct {
 	dslengine.Definition
 	DefinitionDSL func()
@@ -103,9 +105,10 @@ type UserTypeAdapterDefinition struct {
 }
 
 // PayloadAdapterDefinition represents the transformation of a Goa
-// Payload (which is really a UserTypeDefinition
-// into a Gorma model
-// Unimplemented at this time
+// Payload (which is really a UserTypeDefinition)
+// into a Gorma model.
+//
+// Unimplemented at this time.
 type PayloadAdapterDefinition struct {
 	dslengine.Definition
 	DefinitionDSL func()
@@ -116,7 +119,7 @@ type PayloadAdapterDefinition struct {
 }
 
 // RelationalFieldDefinition represents
-// a field in a relational database
+// a field in a relational database.
 type RelationalFieldDefinition struct {
 	dslengine.Definition
 	DefinitionDSL     func()
@@ -140,7 +143,7 @@ type RelationalFieldDefinition struct {
 }
 
 // ManyToManyDefinition stores information about a ManyToMany
-// relationship between two domain objects
+// relationship between two domain objects.
 type ManyToManyDefinition struct {
 	dslengine.Definition
 	DefinitionDSL    func()
@@ -151,17 +154,17 @@ type ManyToManyDefinition struct {
 }
 
 // StoreIterator is a function that iterates over Relational Stores in a
-// StorageGroup
+// StorageGroup.
 type StoreIterator func(m *RelationalStoreDefinition) error
 
 // ModelIterator is a function that iterates over Models in a
-// RelationalStore
+// RelationalStore.
 type ModelIterator func(m *RelationalModelDefinition) error
 
 // FieldIterator is a function that iterates over Fields
-// in a RelationalModel
+// in a RelationalModel.
 type FieldIterator func(m *RelationalFieldDefinition) error
 
 // BuildSourceIterator is a function that iterates over Fields
-// in a RelationalModel
+// in a RelationalModel.
 type BuildSourceIterator func(m *BuildSource) error

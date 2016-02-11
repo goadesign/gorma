@@ -17,6 +17,7 @@ import (
 // to define the mapping between a Model and a Goa Type.
 // Models may contain multiple instances of the `Field` DSL to
 // add fields to the model.
+//
 // To control whether the ID field is auto-generated, use `NoAutomaticIDFields()`
 // Similarly, use NoAutomaticTimestamps() and NoAutomaticSoftDelete() to
 // prevent CreatedAt, UpdatedAt and DeletedAt fields from being created.
@@ -83,7 +84,8 @@ func Model(name string, dsl func()) {
 // RendersTo informs Gorma that this model will need to be
 // rendered to a Goa type.  Conversion functions
 // will be generated to convert to/from the model.
-// Usage:   RendersTo(MediaType)
+//
+// Usage: RendersTo(MediaType)
 func RendersTo(rt interface{}) {
 	checkInit()
 	if m, ok := relationalModelDefinition(false); ok {
@@ -98,7 +100,9 @@ func RendersTo(rt interface{}) {
 // BuildsFrom informs Gorma that this model will be populated
 // from a Goa UserType.  Conversion functions
 // will be generated to convert from the payload to the model.
+//
 // Usage:  BuildsFrom(YourType)
+//
 // Fields not in `YourType` that you want in your model must be
 // added explicitly with the `Field` DSL.
 func BuildsFrom(dsl func()) {
@@ -121,7 +125,7 @@ func BuildsFrom(dsl func()) {
 }
 
 // Payload specifies the Resource and Action containing
-// a User Type (Payload)
+// a User Type (Payload).
 // Gorma will generate a conversion function for the Payload to
 // the Model.
 func Payload(r interface{}, act string) {
@@ -155,6 +159,7 @@ func Payload(r interface{}, act string) {
 // BelongsTo signifies a relationship between this model and a
 // Parent.  The Parent has the child, and the Child belongs
 // to the Parent.
+//
 // Usage:  BelongsTo("User")
 func BelongsTo(parent string) {
 	if r, ok := relationalModelDefinition(false); ok {
@@ -182,6 +187,7 @@ func BelongsTo(parent string) {
 // to have a ThisModelID field as a Foreign Key to this model's
 // Primary Key.  ThisModel will have a field named OtherModel of type
 // OtherModel.
+//
 // Usage:  HasOne("Proposal")
 func HasOne(child string) {
 	if r, ok := relationalModelDefinition(false); ok {
@@ -232,7 +238,9 @@ func HasOne(child string) {
 // of the child model.  The Child model will have a ParentID field
 // appended to the field list.  The Parent model definition will use
 // the first parameter as the field name in the struct definition.
+//
 // Usage:  HasMany("Orders", "Order")
+//
 // Generated struct field definition:  Children	[]Child
 func HasMany(name, child string) {
 	if r, ok := relationalModelDefinition(false); ok {
@@ -279,9 +287,11 @@ func HasMany(name, child string) {
 // between this model and another model.  For example, in retail an Order can
 // contain many products, and a product can belong to many orders.  To express
 // this relationship use the following syntax:
-// Model("Order", func(){
-//    ManyToMany("Product", "order_lines")
-// })
+//
+//		Model("Order", func(){
+//			ManyToMany("Product", "order_lines")
+//		})
+//
 // This specifies that the Order and Product tables have a "junction" table
 // called `order_lines` that contains the order and product information.
 // The generated model will have a field called `Products` that will

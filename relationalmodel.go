@@ -13,7 +13,7 @@ import (
 )
 
 // NewRelationalModelDefinition returns an initialized
-// RelationalModelDefinition
+// RelationalModelDefinition.
 func NewRelationalModelDefinition() *RelationalModelDefinition {
 	baseAttr := &design.AttributeDefinition{}
 	utd := &design.UserTypeDefinition{
@@ -48,7 +48,7 @@ func (f *RelationalModelDefinition) DSL() func() {
 	return f.DefinitionDSL
 }
 
-// TableName returns the TableName of the struct
+// TableName returns the TableName of the struct.
 func (f RelationalModelDefinition) TableName() string {
 	return inflect.Underscore(inflect.Pluralize(f.ModelName))
 }
@@ -129,7 +129,9 @@ func (f *RelationalModelDefinition) Attribute() *design.AttributeDefinition {
 
 }
 
-// Project does something interesting, and I don't remember if I use it anywhere
+// Project does something interesting, and I don't remember if I use it
+// anywhere.
+//
 // TODO find out
 func (f *RelationalModelDefinition) Project(name, v string) *design.MediaTypeDefinition {
 
@@ -217,7 +219,7 @@ func (f *RelationalModelDefinition) IterateFields(it FieldIterator) error {
 
 // PopulateFromModeledType creates fields for the model
 // based on the goa UserTypeDefinition it models, which is
-// set using BuildsFrom()
+// set using BuildsFrom().
 // This happens before fields are processed, so it's
 // ok to just assign without testing.
 func (f *RelationalModelDefinition) PopulateFromModeledType() {
