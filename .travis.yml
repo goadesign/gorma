@@ -29,7 +29,7 @@ deploy:
   upload-dir: reference
   skip-cleanup: true
   acl: public-read
-  cache-control: no-cache
+  cache-control: max-age=300
   on:
     repo: goadesign/gorma
     go: '1.5.3'
