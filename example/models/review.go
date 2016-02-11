@@ -26,9 +26,9 @@ type Review struct {
 	ProposalID int // Belongs To Proposal
 	Rating     int
 	UserID     int        // has many Review
-	DeletedAt  *time.Time // nullable timestamp (soft delete)
 	CreatedAt  time.Time  // timestamp
 	UpdatedAt  time.Time  // timestamp
+	DeletedAt  *time.Time // nullable timestamp (soft delete)
 	User       User
 	Proposal   Proposal
 }
@@ -181,6 +181,8 @@ func (m *ReviewDB) Delete(ctx *goa.Context, id int) error {
 	return nil
 }
 
+// ReviewFromCreateReviewPayload Converts source CreateReviewPayload to target Review model
+// only copying the non-nil fields from the source.
 func ReviewFromCreateReviewPayload(payload *app.CreateReviewPayload) *Review {
 	review := &Review{}
 	if payload.Comment != nil {
@@ -191,6 +193,8 @@ func ReviewFromCreateReviewPayload(payload *app.CreateReviewPayload) *Review {
 	return review
 }
 
+// ReviewFromUpdateReviewPayload Converts source UpdateReviewPayload to target Review model
+// only copying the non-nil fields from the source.
 func ReviewFromUpdateReviewPayload(payload *app.UpdateReviewPayload) *Review {
 	review := &Review{}
 	if payload.Comment != nil {

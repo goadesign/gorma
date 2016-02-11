@@ -39,12 +39,12 @@ func (m *User) UserToAppUser() *app.User {
 	user := &app.User{}
 	user.Bio = m.Bio
 	user.City = m.City
-	user.Country = m.Country
-	user.ID = &m.ID
 	user.Firstname = &m.Firstname
-	user.State = m.State
+	user.Country = m.Country
 	user.Email = &m.Email
 	user.Lastname = &m.Lastname
+	user.ID = &m.ID
+	user.State = m.State
 
 	return user
 }
