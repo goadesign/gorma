@@ -494,6 +494,23 @@ func (m *{{$ut.ModelName}}DB) Delete(ctx *goa.Context{{ if $ut.DynamicTableName 
 
  	 return {{$ut.LowerName}}
 }
+
+	// UpdateFrom{{$bfn}} applies non-nil changes from {{goify $bfn true}} to the model
+	// and saves it
+	func (m *{{$ut.ModelName}}DB)UpdateFrom{{$bfn}}(ctx *goa.Context{{ if $ut.DynamicTableName}}, tableName string{{ end }},payload *app.{{goify $bfn true}}, {{$ut.PKAttributes}}) error {
+	now := time.Now()
+	defer ctx.Info("{{$ut.ModelName}}:Update", "duration", time.Since(now))
+	var obj {{$ut.ModelName}}
+	 err := m.Db.Table({{ if $ut.DynamicTableName }}tableName{{else}}m.TableName(){{ end }}).Where("{{$ut.PKWhere}}",{{$ut.PKWhereFields}} ).Find(&obj).Error
+	if err != nil {
+		ctx.Error("error retrieving {{$ut.ModelName}}", "error", err.Error())
+		return  err
+	}
+ 	{{ fapm $ut $bf "app" "payload" "payload" "obj"}}		
+	
+	err = m.Db.Save(&obj).Error
+ 	 return err
+}
 {{ end  }}
 
 

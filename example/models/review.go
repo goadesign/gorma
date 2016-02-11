@@ -26,9 +26,9 @@ type Review struct {
 	ProposalID int // Belongs To Proposal
 	Rating     int
 	UserID     int        // has many Review
-	CreatedAt  time.Time  // timestamp
 	UpdatedAt  time.Time  // timestamp
 	DeletedAt  *time.Time // nullable timestamp (soft delete)
+	CreatedAt  time.Time  // timestamp
 	User       User
 	Proposal   Proposal
 }
@@ -193,6 +193,26 @@ func ReviewFromCreateReviewPayload(payload *app.CreateReviewPayload) *Review {
 	return review
 }
 
+// UpdateFromCreateReviewPayload applies non-nil changes from CreateReviewPayload to the model
+// and saves it
+func (m *ReviewDB) UpdateFromCreateReviewPayload(ctx *goa.Context, payload *app.CreateReviewPayload, id int) error {
+	now := time.Now()
+	defer ctx.Info("Review:Update", "duration", time.Since(now))
+	var obj Review
+	err := m.Db.Table(m.TableName()).Where("id = ?", id).Find(&obj).Error
+	if err != nil {
+		ctx.Error("error retrieving Review", "error", err.Error())
+		return err
+	}
+	if payload.Comment != nil {
+		obj.Comment = payload.Comment
+	}
+	obj.Rating = payload.Rating
+
+	err = m.Db.Save(&obj).Error
+	return err
+}
+
 // ReviewFromUpdateReviewPayload Converts source UpdateReviewPayload to target Review model
 // only copying the non-nil fields from the source.
 func ReviewFromUpdateReviewPayload(payload *app.UpdateReviewPayload) *Review {
@@ -205,4 +225,26 @@ func ReviewFromUpdateReviewPayload(payload *app.UpdateReviewPayload) *Review {
 	}
 
 	return review
+}
+
+// UpdateFromUpdateReviewPayload applies non-nil changes from UpdateReviewPayload to the model
+// and saves it
+func (m *ReviewDB) UpdateFromUpdateReviewPayload(ctx *goa.Context, payload *app.UpdateReviewPayload, id int) error {
+	now := time.Now()
+	defer ctx.Info("Review:Update", "duration", time.Since(now))
+	var obj Review
+	err := m.Db.Table(m.TableName()).Where("id = ?", id).Find(&obj).Error
+	if err != nil {
+		ctx.Error("error retrieving Review", "error", err.Error())
+		return err
+	}
+	if payload.Comment != nil {
+		obj.Comment = payload.Comment
+	}
+	if payload.Rating != nil {
+		obj.Rating = *payload.Rating
+	}
+
+	err = m.Db.Save(&obj).Error
+	return err
 }

@@ -175,11 +175,33 @@ func ProposalFromCreateProposalPayload(payload *app.CreateProposalPayload) *Prop
 	if payload.Withdrawn != nil {
 		proposal.Withdrawn = payload.Withdrawn
 	}
-	proposal.Detail = payload.Detail
 	proposal.Title = payload.Title
 	proposal.Abstract = payload.Abstract
+	proposal.Detail = payload.Detail
 
 	return proposal
+}
+
+// UpdateFromCreateProposalPayload applies non-nil changes from CreateProposalPayload to the model
+// and saves it
+func (m *ProposalDB) UpdateFromCreateProposalPayload(ctx *goa.Context, payload *app.CreateProposalPayload, id int) error {
+	now := time.Now()
+	defer ctx.Info("Proposal:Update", "duration", time.Since(now))
+	var obj Proposal
+	err := m.Db.Table(m.TableName()).Where("id = ?", id).Find(&obj).Error
+	if err != nil {
+		ctx.Error("error retrieving Proposal", "error", err.Error())
+		return err
+	}
+	obj.Title = payload.Title
+	obj.Abstract = payload.Abstract
+	obj.Detail = payload.Detail
+	if payload.Withdrawn != nil {
+		obj.Withdrawn = payload.Withdrawn
+	}
+
+	err = m.Db.Save(&obj).Error
+	return err
 }
 
 // ProposalFromUpdateProposalPayload Converts source UpdateProposalPayload to target Proposal model
@@ -189,15 +211,43 @@ func ProposalFromUpdateProposalPayload(payload *app.UpdateProposalPayload) *Prop
 	if payload.Withdrawn != nil {
 		proposal.Withdrawn = payload.Withdrawn
 	}
-	if payload.Detail != nil {
-		proposal.Detail = *payload.Detail
-	}
 	if payload.Title != nil {
 		proposal.Title = *payload.Title
 	}
 	if payload.Abstract != nil {
 		proposal.Abstract = *payload.Abstract
 	}
+	if payload.Detail != nil {
+		proposal.Detail = *payload.Detail
+	}
 
 	return proposal
+}
+
+// UpdateFromUpdateProposalPayload applies non-nil changes from UpdateProposalPayload to the model
+// and saves it
+func (m *ProposalDB) UpdateFromUpdateProposalPayload(ctx *goa.Context, payload *app.UpdateProposalPayload, id int) error {
+	now := time.Now()
+	defer ctx.Info("Proposal:Update", "duration", time.Since(now))
+	var obj Proposal
+	err := m.Db.Table(m.TableName()).Where("id = ?", id).Find(&obj).Error
+	if err != nil {
+		ctx.Error("error retrieving Proposal", "error", err.Error())
+		return err
+	}
+	if payload.Title != nil {
+		obj.Title = *payload.Title
+	}
+	if payload.Abstract != nil {
+		obj.Abstract = *payload.Abstract
+	}
+	if payload.Detail != nil {
+		obj.Detail = *payload.Detail
+	}
+	if payload.Withdrawn != nil {
+		obj.Withdrawn = payload.Withdrawn
+	}
+
+	err = m.Db.Save(&obj).Error
+	return err
 }
