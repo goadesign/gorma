@@ -37,14 +37,14 @@ func (m *UserDB) ListAppUser(ctx *goa.Context) []*app.User {
 
 func (m *User) UserToAppUser() *app.User {
 	user := &app.User{}
-	user.Country = m.Country
-	user.State = m.State
-	user.Lastname = &m.Lastname
-	user.ID = &m.ID
 	user.Bio = m.Bio
 	user.City = m.City
-	user.Email = &m.Email
+	user.Country = m.Country
+	user.ID = &m.ID
 	user.Firstname = &m.Firstname
+	user.State = m.State
+	user.Email = &m.Email
+	user.Lastname = &m.Lastname
 
 	return user
 }

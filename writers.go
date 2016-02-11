@@ -76,8 +76,18 @@ func fieldAssignmentPayloadToModel(model *RelationalModelDefinition, ut *design.
 					prefix = ""
 				}
 
+				if upointer {
+					ifa := fmt.Sprintf("if %s.%s != nil {", v, codegen.Goify(key, true))
+					fieldAssignments = append(fieldAssignments, ifa)
+				}
+
 				fa := fmt.Sprintf("\t%s.%s = %s%s.%s", utype, fname, prefix, v, codegen.Goify(key, true))
 				fieldAssignments = append(fieldAssignments, fa)
+
+				if upointer {
+					ifa := fmt.Sprintf("}")
+					fieldAssignments = append(fieldAssignments, ifa)
+				}
 			}
 		}
 	}

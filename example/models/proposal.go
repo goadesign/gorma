@@ -171,19 +171,29 @@ func (m *ProposalDB) Delete(ctx *goa.Context, id int) error {
 func ProposalFromCreateProposalPayload(payload *app.CreateProposalPayload) *Proposal {
 	proposal := &Proposal{}
 	proposal.Title = payload.Title
+	if payload.Withdrawn != nil {
+		proposal.Withdrawn = payload.Withdrawn
+	}
 	proposal.Abstract = payload.Abstract
 	proposal.Detail = payload.Detail
-	proposal.Withdrawn = payload.Withdrawn
 
 	return proposal
 }
 
 func ProposalFromUpdateProposalPayload(payload *app.UpdateProposalPayload) *Proposal {
 	proposal := &Proposal{}
-	proposal.Title = *payload.Title
-	proposal.Abstract = *payload.Abstract
-	proposal.Detail = *payload.Detail
-	proposal.Withdrawn = payload.Withdrawn
+	if payload.Title != nil {
+		proposal.Title = *payload.Title
+	}
+	if payload.Withdrawn != nil {
+		proposal.Withdrawn = payload.Withdrawn
+	}
+	if payload.Abstract != nil {
+		proposal.Abstract = *payload.Abstract
+	}
+	if payload.Detail != nil {
+		proposal.Detail = *payload.Detail
+	}
 
 	return proposal
 }

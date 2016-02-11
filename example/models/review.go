@@ -26,11 +26,11 @@ type Review struct {
 	ProposalID int // Belongs To Proposal
 	Rating     int
 	UserID     int        // has many Review
+	DeletedAt  *time.Time // nullable timestamp (soft delete)
 	CreatedAt  time.Time  // timestamp
 	UpdatedAt  time.Time  // timestamp
-	DeletedAt  *time.Time // nullable timestamp (soft delete)
-	Proposal   Proposal
 	User       User
+	Proposal   Proposal
 }
 
 // TableName overrides the table name settings in Gorm to force a specific table name
@@ -183,7 +183,9 @@ func (m *ReviewDB) Delete(ctx *goa.Context, id int) error {
 
 func ReviewFromCreateReviewPayload(payload *app.CreateReviewPayload) *Review {
 	review := &Review{}
-	review.Comment = payload.Comment
+	if payload.Comment != nil {
+		review.Comment = payload.Comment
+	}
 	review.Rating = payload.Rating
 
 	return review
@@ -191,8 +193,12 @@ func ReviewFromCreateReviewPayload(payload *app.CreateReviewPayload) *Review {
 
 func ReviewFromUpdateReviewPayload(payload *app.UpdateReviewPayload) *Review {
 	review := &Review{}
-	review.Comment = payload.Comment
-	review.Rating = *payload.Rating
+	if payload.Comment != nil {
+		review.Comment = payload.Comment
+	}
+	if payload.Rating != nil {
+		review.Rating = *payload.Rating
+	}
 
 	return review
 }
