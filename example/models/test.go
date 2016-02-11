@@ -20,9 +20,9 @@ import (
 
 // TestModel
 type Test struct {
-	DeletedAt *time.Time // nullable timestamp (soft delete)
 	CreatedAt time.Time  // timestamp
 	UpdatedAt time.Time  // timestamp
+	DeletedAt *time.Time // nullable timestamp (soft delete)
 }
 
 // TableName overrides the table name settings in Gorm to force a specific table name

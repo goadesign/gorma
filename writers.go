@@ -382,9 +382,14 @@ type {{$ut.ModelName}}Storage interface {
 List{{$vpn}}{{$rmt.TypeName}}{{if eq $vname "default"}}{{else}}{{goify $vname true}}{{end}} (ctx *goa.Context{{ if $ut.DynamicTableName}}, tableName string{{ end }} {{range $nm, $bt := $ut.BelongsTo}},{{goify $bt.ModelName false}}id int{{end}}) []*{{goify $vpn false}}.{{$rmt.TypeName}}{{if eq $vname "default"}}{{else}}{{goify $vname true}}{{end}}
 One{{$rmt.TypeName}}{{if eq $vname "default"}}{{else}}{{goify $vname true}}{{end}} (ctx *goa.Context{{ if $ut.DynamicTableName}}, tableName string{{ end }}, id int{{range $nm, $bt := $ut.BelongsTo}},{{goify $bt.ModelName false}}id int{{end}}) (*{{goify $vpn false}}.{{$rmt.TypeName}}{{if eq $vname "default"}}{{else}}{{goify $vname true}}{{end}}, error)
 {{ end }}
+
+
 {{ range $version :=  $rmt.Versions }} {{$vp := vp $version}}{{$vpn := goify $vp true}}
 // {{$version}} I don't remember why I put this here.  Don't delete until I remember.  What versioned things might we add to the Interface? 
 {{end}}{{end}}{{end}}
+{{range $bfn, $bf := $ut.BuiltFrom}}
+UpdateFrom{{$bfn}}(ctx *goa.Context{{ if $ut.DynamicTableName}}, tableName string{{ end }},payload *app.{{goify $bfn true}}, {{$ut.PKAttributes}}) error
+{{end }}
 }
 
 // TableName overrides the table name settings in Gorm to force a specific table name

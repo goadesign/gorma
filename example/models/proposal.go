@@ -28,9 +28,9 @@ type Proposal struct {
 	Title     string
 	UserID    int // has many Proposal
 	Withdrawn *bool
-	CreatedAt time.Time  // timestamp
 	UpdatedAt time.Time  // timestamp
 	DeletedAt *time.Time // nullable timestamp (soft delete)
+	CreatedAt time.Time  // timestamp
 	User      User
 }
 
@@ -73,6 +73,10 @@ type ProposalStorage interface {
 
 	ListAppProposalLink(ctx *goa.Context, userid int) []*app.ProposalLink
 	OneProposalLink(ctx *goa.Context, id int, userid int) (*app.ProposalLink, error)
+
+	UpdateFromCreateProposalPayload(ctx *goa.Context, payload *app.CreateProposalPayload, id int) error
+
+	UpdateFromUpdateProposalPayload(ctx *goa.Context, payload *app.UpdateProposalPayload, id int) error
 }
 
 // TableName overrides the table name settings in Gorm to force a specific table name
@@ -172,11 +176,11 @@ func (m *ProposalDB) Delete(ctx *goa.Context, id int) error {
 // only copying the non-nil fields from the source.
 func ProposalFromCreateProposalPayload(payload *app.CreateProposalPayload) *Proposal {
 	proposal := &Proposal{}
+	proposal.Abstract = payload.Abstract
 	if payload.Withdrawn != nil {
 		proposal.Withdrawn = payload.Withdrawn
 	}
 	proposal.Title = payload.Title
-	proposal.Abstract = payload.Abstract
 	proposal.Detail = payload.Detail
 
 	return proposal
@@ -193,12 +197,12 @@ func (m *ProposalDB) UpdateFromCreateProposalPayload(ctx *goa.Context, payload *
 		ctx.Error("error retrieving Proposal", "error", err.Error())
 		return err
 	}
-	obj.Title = payload.Title
 	obj.Abstract = payload.Abstract
-	obj.Detail = payload.Detail
 	if payload.Withdrawn != nil {
 		obj.Withdrawn = payload.Withdrawn
 	}
+	obj.Title = payload.Title
+	obj.Detail = payload.Detail
 
 	err = m.Db.Save(&obj).Error
 	return err
@@ -208,14 +212,14 @@ func (m *ProposalDB) UpdateFromCreateProposalPayload(ctx *goa.Context, payload *
 // only copying the non-nil fields from the source.
 func ProposalFromUpdateProposalPayload(payload *app.UpdateProposalPayload) *Proposal {
 	proposal := &Proposal{}
+	if payload.Abstract != nil {
+		proposal.Abstract = *payload.Abstract
+	}
 	if payload.Withdrawn != nil {
 		proposal.Withdrawn = payload.Withdrawn
 	}
 	if payload.Title != nil {
 		proposal.Title = *payload.Title
-	}
-	if payload.Abstract != nil {
-		proposal.Abstract = *payload.Abstract
 	}
 	if payload.Detail != nil {
 		proposal.Detail = *payload.Detail
@@ -238,11 +242,11 @@ func (m *ProposalDB) UpdateFromUpdateProposalPayload(ctx *goa.Context, payload *
 	if payload.Title != nil {
 		obj.Title = *payload.Title
 	}
-	if payload.Abstract != nil {
-		obj.Abstract = *payload.Abstract
-	}
 	if payload.Detail != nil {
 		obj.Detail = *payload.Detail
+	}
+	if payload.Abstract != nil {
+		obj.Abstract = *payload.Abstract
 	}
 	if payload.Withdrawn != nil {
 		obj.Withdrawn = payload.Withdrawn

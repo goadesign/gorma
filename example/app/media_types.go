@@ -153,15 +153,6 @@ func (mt ProposalCollection) Validate() (err error) {
 	return
 }
 
-// A review is submitted by a reviewer, link view
-// Identifier: application/vnd.review+json
-type ReviewLink struct {
-	// API href of user
-	Href *string `json:"href,omitempty" xml:"href,omitempty"`
-	// ID of user
-	ID *int `json:"id,omitempty" xml:"id,omitempty"`
-}
-
 // A review is submitted by a reviewer
 // Identifier: application/vnd.review+json
 type Review struct {
@@ -200,6 +191,15 @@ func (mt *Review) Validate() (err error) {
 	return
 }
 
+// A review is submitted by a reviewer, link view
+// Identifier: application/vnd.review+json
+type ReviewLink struct {
+	// API href of user
+	Href *string `json:"href,omitempty" xml:"href,omitempty"`
+	// ID of user
+	ID *int `json:"id,omitempty" xml:"id,omitempty"`
+}
+
 // , default view
 // Identifier: application/vnd.review+json; type=collection
 type ReviewCollection []*Review
@@ -226,6 +226,32 @@ func (mt ReviewCollection) Validate() (err error) {
 			if *e.Rating > 5 {
 				err = goa.InvalidRangeError(`response[*].rating`, *e.Rating, 5, false, err)
 			}
+		}
+	}
+	return
+}
+
+// A user belonging to a tenant account, link view
+// Identifier: application/vnd.user+json
+type UserLink struct {
+	// Email address of user
+	Email *string `json:"email,omitempty" xml:"email,omitempty"`
+	// API href of user
+	Href *string `json:"href,omitempty" xml:"href,omitempty"`
+	// ID of user
+	ID *int `json:"id,omitempty" xml:"id,omitempty"`
+}
+
+// Validate validates the media type instance.
+func (mt *UserLink) Validate() (err error) {
+	if mt.Email != nil {
+		if err2 := goa.ValidateFormat(goa.FormatEmail, *mt.Email); err2 != nil {
+			err = goa.InvalidFormatError(`response.email`, *mt.Email, goa.FormatEmail, err2, err)
+		}
+	}
+	if mt.Email != nil {
+		if err2 := goa.ValidateFormat(goa.FormatEmail, *mt.Email); err2 != nil {
+			err = goa.InvalidFormatError(`response.email`, *mt.Email, goa.FormatEmail, err2, err)
 		}
 	}
 	return
@@ -263,32 +289,6 @@ func (mt *User) Validate() (err error) {
 			err = goa.InvalidLengthError(`response.bio`, *mt.Bio, len(*mt.Bio), 500, false, err)
 		}
 	}
-	if mt.Email != nil {
-		if err2 := goa.ValidateFormat(goa.FormatEmail, *mt.Email); err2 != nil {
-			err = goa.InvalidFormatError(`response.email`, *mt.Email, goa.FormatEmail, err2, err)
-		}
-	}
-	if mt.Email != nil {
-		if err2 := goa.ValidateFormat(goa.FormatEmail, *mt.Email); err2 != nil {
-			err = goa.InvalidFormatError(`response.email`, *mt.Email, goa.FormatEmail, err2, err)
-		}
-	}
-	return
-}
-
-// A user belonging to a tenant account, link view
-// Identifier: application/vnd.user+json
-type UserLink struct {
-	// Email address of user
-	Email *string `json:"email,omitempty" xml:"email,omitempty"`
-	// API href of user
-	Href *string `json:"href,omitempty" xml:"href,omitempty"`
-	// ID of user
-	ID *int `json:"id,omitempty" xml:"id,omitempty"`
-}
-
-// Validate validates the media type instance.
-func (mt *UserLink) Validate() (err error) {
 	if mt.Email != nil {
 		if err2 := goa.ValidateFormat(goa.FormatEmail, *mt.Email); err2 != nil {
 			err = goa.InvalidFormatError(`response.email`, *mt.Email, goa.FormatEmail, err2, err)

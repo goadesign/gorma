@@ -26,9 +26,9 @@ type Review struct {
 	ProposalID int // Belongs To Proposal
 	Rating     int
 	UserID     int        // has many Review
+	CreatedAt  time.Time  // timestamp
 	UpdatedAt  time.Time  // timestamp
 	DeletedAt  *time.Time // nullable timestamp (soft delete)
-	CreatedAt  time.Time  // timestamp
 	User       User
 	Proposal   Proposal
 }
@@ -72,6 +72,10 @@ type ReviewStorage interface {
 
 	ListAppReviewLink(ctx *goa.Context, proposalid int, userid int) []*app.ReviewLink
 	OneReviewLink(ctx *goa.Context, id int, proposalid int, userid int) (*app.ReviewLink, error)
+
+	UpdateFromCreateReviewPayload(ctx *goa.Context, payload *app.CreateReviewPayload, id int) error
+
+	UpdateFromUpdateReviewPayload(ctx *goa.Context, payload *app.UpdateReviewPayload, id int) error
 }
 
 // TableName overrides the table name settings in Gorm to force a specific table name
@@ -185,10 +189,10 @@ func (m *ReviewDB) Delete(ctx *goa.Context, id int) error {
 // only copying the non-nil fields from the source.
 func ReviewFromCreateReviewPayload(payload *app.CreateReviewPayload) *Review {
 	review := &Review{}
+	review.Rating = payload.Rating
 	if payload.Comment != nil {
 		review.Comment = payload.Comment
 	}
-	review.Rating = payload.Rating
 
 	return review
 }
