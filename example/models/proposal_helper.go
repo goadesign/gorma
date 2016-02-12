@@ -24,9 +24,9 @@ func (m *ProposalDB) ListAppProposal(ctx *goa.Context, userid int) []*app.Propos
 	now := time.Now()
 	defer ctx.Info("ListProposal", "duration", time.Since(now))
 	var objs []*app.Proposal
-	err := m.Db.Scopes(ProposalFilterByUser(userid, &m.Db)).Table(m.TableName()).Find(&objs).Error
+	err := m.Db.Scopes(ProposalFilterByUser(userid, &m.Db)).Table(m.TableName()).Preload("Reviews").Find(&objs).Error
 
-	//	err := m.Db.Table(m.TableName()).Find(&objs).Error
+	//	err := m.Db.Table(m.TableName()).Preload("Reviews").Find(&objs).Error
 	if err != nil {
 		ctx.Error("error listing Proposal", "error", err.Error())
 		return objs
@@ -37,13 +37,18 @@ func (m *ProposalDB) ListAppProposal(ctx *goa.Context, userid int) []*app.Propos
 
 func (m *Proposal) ProposalToAppProposal() *app.Proposal {
 	proposal := &app.Proposal{}
+	var tmp1Collection app.ReviewLinkCollection
+	for _, k := range m.Reviews {
+		tmp1Collection = append(tmp1Collection, k.ReviewToAppReviewLink())
+	}
+	proposal.Links = &app.ProposalLinks{Reviews: tmp1Collection}
 	for _, k := range m.Reviews {
 		proposal.Reviews = append(proposal.Reviews, k.ReviewToAppReview())
 	}
 	proposal.Title = &m.Title
-	proposal.Abstract = &m.Abstract
 	proposal.Detail = &m.Detail
 	proposal.ID = &m.ID
+	proposal.Abstract = &m.Abstract
 
 	return proposal
 }
@@ -71,9 +76,9 @@ func (m *ProposalDB) ListAppProposalLink(ctx *goa.Context, userid int) []*app.Pr
 	now := time.Now()
 	defer ctx.Info("ListProposalLink", "duration", time.Since(now))
 	var objs []*app.ProposalLink
-	err := m.Db.Scopes(ProposalFilterByUser(userid, &m.Db)).Table(m.TableName()).Find(&objs).Error
+	err := m.Db.Scopes(ProposalFilterByUser(userid, &m.Db)).Table(m.TableName()).Preload("Reviews").Find(&objs).Error
 
-	//	err := m.Db.Table(m.TableName()).Find(&objs).Error
+	//	err := m.Db.Table(m.TableName()).Preload("Reviews").Find(&objs).Error
 	if err != nil {
 		ctx.Error("error listing Proposal", "error", err.Error())
 		return objs
@@ -84,8 +89,8 @@ func (m *ProposalDB) ListAppProposalLink(ctx *goa.Context, userid int) []*app.Pr
 
 func (m *Proposal) ProposalToAppProposalLink() *app.ProposalLink {
 	proposal := &app.ProposalLink{}
-	proposal.Title = &m.Title
 	proposal.ID = &m.ID
+	proposal.Title = &m.Title
 
 	return proposal
 }

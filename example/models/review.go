@@ -26,11 +26,11 @@ type Review struct {
 	ProposalID int // Belongs To Proposal
 	Rating     int
 	UserID     int        // has many Review
+	CreatedAt  time.Time  // timestamp
 	UpdatedAt  time.Time  // timestamp
 	DeletedAt  *time.Time // nullable timestamp (soft delete)
-	CreatedAt  time.Time  // timestamp
-	User       User
 	Proposal   Proposal
+	User       User
 }
 
 // TableName overrides the table name settings in Gorm to force a specific table name

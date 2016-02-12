@@ -118,6 +118,11 @@ var Proposal = MediaType("application/vnd.proposal+json", func() {
 		Attribute("detail", String, "Response detail")
 		Attribute("reviews", CollectionOf(Review), "Reviews")
 	})
+
+
+	Links(func(){
+		Link("reviews")
+	})
 	View("default", func() {
 		Attribute("id")
 		Attribute("href")
@@ -125,6 +130,7 @@ var Proposal = MediaType("application/vnd.proposal+json", func() {
 		Attribute("abstract")
 		Attribute("detail")
 		Attribute("reviews")
+		Attribute("links")
 	})
 	View("link", func() {
 		Attribute("id")

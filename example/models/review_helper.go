@@ -37,9 +37,9 @@ func (m *ReviewDB) ListAppReview(ctx *goa.Context, proposalid int, userid int) [
 
 func (m *Review) ReviewToAppReview() *app.Review {
 	review := &app.Review{}
-	review.ID = &m.ID
 	review.Comment = m.Comment
 	review.Rating = &m.Rating
+	review.ID = &m.ID
 
 	return review
 }
