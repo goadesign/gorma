@@ -36,6 +36,32 @@ type Login struct {
 	Password *string `json:"password,omitempty" xml:"password,omitempty"`
 }
 
+// A response to a CFP, link view
+// Identifier: application/vnd.proposal+json
+type ProposalLink struct {
+	// API href of user
+	Href *string `json:"href,omitempty" xml:"href,omitempty"`
+	// ID of user
+	ID *int `json:"id,omitempty" xml:"id,omitempty"`
+	// Response title
+	Title *string `json:"title,omitempty" xml:"title,omitempty"`
+}
+
+// Validate validates the media type instance.
+func (mt *ProposalLink) Validate() (err error) {
+	if mt.Title != nil {
+		if len(*mt.Title) < 10 {
+			err = goa.InvalidLengthError(`response.title`, *mt.Title, len(*mt.Title), 10, true, err)
+		}
+	}
+	if mt.Title != nil {
+		if len(*mt.Title) > 200 {
+			err = goa.InvalidLengthError(`response.title`, *mt.Title, len(*mt.Title), 200, false, err)
+		}
+	}
+	return
+}
+
 // A response to a CFP
 // Identifier: application/vnd.proposal+json
 type Proposal struct {
@@ -47,6 +73,8 @@ type Proposal struct {
 	Href *string `json:"href,omitempty" xml:"href,omitempty"`
 	// ID of user
 	ID *int `json:"id,omitempty" xml:"id,omitempty"`
+	// Links to related resources
+	Links *ProposalLinks `json:"links,omitempty" xml:"links,omitempty"`
 	// Reviews
 	Reviews ReviewCollection `json:"reviews,omitempty" xml:"reviews,omitempty"`
 	// Response title
@@ -110,30 +138,9 @@ func (mt *Proposal) Validate() (err error) {
 	return
 }
 
-// A response to a CFP, link view
-// Identifier: application/vnd.proposal+json
-type ProposalLink struct {
-	// API href of user
-	Href *string `json:"href,omitempty" xml:"href,omitempty"`
-	// ID of user
-	ID *int `json:"id,omitempty" xml:"id,omitempty"`
-	// Response title
-	Title *string `json:"title,omitempty" xml:"title,omitempty"`
-}
-
-// Validate validates the media type instance.
-func (mt *ProposalLink) Validate() (err error) {
-	if mt.Title != nil {
-		if len(*mt.Title) < 10 {
-			err = goa.InvalidLengthError(`response.title`, *mt.Title, len(*mt.Title), 10, true, err)
-		}
-	}
-	if mt.Title != nil {
-		if len(*mt.Title) > 200 {
-			err = goa.InvalidLengthError(`response.title`, *mt.Title, len(*mt.Title), 200, false, err)
-		}
-	}
-	return
+// ProposalLinks contains links to related resources of Proposal.
+type ProposalLinks struct {
+	Reviews ReviewLinkCollection `json:"reviews,omitempty" xml:"reviews,omitempty"`
 }
 
 // , default view
@@ -198,6 +205,9 @@ func (mt ProposalCollection) Validate() (err error) {
 	}
 	return
 }
+
+// ProposalLinksArray contains links to related resources of ProposalCollection.
+type ProposalLinksArray []*ProposalLinks
 
 // A review is submitted by a reviewer
 // Identifier: application/vnd.review+json

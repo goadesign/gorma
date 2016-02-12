@@ -100,6 +100,25 @@ func fieldAssignmentModelToType(model *RelationalModelDefinition, ut *design.Vie
 	tmp = 1
 	var fieldAssignments []string
 	// type.Field = model.Field
+
+	if !strings.Contains(ut.Name, "link")	{
+	for ln, _ := range ut.Parent.Links {
+		iff := fmt.Sprintf("var tmp%dCollection %s.%sLinkCollection", tmp, codegen.Goify(verpkg, false), inflect.Singularize(codegen.Goify(ln, true)))
+		fieldAssignments = append(fieldAssignments, iff)
+		ifa := fmt.Sprintf("for _,k := range %s.%s {", v, codegen.Goify(ln, true))
+		fieldAssignments = append(fieldAssignments, ifa)
+		ifb := fmt.Sprintf("tmp%dCollection = append(tmp%dCollection,  k.%sTo%s%sLink())", tmp, tmp, inflect.Singularize(codegen.Goify(ln, true)), verpkg, inflect.Singularize(codegen.Goify(ln, true)))
+
+		fieldAssignments = append(fieldAssignments, ifb)
+		ifc := fmt.Sprintf("}")
+		fieldAssignments = append(fieldAssignments, ifc)
+		ifd := fmt.Sprintf("%s.Links = &%s.%sLinks{%s: tmp%dCollection}", utype, codegen.Goify(verpkg, false), codegen.Goify(utype, true), codegen.Goify(ln, true), tmp)
+		fieldAssignments = append(fieldAssignments, ifd)
+		tmp++
+
+	}
+
+}
 	for fname, field := range model.RelationalFields {
 
 		var mpointer, upointer bool
