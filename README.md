@@ -2,7 +2,7 @@
 # gorma
 Gorma is a storage generator for [goa](http://goa.design).
 
-[![GoDoc](https://godoc.org/github.com/goadesign/gorma?status.svg)](http://godoc.org/github.com/goadesign/gorma)[![Build Status](https://travis-ci.org/goadesign/gorma.svg?branch=master)](https://travis-ci.org/goadesign/gorma)
+[![GoDoc](https://godoc.org/github.com/goadesign/gorma?status.svg)](http://godoc.org/github.com/goadesign/gorma) [![Build Status](https://travis-ci.org/goadesign/gorma.svg?branch=master)](https://travis-ci.org/goadesign/gorma) [![Go Report Card](https://goreportcard.com/badge/github.com/goadesign/gorma)](https://goreportcard.com/report/github.com/goadesign/gorma)
 
 ## Table of Contents
 
