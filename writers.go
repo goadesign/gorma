@@ -102,7 +102,7 @@ func fieldAssignmentModelToType(model *RelationalModelDefinition, ut *design.Vie
 	// type.Field = model.Field
 
 	if !strings.Contains(ut.Name, "link") {
-		for ln, _ := range ut.Parent.Links {
+		for ln := range ut.Parent.Links {
 			iff := fmt.Sprintf("var tmp%dCollection %s.%sLinkCollection", tmp, codegen.Goify(verpkg, false), inflect.Singularize(codegen.Goify(ln, true)))
 			fieldAssignments = append(fieldAssignments, iff)
 			ifa := fmt.Sprintf("for _,k := range %s.%s {", v, codegen.Goify(ln, true))
