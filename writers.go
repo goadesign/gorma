@@ -145,9 +145,20 @@ func fieldAssignmentModelToType(model *RelationalModelDefinition, ut *design.Vie
 				} else if !upointer && !mpointer {
 					prefix = ""
 				}
+				/// test to see if it's a go object here and add the appending stuff
 
-				fa := fmt.Sprintf("\t%s.%s = %s%s.%s", utype, codegen.Goify(key, true), prefix, v, codegen.Goify(fname, true))
-				fieldAssignments = append(fieldAssignments, fa)
+				if gfield.Type.IsObject() {
+					ifa := fmt.Sprintf("for _,k := range %s.%s {", v, codegen.Goify(fname, true))
+					fieldAssignments = append(fieldAssignments, ifa)
+					ifb := fmt.Sprintf("%s.%s = append(%s.%s, k.%sTo%s%s())", utype, codegen.Goify(key, true), utype, codegen.Goify(key, true), inflect.Singularize(codegen.Goify(key, true)), verpkg, inflect.Singularize(codegen.Goify(key, true)))
+					fieldAssignments = append(fieldAssignments, ifb)
+					ifc := fmt.Sprintf("}")
+					fieldAssignments = append(fieldAssignments, ifc)
+
+				} else {
+					fa := fmt.Sprintf("\t%s.%s = %s%s.%s", utype, codegen.Goify(key, true), prefix, v, codegen.Goify(fname, true))
+					fieldAssignments = append(fieldAssignments, fa)
+				}
 			}
 		}
 	}
