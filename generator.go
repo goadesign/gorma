@@ -177,7 +177,7 @@ func (g *Generator) generateUserTypes(outdir string, api *design.APIDefinition) 
 					imp = codegen.SimpleImport("strconv")
 					imports = append(imports, imp)
 				}
-				utWr.WriteHeader(title, "models", imports)
+				utWr.WriteHeader(title, TargetPackage, imports)
 				data := &UserTypeTemplateData{
 					APIDefinition: api,
 					UserType:      model,
@@ -254,7 +254,7 @@ func (g *Generator) generateUserHelpers(outdir string, api *design.APIDefinition
 					imp = codegen.SimpleImport("strconv")
 					imports = append(imports, imp)
 				}
-				utWr.WriteHeader(title, "models", imports)
+				utWr.WriteHeader(title, TargetPackage, imports)
 				data := &UserTypeTemplateData{
 					APIDefinition: api,
 					UserType:      model,

@@ -132,13 +132,15 @@ func Payload(r interface{}, act string) {
 	if bs, ok := buildSourceDefinition(true); ok {
 
 		var res *design.ResourceDefinition
+		var resName string
 		if n, ok := r.(string); ok {
 			res = design.Design.Resources[n]
+			resName = n
 		} else {
 			res, _ = r.(*design.ResourceDefinition)
 		}
 		if res == nil {
-			dslengine.ReportError("There is no resource")
+			dslengine.ReportError("There is no resource %q", resName)
 			return
 		}
 		a, ok := res.Actions[act]
