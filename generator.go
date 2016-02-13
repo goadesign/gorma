@@ -154,6 +154,7 @@ func (g *Generator) generateUserTypes(outdir string, api *design.APIDefinition) 
 				}
 				imports := []*codegen.ImportSpec{
 					codegen.SimpleImport(ap),
+					codegen.SimpleImport("time"),
 					codegen.SimpleImport("github.com/goadesign/goa"),
 					codegen.SimpleImport("github.com/jinzhu/gorm"),
 					codegen.SimpleImport("golang.org/x/net/context"),
@@ -161,16 +162,6 @@ func (g *Generator) generateUserTypes(outdir string, api *design.APIDefinition) 
 					codegen.NewImport("log", "gopkg.in/inconshreveable/log15.v2"),
 				}
 
-				needDate := false
-				for _, field := range model.RelationalFields {
-					if field.Datatype == Timestamp || field.Datatype == NullableTimestamp {
-						needDate = true
-					}
-				}
-				if needDate {
-					imp := codegen.SimpleImport("time")
-					imports = append(imports, imp)
-				}
 				if model.Cached {
 					imp := codegen.NewImport("cache", "github.com/patrickmn/go-cache")
 					imports = append(imports, imp)
@@ -232,22 +223,14 @@ func (g *Generator) generateUserHelpers(outdir string, api *design.APIDefinition
 				}
 				imports := []*codegen.ImportSpec{
 					codegen.SimpleImport(ap),
+					codegen.SimpleImport("time"),
 					codegen.SimpleImport("github.com/goadesign/goa"),
 					codegen.SimpleImport("github.com/jinzhu/gorm"),
 					codegen.SimpleImport("golang.org/x/net/context"),
 					codegen.SimpleImport("golang.org/x/net/context"),
 					codegen.NewImport("log", "gopkg.in/inconshreveable/log15.v2"),
 				}
-				needDate := false
-				for _, field := range model.RelationalFields {
-					if field.Datatype == Timestamp || field.Datatype == NullableTimestamp {
-						needDate = true
-					}
-				}
-				if needDate {
-					imp := codegen.SimpleImport("time")
-					imports = append(imports, imp)
-				}
+
 				if model.Cached {
 					imp := codegen.NewImport("cache", "github.com/patrickmn/go-cache")
 					imports = append(imports, imp)
