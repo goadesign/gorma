@@ -406,16 +406,16 @@ type {{$ut.ModelName}}Storage interface {
 	Get(ctx *goa.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, {{$ut.PKAttributes}}) ({{$ut.ModelName}}, error)
 	Add(ctx *goa.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, {{$ut.LowerName}} *{{$ut.ModelName}}) (*{{$ut.ModelName}}, error)
 	Update(ctx *goa.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, {{$ut.LowerName}} *{{$ut.ModelName}}) (error)
-	Delete(ctx *goa.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, {{ $ut.PKAttributes}}) (error) 	
+	Delete(ctx *goa.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, {{ $ut.PKAttributes}}) (error)
 {{ range $rname, $rmt := $ut.RenderTo }}{{ range $vname, $view := $rmt.Views}}{{ $mtd := $ut.Project $rname $vname }}{{$vp := vp "app"}}{{$vpn := goify $vp true}}
 {{ if $rmt.UserTypeDefinition.SupportsNoVersion }}
-List{{$vpn}}{{$rmt.TypeName}}{{if eq $vname "default"}}{{else}}{{goify $vname true}}{{end}} (ctx *goa.Context{{ if $ut.DynamicTableName}}, tableName string{{ end }} {{range $nm, $bt := $ut.BelongsTo}},{{goify $bt.ModelName false}}id int{{end}}) []*{{goify $vpn false}}.{{$rmt.TypeName}}{{if eq $vname "default"}}{{else}}{{goify $vname true}}{{end}}
-One{{$rmt.TypeName}}{{if eq $vname "default"}}{{else}}{{goify $vname true}}{{end}} (ctx *goa.Context{{ if $ut.DynamicTableName}}, tableName string{{ end }}, id int{{range $nm, $bt := $ut.BelongsTo}},{{goify $bt.ModelName false}}id int{{end}}) (*{{goify $vpn false}}.{{$rmt.TypeName}}{{if eq $vname "default"}}{{else}}{{goify $vname true}}{{end}}, error)
+List{{$vpn}}{{goify $rmt.TypeName true}}{{if eq $vname "default"}}{{else}}{{goify $vname true}}{{end}} (ctx *goa.Context{{ if $ut.DynamicTableName}}, tableName string{{ end }} {{range $nm, $bt := $ut.BelongsTo}},{{goify $bt.ModelName false}}id int{{end}}) []*{{goify $vpn false}}.{{goify $rmt.TypeName true}}{{if eq $vname "default"}}{{else}}{{goify $vname true}}{{end}}
+One{{goify $rmt.TypeName true}}{{if eq $vname "default"}}{{else}}{{goify $vname true}}{{end}} (ctx *goa.Context{{ if $ut.DynamicTableName}}, tableName string{{ end }}, id int{{range $nm, $bt := $ut.BelongsTo}},{{goify $bt.ModelName false}}id int{{end}}) (*{{goify $vpn false}}.{{goify $rmt.TypeName true}}{{if eq $vname "default"}}{{else}}{{goify $vname true}}{{end}}, error)
 {{ end }}
 
 
 {{ range $version :=  $rmt.Versions }} {{$vp := vp $version}}{{$vpn := goify $vp true}}
-// {{$version}} I don't remember why I put this here.  Don't delete until I remember.  What versioned things might we add to the Interface? 
+// {{$version}} I don't remember why I put this here.  Don't delete until I remember.  What versioned things might we add to the Interface?
 {{end}}{{end}}{{end}}
 {{range $bfn, $bf := $ut.BuiltFrom}}
 UpdateFrom{{$bfn}}(ctx *goa.Context{{ if $ut.DynamicTableName}}, tableName string{{ end }},payload *app.{{goify $bfn true}}, {{$ut.PKAttributes}}) error
@@ -450,7 +450,7 @@ func {{$ut.ModelName}}FilterBy{{$bt.ModelName}}({{goify $bt.ModelName false}}id 
 
 // Get returns a single {{$ut.ModelName}} as a Database Model
 // This is more for use internally, and probably not what you want in  your controllers
-func (m *{{$ut.ModelName}}DB) Get(ctx *goa.Context{{ if $ut.DynamicTableName}}, tableName string{{ end }}, {{$ut.PKAttributes}}) ({{$ut.ModelName}}, error){	
+func (m *{{$ut.ModelName}}DB) Get(ctx *goa.Context{{ if $ut.DynamicTableName}}, tableName string{{ end }}, {{$ut.PKAttributes}}) ({{$ut.ModelName}}, error){
 	now := time.Now()
 	defer ctx.Info("{{$ut.ModelName}}:Get", "duration", time.Since(now))
 	var native {{$ut.ModelName}}
@@ -458,7 +458,7 @@ func (m *{{$ut.ModelName}}DB) Get(ctx *goa.Context{{ if $ut.DynamicTableName}}, 
 	if err == gorm.RecordNotFound {
 		return {{$ut.ModelName}}{}, nil
 	}
-	{{ if $ut.Cached }}go m.cache.Set(strconv.Itoa(native.ID), native, cache.DefaultExpiration) 
+	{{ if $ut.Cached }}go m.cache.Set(strconv.Itoa(native.ID), native, cache.DefaultExpiration)
 	{{end}}
 	return native, err
 }
@@ -526,7 +526,7 @@ func (m *{{$ut.ModelName}}DB) Delete(ctx *goa.Context{{ if $ut.DynamicTableName 
 	// only copying the non-nil fields from the source.
 	func {{$ut.ModelName}}From{{$bfn}}(payload *app.{{goify $bfn true}}) *{{$ut.ModelName}} {
 	{{$ut.LowerName}} := &{{$ut.ModelName}}{}
- 	{{ fapm $ut $bf "app" "payload" "payload" $ut.LowerName}}		
+ 	{{ fapm $ut $bf "app" "payload" "payload" $ut.LowerName}}
 
  	 return {{$ut.LowerName}}
 }
@@ -542,8 +542,8 @@ func (m *{{$ut.ModelName}}DB) Delete(ctx *goa.Context{{ if $ut.DynamicTableName 
 		ctx.Error("error retrieving {{$ut.ModelName}}", "error", err.Error())
 		return  err
 	}
- 	{{ fapm $ut $bf "app" "payload" "payload" "obj"}}		
-	
+ 	{{ fapm $ut $bf "app" "payload" "payload" "obj"}}
+
 	err = m.Db.Save(&obj).Error
  	 return err
 }
@@ -570,18 +570,18 @@ func (m {{$ut.ModelName}}) GetRole() string {
 {{ template "MediaVersion" (newMediaTemplateVersion $rmt $vname $view $ut $vp $vpn)}}
 {{ end }}
 {{ range $version :=  $rmt.Versions }} {{$vp := vp $version}}{{$vpn := goify $vp true}}
-// {{$version}}  
+// {{$version}}
 {{ template "MediaVersion" (newMediaTemplateVersion $rmt $vname $view $ut $vp $vpn)}}
 {{end}}{{end}}{{end}}
 
 `
 
 	mediaVersionT = `// MediaType Retrieval Functions
-// List{{.Media.TypeName}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}} returns an array of view: {{.ViewName}}
-func (m *{{.Model.ModelName}}DB) List{{.VersionPackageName}}{{.Media.TypeName}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}} (ctx *goa.Context{{ if .Model.DynamicTableName}}, tableName string{{ end }} {{range $nm, $bt := .Model.BelongsTo}},{{goify $bt.ModelName false}}id int{{end}}) []*{{.VersionPackage}}.{{.Media.TypeName}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}}{
+// List{{goify .Media.TypeName true}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}} returns an array of view: {{.ViewName}}
+func (m *{{.Model.ModelName}}DB) List{{.VersionPackageName}}{{goify .Media.TypeName true}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}} (ctx *goa.Context{{ if .Model.DynamicTableName}}, tableName string{{ end }} {{range $nm, $bt := .Model.BelongsTo}},{{goify $bt.ModelName false}}id int{{end}}) []*{{.VersionPackage}}.{{goify .Media.TypeName true}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}}{
 	now := time.Now()
-	defer ctx.Info("List{{.Media.TypeName}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}}", "duration", time.Since(now))
-	var objs []*{{.VersionPackage}}.{{.Media.TypeName}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}} {{$ctx:= .}}
+	defer ctx.Info("List{{goify .Media.TypeName true}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}}", "duration", time.Since(now))
+	var objs []*{{.VersionPackage}}.{{goify .Media.TypeName true}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}} {{$ctx:= .}}
 	err := m.Db.Scopes({{range $nm, $bt := .Model.BelongsTo}}{{$ctx.Model.ModelName}}FilterBy{{goify $bt.ModelName true}}({{goify $bt.ModelName false}}id, &m.Db), {{end}}).Table({{ if .Model.DynamicTableName }}tableName{{else}}m.TableName(){{ end }}).{{ range $ln, $lv := .Media.Links }}Preload("{{goify $ln true}}").{{end}}Find(&objs).Error
 
 
@@ -594,30 +594,30 @@ func (m *{{.Model.ModelName}}DB) List{{.VersionPackageName}}{{.Media.TypeName}}{
 	return objs
 }
 
-func (m *{{.Model.ModelName}}) {{$.Model.ModelName}}To{{.VersionPackageName}}{{.Media.UserTypeDefinition.TypeName}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}}() *{{.VersionPackage}}.{{.Media.TypeName}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}} {
-	{{.Model.LowerName}} := &{{.VersionPackage}}.{{.Media.TypeName}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}}{}		
- 	{{ famt .Model .View .VersionPackageName "m" "m" .Model.LowerName}}		
+func (m *{{.Model.ModelName}}) {{$.Model.ModelName}}To{{.VersionPackageName}}{{.Media.UserTypeDefinition.TypeName}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}}() *{{.VersionPackage}}.{{goify .Media.TypeName true}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}} {
+	{{.Model.LowerName}} := &{{.VersionPackage}}.{{goify .Media.TypeName true}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}}{}
+ 	{{ famt .Model .View .VersionPackageName "m" "m" .Model.LowerName}}
 
  	 return {{.Model.LowerName}}
 }
 
-// One{{.VersionPackageName}}{{.Media.TypeName}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}} returns an array of view: {{.ViewName}}
-func (m *{{.Model.ModelName}}DB) One{{.Media.TypeName}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}} (ctx *goa.Context{{ if .Model.DynamicTableName}}, tableName string{{ end }}, id int{{range $nm, $bt := .Model.BelongsTo}},{{goify $bt.ModelName false}}id int{{end}}) (*{{.VersionPackage}}.{{.Media.TypeName}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}}, error){	
+// One{{.VersionPackageName}}{{goify .Media.TypeName true}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}} returns an array of view: {{.ViewName}}
+func (m *{{.Model.ModelName}}DB) One{{goify .Media.TypeName true}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}} (ctx *goa.Context{{ if .Model.DynamicTableName}}, tableName string{{ end }}, id int{{range $nm, $bt := .Model.BelongsTo}},{{goify $bt.ModelName false}}id int{{end}}) (*{{.VersionPackage}}.{{goify .Media.TypeName true}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}}, error){
 	now := time.Now()
 	var native {{.Model.ModelName}}
-	defer ctx.Info("One{{.Media.TypeName}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}}", "duration", time.Since(now))
+	defer ctx.Info("One{{goify .Media.TypeName true}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}}", "duration", time.Since(now))
 	err := m.Db.Scopes({{range $nm, $bt := .Model.BelongsTo}}{{$ctx.Model.ModelName}}FilterBy{{goify $bt.ModelName true}}({{goify $bt.ModelName false}}id, &m.Db), {{end}}).Table({{ if .Model.DynamicTableName }}tableName{{else}}m.TableName(){{ end }}){{range $na, $hm:= .Model.HasMany}}.Preload("{{plural $hm.ModelName}}"){{end}}{{range $nm, $bt := .Model.BelongsTo}}.Preload("{{$bt.ModelName}}"){{end}}.Where("id = ?", id).Find(&native).Error
 
 	if err != nil && err != gorm.RecordNotFound {
 		ctx.Error("error getting {{.Model.ModelName}}", "error", err.Error())
-		return nil , err 
+		return nil, err
 	}
 	{{ if .Model.Cached }} go func(){
 		m.cache.Set(strconv.Itoa(native.ID), native, cache.DefaultExpiration)
 	}() {{ end }}
 	view := *native.{{.Model.ModelName}}To{{.VersionPackageName}}{{.Media.UserTypeDefinition.TypeName}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}}()
-	return &view, err 
-	
+	return &view, err
+
 }
 `
 )
