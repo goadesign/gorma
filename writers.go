@@ -432,16 +432,16 @@ return "{{ $ut.Alias}}" {{ else }} return "{{ $ut.TableName }}"
 
 {{ range $idx, $bt := $ut.BelongsTo}}
 // Belongs To Relationships
+
 // {{$ut.ModelName}}FilterBy{{$bt.ModelName}} is a gorm filter for a Belongs To relationship.
 func {{$ut.ModelName}}FilterBy{{$bt.ModelName}}({{goify $bt.ModelName false}}id int, originaldb *gorm.DB) func(db *gorm.DB) *gorm.DB {
 	if {{goify $bt.ModelName false}}id > 0 {
 		return func(db *gorm.DB) *gorm.DB {
 			return db.Where("{{$bt.LowerName}}_id = ?", {{goify $bt.ModelName false}}id)
 		}
-	} else {
-		return func(db *gorm.DB) *gorm.DB {
-			return db
-		}
+	}
+	return func(db *gorm.DB) *gorm.DB {
+		return db
 	}
 }
 {{end}}
@@ -577,7 +577,8 @@ func (m {{$ut.ModelName}}) GetRole() string {
 `
 
 	mediaVersionT = `// MediaType Retrieval Functions
-// List{{goify .Media.TypeName true}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}} returns an array of view: {{.ViewName}}
+
+// List{{.VersionPackageName}}{{goify .Media.TypeName true}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}} returns an array of view: {{.ViewName}}
 func (m *{{.Model.ModelName}}DB) List{{.VersionPackageName}}{{goify .Media.TypeName true}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}} (ctx *goa.Context{{ if .Model.DynamicTableName}}, tableName string{{ end }} {{range $nm, $bt := .Model.BelongsTo}},{{goify $bt.ModelName false}}id int{{end}}) []*{{.VersionPackage}}.{{goify .Media.TypeName true}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}}{
 	now := time.Now()
 	defer ctx.Info("List{{goify .Media.TypeName true}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}}", "duration", time.Since(now))
@@ -594,14 +595,15 @@ func (m *{{.Model.ModelName}}DB) List{{.VersionPackageName}}{{goify .Media.TypeN
 	return objs
 }
 
-func (m *{{.Model.ModelName}}) {{$.Model.ModelName}}To{{.VersionPackageName}}{{.Media.UserTypeDefinition.TypeName}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}}() *{{.VersionPackage}}.{{goify .Media.TypeName true}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}} {
+// {{$.Model.ModelName}}To{{.VersionPackageName}}{{goify .Media.UserTypeDefinition.TypeName true}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}} converts one {{$.Model.ModelName}} into a {{.VersionPackageName}} {{goify .Media.UserTypeDefinition.TypeName true}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}}.
+func (m *{{.Model.ModelName}}) {{$.Model.ModelName}}To{{.VersionPackageName}}{{goify .Media.UserTypeDefinition.TypeName true}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}}() *{{.VersionPackage}}.{{goify .Media.TypeName true}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}} {
 	{{.Model.LowerName}} := &{{.VersionPackage}}.{{goify .Media.TypeName true}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}}{}
  	{{ famt .Model .View .VersionPackageName "m" "m" .Model.LowerName}}
 
  	 return {{.Model.LowerName}}
 }
 
-// One{{.VersionPackageName}}{{goify .Media.TypeName true}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}} returns an array of view: {{.ViewName}}
+// One{{goify .Media.TypeName true}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}} searches the storage interface for one {{goify .Media.TypeName true}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}}.
 func (m *{{.Model.ModelName}}DB) One{{goify .Media.TypeName true}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}} (ctx *goa.Context{{ if .Model.DynamicTableName}}, tableName string{{ end }}, id int{{range $nm, $bt := .Model.BelongsTo}},{{goify $bt.ModelName false}}id int{{end}}) (*{{.VersionPackage}}.{{goify .Media.TypeName true}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}}, error){
 	now := time.Now()
 	var native {{.Model.ModelName}}
@@ -615,9 +617,8 @@ func (m *{{.Model.ModelName}}DB) One{{goify .Media.TypeName true}}{{if eq .ViewN
 	{{ if .Model.Cached }} go func(){
 		m.cache.Set(strconv.Itoa(native.ID), native, cache.DefaultExpiration)
 	}() {{ end }}
-	view := *native.{{.Model.ModelName}}To{{.VersionPackageName}}{{.Media.UserTypeDefinition.TypeName}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}}()
+	view := *native.{{.Model.ModelName}}To{{.VersionPackageName}}{{goify .Media.UserTypeDefinition.TypeName true}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}}()
 	return &view, err
-
 }
 `
 )
