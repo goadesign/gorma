@@ -38,7 +38,8 @@ func (c *ProposalController) Show(ctx *app.ShowProposalContext) error {
 	if err == gorm.RecordNotFound {
 		return ctx.NotFound()
 	} else if err != nil {
-		ctx.Respond(500, err.Error())
+		return goa.Response(ctx).Send(ctx, 500, err.Error)
+
 	}
 	return ctx.OK(proposal)
 }

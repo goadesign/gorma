@@ -14,15 +14,16 @@ package models
 import (
 	"github.com/goadesign/goa"
 	"github.com/jinzhu/gorm"
+	"golang.org/x/net/context"
 	log "gopkg.in/inconshreveable/log15.v2"
 	"time"
 )
 
 // TestModel
 type Test struct {
+	CreatedAt time.Time  // timestamp
 	UpdatedAt time.Time  // timestamp
 	DeletedAt *time.Time // nullable timestamp (soft delete)
-	CreatedAt time.Time  // timestamp
 }
 
 // TableName overrides the table name settings in Gorm to force a specific table name
@@ -53,11 +54,11 @@ func (m *TestDB) DB() interface{} {
 // TestStorage represents the storage interface.
 type TestStorage interface {
 	DB() interface{}
-	List(ctx *goa.Context) []Test
-	Get(ctx *goa.Context) (Test, error)
-	Add(ctx *goa.Context, test *Test) (*Test, error)
-	Update(ctx *goa.Context, test *Test) error
-	Delete(ctx *goa.Context) error
+	List(ctx context.Context) []Test
+	Get(ctx context.Context) (Test, error)
+	Add(ctx context.Context, test *Test) (*Test, error)
+	Update(ctx context.Context, test *Test) error
+	Delete(ctx context.Context) error
 }
 
 // TableName overrides the table name settings in Gorm to force a specific table name
@@ -71,9 +72,9 @@ func (m *TestDB) TableName() string {
 
 // Get returns a single Test as a Database Model
 // This is more for use internally, and probably not what you want in  your controllers
-func (m *TestDB) Get(ctx *goa.Context) (Test, error) {
+func (m *TestDB) Get(ctx context.Context) (Test, error) {
 	now := time.Now()
-	defer ctx.Info("Test:Get", "duration", time.Since(now))
+	defer goa.Info(ctx, "Test:Get", goa.KV{"duration", time.Since(now)})
 	var native Test
 	err := m.Db.Table(m.TableName()).Where("").Find(&native).Error
 	if err == gorm.RecordNotFound {
@@ -84,13 +85,13 @@ func (m *TestDB) Get(ctx *goa.Context) (Test, error) {
 }
 
 // List returns an array of Test
-func (m *TestDB) List(ctx *goa.Context) []Test {
+func (m *TestDB) ListTest(ctx context.Context) []Test {
 	now := time.Now()
-	defer ctx.Info("Test:List", "duration", time.Since(now))
+	defer goa.Info(ctx, "Test:List", goa.KV{"duration", time.Since(now)})
 	var objs []Test
 	err := m.Db.Table(m.TableName()).Find(&objs).Error
 	if err != nil && err != gorm.RecordNotFound {
-		ctx.Error("error listing Test", "error", err.Error())
+		goa.Error(ctx, "error listing Test", goa.KV{"error", err.Error()})
 		return objs
 	}
 
@@ -98,12 +99,12 @@ func (m *TestDB) List(ctx *goa.Context) []Test {
 }
 
 // Add creates a new record.  /// Maybe shouldn't return the model, it's a pointer.
-func (m *TestDB) Add(ctx *goa.Context, model *Test) (*Test, error) {
+func (m *TestDB) Add(ctx context.Context, model *Test) (*Test, error) {
 	now := time.Now()
-	defer ctx.Info("Test:Add", "duration", time.Since(now))
+	defer goa.Info(ctx, "Test:Add", goa.KV{"duration", time.Since(now)})
 	err := m.Db.Create(model).Error
 	if err != nil {
-		ctx.Error("error updating Test", "error", err.Error())
+		goa.Error(ctx, "error updating Test", goa.KV{"error", err.Error()})
 		return model, err
 	}
 
@@ -111,9 +112,9 @@ func (m *TestDB) Add(ctx *goa.Context, model *Test) (*Test, error) {
 }
 
 // Update modifies a single record.
-func (m *TestDB) Update(ctx *goa.Context, model *Test) error {
+func (m *TestDB) Update(ctx context.Context, model *Test) error {
 	now := time.Now()
-	defer ctx.Info("Test:Update", "duration", time.Since(now))
+	defer goa.Info(ctx, "Test:Update", goa.KV{"duration", time.Since(now)})
 	obj, err := m.Get(ctx)
 	if err != nil {
 		return err
@@ -124,14 +125,14 @@ func (m *TestDB) Update(ctx *goa.Context, model *Test) error {
 }
 
 // Delete removes a single record.
-func (m *TestDB) Delete(ctx *goa.Context) error {
+func (m *TestDB) Delete(ctx context.Context) error {
 	now := time.Now()
-	defer ctx.Info("Test:Delete", "duration", time.Since(now))
+	defer goa.Info(ctx, "Test:Delete", goa.KV{"duration", time.Since(now)})
 	var obj Test
 	err := m.Db.Delete(&obj).Where("").Error
 
 	if err != nil {
-		ctx.Error("error retrieving Test", "error", err.Error())
+		goa.Error(ctx, "error retrieving Test", goa.KV{"error", err.Error()})
 		return err
 	}
 

@@ -39,6 +39,7 @@ func Model(name string, dsl func()) {
 			return
 		}
 		s.RelationalModels[name] = model
+		model.UserTypeDefinition.TypeName = model.ModelName
 		// much stutter here
 		// TODO(BJK) refactor
 		if !s.NoAutoIDFields {

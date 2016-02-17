@@ -14,69 +14,81 @@ package app
 
 import (
 	"github.com/goadesign/goa"
+	"golang.org/x/net/context"
 	"strconv"
 )
 
 // CallbackAuthContext provides the auth callback action context.
 type CallbackAuthContext struct {
-	*goa.Context
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
 	Provider string
 }
 
 // NewCallbackAuthContext parses the incoming request URL and body, performs validations and creates the
 // context used by the auth controller callback action.
-func NewCallbackAuthContext(c *goa.Context) (*CallbackAuthContext, error) {
+func NewCallbackAuthContext(ctx context.Context) (*CallbackAuthContext, error) {
 	var err error
-	ctx := CallbackAuthContext{Context: c}
-	rawProvider := c.Get("provider")
+	req := goa.Request(ctx)
+	rctx := CallbackAuthContext{Context: ctx, ResponseData: goa.Response(ctx), RequestData: req}
+	rawProvider := req.Params.Get("provider")
 	if rawProvider != "" {
-		ctx.Provider = rawProvider
+		rctx.Provider = rawProvider
 	}
-	return &ctx, err
+	return &rctx, err
 }
 
 // OK sends a HTTP response with status code 200.
 func (ctx *CallbackAuthContext) OK(resp []byte) error {
-	ctx.Header().Set("Content-Type", "text/html")
-	return ctx.RespondBytes(200, resp)
+	ctx.ResponseData.Header().Set("Content-Type", "text/html")
+	ctx.ResponseData.WriteHeader(200)
+	ctx.ResponseData.Write(resp)
+	return nil
 }
 
 // OauthAuthContext provides the auth oauth action context.
 type OauthAuthContext struct {
-	*goa.Context
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
 	Provider string
 }
 
 // NewOauthAuthContext parses the incoming request URL and body, performs validations and creates the
 // context used by the auth controller oauth action.
-func NewOauthAuthContext(c *goa.Context) (*OauthAuthContext, error) {
+func NewOauthAuthContext(ctx context.Context) (*OauthAuthContext, error) {
 	var err error
-	ctx := OauthAuthContext{Context: c}
-	rawProvider := c.Get("provider")
+	req := goa.Request(ctx)
+	rctx := OauthAuthContext{Context: ctx, ResponseData: goa.Response(ctx), RequestData: req}
+	rawProvider := req.Params.Get("provider")
 	if rawProvider != "" {
-		ctx.Provider = rawProvider
+		rctx.Provider = rawProvider
 	}
-	return &ctx, err
+	return &rctx, err
 }
 
 // OK sends a HTTP response with status code 200.
-func (ctx *OauthAuthContext) OK(resp *Authorize) error {
-	ctx.Header().Set("Content-Type", "application/vnd.authorize")
-	return ctx.Respond(200, resp)
+func (ctx *OauthAuthContext) OK(r *Authorize) error {
+	ctx.ResponseData.Header().Set("Content-Type", "application/vnd.authorize")
+	return ctx.ResponseData.Send(ctx.Context, 200, r)
 }
 
 // RefreshAuthContext provides the auth refresh action context.
 type RefreshAuthContext struct {
-	*goa.Context
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
 	Payload *RefreshAuthPayload
 }
 
 // NewRefreshAuthContext parses the incoming request URL and body, performs validations and creates the
 // context used by the auth controller refresh action.
-func NewRefreshAuthContext(c *goa.Context) (*RefreshAuthContext, error) {
+func NewRefreshAuthContext(ctx context.Context) (*RefreshAuthContext, error) {
 	var err error
-	ctx := RefreshAuthContext{Context: c}
-	return &ctx, err
+	req := goa.Request(ctx)
+	rctx := RefreshAuthContext{Context: ctx, ResponseData: goa.Response(ctx), RequestData: req}
+	return &rctx, err
 }
 
 // RefreshAuthPayload is the auth refresh action payload.
@@ -90,23 +102,26 @@ type RefreshAuthPayload struct {
 }
 
 // Created sends a HTTP response with status code 201.
-func (ctx *RefreshAuthContext) Created(resp *Authorize) error {
-	ctx.Header().Set("Content-Type", "application/vnd.authorize+json")
-	return ctx.Respond(201, resp)
+func (ctx *RefreshAuthContext) Created(r *Authorize) error {
+	ctx.ResponseData.Header().Set("Content-Type", "application/vnd.authorize+json")
+	return ctx.ResponseData.Send(ctx.Context, 201, r)
 }
 
 // TokenAuthContext provides the auth token action context.
 type TokenAuthContext struct {
-	*goa.Context
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
 	Payload *TokenAuthPayload
 }
 
 // NewTokenAuthContext parses the incoming request URL and body, performs validations and creates the
 // context used by the auth controller token action.
-func NewTokenAuthContext(c *goa.Context) (*TokenAuthContext, error) {
+func NewTokenAuthContext(ctx context.Context) (*TokenAuthContext, error) {
 	var err error
-	ctx := TokenAuthContext{Context: c}
-	return &ctx, err
+	req := goa.Request(ctx)
+	rctx := TokenAuthContext{Context: ctx, ResponseData: goa.Response(ctx), RequestData: req}
+	return &rctx, err
 }
 
 // TokenAuthPayload is the auth token action payload.
@@ -120,32 +135,35 @@ type TokenAuthPayload struct {
 }
 
 // Created sends a HTTP response with status code 201.
-func (ctx *TokenAuthContext) Created(resp *Authorize) error {
-	ctx.Header().Set("Content-Type", "application/vnd.authorize+json")
-	return ctx.Respond(201, resp)
+func (ctx *TokenAuthContext) Created(r *Authorize) error {
+	ctx.ResponseData.Header().Set("Content-Type", "application/vnd.authorize+json")
+	return ctx.ResponseData.Send(ctx.Context, 201, r)
 }
 
 // CreateProposalContext provides the proposal create action context.
 type CreateProposalContext struct {
-	*goa.Context
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
 	UserID  int
 	Payload *CreateProposalPayload
 }
 
 // NewCreateProposalContext parses the incoming request URL and body, performs validations and creates the
 // context used by the proposal controller create action.
-func NewCreateProposalContext(c *goa.Context) (*CreateProposalContext, error) {
+func NewCreateProposalContext(ctx context.Context) (*CreateProposalContext, error) {
 	var err error
-	ctx := CreateProposalContext{Context: c}
-	rawUserID := c.Get("userID")
+	req := goa.Request(ctx)
+	rctx := CreateProposalContext{Context: ctx, ResponseData: goa.Response(ctx), RequestData: req}
+	rawUserID := req.Params.Get("userID")
 	if rawUserID != "" {
 		if userID, err2 := strconv.Atoi(rawUserID); err2 == nil {
-			ctx.UserID = int(userID)
+			rctx.UserID = int(userID)
 		} else {
 			err = goa.InvalidParamTypeError("userID", rawUserID, "integer", err)
 		}
 	}
-	return &ctx, err
+	return &rctx, err
 }
 
 // CreateProposalPayload is the proposal create action payload.
@@ -193,123 +211,138 @@ func (payload *CreateProposalPayload) Validate() (err error) {
 
 // Created sends a HTTP response with status code 201.
 func (ctx *CreateProposalContext) Created() error {
-	return ctx.RespondBytes(201, nil)
+	ctx.ResponseData.WriteHeader(201)
+	return nil
 }
 
 // DeleteProposalContext provides the proposal delete action context.
 type DeleteProposalContext struct {
-	*goa.Context
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
 	ProposalID int
 	UserID     int
 }
 
 // NewDeleteProposalContext parses the incoming request URL and body, performs validations and creates the
 // context used by the proposal controller delete action.
-func NewDeleteProposalContext(c *goa.Context) (*DeleteProposalContext, error) {
+func NewDeleteProposalContext(ctx context.Context) (*DeleteProposalContext, error) {
 	var err error
-	ctx := DeleteProposalContext{Context: c}
-	rawProposalID := c.Get("proposalID")
+	req := goa.Request(ctx)
+	rctx := DeleteProposalContext{Context: ctx, ResponseData: goa.Response(ctx), RequestData: req}
+	rawProposalID := req.Params.Get("proposalID")
 	if rawProposalID != "" {
 		if proposalID, err2 := strconv.Atoi(rawProposalID); err2 == nil {
-			ctx.ProposalID = int(proposalID)
+			rctx.ProposalID = int(proposalID)
 		} else {
 			err = goa.InvalidParamTypeError("proposalID", rawProposalID, "integer", err)
 		}
 	}
-	rawUserID := c.Get("userID")
+	rawUserID := req.Params.Get("userID")
 	if rawUserID != "" {
 		if userID, err2 := strconv.Atoi(rawUserID); err2 == nil {
-			ctx.UserID = int(userID)
+			rctx.UserID = int(userID)
 		} else {
 			err = goa.InvalidParamTypeError("userID", rawUserID, "integer", err)
 		}
 	}
-	return &ctx, err
+	return &rctx, err
 }
 
 // NoContent sends a HTTP response with status code 204.
 func (ctx *DeleteProposalContext) NoContent() error {
-	return ctx.RespondBytes(204, nil)
+	ctx.ResponseData.WriteHeader(204)
+	return nil
 }
 
 // NotFound sends a HTTP response with status code 404.
 func (ctx *DeleteProposalContext) NotFound() error {
-	return ctx.RespondBytes(404, nil)
+	ctx.ResponseData.WriteHeader(404)
+	return nil
 }
 
 // ListProposalContext provides the proposal list action context.
 type ListProposalContext struct {
-	*goa.Context
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
 	UserID int
 }
 
 // NewListProposalContext parses the incoming request URL and body, performs validations and creates the
 // context used by the proposal controller list action.
-func NewListProposalContext(c *goa.Context) (*ListProposalContext, error) {
+func NewListProposalContext(ctx context.Context) (*ListProposalContext, error) {
 	var err error
-	ctx := ListProposalContext{Context: c}
-	rawUserID := c.Get("userID")
+	req := goa.Request(ctx)
+	rctx := ListProposalContext{Context: ctx, ResponseData: goa.Response(ctx), RequestData: req}
+	rawUserID := req.Params.Get("userID")
 	if rawUserID != "" {
 		if userID, err2 := strconv.Atoi(rawUserID); err2 == nil {
-			ctx.UserID = int(userID)
+			rctx.UserID = int(userID)
 		} else {
 			err = goa.InvalidParamTypeError("userID", rawUserID, "integer", err)
 		}
 	}
-	return &ctx, err
+	return &rctx, err
 }
 
 // OK sends a HTTP response with status code 200.
-func (ctx *ListProposalContext) OK(resp ProposalCollection) error {
-	ctx.Header().Set("Content-Type", "application/vnd.proposal+json; type=collection")
-	return ctx.Respond(200, resp)
+func (ctx *ListProposalContext) OK(r ProposalCollection) error {
+	ctx.ResponseData.Header().Set("Content-Type", "application/vnd.proposal+json; type=collection")
+	return ctx.ResponseData.Send(ctx.Context, 200, r)
 }
 
 // ShowProposalContext provides the proposal show action context.
 type ShowProposalContext struct {
-	*goa.Context
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
 	ProposalID int
 	UserID     int
 }
 
 // NewShowProposalContext parses the incoming request URL and body, performs validations and creates the
 // context used by the proposal controller show action.
-func NewShowProposalContext(c *goa.Context) (*ShowProposalContext, error) {
+func NewShowProposalContext(ctx context.Context) (*ShowProposalContext, error) {
 	var err error
-	ctx := ShowProposalContext{Context: c}
-	rawProposalID := c.Get("proposalID")
+	req := goa.Request(ctx)
+	rctx := ShowProposalContext{Context: ctx, ResponseData: goa.Response(ctx), RequestData: req}
+	rawProposalID := req.Params.Get("proposalID")
 	if rawProposalID != "" {
 		if proposalID, err2 := strconv.Atoi(rawProposalID); err2 == nil {
-			ctx.ProposalID = int(proposalID)
+			rctx.ProposalID = int(proposalID)
 		} else {
 			err = goa.InvalidParamTypeError("proposalID", rawProposalID, "integer", err)
 		}
 	}
-	rawUserID := c.Get("userID")
+	rawUserID := req.Params.Get("userID")
 	if rawUserID != "" {
 		if userID, err2 := strconv.Atoi(rawUserID); err2 == nil {
-			ctx.UserID = int(userID)
+			rctx.UserID = int(userID)
 		} else {
 			err = goa.InvalidParamTypeError("userID", rawUserID, "integer", err)
 		}
 	}
-	return &ctx, err
+	return &rctx, err
 }
 
 // OK sends a HTTP response with status code 200.
-func (ctx *ShowProposalContext) OK(resp *Proposal) error {
-	ctx.Header().Set("Content-Type", "application/vnd.proposal")
-	return ctx.Respond(200, resp)
+func (ctx *ShowProposalContext) OK(r *Proposal) error {
+	ctx.ResponseData.Header().Set("Content-Type", "application/vnd.proposal")
+	return ctx.ResponseData.Send(ctx.Context, 200, r)
 }
 
 // NotFound sends a HTTP response with status code 404.
 func (ctx *ShowProposalContext) NotFound() error {
-	return ctx.RespondBytes(404, nil)
+	ctx.ResponseData.WriteHeader(404)
+	return nil
 }
 
 // UpdateProposalContext provides the proposal update action context.
 type UpdateProposalContext struct {
-	*goa.Context
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
 	ProposalID int
 	UserID     int
 	Payload    *UpdateProposalPayload
@@ -317,26 +350,27 @@ type UpdateProposalContext struct {
 
 // NewUpdateProposalContext parses the incoming request URL and body, performs validations and creates the
 // context used by the proposal controller update action.
-func NewUpdateProposalContext(c *goa.Context) (*UpdateProposalContext, error) {
+func NewUpdateProposalContext(ctx context.Context) (*UpdateProposalContext, error) {
 	var err error
-	ctx := UpdateProposalContext{Context: c}
-	rawProposalID := c.Get("proposalID")
+	req := goa.Request(ctx)
+	rctx := UpdateProposalContext{Context: ctx, ResponseData: goa.Response(ctx), RequestData: req}
+	rawProposalID := req.Params.Get("proposalID")
 	if rawProposalID != "" {
 		if proposalID, err2 := strconv.Atoi(rawProposalID); err2 == nil {
-			ctx.ProposalID = int(proposalID)
+			rctx.ProposalID = int(proposalID)
 		} else {
 			err = goa.InvalidParamTypeError("proposalID", rawProposalID, "integer", err)
 		}
 	}
-	rawUserID := c.Get("userID")
+	rawUserID := req.Params.Get("userID")
 	if rawUserID != "" {
 		if userID, err2 := strconv.Atoi(rawUserID); err2 == nil {
-			ctx.UserID = int(userID)
+			rctx.UserID = int(userID)
 		} else {
 			err = goa.InvalidParamTypeError("userID", rawUserID, "integer", err)
 		}
 	}
-	return &ctx, err
+	return &rctx, err
 }
 
 // UpdateProposalPayload is the proposal update action payload.
@@ -384,17 +418,21 @@ func (payload *UpdateProposalPayload) Validate() (err error) {
 
 // NoContent sends a HTTP response with status code 204.
 func (ctx *UpdateProposalContext) NoContent() error {
-	return ctx.RespondBytes(204, nil)
+	ctx.ResponseData.WriteHeader(204)
+	return nil
 }
 
 // NotFound sends a HTTP response with status code 404.
 func (ctx *UpdateProposalContext) NotFound() error {
-	return ctx.RespondBytes(404, nil)
+	ctx.ResponseData.WriteHeader(404)
+	return nil
 }
 
 // CreateReviewContext provides the review create action context.
 type CreateReviewContext struct {
-	*goa.Context
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
 	ProposalID int
 	UserID     int
 	Payload    *CreateReviewPayload
@@ -402,26 +440,27 @@ type CreateReviewContext struct {
 
 // NewCreateReviewContext parses the incoming request URL and body, performs validations and creates the
 // context used by the review controller create action.
-func NewCreateReviewContext(c *goa.Context) (*CreateReviewContext, error) {
+func NewCreateReviewContext(ctx context.Context) (*CreateReviewContext, error) {
 	var err error
-	ctx := CreateReviewContext{Context: c}
-	rawProposalID := c.Get("proposalID")
+	req := goa.Request(ctx)
+	rctx := CreateReviewContext{Context: ctx, ResponseData: goa.Response(ctx), RequestData: req}
+	rawProposalID := req.Params.Get("proposalID")
 	if rawProposalID != "" {
 		if proposalID, err2 := strconv.Atoi(rawProposalID); err2 == nil {
-			ctx.ProposalID = int(proposalID)
+			rctx.ProposalID = int(proposalID)
 		} else {
 			err = goa.InvalidParamTypeError("proposalID", rawProposalID, "integer", err)
 		}
 	}
-	rawUserID := c.Get("userID")
+	rawUserID := req.Params.Get("userID")
 	if rawUserID != "" {
 		if userID, err2 := strconv.Atoi(rawUserID); err2 == nil {
-			ctx.UserID = int(userID)
+			rctx.UserID = int(userID)
 		} else {
 			err = goa.InvalidParamTypeError("userID", rawUserID, "integer", err)
 		}
 	}
-	return &ctx, err
+	return &rctx, err
 }
 
 // CreateReviewPayload is the review create action payload.
@@ -454,12 +493,15 @@ func (payload *CreateReviewPayload) Validate() (err error) {
 
 // Created sends a HTTP response with status code 201.
 func (ctx *CreateReviewContext) Created() error {
-	return ctx.RespondBytes(201, nil)
+	ctx.ResponseData.WriteHeader(201)
+	return nil
 }
 
 // DeleteReviewContext provides the review delete action context.
 type DeleteReviewContext struct {
-	*goa.Context
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
 	ProposalID int
 	ReviewID   int
 	UserID     int
@@ -467,86 +509,94 @@ type DeleteReviewContext struct {
 
 // NewDeleteReviewContext parses the incoming request URL and body, performs validations and creates the
 // context used by the review controller delete action.
-func NewDeleteReviewContext(c *goa.Context) (*DeleteReviewContext, error) {
+func NewDeleteReviewContext(ctx context.Context) (*DeleteReviewContext, error) {
 	var err error
-	ctx := DeleteReviewContext{Context: c}
-	rawProposalID := c.Get("proposalID")
+	req := goa.Request(ctx)
+	rctx := DeleteReviewContext{Context: ctx, ResponseData: goa.Response(ctx), RequestData: req}
+	rawProposalID := req.Params.Get("proposalID")
 	if rawProposalID != "" {
 		if proposalID, err2 := strconv.Atoi(rawProposalID); err2 == nil {
-			ctx.ProposalID = int(proposalID)
+			rctx.ProposalID = int(proposalID)
 		} else {
 			err = goa.InvalidParamTypeError("proposalID", rawProposalID, "integer", err)
 		}
 	}
-	rawReviewID := c.Get("reviewID")
+	rawReviewID := req.Params.Get("reviewID")
 	if rawReviewID != "" {
 		if reviewID, err2 := strconv.Atoi(rawReviewID); err2 == nil {
-			ctx.ReviewID = int(reviewID)
+			rctx.ReviewID = int(reviewID)
 		} else {
 			err = goa.InvalidParamTypeError("reviewID", rawReviewID, "integer", err)
 		}
 	}
-	rawUserID := c.Get("userID")
+	rawUserID := req.Params.Get("userID")
 	if rawUserID != "" {
 		if userID, err2 := strconv.Atoi(rawUserID); err2 == nil {
-			ctx.UserID = int(userID)
+			rctx.UserID = int(userID)
 		} else {
 			err = goa.InvalidParamTypeError("userID", rawUserID, "integer", err)
 		}
 	}
-	return &ctx, err
+	return &rctx, err
 }
 
 // NoContent sends a HTTP response with status code 204.
 func (ctx *DeleteReviewContext) NoContent() error {
-	return ctx.RespondBytes(204, nil)
+	ctx.ResponseData.WriteHeader(204)
+	return nil
 }
 
 // NotFound sends a HTTP response with status code 404.
 func (ctx *DeleteReviewContext) NotFound() error {
-	return ctx.RespondBytes(404, nil)
+	ctx.ResponseData.WriteHeader(404)
+	return nil
 }
 
 // ListReviewContext provides the review list action context.
 type ListReviewContext struct {
-	*goa.Context
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
 	ProposalID int
 	UserID     int
 }
 
 // NewListReviewContext parses the incoming request URL and body, performs validations and creates the
 // context used by the review controller list action.
-func NewListReviewContext(c *goa.Context) (*ListReviewContext, error) {
+func NewListReviewContext(ctx context.Context) (*ListReviewContext, error) {
 	var err error
-	ctx := ListReviewContext{Context: c}
-	rawProposalID := c.Get("proposalID")
+	req := goa.Request(ctx)
+	rctx := ListReviewContext{Context: ctx, ResponseData: goa.Response(ctx), RequestData: req}
+	rawProposalID := req.Params.Get("proposalID")
 	if rawProposalID != "" {
 		if proposalID, err2 := strconv.Atoi(rawProposalID); err2 == nil {
-			ctx.ProposalID = int(proposalID)
+			rctx.ProposalID = int(proposalID)
 		} else {
 			err = goa.InvalidParamTypeError("proposalID", rawProposalID, "integer", err)
 		}
 	}
-	rawUserID := c.Get("userID")
+	rawUserID := req.Params.Get("userID")
 	if rawUserID != "" {
 		if userID, err2 := strconv.Atoi(rawUserID); err2 == nil {
-			ctx.UserID = int(userID)
+			rctx.UserID = int(userID)
 		} else {
 			err = goa.InvalidParamTypeError("userID", rawUserID, "integer", err)
 		}
 	}
-	return &ctx, err
+	return &rctx, err
 }
 
 // OK sends a HTTP response with status code 200.
-func (ctx *ListReviewContext) OK(resp ReviewCollection) error {
-	ctx.Header().Set("Content-Type", "application/vnd.review+json; type=collection")
-	return ctx.Respond(200, resp)
+func (ctx *ListReviewContext) OK(r ReviewCollection) error {
+	ctx.ResponseData.Header().Set("Content-Type", "application/vnd.review+json; type=collection")
+	return ctx.ResponseData.Send(ctx.Context, 200, r)
 }
 
 // ShowReviewContext provides the review show action context.
 type ShowReviewContext struct {
-	*goa.Context
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
 	ProposalID int
 	ReviewID   int
 	UserID     int
@@ -554,50 +604,54 @@ type ShowReviewContext struct {
 
 // NewShowReviewContext parses the incoming request URL and body, performs validations and creates the
 // context used by the review controller show action.
-func NewShowReviewContext(c *goa.Context) (*ShowReviewContext, error) {
+func NewShowReviewContext(ctx context.Context) (*ShowReviewContext, error) {
 	var err error
-	ctx := ShowReviewContext{Context: c}
-	rawProposalID := c.Get("proposalID")
+	req := goa.Request(ctx)
+	rctx := ShowReviewContext{Context: ctx, ResponseData: goa.Response(ctx), RequestData: req}
+	rawProposalID := req.Params.Get("proposalID")
 	if rawProposalID != "" {
 		if proposalID, err2 := strconv.Atoi(rawProposalID); err2 == nil {
-			ctx.ProposalID = int(proposalID)
+			rctx.ProposalID = int(proposalID)
 		} else {
 			err = goa.InvalidParamTypeError("proposalID", rawProposalID, "integer", err)
 		}
 	}
-	rawReviewID := c.Get("reviewID")
+	rawReviewID := req.Params.Get("reviewID")
 	if rawReviewID != "" {
 		if reviewID, err2 := strconv.Atoi(rawReviewID); err2 == nil {
-			ctx.ReviewID = int(reviewID)
+			rctx.ReviewID = int(reviewID)
 		} else {
 			err = goa.InvalidParamTypeError("reviewID", rawReviewID, "integer", err)
 		}
 	}
-	rawUserID := c.Get("userID")
+	rawUserID := req.Params.Get("userID")
 	if rawUserID != "" {
 		if userID, err2 := strconv.Atoi(rawUserID); err2 == nil {
-			ctx.UserID = int(userID)
+			rctx.UserID = int(userID)
 		} else {
 			err = goa.InvalidParamTypeError("userID", rawUserID, "integer", err)
 		}
 	}
-	return &ctx, err
+	return &rctx, err
 }
 
 // OK sends a HTTP response with status code 200.
-func (ctx *ShowReviewContext) OK(resp *Review) error {
-	ctx.Header().Set("Content-Type", "application/vnd.review")
-	return ctx.Respond(200, resp)
+func (ctx *ShowReviewContext) OK(r *Review) error {
+	ctx.ResponseData.Header().Set("Content-Type", "application/vnd.review")
+	return ctx.ResponseData.Send(ctx.Context, 200, r)
 }
 
 // NotFound sends a HTTP response with status code 404.
 func (ctx *ShowReviewContext) NotFound() error {
-	return ctx.RespondBytes(404, nil)
+	ctx.ResponseData.WriteHeader(404)
+	return nil
 }
 
 // UpdateReviewContext provides the review update action context.
 type UpdateReviewContext struct {
-	*goa.Context
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
 	ProposalID int
 	ReviewID   int
 	UserID     int
@@ -606,34 +660,35 @@ type UpdateReviewContext struct {
 
 // NewUpdateReviewContext parses the incoming request URL and body, performs validations and creates the
 // context used by the review controller update action.
-func NewUpdateReviewContext(c *goa.Context) (*UpdateReviewContext, error) {
+func NewUpdateReviewContext(ctx context.Context) (*UpdateReviewContext, error) {
 	var err error
-	ctx := UpdateReviewContext{Context: c}
-	rawProposalID := c.Get("proposalID")
+	req := goa.Request(ctx)
+	rctx := UpdateReviewContext{Context: ctx, ResponseData: goa.Response(ctx), RequestData: req}
+	rawProposalID := req.Params.Get("proposalID")
 	if rawProposalID != "" {
 		if proposalID, err2 := strconv.Atoi(rawProposalID); err2 == nil {
-			ctx.ProposalID = int(proposalID)
+			rctx.ProposalID = int(proposalID)
 		} else {
 			err = goa.InvalidParamTypeError("proposalID", rawProposalID, "integer", err)
 		}
 	}
-	rawReviewID := c.Get("reviewID")
+	rawReviewID := req.Params.Get("reviewID")
 	if rawReviewID != "" {
 		if reviewID, err2 := strconv.Atoi(rawReviewID); err2 == nil {
-			ctx.ReviewID = int(reviewID)
+			rctx.ReviewID = int(reviewID)
 		} else {
 			err = goa.InvalidParamTypeError("reviewID", rawReviewID, "integer", err)
 		}
 	}
-	rawUserID := c.Get("userID")
+	rawUserID := req.Params.Get("userID")
 	if rawUserID != "" {
 		if userID, err2 := strconv.Atoi(rawUserID); err2 == nil {
-			ctx.UserID = int(userID)
+			rctx.UserID = int(userID)
 		} else {
 			err = goa.InvalidParamTypeError("userID", rawUserID, "integer", err)
 		}
 	}
-	return &ctx, err
+	return &rctx, err
 }
 
 // UpdateReviewPayload is the review update action payload.
@@ -669,45 +724,55 @@ func (payload *UpdateReviewPayload) Validate() (err error) {
 
 // NoContent sends a HTTP response with status code 204.
 func (ctx *UpdateReviewContext) NoContent() error {
-	return ctx.RespondBytes(204, nil)
+	ctx.ResponseData.WriteHeader(204)
+	return nil
 }
 
 // NotFound sends a HTTP response with status code 404.
 func (ctx *UpdateReviewContext) NotFound() error {
-	return ctx.RespondBytes(404, nil)
+	ctx.ResponseData.WriteHeader(404)
+	return nil
 }
 
 // BootstrapUiContext provides the ui bootstrap action context.
 type BootstrapUiContext struct {
-	*goa.Context
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
 }
 
 // NewBootstrapUiContext parses the incoming request URL and body, performs validations and creates the
 // context used by the ui controller bootstrap action.
-func NewBootstrapUiContext(c *goa.Context) (*BootstrapUiContext, error) {
+func NewBootstrapUiContext(ctx context.Context) (*BootstrapUiContext, error) {
 	var err error
-	ctx := BootstrapUiContext{Context: c}
-	return &ctx, err
+	req := goa.Request(ctx)
+	rctx := BootstrapUiContext{Context: ctx, ResponseData: goa.Response(ctx), RequestData: req}
+	return &rctx, err
 }
 
 // OK sends a HTTP response with status code 200.
 func (ctx *BootstrapUiContext) OK(resp []byte) error {
-	ctx.Header().Set("Content-Type", "text/html")
-	return ctx.RespondBytes(200, resp)
+	ctx.ResponseData.Header().Set("Content-Type", "text/html")
+	ctx.ResponseData.WriteHeader(200)
+	ctx.ResponseData.Write(resp)
+	return nil
 }
 
 // CreateUserContext provides the user create action context.
 type CreateUserContext struct {
-	*goa.Context
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
 	Payload *CreateUserPayload
 }
 
 // NewCreateUserContext parses the incoming request URL and body, performs validations and creates the
 // context used by the user controller create action.
-func NewCreateUserContext(c *goa.Context) (*CreateUserContext, error) {
+func NewCreateUserContext(ctx context.Context) (*CreateUserContext, error) {
 	var err error
-	ctx := CreateUserContext{Context: c}
-	return &ctx, err
+	req := goa.Request(ctx)
+	rctx := CreateUserContext{Context: ctx, ResponseData: goa.Response(ctx), RequestData: req}
+	return &rctx, err
 }
 
 // CreateUserPayload is the user create action payload.
@@ -748,114 +813,130 @@ func (payload *CreateUserPayload) Validate() (err error) {
 
 // Created sends a HTTP response with status code 201.
 func (ctx *CreateUserContext) Created() error {
-	return ctx.RespondBytes(201, nil)
+	ctx.ResponseData.WriteHeader(201)
+	return nil
 }
 
 // DeleteUserContext provides the user delete action context.
 type DeleteUserContext struct {
-	*goa.Context
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
 	UserID int
 }
 
 // NewDeleteUserContext parses the incoming request URL and body, performs validations and creates the
 // context used by the user controller delete action.
-func NewDeleteUserContext(c *goa.Context) (*DeleteUserContext, error) {
+func NewDeleteUserContext(ctx context.Context) (*DeleteUserContext, error) {
 	var err error
-	ctx := DeleteUserContext{Context: c}
-	rawUserID := c.Get("userID")
+	req := goa.Request(ctx)
+	rctx := DeleteUserContext{Context: ctx, ResponseData: goa.Response(ctx), RequestData: req}
+	rawUserID := req.Params.Get("userID")
 	if rawUserID != "" {
 		if userID, err2 := strconv.Atoi(rawUserID); err2 == nil {
-			ctx.UserID = int(userID)
+			rctx.UserID = int(userID)
 		} else {
 			err = goa.InvalidParamTypeError("userID", rawUserID, "integer", err)
 		}
 	}
-	return &ctx, err
+	return &rctx, err
 }
 
 // NoContent sends a HTTP response with status code 204.
 func (ctx *DeleteUserContext) NoContent() error {
-	return ctx.RespondBytes(204, nil)
+	ctx.ResponseData.WriteHeader(204)
+	return nil
 }
 
 // NotFound sends a HTTP response with status code 404.
 func (ctx *DeleteUserContext) NotFound() error {
-	return ctx.RespondBytes(404, nil)
+	ctx.ResponseData.WriteHeader(404)
+	return nil
 }
 
 // ListUserContext provides the user list action context.
 type ListUserContext struct {
-	*goa.Context
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
 }
 
 // NewListUserContext parses the incoming request URL and body, performs validations and creates the
 // context used by the user controller list action.
-func NewListUserContext(c *goa.Context) (*ListUserContext, error) {
+func NewListUserContext(ctx context.Context) (*ListUserContext, error) {
 	var err error
-	ctx := ListUserContext{Context: c}
-	return &ctx, err
+	req := goa.Request(ctx)
+	rctx := ListUserContext{Context: ctx, ResponseData: goa.Response(ctx), RequestData: req}
+	return &rctx, err
 }
 
 // OK sends a HTTP response with status code 200.
-func (ctx *ListUserContext) OK(resp UserCollection) error {
-	ctx.Header().Set("Content-Type", "application/vnd.user+json; type=collection")
-	return ctx.Respond(200, resp)
+func (ctx *ListUserContext) OK(r UserCollection) error {
+	ctx.ResponseData.Header().Set("Content-Type", "application/vnd.user+json; type=collection")
+	return ctx.ResponseData.Send(ctx.Context, 200, r)
 }
 
 // ShowUserContext provides the user show action context.
 type ShowUserContext struct {
-	*goa.Context
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
 	UserID int
 }
 
 // NewShowUserContext parses the incoming request URL and body, performs validations and creates the
 // context used by the user controller show action.
-func NewShowUserContext(c *goa.Context) (*ShowUserContext, error) {
+func NewShowUserContext(ctx context.Context) (*ShowUserContext, error) {
 	var err error
-	ctx := ShowUserContext{Context: c}
-	rawUserID := c.Get("userID")
+	req := goa.Request(ctx)
+	rctx := ShowUserContext{Context: ctx, ResponseData: goa.Response(ctx), RequestData: req}
+	rawUserID := req.Params.Get("userID")
 	if rawUserID != "" {
 		if userID, err2 := strconv.Atoi(rawUserID); err2 == nil {
-			ctx.UserID = int(userID)
+			rctx.UserID = int(userID)
 		} else {
 			err = goa.InvalidParamTypeError("userID", rawUserID, "integer", err)
 		}
 	}
-	return &ctx, err
+	return &rctx, err
 }
 
 // OK sends a HTTP response with status code 200.
-func (ctx *ShowUserContext) OK(resp *User) error {
-	ctx.Header().Set("Content-Type", "application/vnd.user")
-	return ctx.Respond(200, resp)
+func (ctx *ShowUserContext) OK(r *User) error {
+	ctx.ResponseData.Header().Set("Content-Type", "application/vnd.user")
+	return ctx.ResponseData.Send(ctx.Context, 200, r)
 }
 
 // NotFound sends a HTTP response with status code 404.
 func (ctx *ShowUserContext) NotFound() error {
-	return ctx.RespondBytes(404, nil)
+	ctx.ResponseData.WriteHeader(404)
+	return nil
 }
 
 // UpdateUserContext provides the user update action context.
 type UpdateUserContext struct {
-	*goa.Context
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
 	UserID  int
 	Payload *UpdateUserPayload
 }
 
 // NewUpdateUserContext parses the incoming request URL and body, performs validations and creates the
 // context used by the user controller update action.
-func NewUpdateUserContext(c *goa.Context) (*UpdateUserContext, error) {
+func NewUpdateUserContext(ctx context.Context) (*UpdateUserContext, error) {
 	var err error
-	ctx := UpdateUserContext{Context: c}
-	rawUserID := c.Get("userID")
+	req := goa.Request(ctx)
+	rctx := UpdateUserContext{Context: ctx, ResponseData: goa.Response(ctx), RequestData: req}
+	rawUserID := req.Params.Get("userID")
 	if rawUserID != "" {
 		if userID, err2 := strconv.Atoi(rawUserID); err2 == nil {
-			ctx.UserID = int(userID)
+			rctx.UserID = int(userID)
 		} else {
 			err = goa.InvalidParamTypeError("userID", rawUserID, "integer", err)
 		}
 	}
-	return &ctx, err
+	return &rctx, err
 }
 
 // UpdateUserPayload is the user update action payload.
@@ -888,10 +969,12 @@ func (payload *UpdateUserPayload) Validate() (err error) {
 
 // NoContent sends a HTTP response with status code 204.
 func (ctx *UpdateUserContext) NoContent() error {
-	return ctx.RespondBytes(204, nil)
+	ctx.ResponseData.WriteHeader(204)
+	return nil
 }
 
 // NotFound sends a HTTP response with status code 404.
 func (ctx *UpdateUserContext) NotFound() error {
-	return ctx.RespondBytes(404, nil)
+	ctx.ResponseData.WriteHeader(404)
+	return nil
 }

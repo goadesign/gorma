@@ -15,6 +15,7 @@ import (
 	"github.com/goadesign/goa"
 	"github.com/goadesign/gorma/example/app"
 	"github.com/jinzhu/gorm"
+	"golang.org/x/net/context"
 	log "gopkg.in/inconshreveable/log15.v2"
 	"time"
 )
@@ -31,9 +32,9 @@ type User struct {
 	Proposals []Proposal // has many Proposals
 	Reviews   []Review   // has many Reviews
 	State     *string
-	DeletedAt *time.Time // nullable timestamp (soft delete)
 	CreatedAt time.Time  // timestamp
 	UpdatedAt time.Time  // timestamp
+	DeletedAt *time.Time // nullable timestamp (soft delete)
 }
 
 // TableName overrides the table name settings in Gorm to force a specific table name
@@ -64,21 +65,21 @@ func (m *UserDB) DB() interface{} {
 // UserStorage represents the storage interface.
 type UserStorage interface {
 	DB() interface{}
-	List(ctx *goa.Context) []User
-	Get(ctx *goa.Context, id int) (User, error)
-	Add(ctx *goa.Context, user *User) (*User, error)
-	Update(ctx *goa.Context, user *User) error
-	Delete(ctx *goa.Context, id int) error
+	List(ctx context.Context) []User
+	Get(ctx context.Context, id int) (User, error)
+	Add(ctx context.Context, user *User) (*User, error)
+	Update(ctx context.Context, user *User) error
+	Delete(ctx context.Context, id int) error
 
-	ListAppUser(ctx *goa.Context) []*app.User
-	OneUser(ctx *goa.Context, id int) (*app.User, error)
+	ListAppUser(ctx context.Context) []*app.User
+	OneUser(ctx context.Context, id int) (*app.User, error)
 
-	ListAppUserLink(ctx *goa.Context) []*app.UserLink
-	OneUserLink(ctx *goa.Context, id int) (*app.UserLink, error)
+	ListAppUserLink(ctx context.Context) []*app.UserLink
+	OneUserLink(ctx context.Context, id int) (*app.UserLink, error)
 
-	UpdateFromCreateUserPayload(ctx *goa.Context, payload *app.CreateUserPayload, id int) error
+	UpdateFromCreateUserPayload(ctx context.Context, payload *app.CreateUserPayload, id int) error
 
-	UpdateFromUpdateUserPayload(ctx *goa.Context, payload *app.UpdateUserPayload, id int) error
+	UpdateFromUpdateUserPayload(ctx context.Context, payload *app.UpdateUserPayload, id int) error
 }
 
 // TableName overrides the table name settings in Gorm to force a specific table name
@@ -92,9 +93,9 @@ func (m *UserDB) TableName() string {
 
 // Get returns a single User as a Database Model
 // This is more for use internally, and probably not what you want in  your controllers
-func (m *UserDB) Get(ctx *goa.Context, id int) (User, error) {
+func (m *UserDB) Get(ctx context.Context, id int) (User, error) {
 	now := time.Now()
-	defer ctx.Info("User:Get", "duration", time.Since(now))
+	defer goa.Info(ctx, "User:Get", goa.KV{"duration", time.Since(now)})
 	var native User
 	err := m.Db.Table(m.TableName()).Where("id = ?", id).Find(&native).Error
 	if err == gorm.RecordNotFound {
@@ -105,13 +106,13 @@ func (m *UserDB) Get(ctx *goa.Context, id int) (User, error) {
 }
 
 // List returns an array of User
-func (m *UserDB) List(ctx *goa.Context) []User {
+func (m *UserDB) ListUser(ctx context.Context) []User {
 	now := time.Now()
-	defer ctx.Info("User:List", "duration", time.Since(now))
+	defer goa.Info(ctx, "User:List", goa.KV{"duration", time.Since(now)})
 	var objs []User
 	err := m.Db.Table(m.TableName()).Find(&objs).Error
 	if err != nil && err != gorm.RecordNotFound {
-		ctx.Error("error listing User", "error", err.Error())
+		goa.Error(ctx, "error listing User", goa.KV{"error", err.Error()})
 		return objs
 	}
 
@@ -119,12 +120,12 @@ func (m *UserDB) List(ctx *goa.Context) []User {
 }
 
 // Add creates a new record.  /// Maybe shouldn't return the model, it's a pointer.
-func (m *UserDB) Add(ctx *goa.Context, model *User) (*User, error) {
+func (m *UserDB) Add(ctx context.Context, model *User) (*User, error) {
 	now := time.Now()
-	defer ctx.Info("User:Add", "duration", time.Since(now))
+	defer goa.Info(ctx, "User:Add", goa.KV{"duration", time.Since(now)})
 	err := m.Db.Create(model).Error
 	if err != nil {
-		ctx.Error("error updating User", "error", err.Error())
+		goa.Error(ctx, "error updating User", goa.KV{"error", err.Error()})
 		return model, err
 	}
 
@@ -132,9 +133,9 @@ func (m *UserDB) Add(ctx *goa.Context, model *User) (*User, error) {
 }
 
 // Update modifies a single record.
-func (m *UserDB) Update(ctx *goa.Context, model *User) error {
+func (m *UserDB) Update(ctx context.Context, model *User) error {
 	now := time.Now()
-	defer ctx.Info("User:Update", "duration", time.Since(now))
+	defer goa.Info(ctx, "User:Update", goa.KV{"duration", time.Since(now)})
 	obj, err := m.Get(ctx, model.ID)
 	if err != nil {
 		return err
@@ -145,15 +146,15 @@ func (m *UserDB) Update(ctx *goa.Context, model *User) error {
 }
 
 // Delete removes a single record.
-func (m *UserDB) Delete(ctx *goa.Context, id int) error {
+func (m *UserDB) Delete(ctx context.Context, id int) error {
 	now := time.Now()
-	defer ctx.Info("User:Delete", "duration", time.Since(now))
+	defer goa.Info(ctx, "User:Delete", goa.KV{"duration", time.Since(now)})
 	var obj User
 
 	err := m.Db.Delete(&obj, id).Error
 
 	if err != nil {
-		ctx.Error("error retrieving User", "error", err.Error())
+		goa.Error(ctx, "error retrieving User", goa.KV{"error", err.Error()})
 		return err
 	}
 
@@ -164,43 +165,44 @@ func (m *UserDB) Delete(ctx *goa.Context, id int) error {
 // only copying the non-nil fields from the source.
 func UserFromCreateUserPayload(payload *app.CreateUserPayload) *User {
 	user := &User{}
-	user.Firstname = payload.Firstname
+	if payload.Bio != nil {
+		user.Bio = payload.Bio
+	}
+	if payload.Country != nil {
+		user.Country = payload.Country
+	}
 	if payload.State != nil {
 		user.State = payload.State
 	}
 	if payload.City != nil {
 		user.City = payload.City
 	}
-	if payload.Country != nil {
-		user.Country = payload.Country
-	}
 	user.Email = payload.Email
+	user.Firstname = payload.Firstname
 	user.Lastname = payload.Lastname
-	if payload.Bio != nil {
-		user.Bio = payload.Bio
-	}
 
 	return user
 }
 
 // UpdateFromCreateUserPayload applies non-nil changes from CreateUserPayload to the model
 // and saves it
-func (m *UserDB) UpdateFromCreateUserPayload(ctx *goa.Context, payload *app.CreateUserPayload, id int) error {
+func (m *UserDB) UpdateFromCreateUserPayload(ctx context.Context, payload *app.CreateUserPayload, id int) error {
 	now := time.Now()
-	defer ctx.Info("User:Update", "duration", time.Since(now))
+	defer goa.Info(ctx, "User:Update", goa.KV{"duration", time.Since(now)})
 	var obj User
 	err := m.Db.Table(m.TableName()).Where("id = ?", id).Find(&obj).Error
 	if err != nil {
-		ctx.Error("error retrieving User", "error", err.Error())
+		goa.Error(ctx, "error retrieving User", goa.KV{"error", err.Error()})
 		return err
 	}
 	obj.Email = payload.Email
+	obj.Firstname = payload.Firstname
+	if payload.City != nil {
+		obj.City = payload.City
+	}
 	obj.Lastname = payload.Lastname
 	if payload.Bio != nil {
 		obj.Bio = payload.Bio
-	}
-	if payload.City != nil {
-		obj.City = payload.City
 	}
 	if payload.Country != nil {
 		obj.Country = payload.Country
@@ -208,7 +210,6 @@ func (m *UserDB) UpdateFromCreateUserPayload(ctx *goa.Context, payload *app.Crea
 	if payload.State != nil {
 		obj.State = payload.State
 	}
-	obj.Firstname = payload.Firstname
 
 	err = m.Db.Save(&obj).Error
 	return err
@@ -218,24 +219,24 @@ func (m *UserDB) UpdateFromCreateUserPayload(ctx *goa.Context, payload *app.Crea
 // only copying the non-nil fields from the source.
 func UserFromUpdateUserPayload(payload *app.UpdateUserPayload) *User {
 	user := &User{}
+	if payload.City != nil {
+		user.City = payload.City
+	}
+	user.Email = payload.Email
 	if payload.Firstname != nil {
 		user.Firstname = *payload.Firstname
 	}
-	if payload.State != nil {
-		user.State = payload.State
+	if payload.Lastname != nil {
+		user.Lastname = *payload.Lastname
 	}
 	if payload.Bio != nil {
 		user.Bio = payload.Bio
 	}
-	if payload.City != nil {
-		user.City = payload.City
-	}
 	if payload.Country != nil {
 		user.Country = payload.Country
 	}
-	user.Email = payload.Email
-	if payload.Lastname != nil {
-		user.Lastname = *payload.Lastname
+	if payload.State != nil {
+		user.State = payload.State
 	}
 
 	return user
@@ -243,30 +244,30 @@ func UserFromUpdateUserPayload(payload *app.UpdateUserPayload) *User {
 
 // UpdateFromUpdateUserPayload applies non-nil changes from UpdateUserPayload to the model
 // and saves it
-func (m *UserDB) UpdateFromUpdateUserPayload(ctx *goa.Context, payload *app.UpdateUserPayload, id int) error {
+func (m *UserDB) UpdateFromUpdateUserPayload(ctx context.Context, payload *app.UpdateUserPayload, id int) error {
 	now := time.Now()
-	defer ctx.Info("User:Update", "duration", time.Since(now))
+	defer goa.Info(ctx, "User:Update", goa.KV{"duration", time.Since(now)})
 	var obj User
 	err := m.Db.Table(m.TableName()).Where("id = ?", id).Find(&obj).Error
 	if err != nil {
-		ctx.Error("error retrieving User", "error", err.Error())
+		goa.Error(ctx, "error retrieving User", goa.KV{"error", err.Error()})
 		return err
+	}
+	if payload.City != nil {
+		obj.City = payload.City
+	}
+	obj.Email = payload.Email
+	if payload.Firstname != nil {
+		obj.Firstname = *payload.Firstname
+	}
+	if payload.Lastname != nil {
+		obj.Lastname = *payload.Lastname
 	}
 	if payload.State != nil {
 		obj.State = payload.State
 	}
-	if payload.Firstname != nil {
-		obj.Firstname = *payload.Firstname
-	}
-	obj.Email = payload.Email
-	if payload.Lastname != nil {
-		obj.Lastname = *payload.Lastname
-	}
 	if payload.Bio != nil {
 		obj.Bio = payload.Bio
-	}
-	if payload.City != nil {
-		obj.City = payload.City
 	}
 	if payload.Country != nil {
 		obj.Country = payload.Country

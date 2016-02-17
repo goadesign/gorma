@@ -38,7 +38,7 @@ func (c *UserController) Show(ctx *app.ShowUserContext) error {
 	if err == gorm.RecordNotFound {
 		return ctx.NotFound()
 	} else if err != nil {
-		return ctx.Respond(500, err.Error)
+		return goa.Response(ctx).Send(ctx, 500, err.Error)
 	}
 	return ctx.OK(user)
 }

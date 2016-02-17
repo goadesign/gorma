@@ -15,6 +15,7 @@ import (
 	"github.com/goadesign/goa"
 	"github.com/goadesign/gorma/example/app"
 	"github.com/jinzhu/gorm"
+	"golang.org/x/net/context"
 	log "gopkg.in/inconshreveable/log15.v2"
 	"time"
 )
@@ -29,8 +30,8 @@ type Proposal struct {
 	UserID    int // has many Proposal
 	Withdrawn *bool
 	CreatedAt time.Time  // timestamp
-	DeletedAt *time.Time // nullable timestamp (soft delete)
 	UpdatedAt time.Time  // timestamp
+	DeletedAt *time.Time // nullable timestamp (soft delete)
 	User      User
 }
 
@@ -62,21 +63,21 @@ func (m *ProposalDB) DB() interface{} {
 // ProposalStorage represents the storage interface.
 type ProposalStorage interface {
 	DB() interface{}
-	List(ctx *goa.Context) []Proposal
-	Get(ctx *goa.Context, id int) (Proposal, error)
-	Add(ctx *goa.Context, proposal *Proposal) (*Proposal, error)
-	Update(ctx *goa.Context, proposal *Proposal) error
-	Delete(ctx *goa.Context, id int) error
+	List(ctx context.Context) []Proposal
+	Get(ctx context.Context, id int) (Proposal, error)
+	Add(ctx context.Context, proposal *Proposal) (*Proposal, error)
+	Update(ctx context.Context, proposal *Proposal) error
+	Delete(ctx context.Context, id int) error
 
-	ListAppProposal(ctx *goa.Context, userid int) []*app.Proposal
-	OneProposal(ctx *goa.Context, id int, userid int) (*app.Proposal, error)
+	ListAppProposal(ctx context.Context, userid int) []*app.Proposal
+	OneProposal(ctx context.Context, id int, userid int) (*app.Proposal, error)
 
-	ListAppProposalLink(ctx *goa.Context, userid int) []*app.ProposalLink
-	OneProposalLink(ctx *goa.Context, id int, userid int) (*app.ProposalLink, error)
+	ListAppProposalLink(ctx context.Context, userid int) []*app.ProposalLink
+	OneProposalLink(ctx context.Context, id int, userid int) (*app.ProposalLink, error)
 
-	UpdateFromCreateProposalPayload(ctx *goa.Context, payload *app.CreateProposalPayload, id int) error
+	UpdateFromCreateProposalPayload(ctx context.Context, payload *app.CreateProposalPayload, id int) error
 
-	UpdateFromUpdateProposalPayload(ctx *goa.Context, payload *app.UpdateProposalPayload, id int) error
+	UpdateFromUpdateProposalPayload(ctx context.Context, payload *app.UpdateProposalPayload, id int) error
 }
 
 // TableName overrides the table name settings in Gorm to force a specific table name
@@ -104,9 +105,9 @@ func ProposalFilterByUser(userid int, originaldb *gorm.DB) func(db *gorm.DB) *go
 
 // Get returns a single Proposal as a Database Model
 // This is more for use internally, and probably not what you want in  your controllers
-func (m *ProposalDB) Get(ctx *goa.Context, id int) (Proposal, error) {
+func (m *ProposalDB) Get(ctx context.Context, id int) (Proposal, error) {
 	now := time.Now()
-	defer ctx.Info("Proposal:Get", "duration", time.Since(now))
+	defer goa.Info(ctx, "Proposal:Get", goa.KV{"duration", time.Since(now)})
 	var native Proposal
 	err := m.Db.Table(m.TableName()).Where("id = ?", id).Find(&native).Error
 	if err == gorm.RecordNotFound {
@@ -117,13 +118,13 @@ func (m *ProposalDB) Get(ctx *goa.Context, id int) (Proposal, error) {
 }
 
 // List returns an array of Proposal
-func (m *ProposalDB) List(ctx *goa.Context) []Proposal {
+func (m *ProposalDB) ListProposal(ctx context.Context) []Proposal {
 	now := time.Now()
-	defer ctx.Info("Proposal:List", "duration", time.Since(now))
+	defer goa.Info(ctx, "Proposal:List", goa.KV{"duration", time.Since(now)})
 	var objs []Proposal
 	err := m.Db.Table(m.TableName()).Find(&objs).Error
 	if err != nil && err != gorm.RecordNotFound {
-		ctx.Error("error listing Proposal", "error", err.Error())
+		goa.Error(ctx, "error listing Proposal", goa.KV{"error", err.Error()})
 		return objs
 	}
 
@@ -131,12 +132,12 @@ func (m *ProposalDB) List(ctx *goa.Context) []Proposal {
 }
 
 // Add creates a new record.  /// Maybe shouldn't return the model, it's a pointer.
-func (m *ProposalDB) Add(ctx *goa.Context, model *Proposal) (*Proposal, error) {
+func (m *ProposalDB) Add(ctx context.Context, model *Proposal) (*Proposal, error) {
 	now := time.Now()
-	defer ctx.Info("Proposal:Add", "duration", time.Since(now))
+	defer goa.Info(ctx, "Proposal:Add", goa.KV{"duration", time.Since(now)})
 	err := m.Db.Create(model).Error
 	if err != nil {
-		ctx.Error("error updating Proposal", "error", err.Error())
+		goa.Error(ctx, "error updating Proposal", goa.KV{"error", err.Error()})
 		return model, err
 	}
 
@@ -144,9 +145,9 @@ func (m *ProposalDB) Add(ctx *goa.Context, model *Proposal) (*Proposal, error) {
 }
 
 // Update modifies a single record.
-func (m *ProposalDB) Update(ctx *goa.Context, model *Proposal) error {
+func (m *ProposalDB) Update(ctx context.Context, model *Proposal) error {
 	now := time.Now()
-	defer ctx.Info("Proposal:Update", "duration", time.Since(now))
+	defer goa.Info(ctx, "Proposal:Update", goa.KV{"duration", time.Since(now)})
 	obj, err := m.Get(ctx, model.ID)
 	if err != nil {
 		return err
@@ -157,15 +158,15 @@ func (m *ProposalDB) Update(ctx *goa.Context, model *Proposal) error {
 }
 
 // Delete removes a single record.
-func (m *ProposalDB) Delete(ctx *goa.Context, id int) error {
+func (m *ProposalDB) Delete(ctx context.Context, id int) error {
 	now := time.Now()
-	defer ctx.Info("Proposal:Delete", "duration", time.Since(now))
+	defer goa.Info(ctx, "Proposal:Delete", goa.KV{"duration", time.Since(now)})
 	var obj Proposal
 
 	err := m.Db.Delete(&obj, id).Error
 
 	if err != nil {
-		ctx.Error("error retrieving Proposal", "error", err.Error())
+		goa.Error(ctx, "error retrieving Proposal", goa.KV{"error", err.Error()})
 		return err
 	}
 
@@ -176,33 +177,33 @@ func (m *ProposalDB) Delete(ctx *goa.Context, id int) error {
 // only copying the non-nil fields from the source.
 func ProposalFromCreateProposalPayload(payload *app.CreateProposalPayload) *Proposal {
 	proposal := &Proposal{}
-	proposal.Abstract = payload.Abstract
+	proposal.Title = payload.Title
 	proposal.Detail = payload.Detail
 	if payload.Withdrawn != nil {
 		proposal.Withdrawn = payload.Withdrawn
 	}
-	proposal.Title = payload.Title
+	proposal.Abstract = payload.Abstract
 
 	return proposal
 }
 
 // UpdateFromCreateProposalPayload applies non-nil changes from CreateProposalPayload to the model
 // and saves it
-func (m *ProposalDB) UpdateFromCreateProposalPayload(ctx *goa.Context, payload *app.CreateProposalPayload, id int) error {
+func (m *ProposalDB) UpdateFromCreateProposalPayload(ctx context.Context, payload *app.CreateProposalPayload, id int) error {
 	now := time.Now()
-	defer ctx.Info("Proposal:Update", "duration", time.Since(now))
+	defer goa.Info(ctx, "Proposal:Update", goa.KV{"duration", time.Since(now)})
 	var obj Proposal
 	err := m.Db.Table(m.TableName()).Where("id = ?", id).Find(&obj).Error
 	if err != nil {
-		ctx.Error("error retrieving Proposal", "error", err.Error())
+		goa.Error(ctx, "error retrieving Proposal", goa.KV{"error", err.Error()})
 		return err
 	}
 	obj.Title = payload.Title
-	obj.Abstract = payload.Abstract
 	obj.Detail = payload.Detail
 	if payload.Withdrawn != nil {
 		obj.Withdrawn = payload.Withdrawn
 	}
+	obj.Abstract = payload.Abstract
 
 	err = m.Db.Save(&obj).Error
 	return err
@@ -215,14 +216,14 @@ func ProposalFromUpdateProposalPayload(payload *app.UpdateProposalPayload) *Prop
 	if payload.Abstract != nil {
 		proposal.Abstract = *payload.Abstract
 	}
+	if payload.Title != nil {
+		proposal.Title = *payload.Title
+	}
 	if payload.Detail != nil {
 		proposal.Detail = *payload.Detail
 	}
 	if payload.Withdrawn != nil {
 		proposal.Withdrawn = payload.Withdrawn
-	}
-	if payload.Title != nil {
-		proposal.Title = *payload.Title
 	}
 
 	return proposal
@@ -230,14 +231,17 @@ func ProposalFromUpdateProposalPayload(payload *app.UpdateProposalPayload) *Prop
 
 // UpdateFromUpdateProposalPayload applies non-nil changes from UpdateProposalPayload to the model
 // and saves it
-func (m *ProposalDB) UpdateFromUpdateProposalPayload(ctx *goa.Context, payload *app.UpdateProposalPayload, id int) error {
+func (m *ProposalDB) UpdateFromUpdateProposalPayload(ctx context.Context, payload *app.UpdateProposalPayload, id int) error {
 	now := time.Now()
-	defer ctx.Info("Proposal:Update", "duration", time.Since(now))
+	defer goa.Info(ctx, "Proposal:Update", goa.KV{"duration", time.Since(now)})
 	var obj Proposal
 	err := m.Db.Table(m.TableName()).Where("id = ?", id).Find(&obj).Error
 	if err != nil {
-		ctx.Error("error retrieving Proposal", "error", err.Error())
+		goa.Error(ctx, "error retrieving Proposal", goa.KV{"error", err.Error()})
 		return err
+	}
+	if payload.Abstract != nil {
+		obj.Abstract = *payload.Abstract
 	}
 	if payload.Title != nil {
 		obj.Title = *payload.Title
@@ -247,9 +251,6 @@ func (m *ProposalDB) UpdateFromUpdateProposalPayload(ctx *goa.Context, payload *
 	}
 	if payload.Withdrawn != nil {
 		obj.Withdrawn = payload.Withdrawn
-	}
-	if payload.Abstract != nil {
-		obj.Abstract = *payload.Abstract
 	}
 
 	err = m.Db.Save(&obj).Error

@@ -15,20 +15,31 @@ import (
 	"github.com/goadesign/goa"
 	"github.com/goadesign/gorma/example/app"
 	"github.com/jinzhu/gorm"
+	"golang.org/x/net/context"
 	"time"
 )
 
+/*
+func something(source *Review) (target *app.Review) {
+	target = new(app.Review)
+	target.Comment = source.Comment
+	target.Rating = source.Rating
+	return
+}
+
+*/
+
 // MediaType Retrieval Functions
 // ListReview returns an array of view: default
-func (m *ReviewDB) ListAppReview(ctx *goa.Context, proposalid int, userid int) []*app.Review {
+func (m *ReviewDB) ListAppReview(ctx context.Context, proposalid int, userid int) []*app.Review {
 	now := time.Now()
-	defer ctx.Info("ListReview", "duration", time.Since(now))
+	defer goa.Info(ctx, "ListReview", goa.KV{"duration", time.Since(now)})
 	var objs []*app.Review
 	err := m.Db.Scopes(ReviewFilterByProposal(proposalid, &m.Db), ReviewFilterByUser(userid, &m.Db)).Table(m.TableName()).Find(&objs).Error
 
 	//	err := m.Db.Table(m.TableName()).Find(&objs).Error
 	if err != nil {
-		ctx.Error("error listing Review", "error", err.Error())
+		goa.Error(ctx, "error listing Review", goa.KV{"error", err.Error()})
 		return objs
 	}
 
@@ -37,22 +48,22 @@ func (m *ReviewDB) ListAppReview(ctx *goa.Context, proposalid int, userid int) [
 
 func (m *Review) ReviewToAppReview() *app.Review {
 	review := &app.Review{}
-	review.Comment = m.Comment
 	review.Rating = &m.Rating
 	review.ID = &m.ID
+	review.Comment = m.Comment
 
 	return review
 }
 
 // OneAppReview returns an array of view: default
-func (m *ReviewDB) OneReview(ctx *goa.Context, id int, proposalid int, userid int) (*app.Review, error) {
+func (m *ReviewDB) OneReview(ctx context.Context, id int, proposalid int, userid int) (*app.Review, error) {
 	now := time.Now()
 	var native Review
-	defer ctx.Info("OneReview", "duration", time.Since(now))
+	defer goa.Info(ctx, "OneReview", goa.KV{"duration", time.Since(now)})
 	err := m.Db.Scopes(ReviewFilterByProposal(proposalid, &m.Db), ReviewFilterByUser(userid, &m.Db)).Table(m.TableName()).Preload("Proposal").Preload("User").Where("id = ?", id).Find(&native).Error
 
 	if err != nil && err != gorm.RecordNotFound {
-		ctx.Error("error getting Review", "error", err.Error())
+		goa.Error(ctx, "error getting Review", goa.KV{"error", err.Error()})
 		return nil, err
 	}
 
@@ -63,15 +74,15 @@ func (m *ReviewDB) OneReview(ctx *goa.Context, id int, proposalid int, userid in
 
 // MediaType Retrieval Functions
 // ListReviewLink returns an array of view: link
-func (m *ReviewDB) ListAppReviewLink(ctx *goa.Context, proposalid int, userid int) []*app.ReviewLink {
+func (m *ReviewDB) ListAppReviewLink(ctx context.Context, proposalid int, userid int) []*app.ReviewLink {
 	now := time.Now()
-	defer ctx.Info("ListReviewLink", "duration", time.Since(now))
+	defer goa.Info(ctx, "ListReviewLink", goa.KV{"duration", time.Since(now)})
 	var objs []*app.ReviewLink
 	err := m.Db.Scopes(ReviewFilterByProposal(proposalid, &m.Db), ReviewFilterByUser(userid, &m.Db)).Table(m.TableName()).Find(&objs).Error
 
 	//	err := m.Db.Table(m.TableName()).Find(&objs).Error
 	if err != nil {
-		ctx.Error("error listing Review", "error", err.Error())
+		goa.Error(ctx, "error listing Review", goa.KV{"error", err.Error()})
 		return objs
 	}
 
@@ -86,14 +97,14 @@ func (m *Review) ReviewToAppReviewLink() *app.ReviewLink {
 }
 
 // OneAppReviewLink returns an array of view: link
-func (m *ReviewDB) OneReviewLink(ctx *goa.Context, id int, proposalid int, userid int) (*app.ReviewLink, error) {
+func (m *ReviewDB) OneReviewLink(ctx context.Context, id int, proposalid int, userid int) (*app.ReviewLink, error) {
 	now := time.Now()
 	var native Review
-	defer ctx.Info("OneReviewLink", "duration", time.Since(now))
+	defer goa.Info(ctx, "OneReviewLink", goa.KV{"duration", time.Since(now)})
 	err := m.Db.Scopes(ReviewFilterByProposal(proposalid, &m.Db), ReviewFilterByUser(userid, &m.Db)).Table(m.TableName()).Preload("Proposal").Preload("User").Where("id = ?", id).Find(&native).Error
 
 	if err != nil && err != gorm.RecordNotFound {
-		ctx.Error("error getting Review", "error", err.Error())
+		goa.Error(ctx, "error getting Review", goa.KV{"error", err.Error()})
 		return nil, err
 	}
 
