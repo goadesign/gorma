@@ -209,10 +209,10 @@ func (m *ReviewDB) UpdateFromCreateReviewPayload(ctx context.Context, payload *a
 		goa.Error(ctx, "error retrieving Review", goa.KV{"error", err.Error()})
 		return err
 	}
-	obj.Rating = payload.Rating
 	if payload.Comment != nil {
 		obj.Comment = payload.Comment
 	}
+	obj.Rating = payload.Rating
 
 	err = m.Db.Save(&obj).Error
 	return err

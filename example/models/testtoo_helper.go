@@ -20,7 +20,7 @@ import (
 )
 
 /*
-func something(source *User) (target *app.User) {
+func something(source *TestToo) (target *app.User) {
 	target = new(app.User)
 	target.Bio = source.Bio
 	target.City = source.City
@@ -36,7 +36,7 @@ func something(source *User) (target *app.User) {
 
 // MediaType Retrieval Functions
 // ListUser returns an array of view: default
-func (m *UserDB) ListAppUser(ctx context.Context) []*app.User {
+func (m *TestTooDB) ListAppUser(ctx context.Context) []*app.User {
 	now := time.Now()
 	defer goa.Info(ctx, "ListUser", goa.KV{"duration", time.Since(now)})
 	var objs []*app.User
@@ -44,47 +44,46 @@ func (m *UserDB) ListAppUser(ctx context.Context) []*app.User {
 
 	//	err := m.Db.Table(m.TableName()).Find(&objs).Error
 	if err != nil {
-		goa.Error(ctx, "error listing User", goa.KV{"error", err.Error()})
+		goa.Error(ctx, "error listing TestToo", goa.KV{"error", err.Error()})
 		return objs
 	}
 
 	return objs
 }
 
-func (m *User) UserToAppUser() *app.User {
-	user := &app.User{}
-	user.Bio = m.Bio
-	user.Email = &m.Email
-	user.Lastname = &m.Lastname
-	user.State = m.State
-	user.City = m.City
-	user.Country = m.Country
-	user.ID = &m.ID
-	user.Firstname = &m.Firstname
+func (m *TestToo) TestTooToAppUser() *app.User {
+	testtoo := &app.User{}
+	testtoo.Country = m.Country
+	testtoo.Email = &m.Email
+	testtoo.Bio = m.Bio
+	testtoo.City = m.City
+	testtoo.Firstname = &m.Firstname
+	testtoo.Lastname = &m.Lastname
+	testtoo.State = m.State
 
-	return user
+	return testtoo
 }
 
 // OneAppUser returns an array of view: default
-func (m *UserDB) OneUser(ctx context.Context, id int) (*app.User, error) {
+func (m *TestTooDB) OneUser(ctx context.Context, idone int, idtwo int) (*app.User, error) {
 	now := time.Now()
-	var native User
+	var native TestToo
 	defer goa.Info(ctx, "OneUser", goa.KV{"duration", time.Since(now)})
-	err := m.Db.Scopes().Table(m.TableName()).Preload("Proposals").Preload("Reviews").Where("id = ?", id).Find(&native).Error
+	err := m.Db.Scopes().Table(m.TableName()).Where("idone = ? and idtwo = ?", idone, idtwo).Find(&native).Error
 
 	if err != nil && err != gorm.RecordNotFound {
-		goa.Error(ctx, "error getting User", goa.KV{"error", err.Error()})
+		goa.Error(ctx, "error getting TestToo", goa.KV{"error", err.Error()})
 		return nil, err
 	}
 
-	view := *native.UserToAppUser()
+	view := *native.TestTooToAppUser()
 	return &view, err
 
 }
 
 // MediaType Retrieval Functions
 // ListUserLink returns an array of view: link
-func (m *UserDB) ListAppUserLink(ctx context.Context) []*app.UserLink {
+func (m *TestTooDB) ListAppUserLink(ctx context.Context) []*app.UserLink {
 	now := time.Now()
 	defer goa.Info(ctx, "ListUserLink", goa.KV{"duration", time.Since(now)})
 	var objs []*app.UserLink
@@ -92,34 +91,33 @@ func (m *UserDB) ListAppUserLink(ctx context.Context) []*app.UserLink {
 
 	//	err := m.Db.Table(m.TableName()).Find(&objs).Error
 	if err != nil {
-		goa.Error(ctx, "error listing User", goa.KV{"error", err.Error()})
+		goa.Error(ctx, "error listing TestToo", goa.KV{"error", err.Error()})
 		return objs
 	}
 
 	return objs
 }
 
-func (m *User) UserToAppUserLink() *app.UserLink {
-	user := &app.UserLink{}
-	user.ID = &m.ID
-	user.Email = &m.Email
+func (m *TestToo) TestTooToAppUserLink() *app.UserLink {
+	testtoo := &app.UserLink{}
+	testtoo.Email = &m.Email
 
-	return user
+	return testtoo
 }
 
 // OneAppUserLink returns an array of view: link
-func (m *UserDB) OneUserLink(ctx context.Context, id int) (*app.UserLink, error) {
+func (m *TestTooDB) OneUserLink(ctx context.Context, idone int, idtwo int) (*app.UserLink, error) {
 	now := time.Now()
-	var native User
+	var native TestToo
 	defer goa.Info(ctx, "OneUserLink", goa.KV{"duration", time.Since(now)})
-	err := m.Db.Scopes().Table(m.TableName()).Preload("Proposals").Preload("Reviews").Where("id = ?", id).Find(&native).Error
+	err := m.Db.Scopes().Table(m.TableName()).Where("idone = ? and idtwo = ?", idone, idtwo).Find(&native).Error
 
 	if err != nil && err != gorm.RecordNotFound {
-		goa.Error(ctx, "error getting User", goa.KV{"error", err.Error()})
+		goa.Error(ctx, "error getting TestToo", goa.KV{"error", err.Error()})
 		return nil, err
 	}
 
-	view := *native.UserToAppUserLink()
+	view := *native.TestTooToAppUserLink()
 	return &view, err
 
 }

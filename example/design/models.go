@@ -73,5 +73,25 @@ var _ = StorageGroup("CongoStorageGroup", func() {
 			Field("updated_at", gorma.Timestamp, func() {})
 			Field("deleted_at", gorma.NullableTimestamp, func() {})
 		})
+		Model("TestToo", func() {
+			Description("TestTooModel")
+			NoAutomaticIDFields()
+			Field("idone", gorma.Integer, func() {
+				PrimaryKey()
+				Description("This is one of the TestToo Model PK fields")
+			})
+			Field("idtwo", gorma.Integer, func() {
+				PrimaryKey()
+				Description("This is one of the TestToo Model PK fields")
+			})
+			BuildsFrom(func() {
+				Payload("user", "create")
+				Payload("user", "update")
+			})
+			RendersTo(User)
+			Field("created_at", gorma.Timestamp, func() {})
+			Field("updated_at", gorma.Timestamp, func() {})
+			Field("deleted_at", gorma.NullableTimestamp, func() {})
+		})
 	})
 })
