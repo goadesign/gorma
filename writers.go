@@ -409,8 +409,6 @@ type {{$ut.ModelName}}Storage interface {
 List{{$vpn}}{{goify $rmt.TypeName true}}{{if eq $vname "default"}}{{else}}{{goify $vname true}}{{end}} (ctx context.Context{{ if $ut.DynamicTableName}}, tableName string{{ end }} {{range $nm, $bt := $ut.BelongsTo}},{{goify $bt.ModelName false}}id int{{end}}) []*{{goify $vpn false}}.{{goify $rmt.TypeName true}}{{if eq $vname "default"}}{{else}}{{goify $vname true}}{{end}}
 One{{goify $rmt.TypeName true}}{{if eq $vname "default"}}{{else}}{{goify $vname true}}{{end}} (ctx context.Context{{ if $ut.DynamicTableName}}, tableName string{{ end }}, {{$ut.PKAttributes}}{{range $nm, $bt := $ut.BelongsTo}},{{goify $bt.ModelName false}}id int{{end}}) (*{{goify $vpn false}}.{{goify $rmt.TypeName true}}{{if eq $vname "default"}}{{else}}{{goify $vname true}}{{end}}, error)
 {{ end }}
-
-
 {{ range $version :=  $rmt.Versions }} {{$vp := vp $version}}{{$vpn := goify $vp true}}
 // {{$version}} I don't remember why I put this here.  Don't delete until I remember.  What versioned things might we add to the Interface?
 {{end}}{{end}}{{end}}
@@ -461,7 +459,7 @@ func (m *{{$ut.ModelName}}DB) Get(ctx context.Context{{ if $ut.DynamicTableName}
 }
 
 // List returns an array of {{$ut.ModelName}}
-func (m *{{$ut.ModelName}}DB) List{{$ut.TypeName}}(ctx context.Context{{ if $ut.DynamicTableName}}, tableName string{{ end }}) []{{$ut.ModelName}}{
+func (m *{{$ut.ModelName}}DB) List(ctx context.Context{{ if $ut.DynamicTableName}}, tableName string{{ end }}) []{{$ut.ModelName}}{
 	now := time.Now()
 	defer goa.Info(ctx, "{{$ut.ModelName}}:List", goa.KV{"duration", time.Since(now)})
 	var objs []{{$ut.ModelName}}
