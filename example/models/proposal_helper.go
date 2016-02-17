@@ -35,13 +35,18 @@ func something(source *Proposal) (target *app.Proposal) {
 func (m *ProposalDB) ListAppProposal(ctx context.Context, userid int) []*app.Proposal {
 	now := time.Now()
 	defer goa.Info(ctx, "ListProposal", goa.KV{"duration", time.Since(now)})
+	var native []*Proposal
 	var objs []*app.Proposal
-	err := m.Db.Scopes(ProposalFilterByUser(userid, &m.Db)).Table(m.TableName()).Preload("Reviews").Find(&objs).Error
+	err := m.Db.Scopes(ProposalFilterByUser(userid, &m.Db)).Table(m.TableName()).Preload("Reviews").Find(&native).Error
 
 	//	err := m.Db.Table(m.TableName()).Preload("Reviews").Find(&objs).Error
 	if err != nil {
 		goa.Error(ctx, "error listing Proposal", goa.KV{"error", err.Error()})
 		return objs
+	}
+
+	for _, t := range native {
+		objs = append(objs, t.ProposalToAppProposal())
 	}
 
 	return objs
@@ -54,13 +59,13 @@ func (m *Proposal) ProposalToAppProposal() *app.Proposal {
 		tmp1Collection = append(tmp1Collection, k.ReviewToAppReviewLink())
 	}
 	proposal.Links = &app.ProposalLinks{Reviews: tmp1Collection}
-	proposal.Detail = &m.Detail
 	for _, k := range m.Reviews {
 		proposal.Reviews = append(proposal.Reviews, k.ReviewToAppReview())
 	}
 	proposal.ID = &m.ID
 	proposal.Title = &m.Title
 	proposal.Abstract = &m.Abstract
+	proposal.Detail = &m.Detail
 
 	return proposal
 }
@@ -87,8 +92,9 @@ func (m *ProposalDB) OneProposal(ctx context.Context, id int, userid int) (*app.
 func (m *ProposalDB) ListAppProposalLink(ctx context.Context, userid int) []*app.ProposalLink {
 	now := time.Now()
 	defer goa.Info(ctx, "ListProposalLink", goa.KV{"duration", time.Since(now)})
+	var native []*Proposal
 	var objs []*app.ProposalLink
-	err := m.Db.Scopes(ProposalFilterByUser(userid, &m.Db)).Table(m.TableName()).Preload("Reviews").Find(&objs).Error
+	err := m.Db.Scopes(ProposalFilterByUser(userid, &m.Db)).Table(m.TableName()).Preload("Reviews").Find(&native).Error
 
 	//	err := m.Db.Table(m.TableName()).Preload("Reviews").Find(&objs).Error
 	if err != nil {
@@ -96,13 +102,17 @@ func (m *ProposalDB) ListAppProposalLink(ctx context.Context, userid int) []*app
 		return objs
 	}
 
+	for _, t := range native {
+		objs = append(objs, t.ProposalToAppProposalLink())
+	}
+
 	return objs
 }
 
 func (m *Proposal) ProposalToAppProposalLink() *app.ProposalLink {
 	proposal := &app.ProposalLink{}
-	proposal.ID = &m.ID
 	proposal.Title = &m.Title
+	proposal.ID = &m.ID
 
 	return proposal
 }

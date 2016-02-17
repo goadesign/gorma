@@ -34,13 +34,18 @@ func something(source *Review) (target *app.Review) {
 func (m *ReviewDB) ListAppReview(ctx context.Context, proposalid int, userid int) []*app.Review {
 	now := time.Now()
 	defer goa.Info(ctx, "ListReview", goa.KV{"duration", time.Since(now)})
+	var native []*Review
 	var objs []*app.Review
-	err := m.Db.Scopes(ReviewFilterByProposal(proposalid, &m.Db), ReviewFilterByUser(userid, &m.Db)).Table(m.TableName()).Find(&objs).Error
+	err := m.Db.Scopes(ReviewFilterByProposal(proposalid, &m.Db), ReviewFilterByUser(userid, &m.Db)).Table(m.TableName()).Find(&native).Error
 
 	//	err := m.Db.Table(m.TableName()).Find(&objs).Error
 	if err != nil {
 		goa.Error(ctx, "error listing Review", goa.KV{"error", err.Error()})
 		return objs
+	}
+
+	for _, t := range native {
+		objs = append(objs, t.ReviewToAppReview())
 	}
 
 	return objs
@@ -77,13 +82,18 @@ func (m *ReviewDB) OneReview(ctx context.Context, id int, proposalid int, userid
 func (m *ReviewDB) ListAppReviewLink(ctx context.Context, proposalid int, userid int) []*app.ReviewLink {
 	now := time.Now()
 	defer goa.Info(ctx, "ListReviewLink", goa.KV{"duration", time.Since(now)})
+	var native []*Review
 	var objs []*app.ReviewLink
-	err := m.Db.Scopes(ReviewFilterByProposal(proposalid, &m.Db), ReviewFilterByUser(userid, &m.Db)).Table(m.TableName()).Find(&objs).Error
+	err := m.Db.Scopes(ReviewFilterByProposal(proposalid, &m.Db), ReviewFilterByUser(userid, &m.Db)).Table(m.TableName()).Find(&native).Error
 
 	//	err := m.Db.Table(m.TableName()).Find(&objs).Error
 	if err != nil {
 		goa.Error(ctx, "error listing Review", goa.KV{"error", err.Error()})
 		return objs
+	}
+
+	for _, t := range native {
+		objs = append(objs, t.ReviewToAppReviewLink())
 	}
 
 	return objs

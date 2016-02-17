@@ -28,9 +28,9 @@ type Proposal struct {
 	Title     string
 	UserID    int // has many Proposal
 	Withdrawn *bool
+	CreatedAt time.Time  // timestamp
 	UpdatedAt time.Time  // timestamp
 	DeletedAt *time.Time // nullable timestamp (soft delete)
-	CreatedAt time.Time  // timestamp
 	User      User
 }
 
@@ -115,7 +115,7 @@ func (m *ProposalDB) Get(ctx context.Context, id int) (Proposal, error) {
 }
 
 // List returns an array of Proposal
-func (m *ProposalDB) ListProposal(ctx context.Context) []Proposal {
+func (m *ProposalDB) List(ctx context.Context) []Proposal {
 	now := time.Now()
 	defer goa.Info(ctx, "Proposal:List", goa.KV{"duration", time.Since(now)})
 	var objs []Proposal
@@ -174,12 +174,12 @@ func (m *ProposalDB) Delete(ctx context.Context, id int) error {
 // only copying the non-nil fields from the source.
 func ProposalFromCreateProposalPayload(payload *app.CreateProposalPayload) *Proposal {
 	proposal := &Proposal{}
-	proposal.Title = payload.Title
-	proposal.Abstract = payload.Abstract
 	proposal.Detail = payload.Detail
 	if payload.Withdrawn != nil {
 		proposal.Withdrawn = payload.Withdrawn
 	}
+	proposal.Title = payload.Title
+	proposal.Abstract = payload.Abstract
 
 	return proposal
 }
@@ -195,11 +195,11 @@ func (m *ProposalDB) UpdateFromCreateProposalPayload(ctx context.Context, payloa
 		goa.Error(ctx, "error retrieving Proposal", goa.KV{"error", err.Error()})
 		return err
 	}
+	obj.Abstract = payload.Abstract
 	obj.Detail = payload.Detail
 	if payload.Withdrawn != nil {
 		obj.Withdrawn = payload.Withdrawn
 	}
-	obj.Abstract = payload.Abstract
 	obj.Title = payload.Title
 
 	err = m.Db.Save(&obj).Error
@@ -237,6 +237,9 @@ func (m *ProposalDB) UpdateFromUpdateProposalPayload(ctx context.Context, payloa
 		goa.Error(ctx, "error retrieving Proposal", goa.KV{"error", err.Error()})
 		return err
 	}
+	if payload.Withdrawn != nil {
+		obj.Withdrawn = payload.Withdrawn
+	}
 	if payload.Title != nil {
 		obj.Title = *payload.Title
 	}
@@ -245,9 +248,6 @@ func (m *ProposalDB) UpdateFromUpdateProposalPayload(ctx context.Context, payloa
 	}
 	if payload.Detail != nil {
 		obj.Detail = *payload.Detail
-	}
-	if payload.Withdrawn != nil {
-		obj.Withdrawn = payload.Withdrawn
 	}
 
 	err = m.Db.Save(&obj).Error

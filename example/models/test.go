@@ -20,9 +20,9 @@ import (
 
 // TestModel
 type Test struct {
-	DeletedAt *time.Time // nullable timestamp (soft delete)
 	CreatedAt time.Time  // timestamp
 	UpdatedAt time.Time  // timestamp
+	DeletedAt *time.Time // nullable timestamp (soft delete)
 }
 
 // TableName overrides the table name settings in Gorm to force a specific table name
@@ -82,7 +82,7 @@ func (m *TestDB) Get(ctx context.Context) (Test, error) {
 }
 
 // List returns an array of Test
-func (m *TestDB) ListTest(ctx context.Context) []Test {
+func (m *TestDB) List(ctx context.Context) []Test {
 	now := time.Now()
 	defer goa.Info(ctx, "Test:List", goa.KV{"duration", time.Since(now)})
 	var objs []Test

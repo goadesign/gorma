@@ -128,7 +128,7 @@ func (m *ReviewDB) Get(ctx context.Context, id int) (Review, error) {
 }
 
 // List returns an array of Review
-func (m *ReviewDB) ListReview(ctx context.Context) []Review {
+func (m *ReviewDB) List(ctx context.Context) []Review {
 	now := time.Now()
 	defer goa.Info(ctx, "Review:List", goa.KV{"duration", time.Since(now)})
 	var objs []Review

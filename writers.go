@@ -579,14 +579,19 @@ func (m {{$ut.ModelName}}) GetRole() string {
 func (m *{{.Model.ModelName}}DB) List{{.VersionPackageName}}{{goify .Media.TypeName true}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}} (ctx context.Context{{ if .Model.DynamicTableName}}, tableName string{{ end }} {{range $nm, $bt := .Model.BelongsTo}},{{goify $bt.ModelName false}}id int{{end}}) []*{{.VersionPackage}}.{{goify .Media.TypeName true}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}}{
 	now := time.Now()
 	defer goa.Info(ctx, "List{{goify .Media.TypeName true}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}}", goa.KV{"duration", time.Since(now)})
+	var native []*{{goify .Model.ModelName true}}
 	var objs []*{{.VersionPackage}}.{{goify .Media.TypeName true}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}} {{$ctx:= .}}
-	err := m.Db.Scopes({{range $nm, $bt := .Model.BelongsTo}}{{$ctx.Model.ModelName}}FilterBy{{goify $bt.ModelName true}}({{goify $bt.ModelName false}}id, &m.Db), {{end}}).Table({{ if .Model.DynamicTableName }}tableName{{else}}m.TableName(){{ end }}).{{ range $ln, $lv := .Media.Links }}Preload("{{goify $ln true}}").{{end}}Find(&objs).Error
+	err := m.Db.Scopes({{range $nm, $bt := .Model.BelongsTo}}{{$ctx.Model.ModelName}}FilterBy{{goify $bt.ModelName true}}({{goify $bt.ModelName false}}id, &m.Db), {{end}}).Table({{ if .Model.DynamicTableName }}tableName{{else}}m.TableName(){{ end }}).{{ range $ln, $lv := .Media.Links }}Preload("{{goify $ln true}}").{{end}}Find(&native).Error
 
 
 //	err := m.Db.Table({{ if .Model.DynamicTableName }}tableName{{else}}m.TableName(){{ end }}).{{ range $ln, $lv := .Media.Links }}Preload("{{goify $ln true}}").{{end}}Find(&objs).Error
 	if err != nil {
 		goa.Error(ctx, "error listing {{.Model.ModelName}}", goa.KV{"error", err.Error()})
 		return objs
+	}
+
+	for _, t := range native {
+		objs = append(objs, t.{{.Model.ModelName}}To{{.VersionPackageName}}{{.Media.UserTypeDefinition.TypeName}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}}())
 	}
 
 	return objs

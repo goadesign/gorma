@@ -39,8 +39,9 @@ func something(source *User) (target *app.User) {
 func (m *UserDB) ListAppUser(ctx context.Context) []*app.User {
 	now := time.Now()
 	defer goa.Info(ctx, "ListUser", goa.KV{"duration", time.Since(now)})
+	var native []*User
 	var objs []*app.User
-	err := m.Db.Scopes().Table(m.TableName()).Find(&objs).Error
+	err := m.Db.Scopes().Table(m.TableName()).Find(&native).Error
 
 	//	err := m.Db.Table(m.TableName()).Find(&objs).Error
 	if err != nil {
@@ -48,16 +49,20 @@ func (m *UserDB) ListAppUser(ctx context.Context) []*app.User {
 		return objs
 	}
 
+	for _, t := range native {
+		objs = append(objs, t.UserToAppUser())
+	}
+
 	return objs
 }
 
 func (m *User) UserToAppUser() *app.User {
 	user := &app.User{}
+	user.ID = &m.ID
+	user.Lastname = &m.Lastname
+	user.Country = m.Country
 	user.Email = &m.Email
 	user.Firstname = &m.Firstname
-	user.Lastname = &m.Lastname
-	user.ID = &m.ID
-	user.Country = m.Country
 	user.Bio = m.Bio
 	user.City = m.City
 	user.State = m.State
@@ -87,8 +92,9 @@ func (m *UserDB) OneUser(ctx context.Context, id int) (*app.User, error) {
 func (m *UserDB) ListAppUserLink(ctx context.Context) []*app.UserLink {
 	now := time.Now()
 	defer goa.Info(ctx, "ListUserLink", goa.KV{"duration", time.Since(now)})
+	var native []*User
 	var objs []*app.UserLink
-	err := m.Db.Scopes().Table(m.TableName()).Find(&objs).Error
+	err := m.Db.Scopes().Table(m.TableName()).Find(&native).Error
 
 	//	err := m.Db.Table(m.TableName()).Find(&objs).Error
 	if err != nil {
@@ -96,13 +102,17 @@ func (m *UserDB) ListAppUserLink(ctx context.Context) []*app.UserLink {
 		return objs
 	}
 
+	for _, t := range native {
+		objs = append(objs, t.UserToAppUserLink())
+	}
+
 	return objs
 }
 
 func (m *User) UserToAppUserLink() *app.UserLink {
 	user := &app.UserLink{}
-	user.Email = &m.Email
 	user.ID = &m.ID
+	user.Email = &m.Email
 
 	return user
 }
