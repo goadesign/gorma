@@ -16,7 +16,6 @@ import (
 	"github.com/goadesign/gorma/example/app"
 	"github.com/jinzhu/gorm"
 	"golang.org/x/net/context"
-	log "gopkg.in/inconshreveable/log15.v2"
 	"time"
 )
 
@@ -27,9 +26,9 @@ type Review struct {
 	ProposalID int // Belongs To Proposal
 	Rating     int
 	UserID     int        // has many Review
+	CreatedAt  time.Time  // timestamp
 	UpdatedAt  time.Time  // timestamp
 	DeletedAt  *time.Time // nullable timestamp (soft delete)
-	CreatedAt  time.Time  // timestamp
 	User       User
 	Proposal   Proposal
 }
@@ -45,13 +44,11 @@ func (m Review) TableName() string {
 // Review.
 type ReviewDB struct {
 	Db gorm.DB
-	log.Logger
 }
 
 // NewReviewDB creates a new storage type.
-func NewReviewDB(db gorm.DB, logger log.Logger) *ReviewDB {
-	glog := logger.New("db", "Review")
-	return &ReviewDB{Db: db, Logger: glog}
+func NewReviewDB(db gorm.DB) *ReviewDB {
+	return &ReviewDB{Db: db}
 }
 
 // DB returns the underlying database.

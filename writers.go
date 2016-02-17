@@ -380,18 +380,15 @@ return "{{ $ut.Alias}}" {{ else }} return "{{ $ut.TableName }}"
 // {{$ut.ModelName}}.
 type {{$ut.ModelName}}DB struct {
 	Db gorm.DB
-	log.Logger
 	{{ if $ut.Cached }}cache *cache.Cache{{end}}
 }
 // New{{$ut.ModelName}}DB creates a new storage type.
-func New{{$ut.ModelName}}DB(db gorm.DB, logger log.Logger) *{{$ut.ModelName}}DB {
-	glog := logger.New("db", "{{$ut.ModelName}}")
+func New{{$ut.ModelName}}DB(db gorm.DB) *{{$ut.ModelName}}DB {
 	{{ if $ut.Cached }}return &{{$ut.ModelName}}DB{
 		Db: db,
-		Logger: glog,
 		cache: cache.New(5*time.Minute, 30*time.Second),
 	}
-	{{ else  }}return &{{$ut.ModelName}}DB{Db: db, Logger: glog}{{ end  }}
+	{{ else  }}return &{{$ut.ModelName}}DB{Db: db}{{ end  }}
 }
 // DB returns the underlying database.
 func (m *{{$ut.ModelName}}DB) DB() interface{} {

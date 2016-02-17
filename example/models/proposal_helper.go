@@ -55,10 +55,10 @@ func (m *Proposal) ProposalToAppProposal() *app.Proposal {
 	}
 	proposal.Links = &app.ProposalLinks{Reviews: tmp1Collection}
 	proposal.Detail = &m.Detail
-	proposal.ID = &m.ID
 	for _, k := range m.Reviews {
 		proposal.Reviews = append(proposal.Reviews, k.ReviewToAppReview())
 	}
+	proposal.ID = &m.ID
 	proposal.Title = &m.Title
 	proposal.Abstract = &m.Abstract
 

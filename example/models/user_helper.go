@@ -53,14 +53,14 @@ func (m *UserDB) ListAppUser(ctx context.Context) []*app.User {
 
 func (m *User) UserToAppUser() *app.User {
 	user := &app.User{}
-	user.Bio = m.Bio
 	user.Email = &m.Email
-	user.Lastname = &m.Lastname
-	user.State = m.State
-	user.City = m.City
-	user.Country = m.Country
-	user.ID = &m.ID
 	user.Firstname = &m.Firstname
+	user.Lastname = &m.Lastname
+	user.ID = &m.ID
+	user.Country = m.Country
+	user.Bio = m.Bio
+	user.City = m.City
+	user.State = m.State
 
 	return user
 }
@@ -101,8 +101,8 @@ func (m *UserDB) ListAppUserLink(ctx context.Context) []*app.UserLink {
 
 func (m *User) UserToAppUserLink() *app.UserLink {
 	user := &app.UserLink{}
-	user.ID = &m.ID
 	user.Email = &m.Email
+	user.ID = &m.ID
 
 	return user
 }

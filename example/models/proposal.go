@@ -16,7 +16,6 @@ import (
 	"github.com/goadesign/gorma/example/app"
 	"github.com/jinzhu/gorm"
 	"golang.org/x/net/context"
-	log "gopkg.in/inconshreveable/log15.v2"
 	"time"
 )
 
@@ -29,9 +28,9 @@ type Proposal struct {
 	Title     string
 	UserID    int // has many Proposal
 	Withdrawn *bool
-	CreatedAt time.Time  // timestamp
 	UpdatedAt time.Time  // timestamp
 	DeletedAt *time.Time // nullable timestamp (soft delete)
+	CreatedAt time.Time  // timestamp
 	User      User
 }
 
@@ -46,13 +45,11 @@ func (m Proposal) TableName() string {
 // Proposal.
 type ProposalDB struct {
 	Db gorm.DB
-	log.Logger
 }
 
 // NewProposalDB creates a new storage type.
-func NewProposalDB(db gorm.DB, logger log.Logger) *ProposalDB {
-	glog := logger.New("db", "Proposal")
-	return &ProposalDB{Db: db, Logger: glog}
+func NewProposalDB(db gorm.DB) *ProposalDB {
+	return &ProposalDB{Db: db}
 }
 
 // DB returns the underlying database.
@@ -177,12 +174,12 @@ func (m *ProposalDB) Delete(ctx context.Context, id int) error {
 // only copying the non-nil fields from the source.
 func ProposalFromCreateProposalPayload(payload *app.CreateProposalPayload) *Proposal {
 	proposal := &Proposal{}
+	proposal.Title = payload.Title
+	proposal.Abstract = payload.Abstract
 	proposal.Detail = payload.Detail
 	if payload.Withdrawn != nil {
 		proposal.Withdrawn = payload.Withdrawn
 	}
-	proposal.Title = payload.Title
-	proposal.Abstract = payload.Abstract
 
 	return proposal
 }
@@ -202,8 +199,8 @@ func (m *ProposalDB) UpdateFromCreateProposalPayload(ctx context.Context, payloa
 	if payload.Withdrawn != nil {
 		obj.Withdrawn = payload.Withdrawn
 	}
-	obj.Title = payload.Title
 	obj.Abstract = payload.Abstract
+	obj.Title = payload.Title
 
 	err = m.Db.Save(&obj).Error
 	return err
@@ -240,11 +237,11 @@ func (m *ProposalDB) UpdateFromUpdateProposalPayload(ctx context.Context, payloa
 		goa.Error(ctx, "error retrieving Proposal", goa.KV{"error", err.Error()})
 		return err
 	}
-	if payload.Abstract != nil {
-		obj.Abstract = *payload.Abstract
-	}
 	if payload.Title != nil {
 		obj.Title = *payload.Title
+	}
+	if payload.Abstract != nil {
+		obj.Abstract = *payload.Abstract
 	}
 	if payload.Detail != nil {
 		obj.Detail = *payload.Detail

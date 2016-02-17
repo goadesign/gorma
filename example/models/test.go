@@ -15,15 +15,14 @@ import (
 	"github.com/goadesign/goa"
 	"github.com/jinzhu/gorm"
 	"golang.org/x/net/context"
-	log "gopkg.in/inconshreveable/log15.v2"
 	"time"
 )
 
 // TestModel
 type Test struct {
+	DeletedAt *time.Time // nullable timestamp (soft delete)
 	CreatedAt time.Time  // timestamp
 	UpdatedAt time.Time  // timestamp
-	DeletedAt *time.Time // nullable timestamp (soft delete)
 }
 
 // TableName overrides the table name settings in Gorm to force a specific table name
@@ -37,13 +36,11 @@ func (m Test) TableName() string {
 // Test.
 type TestDB struct {
 	Db gorm.DB
-	log.Logger
 }
 
 // NewTestDB creates a new storage type.
-func NewTestDB(db gorm.DB, logger log.Logger) *TestDB {
-	glog := logger.New("db", "Test")
-	return &TestDB{Db: db, Logger: glog}
+func NewTestDB(db gorm.DB) *TestDB {
+	return &TestDB{Db: db}
 }
 
 // DB returns the underlying database.

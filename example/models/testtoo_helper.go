@@ -54,12 +54,12 @@ func (m *TestTooDB) ListAppUser(ctx context.Context) []*app.User {
 func (m *TestToo) TestTooToAppUser() *app.User {
 	testtoo := &app.User{}
 	testtoo.Country = m.Country
-	testtoo.Email = &m.Email
-	testtoo.Bio = m.Bio
-	testtoo.City = m.City
-	testtoo.Firstname = &m.Firstname
 	testtoo.Lastname = &m.Lastname
 	testtoo.State = m.State
+	testtoo.Email = &m.Email
+	testtoo.Firstname = &m.Firstname
+	testtoo.Bio = m.Bio
+	testtoo.City = m.City
 
 	return testtoo
 }
