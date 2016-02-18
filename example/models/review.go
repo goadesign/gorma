@@ -26,9 +26,9 @@ type Review struct {
 	ProposalID int // Belongs To Proposal
 	Rating     int
 	UserID     int        // has many Review
+	DeletedAt  *time.Time // nullable timestamp (soft delete)
 	CreatedAt  time.Time  // timestamp
 	UpdatedAt  time.Time  // timestamp
-	DeletedAt  *time.Time // nullable timestamp (soft delete)
 	User       User
 	Proposal   Proposal
 }
@@ -117,7 +117,7 @@ func ReviewFilterByUser(userid int, originaldb *gorm.DB) func(db *gorm.DB) *gorm
 // This is more for use internally, and probably not what you want in  your controllers
 func (m *ReviewDB) Get(ctx context.Context, id int) (Review, error) {
 	now := time.Now()
-	defer goa.Info(ctx, "Review:Get", goa.KV{"duration", time.Since(now)})
+	defer goa.MeasureSince([]string{"goa", "db", "review", "get"}, now)
 	var native Review
 	err := m.Db.Table(m.TableName()).Where("id = ?", id).Find(&native).Error
 	if err == gorm.RecordNotFound {
@@ -130,7 +130,7 @@ func (m *ReviewDB) Get(ctx context.Context, id int) (Review, error) {
 // List returns an array of Review
 func (m *ReviewDB) List(ctx context.Context) []Review {
 	now := time.Now()
-	defer goa.Info(ctx, "Review:List", goa.KV{"duration", time.Since(now)})
+	defer goa.MeasureSince([]string{"goa", "db", "review", "list"}, now)
 	var objs []Review
 	err := m.Db.Table(m.TableName()).Find(&objs).Error
 	if err != nil && err != gorm.RecordNotFound {
@@ -144,7 +144,7 @@ func (m *ReviewDB) List(ctx context.Context) []Review {
 // Add creates a new record.  /// Maybe shouldn't return the model, it's a pointer.
 func (m *ReviewDB) Add(ctx context.Context, model *Review) (*Review, error) {
 	now := time.Now()
-	defer goa.Info(ctx, "Review:Add", goa.KV{"duration", time.Since(now)})
+	defer goa.MeasureSince([]string{"goa", "db", "review", "add"}, now)
 	err := m.Db.Create(model).Error
 	if err != nil {
 		goa.Error(ctx, "error updating Review", goa.KV{"error", err.Error()})
@@ -157,7 +157,7 @@ func (m *ReviewDB) Add(ctx context.Context, model *Review) (*Review, error) {
 // Update modifies a single record.
 func (m *ReviewDB) Update(ctx context.Context, model *Review) error {
 	now := time.Now()
-	defer goa.Info(ctx, "Review:Update", goa.KV{"duration", time.Since(now)})
+	defer goa.MeasureSince([]string{"goa", "db", "review", "update"}, now)
 	obj, err := m.Get(ctx, model.ID)
 	if err != nil {
 		return err
@@ -170,7 +170,7 @@ func (m *ReviewDB) Update(ctx context.Context, model *Review) error {
 // Delete removes a single record.
 func (m *ReviewDB) Delete(ctx context.Context, id int) error {
 	now := time.Now()
-	defer goa.Info(ctx, "Review:Delete", goa.KV{"duration", time.Since(now)})
+	defer goa.MeasureSince([]string{"goa", "db", "review", "delete"}, now)
 	var obj Review
 
 	err := m.Db.Delete(&obj, id).Error
@@ -199,7 +199,8 @@ func ReviewFromCreateReviewPayload(payload *app.CreateReviewPayload) *Review {
 // and saves it
 func (m *ReviewDB) UpdateFromCreateReviewPayload(ctx context.Context, payload *app.CreateReviewPayload, id int) error {
 	now := time.Now()
-	defer goa.Info(ctx, "Review:Update", goa.KV{"duration", time.Since(now)})
+
+	defer goa.MeasureSince([]string{"goa", "db", "review", "updatefromcreateReviewPayload"}, now)
 	var obj Review
 	err := m.Db.Table(m.TableName()).Where("id = ?", id).Find(&obj).Error
 	if err != nil {
@@ -233,7 +234,8 @@ func ReviewFromUpdateReviewPayload(payload *app.UpdateReviewPayload) *Review {
 // and saves it
 func (m *ReviewDB) UpdateFromUpdateReviewPayload(ctx context.Context, payload *app.UpdateReviewPayload, id int) error {
 	now := time.Now()
-	defer goa.Info(ctx, "Review:Update", goa.KV{"duration", time.Since(now)})
+
+	defer goa.MeasureSince([]string{"goa", "db", "review", "updatefromupdateReviewPayload"}, now)
 	var obj Review
 	err := m.Db.Table(m.TableName()).Where("id = ?", id).Find(&obj).Error
 	if err != nil {

@@ -19,26 +19,12 @@ import (
 	"time"
 )
 
-/*
-func something(source *User) (target *app.User) {
-	target = new(app.User)
-	target.Bio = source.Bio
-	target.City = source.City
-	target.Country = source.Country
-	target.Email = source.Email
-	target.Firstname = source.Firstname
-	target.Lastname = source.Lastname
-	target.State = source.State
-	return
-}
-
-*/
-
 // MediaType Retrieval Functions
 // ListUser returns an array of view: default
 func (m *UserDB) ListAppUser(ctx context.Context) []*app.User {
 	now := time.Now()
-	defer goa.Info(ctx, "ListUser", goa.KV{"duration", time.Since(now)})
+
+	defer goa.MeasureSince([]string{"goa", "db", "user", "listuser"}, now)
 	var native []*User
 	var objs []*app.User
 	err := m.Db.Scopes().Table(m.TableName()).Find(&native).Error
@@ -59,13 +45,13 @@ func (m *UserDB) ListAppUser(ctx context.Context) []*app.User {
 func (m *User) UserToAppUser() *app.User {
 	user := &app.User{}
 	user.ID = &m.ID
-	user.Lastname = &m.Lastname
+	user.Bio = m.Bio
+	user.Firstname = &m.Firstname
+	user.State = m.State
+	user.City = m.City
 	user.Country = m.Country
 	user.Email = &m.Email
-	user.Firstname = &m.Firstname
-	user.Bio = m.Bio
-	user.City = m.City
-	user.State = m.State
+	user.Lastname = &m.Lastname
 
 	return user
 }
@@ -74,7 +60,7 @@ func (m *User) UserToAppUser() *app.User {
 func (m *UserDB) OneUser(ctx context.Context, id int) (*app.User, error) {
 	now := time.Now()
 	var native User
-	defer goa.Info(ctx, "OneUser", goa.KV{"duration", time.Since(now)})
+	defer goa.MeasureSince([]string{"goa", "db", "user", "oneuser"}, now)
 	err := m.Db.Scopes().Table(m.TableName()).Preload("Proposals").Preload("Reviews").Where("id = ?", id).Find(&native).Error
 
 	if err != nil && err != gorm.RecordNotFound {
@@ -91,7 +77,8 @@ func (m *UserDB) OneUser(ctx context.Context, id int) (*app.User, error) {
 // ListUserLink returns an array of view: link
 func (m *UserDB) ListAppUserLink(ctx context.Context) []*app.UserLink {
 	now := time.Now()
-	defer goa.Info(ctx, "ListUserLink", goa.KV{"duration", time.Since(now)})
+
+	defer goa.MeasureSince([]string{"goa", "db", "user", "listuserlink"}, now)
 	var native []*User
 	var objs []*app.UserLink
 	err := m.Db.Scopes().Table(m.TableName()).Find(&native).Error
@@ -121,7 +108,7 @@ func (m *User) UserToAppUserLink() *app.UserLink {
 func (m *UserDB) OneUserLink(ctx context.Context, id int) (*app.UserLink, error) {
 	now := time.Now()
 	var native User
-	defer goa.Info(ctx, "OneUserLink", goa.KV{"duration", time.Since(now)})
+	defer goa.MeasureSince([]string{"goa", "db", "user", "oneuserlink"}, now)
 	err := m.Db.Scopes().Table(m.TableName()).Preload("Proposals").Preload("Reviews").Where("id = ?", id).Find(&native).Error
 
 	if err != nil && err != gorm.RecordNotFound {

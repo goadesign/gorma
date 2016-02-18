@@ -28,9 +28,9 @@ type Proposal struct {
 	Title     string
 	UserID    int // has many Proposal
 	Withdrawn *bool
-	CreatedAt time.Time  // timestamp
 	UpdatedAt time.Time  // timestamp
 	DeletedAt *time.Time // nullable timestamp (soft delete)
+	CreatedAt time.Time  // timestamp
 	User      User
 }
 
@@ -104,7 +104,7 @@ func ProposalFilterByUser(userid int, originaldb *gorm.DB) func(db *gorm.DB) *go
 // This is more for use internally, and probably not what you want in  your controllers
 func (m *ProposalDB) Get(ctx context.Context, id int) (Proposal, error) {
 	now := time.Now()
-	defer goa.Info(ctx, "Proposal:Get", goa.KV{"duration", time.Since(now)})
+	defer goa.MeasureSince([]string{"goa", "db", "proposal", "get"}, now)
 	var native Proposal
 	err := m.Db.Table(m.TableName()).Where("id = ?", id).Find(&native).Error
 	if err == gorm.RecordNotFound {
@@ -117,7 +117,7 @@ func (m *ProposalDB) Get(ctx context.Context, id int) (Proposal, error) {
 // List returns an array of Proposal
 func (m *ProposalDB) List(ctx context.Context) []Proposal {
 	now := time.Now()
-	defer goa.Info(ctx, "Proposal:List", goa.KV{"duration", time.Since(now)})
+	defer goa.MeasureSince([]string{"goa", "db", "proposal", "list"}, now)
 	var objs []Proposal
 	err := m.Db.Table(m.TableName()).Find(&objs).Error
 	if err != nil && err != gorm.RecordNotFound {
@@ -131,7 +131,7 @@ func (m *ProposalDB) List(ctx context.Context) []Proposal {
 // Add creates a new record.  /// Maybe shouldn't return the model, it's a pointer.
 func (m *ProposalDB) Add(ctx context.Context, model *Proposal) (*Proposal, error) {
 	now := time.Now()
-	defer goa.Info(ctx, "Proposal:Add", goa.KV{"duration", time.Since(now)})
+	defer goa.MeasureSince([]string{"goa", "db", "proposal", "add"}, now)
 	err := m.Db.Create(model).Error
 	if err != nil {
 		goa.Error(ctx, "error updating Proposal", goa.KV{"error", err.Error()})
@@ -144,7 +144,7 @@ func (m *ProposalDB) Add(ctx context.Context, model *Proposal) (*Proposal, error
 // Update modifies a single record.
 func (m *ProposalDB) Update(ctx context.Context, model *Proposal) error {
 	now := time.Now()
-	defer goa.Info(ctx, "Proposal:Update", goa.KV{"duration", time.Since(now)})
+	defer goa.MeasureSince([]string{"goa", "db", "proposal", "update"}, now)
 	obj, err := m.Get(ctx, model.ID)
 	if err != nil {
 		return err
@@ -157,7 +157,7 @@ func (m *ProposalDB) Update(ctx context.Context, model *Proposal) error {
 // Delete removes a single record.
 func (m *ProposalDB) Delete(ctx context.Context, id int) error {
 	now := time.Now()
-	defer goa.Info(ctx, "Proposal:Delete", goa.KV{"duration", time.Since(now)})
+	defer goa.MeasureSince([]string{"goa", "db", "proposal", "delete"}, now)
 	var obj Proposal
 
 	err := m.Db.Delete(&obj, id).Error
@@ -174,12 +174,12 @@ func (m *ProposalDB) Delete(ctx context.Context, id int) error {
 // only copying the non-nil fields from the source.
 func ProposalFromCreateProposalPayload(payload *app.CreateProposalPayload) *Proposal {
 	proposal := &Proposal{}
+	proposal.Abstract = payload.Abstract
+	proposal.Title = payload.Title
 	proposal.Detail = payload.Detail
 	if payload.Withdrawn != nil {
 		proposal.Withdrawn = payload.Withdrawn
 	}
-	proposal.Title = payload.Title
-	proposal.Abstract = payload.Abstract
 
 	return proposal
 }
@@ -188,19 +188,20 @@ func ProposalFromCreateProposalPayload(payload *app.CreateProposalPayload) *Prop
 // and saves it
 func (m *ProposalDB) UpdateFromCreateProposalPayload(ctx context.Context, payload *app.CreateProposalPayload, id int) error {
 	now := time.Now()
-	defer goa.Info(ctx, "Proposal:Update", goa.KV{"duration", time.Since(now)})
+
+	defer goa.MeasureSince([]string{"goa", "db", "proposal", "updatefromcreateProposalPayload"}, now)
 	var obj Proposal
 	err := m.Db.Table(m.TableName()).Where("id = ?", id).Find(&obj).Error
 	if err != nil {
 		goa.Error(ctx, "error retrieving Proposal", goa.KV{"error", err.Error()})
 		return err
 	}
-	obj.Abstract = payload.Abstract
+	obj.Title = payload.Title
 	obj.Detail = payload.Detail
 	if payload.Withdrawn != nil {
 		obj.Withdrawn = payload.Withdrawn
 	}
-	obj.Title = payload.Title
+	obj.Abstract = payload.Abstract
 
 	err = m.Db.Save(&obj).Error
 	return err
@@ -210,11 +211,11 @@ func (m *ProposalDB) UpdateFromCreateProposalPayload(ctx context.Context, payloa
 // only copying the non-nil fields from the source.
 func ProposalFromUpdateProposalPayload(payload *app.UpdateProposalPayload) *Proposal {
 	proposal := &Proposal{}
-	if payload.Title != nil {
-		proposal.Title = *payload.Title
-	}
 	if payload.Abstract != nil {
 		proposal.Abstract = *payload.Abstract
+	}
+	if payload.Title != nil {
+		proposal.Title = *payload.Title
 	}
 	if payload.Detail != nil {
 		proposal.Detail = *payload.Detail
@@ -230,24 +231,25 @@ func ProposalFromUpdateProposalPayload(payload *app.UpdateProposalPayload) *Prop
 // and saves it
 func (m *ProposalDB) UpdateFromUpdateProposalPayload(ctx context.Context, payload *app.UpdateProposalPayload, id int) error {
 	now := time.Now()
-	defer goa.Info(ctx, "Proposal:Update", goa.KV{"duration", time.Since(now)})
+
+	defer goa.MeasureSince([]string{"goa", "db", "proposal", "updatefromupdateProposalPayload"}, now)
 	var obj Proposal
 	err := m.Db.Table(m.TableName()).Where("id = ?", id).Find(&obj).Error
 	if err != nil {
 		goa.Error(ctx, "error retrieving Proposal", goa.KV{"error", err.Error()})
 		return err
 	}
-	if payload.Withdrawn != nil {
-		obj.Withdrawn = payload.Withdrawn
+	if payload.Abstract != nil {
+		obj.Abstract = *payload.Abstract
 	}
 	if payload.Title != nil {
 		obj.Title = *payload.Title
 	}
-	if payload.Abstract != nil {
-		obj.Abstract = *payload.Abstract
-	}
 	if payload.Detail != nil {
 		obj.Detail = *payload.Detail
+	}
+	if payload.Withdrawn != nil {
+		obj.Withdrawn = payload.Withdrawn
 	}
 
 	err = m.Db.Save(&obj).Error
