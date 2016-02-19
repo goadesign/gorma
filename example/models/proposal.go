@@ -29,8 +29,8 @@ type Proposal struct {
 	UserID    int // has many Proposal
 	Withdrawn *bool
 	UpdatedAt time.Time  // timestamp
-	DeletedAt *time.Time // nullable timestamp (soft delete)
 	CreatedAt time.Time  // timestamp
+	DeletedAt *time.Time // nullable timestamp (soft delete)
 	User      User
 }
 
@@ -174,12 +174,12 @@ func (m *ProposalDB) Delete(ctx context.Context, id int) error {
 // only copying the non-nil fields from the source.
 func ProposalFromCreateProposalPayload(payload *app.CreateProposalPayload) *Proposal {
 	proposal := &Proposal{}
-	proposal.Title = payload.Title
 	proposal.Abstract = payload.Abstract
+	proposal.Title = payload.Title
+	proposal.Detail = payload.Detail
 	if payload.Withdrawn != nil {
 		proposal.Withdrawn = payload.Withdrawn
 	}
-	proposal.Detail = payload.Detail
 
 	return proposal
 }
@@ -196,12 +196,12 @@ func (m *ProposalDB) UpdateFromCreateProposalPayload(ctx context.Context, payloa
 		goa.Error(ctx, "error retrieving Proposal", goa.KV{"error", err.Error()})
 		return err
 	}
+	obj.Title = payload.Title
 	obj.Detail = payload.Detail
-	obj.Abstract = payload.Abstract
 	if payload.Withdrawn != nil {
 		obj.Withdrawn = payload.Withdrawn
 	}
-	obj.Title = payload.Title
+	obj.Abstract = payload.Abstract
 
 	err = m.Db.Save(&obj).Error
 	return err
@@ -211,6 +211,9 @@ func (m *ProposalDB) UpdateFromCreateProposalPayload(ctx context.Context, payloa
 // only copying the non-nil fields from the source.
 func ProposalFromUpdateProposalPayload(payload *app.UpdateProposalPayload) *Proposal {
 	proposal := &Proposal{}
+	if payload.Detail != nil {
+		proposal.Detail = *payload.Detail
+	}
 	if payload.Withdrawn != nil {
 		proposal.Withdrawn = payload.Withdrawn
 	}
@@ -219,9 +222,6 @@ func ProposalFromUpdateProposalPayload(payload *app.UpdateProposalPayload) *Prop
 	}
 	if payload.Abstract != nil {
 		proposal.Abstract = *payload.Abstract
-	}
-	if payload.Detail != nil {
-		proposal.Detail = *payload.Detail
 	}
 
 	return proposal
@@ -239,17 +239,17 @@ func (m *ProposalDB) UpdateFromUpdateProposalPayload(ctx context.Context, payloa
 		goa.Error(ctx, "error retrieving Proposal", goa.KV{"error", err.Error()})
 		return err
 	}
-	if payload.Title != nil {
-		obj.Title = *payload.Title
-	}
 	if payload.Abstract != nil {
 		obj.Abstract = *payload.Abstract
 	}
-	if payload.Withdrawn != nil {
-		obj.Withdrawn = payload.Withdrawn
+	if payload.Title != nil {
+		obj.Title = *payload.Title
 	}
 	if payload.Detail != nil {
 		obj.Detail = *payload.Detail
+	}
+	if payload.Withdrawn != nil {
+		obj.Withdrawn = payload.Withdrawn
 	}
 
 	err = m.Db.Save(&obj).Error

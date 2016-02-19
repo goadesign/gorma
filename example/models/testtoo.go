@@ -21,8 +21,8 @@ import (
 
 // TestTooModel
 type TestToo struct {
-	Idone     int `gorm:"primary_key"` // This is one of the TestToo Model PK fields
 	Idtwo     int `gorm:"primary_key"` // This is one of the TestToo Model PK fields
+	Idone     int `gorm:"primary_key"` // This is one of the TestToo Model PK fields
 	Bio       *string
 	City      *string
 	Country   *string
@@ -30,9 +30,9 @@ type TestToo struct {
 	Firstname string
 	Lastname  string
 	State     *string
+	CreatedAt time.Time  // timestamp
 	UpdatedAt time.Time  // timestamp
 	DeletedAt *time.Time // nullable timestamp (soft delete)
-	CreatedAt time.Time  // timestamp
 }
 
 // TableName overrides the table name settings in Gorm to force a specific table name
@@ -163,16 +163,16 @@ func TestTooFromCreateUserPayload(payload *app.CreateUserPayload) *TestToo {
 	if payload.Country != nil {
 		testtoo.Country = payload.Country
 	}
-	testtoo.Email = payload.Email
-	testtoo.Firstname = payload.Firstname
+	if payload.Bio != nil {
+		testtoo.Bio = payload.Bio
+	}
 	if payload.City != nil {
 		testtoo.City = payload.City
 	}
+	testtoo.Email = payload.Email
+	testtoo.Firstname = payload.Firstname
 	if payload.State != nil {
 		testtoo.State = payload.State
-	}
-	if payload.Bio != nil {
-		testtoo.Bio = payload.Bio
 	}
 	testtoo.Lastname = payload.Lastname
 
@@ -191,21 +191,21 @@ func (m *TestTooDB) UpdateFromCreateUserPayload(ctx context.Context, payload *ap
 		goa.Error(ctx, "error retrieving TestToo", goa.KV{"error", err.Error()})
 		return err
 	}
+	obj.Lastname = payload.Lastname
+	if payload.Bio != nil {
+		obj.Bio = payload.Bio
+	}
 	if payload.City != nil {
 		obj.City = payload.City
 	}
 	if payload.Country != nil {
 		obj.Country = payload.Country
 	}
-	obj.Email = payload.Email
-	obj.Firstname = payload.Firstname
-	if payload.Bio != nil {
-		obj.Bio = payload.Bio
-	}
-	obj.Lastname = payload.Lastname
 	if payload.State != nil {
 		obj.State = payload.State
 	}
+	obj.Email = payload.Email
+	obj.Firstname = payload.Firstname
 
 	err = m.Db.Save(&obj).Error
 	return err
@@ -217,9 +217,6 @@ func TestTooFromUpdateUserPayload(payload *app.UpdateUserPayload) *TestToo {
 	testtoo := &TestToo{}
 	if payload.Lastname != nil {
 		testtoo.Lastname = *payload.Lastname
-	}
-	if payload.State != nil {
-		testtoo.State = payload.State
 	}
 	if payload.Bio != nil {
 		testtoo.Bio = payload.Bio
@@ -233,6 +230,9 @@ func TestTooFromUpdateUserPayload(payload *app.UpdateUserPayload) *TestToo {
 	testtoo.Email = payload.Email
 	if payload.Firstname != nil {
 		testtoo.Firstname = *payload.Firstname
+	}
+	if payload.State != nil {
+		testtoo.State = payload.State
 	}
 
 	return testtoo
@@ -250,14 +250,11 @@ func (m *TestTooDB) UpdateFromUpdateUserPayload(ctx context.Context, payload *ap
 		goa.Error(ctx, "error retrieving TestToo", goa.KV{"error", err.Error()})
 		return err
 	}
-	if payload.Bio != nil {
-		obj.Bio = payload.Bio
-	}
 	if payload.Lastname != nil {
 		obj.Lastname = *payload.Lastname
 	}
-	if payload.State != nil {
-		obj.State = payload.State
+	if payload.Bio != nil {
+		obj.Bio = payload.Bio
 	}
 	if payload.City != nil {
 		obj.City = payload.City
@@ -268,6 +265,9 @@ func (m *TestTooDB) UpdateFromUpdateUserPayload(ctx context.Context, payload *ap
 	obj.Email = payload.Email
 	if payload.Firstname != nil {
 		obj.Firstname = *payload.Firstname
+	}
+	if payload.State != nil {
+		obj.State = payload.State
 	}
 
 	err = m.Db.Save(&obj).Error
