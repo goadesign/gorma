@@ -20,7 +20,6 @@ import (
 
 // TestModel
 type Test struct {
-	TestTooID int        // has one Test
 	CreatedAt time.Time  // timestamp
 	UpdatedAt time.Time  // timestamp
 	DeletedAt *time.Time // nullable timestamp (soft delete)
@@ -72,7 +71,7 @@ func (m *TestDB) TableName() string {
 // This is more for use internally, and probably not what you want in  your controllers
 func (m *TestDB) Get(ctx context.Context) (Test, error) {
 	now := time.Now()
-	defer goa.Info(ctx, "Test:Get", goa.KV{"duration", time.Since(now)})
+	defer goa.MeasureSince([]string{"goa", "db", "test", "get"}, now)
 	var native Test
 	err := m.Db.Table(m.TableName()).Where("").Find(&native).Error
 	if err == gorm.RecordNotFound {
@@ -85,7 +84,7 @@ func (m *TestDB) Get(ctx context.Context) (Test, error) {
 // List returns an array of Test
 func (m *TestDB) List(ctx context.Context) []Test {
 	now := time.Now()
-	defer goa.Info(ctx, "Test:List", goa.KV{"duration", time.Since(now)})
+	defer goa.MeasureSince([]string{"goa", "db", "test", "list"}, now)
 	var objs []Test
 	err := m.Db.Table(m.TableName()).Find(&objs).Error
 	if err != nil && err != gorm.RecordNotFound {
@@ -99,7 +98,7 @@ func (m *TestDB) List(ctx context.Context) []Test {
 // Add creates a new record.  /// Maybe shouldn't return the model, it's a pointer.
 func (m *TestDB) Add(ctx context.Context, model *Test) (*Test, error) {
 	now := time.Now()
-	defer goa.Info(ctx, "Test:Add", goa.KV{"duration", time.Since(now)})
+	defer goa.MeasureSince([]string{"goa", "db", "test", "add"}, now)
 	err := m.Db.Create(model).Error
 	if err != nil {
 		goa.Error(ctx, "error updating Test", goa.KV{"error", err.Error()})
@@ -112,7 +111,7 @@ func (m *TestDB) Add(ctx context.Context, model *Test) (*Test, error) {
 // Update modifies a single record.
 func (m *TestDB) Update(ctx context.Context, model *Test) error {
 	now := time.Now()
-	defer goa.Info(ctx, "Test:Update", goa.KV{"duration", time.Since(now)})
+	defer goa.MeasureSince([]string{"goa", "db", "test", "update"}, now)
 	obj, err := m.Get(ctx)
 	if err != nil {
 		return err
@@ -125,7 +124,7 @@ func (m *TestDB) Update(ctx context.Context, model *Test) error {
 // Delete removes a single record.
 func (m *TestDB) Delete(ctx context.Context) error {
 	now := time.Now()
-	defer goa.Info(ctx, "Test:Delete", goa.KV{"duration", time.Since(now)})
+	defer goa.MeasureSince([]string{"goa", "db", "test", "delete"}, now)
 	var obj Test
 	err := m.Db.Delete(&obj).Where("").Error
 

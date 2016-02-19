@@ -89,7 +89,6 @@ var _ = StorageGroup("CongoStorageGroup", func() {
 				Payload("user", "update")
 			})
 			RendersTo(User)
-			HasOne("Test")
 			Field("created_at", gorma.Timestamp, func() {})
 			Field("updated_at", gorma.Timestamp, func() {})
 			Field("deleted_at", gorma.NullableTimestamp, func() {})

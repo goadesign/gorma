@@ -92,7 +92,7 @@ func (m *UserDB) TableName() string {
 // This is more for use internally, and probably not what you want in  your controllers
 func (m *UserDB) Get(ctx context.Context, id int) (User, error) {
 	now := time.Now()
-	defer goa.Info(ctx, "User:Get", goa.KV{"duration", time.Since(now)})
+	defer goa.MeasureSince([]string{"goa", "db", "user", "get"}, now)
 	var native User
 	err := m.Db.Table(m.TableName()).Where("id = ?", id).Find(&native).Error
 	if err == gorm.RecordNotFound {
@@ -105,7 +105,7 @@ func (m *UserDB) Get(ctx context.Context, id int) (User, error) {
 // List returns an array of User
 func (m *UserDB) List(ctx context.Context) []User {
 	now := time.Now()
-	defer goa.Info(ctx, "User:List", goa.KV{"duration", time.Since(now)})
+	defer goa.MeasureSince([]string{"goa", "db", "user", "list"}, now)
 	var objs []User
 	err := m.Db.Table(m.TableName()).Find(&objs).Error
 	if err != nil && err != gorm.RecordNotFound {
@@ -119,7 +119,7 @@ func (m *UserDB) List(ctx context.Context) []User {
 // Add creates a new record.  /// Maybe shouldn't return the model, it's a pointer.
 func (m *UserDB) Add(ctx context.Context, model *User) (*User, error) {
 	now := time.Now()
-	defer goa.Info(ctx, "User:Add", goa.KV{"duration", time.Since(now)})
+	defer goa.MeasureSince([]string{"goa", "db", "user", "add"}, now)
 	err := m.Db.Create(model).Error
 	if err != nil {
 		goa.Error(ctx, "error updating User", goa.KV{"error", err.Error()})
@@ -132,7 +132,7 @@ func (m *UserDB) Add(ctx context.Context, model *User) (*User, error) {
 // Update modifies a single record.
 func (m *UserDB) Update(ctx context.Context, model *User) error {
 	now := time.Now()
-	defer goa.Info(ctx, "User:Update", goa.KV{"duration", time.Since(now)})
+	defer goa.MeasureSince([]string{"goa", "db", "user", "update"}, now)
 	obj, err := m.Get(ctx, model.ID)
 	if err != nil {
 		return err
@@ -145,7 +145,7 @@ func (m *UserDB) Update(ctx context.Context, model *User) error {
 // Delete removes a single record.
 func (m *UserDB) Delete(ctx context.Context, id int) error {
 	now := time.Now()
-	defer goa.Info(ctx, "User:Delete", goa.KV{"duration", time.Since(now)})
+	defer goa.MeasureSince([]string{"goa", "db", "user", "delete"}, now)
 	var obj User
 
 	err := m.Db.Delete(&obj, id).Error
@@ -162,18 +162,18 @@ func (m *UserDB) Delete(ctx context.Context, id int) error {
 // only copying the non-nil fields from the source.
 func UserFromCreateUserPayload(payload *app.CreateUserPayload) *User {
 	user := &User{}
-	if payload.Bio != nil {
-		user.Bio = payload.Bio
-	}
-	user.Email = payload.Email
-	if payload.City != nil {
-		user.City = payload.City
-	}
+	user.Firstname = payload.Firstname
 	if payload.Country != nil {
 		user.Country = payload.Country
 	}
-	user.Firstname = payload.Firstname
+	user.Email = payload.Email
 	user.Lastname = payload.Lastname
+	if payload.Bio != nil {
+		user.Bio = payload.Bio
+	}
+	if payload.City != nil {
+		user.City = payload.City
+	}
 	if payload.State != nil {
 		user.State = payload.State
 	}
@@ -185,20 +185,19 @@ func UserFromCreateUserPayload(payload *app.CreateUserPayload) *User {
 // and saves it
 func (m *UserDB) UpdateFromCreateUserPayload(ctx context.Context, payload *app.CreateUserPayload, id int) error {
 	now := time.Now()
-	defer goa.Info(ctx, "User:Update", goa.KV{"duration", time.Since(now)})
+
+	defer goa.MeasureSince([]string{"goa", "db", "user", "updatefromcreateUserPayload"}, now)
 	var obj User
 	err := m.Db.Table(m.TableName()).Where("id = ?", id).Find(&obj).Error
 	if err != nil {
 		goa.Error(ctx, "error retrieving User", goa.KV{"error", err.Error()})
 		return err
 	}
-	if payload.Bio != nil {
-		obj.Bio = payload.Bio
-	}
-	obj.Email = payload.Email
-	obj.Lastname = payload.Lastname
 	if payload.State != nil {
 		obj.State = payload.State
+	}
+	if payload.Bio != nil {
+		obj.Bio = payload.Bio
 	}
 	if payload.City != nil {
 		obj.City = payload.City
@@ -206,7 +205,9 @@ func (m *UserDB) UpdateFromCreateUserPayload(ctx context.Context, payload *app.C
 	if payload.Country != nil {
 		obj.Country = payload.Country
 	}
+	obj.Email = payload.Email
 	obj.Firstname = payload.Firstname
+	obj.Lastname = payload.Lastname
 
 	err = m.Db.Save(&obj).Error
 	return err
@@ -219,19 +220,19 @@ func UserFromUpdateUserPayload(payload *app.UpdateUserPayload) *User {
 	if payload.Country != nil {
 		user.Country = payload.Country
 	}
+	user.Email = payload.Email
 	if payload.Firstname != nil {
 		user.Firstname = *payload.Firstname
 	}
 	if payload.Lastname != nil {
 		user.Lastname = *payload.Lastname
 	}
-	if payload.State != nil {
-		user.State = payload.State
-	}
 	if payload.City != nil {
 		user.City = payload.City
 	}
-	user.Email = payload.Email
+	if payload.State != nil {
+		user.State = payload.State
+	}
 	if payload.Bio != nil {
 		user.Bio = payload.Bio
 	}
@@ -243,28 +244,29 @@ func UserFromUpdateUserPayload(payload *app.UpdateUserPayload) *User {
 // and saves it
 func (m *UserDB) UpdateFromUpdateUserPayload(ctx context.Context, payload *app.UpdateUserPayload, id int) error {
 	now := time.Now()
-	defer goa.Info(ctx, "User:Update", goa.KV{"duration", time.Since(now)})
+
+	defer goa.MeasureSince([]string{"goa", "db", "user", "updatefromupdateUserPayload"}, now)
 	var obj User
 	err := m.Db.Table(m.TableName()).Where("id = ?", id).Find(&obj).Error
 	if err != nil {
 		goa.Error(ctx, "error retrieving User", goa.KV{"error", err.Error()})
 		return err
 	}
-	if payload.Bio != nil {
-		obj.Bio = payload.Bio
-	}
-	obj.Email = payload.Email
-	if payload.City != nil {
-		obj.City = payload.City
+	if payload.Firstname != nil {
+		obj.Firstname = *payload.Firstname
 	}
 	if payload.Country != nil {
 		obj.Country = payload.Country
 	}
-	if payload.Firstname != nil {
-		obj.Firstname = *payload.Firstname
-	}
+	obj.Email = payload.Email
 	if payload.Lastname != nil {
 		obj.Lastname = *payload.Lastname
+	}
+	if payload.Bio != nil {
+		obj.Bio = payload.Bio
+	}
+	if payload.City != nil {
+		obj.City = payload.City
 	}
 	if payload.State != nil {
 		obj.State = payload.State

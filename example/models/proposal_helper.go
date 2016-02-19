@@ -19,22 +19,12 @@ import (
 	"time"
 )
 
-/*
-func something(source *Proposal) (target *app.Proposal) {
-	target = new(app.Proposal)
-	target.Abstract = source.Abstract
-	target.Detail = source.Detail
-	target.Title = source.Title
-	return
-}
-
-*/
-
 // MediaType Retrieval Functions
 // ListProposal returns an array of view: default
 func (m *ProposalDB) ListAppProposal(ctx context.Context, userid int) []*app.Proposal {
 	now := time.Now()
-	defer goa.Info(ctx, "ListProposal", goa.KV{"duration", time.Since(now)})
+
+	defer goa.MeasureSince([]string{"goa", "db", "proposal", "listproposal"}, now)
 	var native []*Proposal
 	var objs []*app.Proposal
 	err := m.Db.Scopes(ProposalFilterByUser(userid, &m.Db)).Table(m.TableName()).Preload("Reviews").Find(&native).Error
@@ -59,13 +49,13 @@ func (m *Proposal) ProposalToAppProposal() *app.Proposal {
 		tmp1Collection = append(tmp1Collection, k.ReviewToAppReviewLink())
 	}
 	proposal.Links = &app.ProposalLinks{Reviews: tmp1Collection}
+	proposal.ID = &m.ID
 	for _, k := range m.Reviews {
 		proposal.Reviews = append(proposal.Reviews, k.ReviewToAppReview())
 	}
+	proposal.Detail = &m.Detail
 	proposal.Title = &m.Title
 	proposal.Abstract = &m.Abstract
-	proposal.Detail = &m.Detail
-	proposal.ID = &m.ID
 
 	return proposal
 }
@@ -74,7 +64,7 @@ func (m *Proposal) ProposalToAppProposal() *app.Proposal {
 func (m *ProposalDB) OneProposal(ctx context.Context, id int, userid int) (*app.Proposal, error) {
 	now := time.Now()
 	var native Proposal
-	defer goa.Info(ctx, "OneProposal", goa.KV{"duration", time.Since(now)})
+	defer goa.MeasureSince([]string{"goa", "db", "proposal", "oneproposal"}, now)
 	err := m.Db.Scopes(ProposalFilterByUser(userid, &m.Db)).Table(m.TableName()).Preload("Reviews").Preload("User").Where("id = ?", id).Find(&native).Error
 
 	if err != nil && err != gorm.RecordNotFound {
@@ -91,7 +81,8 @@ func (m *ProposalDB) OneProposal(ctx context.Context, id int, userid int) (*app.
 // ListProposalLink returns an array of view: link
 func (m *ProposalDB) ListAppProposalLink(ctx context.Context, userid int) []*app.ProposalLink {
 	now := time.Now()
-	defer goa.Info(ctx, "ListProposalLink", goa.KV{"duration", time.Since(now)})
+
+	defer goa.MeasureSince([]string{"goa", "db", "proposal", "listproposallink"}, now)
 	var native []*Proposal
 	var objs []*app.ProposalLink
 	err := m.Db.Scopes(ProposalFilterByUser(userid, &m.Db)).Table(m.TableName()).Preload("Reviews").Find(&native).Error
@@ -121,7 +112,7 @@ func (m *Proposal) ProposalToAppProposalLink() *app.ProposalLink {
 func (m *ProposalDB) OneProposalLink(ctx context.Context, id int, userid int) (*app.ProposalLink, error) {
 	now := time.Now()
 	var native Proposal
-	defer goa.Info(ctx, "OneProposalLink", goa.KV{"duration", time.Since(now)})
+	defer goa.MeasureSince([]string{"goa", "db", "proposal", "oneproposallink"}, now)
 	err := m.Db.Scopes(ProposalFilterByUser(userid, &m.Db)).Table(m.TableName()).Preload("Reviews").Preload("User").Where("id = ?", id).Find(&native).Error
 
 	if err != nil && err != gorm.RecordNotFound {
