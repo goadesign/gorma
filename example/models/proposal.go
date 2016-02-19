@@ -174,12 +174,12 @@ func (m *ProposalDB) Delete(ctx context.Context, id int) error {
 // only copying the non-nil fields from the source.
 func ProposalFromCreateProposalPayload(payload *app.CreateProposalPayload) *Proposal {
 	proposal := &Proposal{}
-	proposal.Detail = payload.Detail
 	if payload.Withdrawn != nil {
 		proposal.Withdrawn = payload.Withdrawn
 	}
 	proposal.Title = payload.Title
 	proposal.Abstract = payload.Abstract
+	proposal.Detail = payload.Detail
 
 	return proposal
 }
@@ -195,12 +195,12 @@ func (m *ProposalDB) UpdateFromCreateProposalPayload(ctx context.Context, payloa
 		goa.Error(ctx, "error retrieving Proposal", goa.KV{"error", err.Error()})
 		return err
 	}
-	obj.Abstract = payload.Abstract
-	obj.Detail = payload.Detail
 	if payload.Withdrawn != nil {
 		obj.Withdrawn = payload.Withdrawn
 	}
 	obj.Title = payload.Title
+	obj.Abstract = payload.Abstract
+	obj.Detail = payload.Detail
 
 	err = m.Db.Save(&obj).Error
 	return err

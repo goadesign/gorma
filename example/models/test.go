@@ -20,6 +20,7 @@ import (
 
 // TestModel
 type Test struct {
+	TestTooID int        // has one Test
 	CreatedAt time.Time  // timestamp
 	UpdatedAt time.Time  // timestamp
 	DeletedAt *time.Time // nullable timestamp (soft delete)

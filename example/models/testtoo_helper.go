@@ -58,12 +58,13 @@ func (m *TestTooDB) ListAppUser(ctx context.Context) []*app.User {
 
 func (m *TestToo) TestTooToAppUser() *app.User {
 	testtoo := &app.User{}
+	testtoo.Test = tmp1.TestToAppTest()
 	testtoo.Bio = m.Bio
-	testtoo.Country = m.Country
 	testtoo.Firstname = &m.Firstname
 	testtoo.Lastname = &m.Lastname
 	testtoo.State = m.State
 	testtoo.City = m.City
+	testtoo.Country = m.Country
 	testtoo.Email = &m.Email
 
 	return testtoo
@@ -110,6 +111,7 @@ func (m *TestTooDB) ListAppUserLink(ctx context.Context) []*app.UserLink {
 
 func (m *TestToo) TestTooToAppUserLink() *app.UserLink {
 	testtoo := &app.UserLink{}
+	testtoo.Test = tmp1.TestToAppTest()
 	testtoo.Email = &m.Email
 
 	return testtoo

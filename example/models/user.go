@@ -162,18 +162,18 @@ func (m *UserDB) Delete(ctx context.Context, id int) error {
 // only copying the non-nil fields from the source.
 func UserFromCreateUserPayload(payload *app.CreateUserPayload) *User {
 	user := &User{}
-	user.Lastname = payload.Lastname
 	if payload.Bio != nil {
 		user.Bio = payload.Bio
 	}
+	user.Email = payload.Email
 	if payload.City != nil {
 		user.City = payload.City
 	}
 	if payload.Country != nil {
 		user.Country = payload.Country
 	}
-	user.Email = payload.Email
 	user.Firstname = payload.Firstname
+	user.Lastname = payload.Lastname
 	if payload.State != nil {
 		user.State = payload.State
 	}
@@ -192,9 +192,13 @@ func (m *UserDB) UpdateFromCreateUserPayload(ctx context.Context, payload *app.C
 		goa.Error(ctx, "error retrieving User", goa.KV{"error", err.Error()})
 		return err
 	}
-	obj.Lastname = payload.Lastname
 	if payload.Bio != nil {
 		obj.Bio = payload.Bio
+	}
+	obj.Email = payload.Email
+	obj.Lastname = payload.Lastname
+	if payload.State != nil {
+		obj.State = payload.State
 	}
 	if payload.City != nil {
 		obj.City = payload.City
@@ -202,11 +206,7 @@ func (m *UserDB) UpdateFromCreateUserPayload(ctx context.Context, payload *app.C
 	if payload.Country != nil {
 		obj.Country = payload.Country
 	}
-	obj.Email = payload.Email
 	obj.Firstname = payload.Firstname
-	if payload.State != nil {
-		obj.State = payload.State
-	}
 
 	err = m.Db.Save(&obj).Error
 	return err
@@ -216,24 +216,24 @@ func (m *UserDB) UpdateFromCreateUserPayload(ctx context.Context, payload *app.C
 // only copying the non-nil fields from the source.
 func UserFromUpdateUserPayload(payload *app.UpdateUserPayload) *User {
 	user := &User{}
-	if payload.Lastname != nil {
-		user.Lastname = *payload.Lastname
+	if payload.Country != nil {
+		user.Country = payload.Country
 	}
-	user.Email = payload.Email
 	if payload.Firstname != nil {
 		user.Firstname = *payload.Firstname
 	}
-	if payload.Bio != nil {
-		user.Bio = payload.Bio
+	if payload.Lastname != nil {
+		user.Lastname = *payload.Lastname
+	}
+	if payload.State != nil {
+		user.State = payload.State
 	}
 	if payload.City != nil {
 		user.City = payload.City
 	}
-	if payload.Country != nil {
-		user.Country = payload.Country
-	}
-	if payload.State != nil {
-		user.State = payload.State
+	user.Email = payload.Email
+	if payload.Bio != nil {
+		user.Bio = payload.Bio
 	}
 
 	return user
@@ -250,21 +250,21 @@ func (m *UserDB) UpdateFromUpdateUserPayload(ctx context.Context, payload *app.U
 		goa.Error(ctx, "error retrieving User", goa.KV{"error", err.Error()})
 		return err
 	}
-	if payload.Lastname != nil {
-		obj.Lastname = *payload.Lastname
-	}
 	if payload.Bio != nil {
 		obj.Bio = payload.Bio
 	}
+	obj.Email = payload.Email
 	if payload.City != nil {
 		obj.City = payload.City
 	}
 	if payload.Country != nil {
 		obj.Country = payload.Country
 	}
-	obj.Email = payload.Email
 	if payload.Firstname != nil {
 		obj.Firstname = *payload.Firstname
+	}
+	if payload.Lastname != nil {
+		obj.Lastname = *payload.Lastname
 	}
 	if payload.State != nil {
 		obj.State = payload.State
