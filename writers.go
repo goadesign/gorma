@@ -144,7 +144,7 @@ func fieldAssignmentModelToType(model *RelationalModelDefinition, ut *design.Vie
 		}
 
 		if field.Datatype == HasOne {
-			fa := fmt.Sprintf("%s.%s = %s.%sTo%s%s()", utype, codegen.Goify(field.FieldName, true), v, codegen.Goify(field.FieldName, true), verpkg, codegen.Goify(field.FieldName, true))
+			fa := fmt.Sprintf("%s.%s = %s.%s.%sTo%s%s()", utype, codegen.Goify(field.FieldName, true), v, codegen.Goify(field.FieldName, true), codegen.Goify(field.FieldName, true), verpkg, codegen.Goify(field.FieldName, true))
 			fieldAssignments = append(fieldAssignments, fa)
 			continue
 		}
