@@ -143,12 +143,6 @@ func fieldAssignmentModelToType(model *RelationalModelDefinition, ut *design.Vie
 			}
 		}
 
-		if field.Datatype == HasOne {
-			fa := fmt.Sprintf("%s.%s = %s.%s.%sTo%s%s()", utype, codegen.Goify(field.FieldName, true), v, codegen.Goify(field.FieldName, true), codegen.Goify(field.FieldName, true), verpkg, codegen.Goify(field.FieldName, true))
-			fieldAssignments = append(fieldAssignments, fa)
-			continue
-		}
-
 		for key := range obj {
 			gfield := obj[key]
 			if field.Underscore() == key || field.DatabaseFieldName == key {
@@ -158,6 +152,12 @@ func fieldAssignmentModelToType(model *RelationalModelDefinition, ut *design.Vie
 				} else {
 					// set it explicity because we're reusing the same bool
 					upointer = false
+				}
+
+				if field.Datatype == HasOne {
+					fa := fmt.Sprintf("%s.%s = %s.%s.%sTo%s%s()", utype, codegen.Goify(field.FieldName, true), v, codegen.Goify(field.FieldName, true), codegen.Goify(field.FieldName, true), verpkg, codegen.Goify(field.FieldName, true))
+					fieldAssignments = append(fieldAssignments, fa)
+					continue
 				}
 
 				prefix := ""
