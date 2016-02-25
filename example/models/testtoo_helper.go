@@ -45,8 +45,8 @@ func (m *TestToo) TestTooToAppUser() *app.User {
 	testtoo := &app.User{}
 	testtoo.Bio = m.Bio
 	testtoo.City = m.City
-	testtoo.Email = &m.Email
 	testtoo.Country = m.Country
+	testtoo.Email = &m.Email
 	testtoo.Firstname = &m.Firstname
 	testtoo.Lastname = &m.Lastname
 	testtoo.State = m.State
