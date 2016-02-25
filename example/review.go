@@ -7,11 +7,11 @@ import (
 
 // ReviewController implements the review resource.
 type ReviewController struct {
-	goa.Controller
+	*goa.Controller
 }
 
 // NewReviewController creates a review controller.
-func NewReviewController(service goa.Service) app.ReviewController {
+func NewReviewController(service *goa.Service) app.ReviewController {
 	return &ReviewController{Controller: service.NewController("review")}
 }
 

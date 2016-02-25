@@ -7,11 +7,11 @@ import (
 
 // AuthController implements theauth resource.
 type AuthController struct {
-	goa.Controller
+	*goa.Controller
 }
 
 // NewAuthController creates a auth controller.
-func NewAuthController(service goa.Service) app.AuthController {
+func NewAuthController(service *goa.Service) app.AuthController {
 	return &AuthController{Controller: service.NewController("auth")}
 }
 

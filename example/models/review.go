@@ -26,9 +26,9 @@ type Review struct {
 	ProposalID int // Belongs To Proposal
 	Rating     int
 	UserID     int        // has many Review
+	DeletedAt  *time.Time // nullable timestamp (soft delete)
 	CreatedAt  time.Time  // timestamp
 	UpdatedAt  time.Time  // timestamp
-	DeletedAt  *time.Time // nullable timestamp (soft delete)
 	User       User
 	Proposal   Proposal
 }
@@ -218,11 +218,11 @@ func (m *ReviewDB) UpdateFromCreateReviewPayload(ctx context.Context, payload *a
 // only copying the non-nil fields from the source.
 func ReviewFromUpdateReviewPayload(payload *app.UpdateReviewPayload) *Review {
 	review := &Review{}
-	if payload.Rating != nil {
-		review.Rating = *payload.Rating
-	}
 	if payload.Comment != nil {
 		review.Comment = payload.Comment
+	}
+	if payload.Rating != nil {
+		review.Rating = *payload.Rating
 	}
 
 	return review

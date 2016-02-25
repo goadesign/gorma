@@ -8,11 +8,11 @@ import (
 
 // UserController implements theuser resource.
 type UserController struct {
-	goa.Controller
+	*goa.Controller
 }
 
 // NewUserController creates a user controller.
-func NewUserController(service goa.Service) app.UserController {
+func NewUserController(service *goa.Service) app.UserController {
 	return &UserController{Controller: service.NewController("user")}
 }
 

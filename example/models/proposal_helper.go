@@ -48,13 +48,13 @@ func (m *Proposal) ProposalToAppProposal() *app.Proposal {
 		tmp1Collection = append(tmp1Collection, k.ReviewToAppReviewLink())
 	}
 	proposal.Links = &app.ProposalLinks{Reviews: tmp1Collection}
-	proposal.Detail = &m.Detail
-	proposal.ID = &m.ID
 	for _, k := range m.Reviews {
 		proposal.Reviews = append(proposal.Reviews, k.ReviewToAppReview())
 	}
 	proposal.Title = &m.Title
+	proposal.ID = &m.ID
 	proposal.Abstract = &m.Abstract
+	proposal.Detail = &m.Detail
 
 	return proposal
 }
@@ -100,8 +100,8 @@ func (m *ProposalDB) ListAppProposalLink(ctx context.Context, userid int) []*app
 
 func (m *Proposal) ProposalToAppProposalLink() *app.ProposalLink {
 	proposal := &app.ProposalLink{}
-	proposal.ID = &m.ID
 	proposal.Title = &m.Title
+	proposal.ID = &m.ID
 
 	return proposal
 }

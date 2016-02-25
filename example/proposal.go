@@ -8,11 +8,11 @@ import (
 
 // ProposalController implements the proposal resource.
 type ProposalController struct {
-	goa.Controller
+	*goa.Controller
 }
 
 // NewProposalController creates a proposal controller.
-func NewProposalController(service goa.Service) app.ProposalController {
+func NewProposalController(service *goa.Service) app.ProposalController {
 	return &ProposalController{Controller: service.NewController("proposal")}
 }
 

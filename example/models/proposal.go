@@ -28,9 +28,9 @@ type Proposal struct {
 	Title     string
 	UserID    int // has many Proposal
 	Withdrawn *bool
+	UpdatedAt time.Time  // timestamp
 	DeletedAt *time.Time // nullable timestamp (soft delete)
 	CreatedAt time.Time  // timestamp
-	UpdatedAt time.Time  // timestamp
 	User      User
 }
 
@@ -174,12 +174,12 @@ func (m *ProposalDB) Delete(ctx context.Context, id int) error {
 // only copying the non-nil fields from the source.
 func ProposalFromCreateProposalPayload(payload *app.CreateProposalPayload) *Proposal {
 	proposal := &Proposal{}
-	proposal.Title = payload.Title
 	proposal.Abstract = payload.Abstract
 	proposal.Detail = payload.Detail
 	if payload.Withdrawn != nil {
 		proposal.Withdrawn = payload.Withdrawn
 	}
+	proposal.Title = payload.Title
 
 	return proposal
 }
@@ -194,11 +194,11 @@ func (m *ProposalDB) UpdateFromCreateProposalPayload(ctx context.Context, payloa
 		goa.Error(ctx, "error retrieving Proposal", goa.KV{"error", err.Error()})
 		return err
 	}
+	obj.Title = payload.Title
+	obj.Detail = payload.Detail
 	if payload.Withdrawn != nil {
 		obj.Withdrawn = payload.Withdrawn
 	}
-	obj.Detail = payload.Detail
-	obj.Title = payload.Title
 	obj.Abstract = payload.Abstract
 
 	err = m.Db.Save(&obj).Error
@@ -209,14 +209,14 @@ func (m *ProposalDB) UpdateFromCreateProposalPayload(ctx context.Context, payloa
 // only copying the non-nil fields from the source.
 func ProposalFromUpdateProposalPayload(payload *app.UpdateProposalPayload) *Proposal {
 	proposal := &Proposal{}
+	if payload.Title != nil {
+		proposal.Title = *payload.Title
+	}
 	if payload.Abstract != nil {
 		proposal.Abstract = *payload.Abstract
 	}
 	if payload.Detail != nil {
 		proposal.Detail = *payload.Detail
-	}
-	if payload.Title != nil {
-		proposal.Title = *payload.Title
 	}
 	if payload.Withdrawn != nil {
 		proposal.Withdrawn = payload.Withdrawn
