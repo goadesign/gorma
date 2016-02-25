@@ -328,11 +328,6 @@ func (mt *User) Validate() (err error) {
 			err = goa.InvalidFormatError(`response.email`, *mt.Email, goa.FormatEmail, err2, err)
 		}
 	}
-	if mt.Email != nil {
-		if err2 := goa.ValidateFormat(goa.FormatEmail, *mt.Email); err2 != nil {
-			err = goa.InvalidFormatError(`response.email`, *mt.Email, goa.FormatEmail, err2, err)
-		}
-	}
 	return
 }
 
@@ -354,11 +349,6 @@ func (mt *UserLink) Validate() (err error) {
 			err = goa.InvalidFormatError(`response.email`, *mt.Email, goa.FormatEmail, err2, err)
 		}
 	}
-	if mt.Email != nil {
-		if err2 := goa.ValidateFormat(goa.FormatEmail, *mt.Email); err2 != nil {
-			err = goa.InvalidFormatError(`response.email`, *mt.Email, goa.FormatEmail, err2, err)
-		}
-	}
 	return
 }
 
@@ -372,11 +362,6 @@ func (mt UserCollection) Validate() (err error) {
 		if e.Bio != nil {
 			if len(*e.Bio) > 500 {
 				err = goa.InvalidLengthError(`response[*].bio`, *e.Bio, len(*e.Bio), 500, false, err)
-			}
-		}
-		if e.Email != nil {
-			if err2 := goa.ValidateFormat(goa.FormatEmail, *e.Email); err2 != nil {
-				err = goa.InvalidFormatError(`response[*].email`, *e.Email, goa.FormatEmail, err2, err)
 			}
 		}
 		if e.Email != nil {

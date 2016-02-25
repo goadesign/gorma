@@ -30,9 +30,9 @@ type TestToo struct {
 	Firstname string
 	Lastname  string
 	State     *string
-	CreatedAt time.Time  // timestamp
 	UpdatedAt time.Time  // timestamp
 	DeletedAt *time.Time // nullable timestamp (soft delete)
+	CreatedAt time.Time  // timestamp
 }
 
 // TableName overrides the table name settings in Gorm to force a specific table name
@@ -90,8 +90,8 @@ func (m *TestTooDB) TableName() string {
 // Get returns a single TestToo as a Database Model
 // This is more for use internally, and probably not what you want in  your controllers
 func (m *TestTooDB) Get(ctx context.Context, idone int, idtwo int) (TestToo, error) {
-	now := time.Now()
-	defer goa.MeasureSince([]string{"goa", "db", "testToo", "get"}, now)
+	defer goa.MeasureSince([]string{"goa", "db", "testToo", "get"}, time.Now())
+
 	var native TestToo
 	err := m.Db.Table(m.TableName()).Where("idone = ? and idtwo = ?", idone, idtwo).Find(&native).Error
 	if err == gorm.RecordNotFound {
@@ -103,8 +103,8 @@ func (m *TestTooDB) Get(ctx context.Context, idone int, idtwo int) (TestToo, err
 
 // List returns an array of TestToo
 func (m *TestTooDB) List(ctx context.Context) []TestToo {
-	now := time.Now()
-	defer goa.MeasureSince([]string{"goa", "db", "testToo", "list"}, now)
+	defer goa.MeasureSince([]string{"goa", "db", "testToo", "list"}, time.Now())
+
 	var objs []TestToo
 	err := m.Db.Table(m.TableName()).Find(&objs).Error
 	if err != nil && err != gorm.RecordNotFound {
@@ -117,8 +117,8 @@ func (m *TestTooDB) List(ctx context.Context) []TestToo {
 
 // Add creates a new record.  /// Maybe shouldn't return the model, it's a pointer.
 func (m *TestTooDB) Add(ctx context.Context, model *TestToo) (*TestToo, error) {
-	now := time.Now()
-	defer goa.MeasureSince([]string{"goa", "db", "testToo", "add"}, now)
+	defer goa.MeasureSince([]string{"goa", "db", "testToo", "add"}, time.Now())
+
 	err := m.Db.Create(model).Error
 	if err != nil {
 		goa.Error(ctx, "error updating TestToo", goa.KV{"error", err.Error()})
@@ -130,8 +130,8 @@ func (m *TestTooDB) Add(ctx context.Context, model *TestToo) (*TestToo, error) {
 
 // Update modifies a single record.
 func (m *TestTooDB) Update(ctx context.Context, model *TestToo) error {
-	now := time.Now()
-	defer goa.MeasureSince([]string{"goa", "db", "testToo", "update"}, now)
+	defer goa.MeasureSince([]string{"goa", "db", "testToo", "update"}, time.Now())
+
 	obj, err := m.Get(ctx, model.Idone, model.Idtwo)
 	if err != nil {
 		return err
@@ -143,8 +143,8 @@ func (m *TestTooDB) Update(ctx context.Context, model *TestToo) error {
 
 // Delete removes a single record.
 func (m *TestTooDB) Delete(ctx context.Context, idone int, idtwo int) error {
-	now := time.Now()
-	defer goa.MeasureSince([]string{"goa", "db", "testToo", "delete"}, now)
+	defer goa.MeasureSince([]string{"goa", "db", "testToo", "delete"}, time.Now())
+
 	var obj TestToo
 	err := m.Db.Delete(&obj).Where("idone = ? and idtwo = ?", idone, idtwo).Error
 
@@ -160,9 +160,6 @@ func (m *TestTooDB) Delete(ctx context.Context, idone int, idtwo int) error {
 // only copying the non-nil fields from the source.
 func TestTooFromCreateUserPayload(payload *app.CreateUserPayload) *TestToo {
 	testtoo := &TestToo{}
-	if payload.Country != nil {
-		testtoo.Country = payload.Country
-	}
 	if payload.Bio != nil {
 		testtoo.Bio = payload.Bio
 	}
@@ -174,38 +171,39 @@ func TestTooFromCreateUserPayload(payload *app.CreateUserPayload) *TestToo {
 	if payload.State != nil {
 		testtoo.State = payload.State
 	}
+	if payload.Country != nil {
+		testtoo.Country = payload.Country
+	}
 	testtoo.Lastname = payload.Lastname
 
 	return testtoo
 }
 
-// UpdateFromCreateUserPayload applies non-nil changes from CreateUserPayload to the model
-// and saves it
+// UpdateFromCreateUserPayload applies non-nil changes from CreateUserPayload to the model and saves it
 func (m *TestTooDB) UpdateFromCreateUserPayload(ctx context.Context, payload *app.CreateUserPayload, idone int, idtwo int) error {
-	now := time.Now()
+	defer goa.MeasureSince([]string{"goa", "db", "testToo", "updatefromcreateUserPayload"}, time.Now())
 
-	defer goa.MeasureSince([]string{"goa", "db", "testToo", "updatefromcreateUserPayload"}, now)
 	var obj TestToo
 	err := m.Db.Table(m.TableName()).Where("idone = ? and idtwo = ?", idone, idtwo).Find(&obj).Error
 	if err != nil {
 		goa.Error(ctx, "error retrieving TestToo", goa.KV{"error", err.Error()})
 		return err
 	}
-	obj.Lastname = payload.Lastname
 	if payload.Bio != nil {
 		obj.Bio = payload.Bio
 	}
 	if payload.City != nil {
 		obj.City = payload.City
 	}
-	if payload.Country != nil {
-		obj.Country = payload.Country
-	}
+	obj.Email = payload.Email
+	obj.Firstname = payload.Firstname
 	if payload.State != nil {
 		obj.State = payload.State
 	}
-	obj.Email = payload.Email
-	obj.Firstname = payload.Firstname
+	if payload.Country != nil {
+		obj.Country = payload.Country
+	}
+	obj.Lastname = payload.Lastname
 
 	err = m.Db.Save(&obj).Error
 	return err
@@ -215,17 +213,11 @@ func (m *TestTooDB) UpdateFromCreateUserPayload(ctx context.Context, payload *ap
 // only copying the non-nil fields from the source.
 func TestTooFromUpdateUserPayload(payload *app.UpdateUserPayload) *TestToo {
 	testtoo := &TestToo{}
-	if payload.Lastname != nil {
-		testtoo.Lastname = *payload.Lastname
-	}
 	if payload.Bio != nil {
 		testtoo.Bio = payload.Bio
 	}
 	if payload.City != nil {
 		testtoo.City = payload.City
-	}
-	if payload.Country != nil {
-		testtoo.Country = payload.Country
 	}
 	testtoo.Email = payload.Email
 	if payload.Firstname != nil {
@@ -234,24 +226,32 @@ func TestTooFromUpdateUserPayload(payload *app.UpdateUserPayload) *TestToo {
 	if payload.State != nil {
 		testtoo.State = payload.State
 	}
+	if payload.Country != nil {
+		testtoo.Country = payload.Country
+	}
+	if payload.Lastname != nil {
+		testtoo.Lastname = *payload.Lastname
+	}
 
 	return testtoo
 }
 
-// UpdateFromUpdateUserPayload applies non-nil changes from UpdateUserPayload to the model
-// and saves it
+// UpdateFromUpdateUserPayload applies non-nil changes from UpdateUserPayload to the model and saves it
 func (m *TestTooDB) UpdateFromUpdateUserPayload(ctx context.Context, payload *app.UpdateUserPayload, idone int, idtwo int) error {
-	now := time.Now()
+	defer goa.MeasureSince([]string{"goa", "db", "testToo", "updatefromupdateUserPayload"}, time.Now())
 
-	defer goa.MeasureSince([]string{"goa", "db", "testToo", "updatefromupdateUserPayload"}, now)
 	var obj TestToo
 	err := m.Db.Table(m.TableName()).Where("idone = ? and idtwo = ?", idone, idtwo).Find(&obj).Error
 	if err != nil {
 		goa.Error(ctx, "error retrieving TestToo", goa.KV{"error", err.Error()})
 		return err
 	}
-	if payload.Lastname != nil {
-		obj.Lastname = *payload.Lastname
+	obj.Email = payload.Email
+	if payload.Firstname != nil {
+		obj.Firstname = *payload.Firstname
+	}
+	if payload.State != nil {
+		obj.State = payload.State
 	}
 	if payload.Bio != nil {
 		obj.Bio = payload.Bio
@@ -262,12 +262,8 @@ func (m *TestTooDB) UpdateFromUpdateUserPayload(ctx context.Context, payload *ap
 	if payload.Country != nil {
 		obj.Country = payload.Country
 	}
-	obj.Email = payload.Email
-	if payload.Firstname != nil {
-		obj.Firstname = *payload.Firstname
-	}
-	if payload.State != nil {
-		obj.State = payload.State
+	if payload.Lastname != nil {
+		obj.Lastname = *payload.Lastname
 	}
 
 	err = m.Db.Save(&obj).Error

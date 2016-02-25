@@ -28,9 +28,9 @@ type Proposal struct {
 	Title     string
 	UserID    int // has many Proposal
 	Withdrawn *bool
-	UpdatedAt time.Time  // timestamp
-	CreatedAt time.Time  // timestamp
 	DeletedAt *time.Time // nullable timestamp (soft delete)
+	CreatedAt time.Time  // timestamp
+	UpdatedAt time.Time  // timestamp
 	User      User
 }
 
@@ -103,8 +103,8 @@ func ProposalFilterByUser(userid int, originaldb *gorm.DB) func(db *gorm.DB) *go
 // Get returns a single Proposal as a Database Model
 // This is more for use internally, and probably not what you want in  your controllers
 func (m *ProposalDB) Get(ctx context.Context, id int) (Proposal, error) {
-	now := time.Now()
-	defer goa.MeasureSince([]string{"goa", "db", "proposal", "get"}, now)
+	defer goa.MeasureSince([]string{"goa", "db", "proposal", "get"}, time.Now())
+
 	var native Proposal
 	err := m.Db.Table(m.TableName()).Where("id = ?", id).Find(&native).Error
 	if err == gorm.RecordNotFound {
@@ -116,8 +116,8 @@ func (m *ProposalDB) Get(ctx context.Context, id int) (Proposal, error) {
 
 // List returns an array of Proposal
 func (m *ProposalDB) List(ctx context.Context) []Proposal {
-	now := time.Now()
-	defer goa.MeasureSince([]string{"goa", "db", "proposal", "list"}, now)
+	defer goa.MeasureSince([]string{"goa", "db", "proposal", "list"}, time.Now())
+
 	var objs []Proposal
 	err := m.Db.Table(m.TableName()).Find(&objs).Error
 	if err != nil && err != gorm.RecordNotFound {
@@ -130,8 +130,8 @@ func (m *ProposalDB) List(ctx context.Context) []Proposal {
 
 // Add creates a new record.  /// Maybe shouldn't return the model, it's a pointer.
 func (m *ProposalDB) Add(ctx context.Context, model *Proposal) (*Proposal, error) {
-	now := time.Now()
-	defer goa.MeasureSince([]string{"goa", "db", "proposal", "add"}, now)
+	defer goa.MeasureSince([]string{"goa", "db", "proposal", "add"}, time.Now())
+
 	err := m.Db.Create(model).Error
 	if err != nil {
 		goa.Error(ctx, "error updating Proposal", goa.KV{"error", err.Error()})
@@ -143,8 +143,8 @@ func (m *ProposalDB) Add(ctx context.Context, model *Proposal) (*Proposal, error
 
 // Update modifies a single record.
 func (m *ProposalDB) Update(ctx context.Context, model *Proposal) error {
-	now := time.Now()
-	defer goa.MeasureSince([]string{"goa", "db", "proposal", "update"}, now)
+	defer goa.MeasureSince([]string{"goa", "db", "proposal", "update"}, time.Now())
+
 	obj, err := m.Get(ctx, model.ID)
 	if err != nil {
 		return err
@@ -156,8 +156,8 @@ func (m *ProposalDB) Update(ctx context.Context, model *Proposal) error {
 
 // Delete removes a single record.
 func (m *ProposalDB) Delete(ctx context.Context, id int) error {
-	now := time.Now()
-	defer goa.MeasureSince([]string{"goa", "db", "proposal", "delete"}, now)
+	defer goa.MeasureSince([]string{"goa", "db", "proposal", "delete"}, time.Now())
+
 	var obj Proposal
 
 	err := m.Db.Delete(&obj, id).Error
@@ -174,8 +174,8 @@ func (m *ProposalDB) Delete(ctx context.Context, id int) error {
 // only copying the non-nil fields from the source.
 func ProposalFromCreateProposalPayload(payload *app.CreateProposalPayload) *Proposal {
 	proposal := &Proposal{}
-	proposal.Abstract = payload.Abstract
 	proposal.Title = payload.Title
+	proposal.Abstract = payload.Abstract
 	proposal.Detail = payload.Detail
 	if payload.Withdrawn != nil {
 		proposal.Withdrawn = payload.Withdrawn
@@ -184,23 +184,21 @@ func ProposalFromCreateProposalPayload(payload *app.CreateProposalPayload) *Prop
 	return proposal
 }
 
-// UpdateFromCreateProposalPayload applies non-nil changes from CreateProposalPayload to the model
-// and saves it
+// UpdateFromCreateProposalPayload applies non-nil changes from CreateProposalPayload to the model and saves it
 func (m *ProposalDB) UpdateFromCreateProposalPayload(ctx context.Context, payload *app.CreateProposalPayload, id int) error {
-	now := time.Now()
+	defer goa.MeasureSince([]string{"goa", "db", "proposal", "updatefromcreateProposalPayload"}, time.Now())
 
-	defer goa.MeasureSince([]string{"goa", "db", "proposal", "updatefromcreateProposalPayload"}, now)
 	var obj Proposal
 	err := m.Db.Table(m.TableName()).Where("id = ?", id).Find(&obj).Error
 	if err != nil {
 		goa.Error(ctx, "error retrieving Proposal", goa.KV{"error", err.Error()})
 		return err
 	}
-	obj.Title = payload.Title
-	obj.Detail = payload.Detail
 	if payload.Withdrawn != nil {
 		obj.Withdrawn = payload.Withdrawn
 	}
+	obj.Detail = payload.Detail
+	obj.Title = payload.Title
 	obj.Abstract = payload.Abstract
 
 	err = m.Db.Save(&obj).Error
@@ -211,39 +209,37 @@ func (m *ProposalDB) UpdateFromCreateProposalPayload(ctx context.Context, payloa
 // only copying the non-nil fields from the source.
 func ProposalFromUpdateProposalPayload(payload *app.UpdateProposalPayload) *Proposal {
 	proposal := &Proposal{}
+	if payload.Abstract != nil {
+		proposal.Abstract = *payload.Abstract
+	}
 	if payload.Detail != nil {
 		proposal.Detail = *payload.Detail
-	}
-	if payload.Withdrawn != nil {
-		proposal.Withdrawn = payload.Withdrawn
 	}
 	if payload.Title != nil {
 		proposal.Title = *payload.Title
 	}
-	if payload.Abstract != nil {
-		proposal.Abstract = *payload.Abstract
+	if payload.Withdrawn != nil {
+		proposal.Withdrawn = payload.Withdrawn
 	}
 
 	return proposal
 }
 
-// UpdateFromUpdateProposalPayload applies non-nil changes from UpdateProposalPayload to the model
-// and saves it
+// UpdateFromUpdateProposalPayload applies non-nil changes from UpdateProposalPayload to the model and saves it
 func (m *ProposalDB) UpdateFromUpdateProposalPayload(ctx context.Context, payload *app.UpdateProposalPayload, id int) error {
-	now := time.Now()
+	defer goa.MeasureSince([]string{"goa", "db", "proposal", "updatefromupdateProposalPayload"}, time.Now())
 
-	defer goa.MeasureSince([]string{"goa", "db", "proposal", "updatefromupdateProposalPayload"}, now)
 	var obj Proposal
 	err := m.Db.Table(m.TableName()).Where("id = ?", id).Find(&obj).Error
 	if err != nil {
 		goa.Error(ctx, "error retrieving Proposal", goa.KV{"error", err.Error()})
 		return err
 	}
-	if payload.Abstract != nil {
-		obj.Abstract = *payload.Abstract
-	}
 	if payload.Title != nil {
 		obj.Title = *payload.Title
+	}
+	if payload.Abstract != nil {
+		obj.Abstract = *payload.Abstract
 	}
 	if payload.Detail != nil {
 		obj.Detail = *payload.Detail
