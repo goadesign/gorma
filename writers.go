@@ -452,8 +452,8 @@ func {{$ut.ModelName}}FilterBy{{$bt.ModelName}}({{goify $bt.ModelName false}}id 
 // Get returns a single {{$ut.ModelName}} as a Database Model
 // This is more for use internally, and probably not what you want in  your controllers
 func (m *{{$ut.ModelName}}DB) Get(ctx context.Context{{ if $ut.DynamicTableName}}, tableName string{{ end }}, {{$ut.PKAttributes}}) ({{$ut.ModelName}}, error){
-	now := time.Now()
-	defer goa.MeasureSince([]string{"goa","db","{{goify $ut.ModelName false}}", "get"}, now)
+	defer goa.MeasureSince([]string{"goa","db","{{goify $ut.ModelName false}}", "get"}, time.Now())
+
 	var native {{$ut.ModelName}}
 	err := m.Db.Table({{ if $ut.DynamicTableName }}tableName{{else}}m.TableName(){{ end }}).Where("{{$ut.PKWhere}}",{{$ut.PKWhereFields}} ).Find(&native).Error
 	if err == gorm.RecordNotFound {
@@ -466,8 +466,8 @@ func (m *{{$ut.ModelName}}DB) Get(ctx context.Context{{ if $ut.DynamicTableName}
 
 // List returns an array of {{$ut.ModelName}}
 func (m *{{$ut.ModelName}}DB) List(ctx context.Context{{ if $ut.DynamicTableName}}, tableName string{{ end }}) []{{$ut.ModelName}}{
-	now := time.Now()
-	defer goa.MeasureSince([]string{"goa","db","{{goify $ut.ModelName false}}", "list"}, now)
+	defer goa.MeasureSince([]string{"goa","db","{{goify $ut.ModelName false}}", "list"}, time.Now())
+
 	var objs []{{$ut.ModelName}}
 	err := m.Db.Table({{ if $ut.DynamicTableName }}tableName{{else}}m.TableName(){{ end }}).Find(&objs).Error
 	if err != nil && err != gorm.RecordNotFound {
@@ -479,8 +479,8 @@ func (m *{{$ut.ModelName}}DB) List(ctx context.Context{{ if $ut.DynamicTableName
 }
 // Add creates a new record.  /// Maybe shouldn't return the model, it's a pointer.
 func (m *{{$ut.ModelName}}DB) Add(ctx context.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, model *{{$ut.ModelName}}) (*{{$ut.ModelName}}, error) {
-	now := time.Now()
-	defer goa.MeasureSince([]string{"goa","db","{{goify $ut.ModelName false}}", "add"}, now)
+	defer goa.MeasureSince([]string{"goa","db","{{goify $ut.ModelName false}}", "add"}, time.Now())
+
 	err := m.Db{{ if $ut.DynamicTableName }}.Table(tableName){{ end }}.Create(model).Error
 	if err != nil {
 		goa.Error(ctx, "error updating {{$ut.ModelName}}", goa.KV{"error", err.Error()})
@@ -492,8 +492,8 @@ func (m *{{$ut.ModelName}}DB) Add(ctx context.Context{{ if $ut.DynamicTableName 
 }
 // Update modifies a single record.
 func (m *{{$ut.ModelName}}DB) Update(ctx context.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, model *{{$ut.ModelName}}) error {
-	now := time.Now()
-	defer goa.MeasureSince([]string{"goa","db","{{goify $ut.ModelName false}}", "update"}, now)
+	defer goa.MeasureSince([]string{"goa","db","{{goify $ut.ModelName false}}", "update"}, time.Now())
+
 	obj, err := m.Get(ctx{{ if $ut.DynamicTableName }}, tableName{{ end }}, {{$ut.PKUpdateFields "model"}})
 	if err != nil {
 		return  err
@@ -507,8 +507,8 @@ func (m *{{$ut.ModelName}}DB) Update(ctx context.Context{{ if $ut.DynamicTableNa
 }
 // Delete removes a single record.
 func (m *{{$ut.ModelName}}DB) Delete(ctx context.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, {{$ut.PKAttributes}})  error {
-	now := time.Now()
-	defer goa.MeasureSince([]string{"goa","db","{{goify $ut.ModelName false}}", "delete"}, now)
+	defer goa.MeasureSince([]string{"goa","db","{{goify $ut.ModelName false}}", "delete"}, time.Now())
+
 	var obj {{$ut.ModelName}}{{ $l := len $ut.PrimaryKeys }}
 	{{ if eq $l 1 }}
 	err := m.Db{{ if $ut.DynamicTableName }}.Table(tableName){{ end }}.Delete(&obj, id).Error
@@ -532,12 +532,10 @@ func (m *{{$ut.ModelName}}DB) Delete(ctx context.Context{{ if $ut.DynamicTableNa
  	 return {{$ut.LowerName}}
 }
 
-	// UpdateFrom{{$bfn}} applies non-nil changes from {{goify $bfn true}} to the model
-	// and saves it
-	func (m *{{$ut.ModelName}}DB)UpdateFrom{{$bfn}}(ctx context.Context{{ if $ut.DynamicTableName}}, tableName string{{ end }},payload *app.{{goify $bfn true}}, {{$ut.PKAttributes}}) error {
-	now := time.Now()
+// UpdateFrom{{$bfn}} applies non-nil changes from {{goify $bfn true}} to the model and saves it
+func (m *{{$ut.ModelName}}DB)UpdateFrom{{$bfn}}(ctx context.Context{{ if $ut.DynamicTableName}}, tableName string{{ end }},payload *app.{{goify $bfn true}}, {{$ut.PKAttributes}}) error {
+	defer goa.MeasureSince([]string{"goa","db","{{goify $ut.ModelName false}}", "updatefrom{{goify $bfn false}}"}, time.Now())
 
-	defer goa.MeasureSince([]string{"goa","db","{{goify $ut.ModelName false}}", "updatefrom{{goify $bfn false}}"}, now)
 	var obj {{$ut.ModelName}}
 	 err := m.Db.Table({{ if $ut.DynamicTableName }}tableName{{else}}m.TableName(){{ end }}).Where("{{$ut.PKWhere}}",{{$ut.PKWhereFields}} ).Find(&obj).Error
 	if err != nil {
@@ -580,9 +578,8 @@ func (m {{$ut.ModelName}}) GetRole() string {
 	mediaVersionT = `// MediaType Retrieval Functions
 // List{{goify .Media.TypeName true}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}} returns an array of view: {{.ViewName}}
 func (m *{{.Model.ModelName}}DB) List{{.VersionPackageName}}{{goify .Media.TypeName true}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}} (ctx context.Context{{ if .Model.DynamicTableName}}, tableName string{{ end }} {{range $nm, $bt := .Model.BelongsTo}},{{goify $bt.ModelName false}}id int{{end}}) []*{{.VersionPackage}}.{{goify .Media.TypeName true}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}}{
-	now := time.Now()
+	defer goa.MeasureSince([]string{"goa","db","{{goify .Media.TypeName false}}", "list{{goify .Media.TypeName false}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName false}}{{end}}"}, time.Now())
 
-	defer goa.MeasureSince([]string{"goa","db","{{goify .Media.TypeName false}}", "list{{goify .Media.TypeName false}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName false}}{{end}}"}, now)
 	var native []*{{goify .Model.ModelName true}}
 	var objs []*{{.VersionPackage}}.{{goify .Media.TypeName true}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}} {{$ctx:= .}}
 	err := m.Db.Scopes({{range $nm, $bt := .Model.BelongsTo}}{{$ctx.Model.ModelName}}FilterBy{{goify $bt.ModelName true}}({{goify $bt.ModelName false}}id, &m.Db), {{end}}).Table({{ if .Model.DynamicTableName }}tableName{{else}}m.TableName(){{ end }}).{{ range $ln, $lv := .Media.Links }}Preload("{{goify $ln true}}").{{end}}Find(&native).Error
@@ -610,9 +607,9 @@ func (m *{{.Model.ModelName}}) {{$.Model.ModelName}}To{{.VersionPackageName}}{{.
 
 // One{{.VersionPackageName}}{{goify .Media.TypeName true}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}} returns an array of view: {{.ViewName}}{{$ut := .Model}}
 func (m *{{.Model.ModelName}}DB) One{{goify .Media.TypeName true}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}} (ctx context.Context{{ if .Model.DynamicTableName}}, tableName string{{ end }},{{.Model.PKAttributes}}{{range $nm, $bt := .Model.BelongsTo}},{{goify $bt.ModelName false}}id int{{end}}) (*{{.VersionPackage}}.{{goify .Media.TypeName true}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}}, error){
-	now := time.Now()
+	defer goa.MeasureSince([]string{"goa","db","{{goify .Media.TypeName false}}", "one{{goify .Media.TypeName false}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName false}}{{end}}"}, time.Now())
+
 	var native {{.Model.ModelName}}
-	defer goa.MeasureSince([]string{"goa","db","{{goify .Media.TypeName false}}", "one{{goify .Media.TypeName false}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName false}}{{end}}"}, now)
 	err := m.Db.Scopes({{range $nm, $bt := .Model.BelongsTo}}{{$ctx.Model.ModelName}}FilterBy{{goify $bt.ModelName true}}({{goify $bt.ModelName false}}id, &m.Db), {{end}}).Table({{ if .Model.DynamicTableName }}tableName{{else}}m.TableName(){{ end }}){{range $na, $hm:= .Model.HasMany}}.Preload("{{plural $hm.ModelName}}"){{end}}{{range $nm, $bt := .Model.BelongsTo}}.Preload("{{$bt.ModelName}}"){{end}}.Where("{{.Model.PKWhere}}",{{.Model.PKWhereFields}}).Find(&native).Error
 
 	if err != nil && err != gorm.RecordNotFound {

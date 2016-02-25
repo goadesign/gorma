@@ -22,9 +22,8 @@ import (
 // MediaType Retrieval Functions
 // ListUser returns an array of view: default
 func (m *TestTooDB) ListAppUser(ctx context.Context) []*app.User {
-	now := time.Now()
+	defer goa.MeasureSince([]string{"goa", "db", "user", "listuser"}, time.Now())
 
-	defer goa.MeasureSince([]string{"goa", "db", "user", "listuser"}, now)
 	var native []*TestToo
 	var objs []*app.User
 	err := m.Db.Scopes().Table(m.TableName()).Find(&native).Error
@@ -46,20 +45,20 @@ func (m *TestToo) TestTooToAppUser() *app.User {
 	testtoo := &app.User{}
 	testtoo.Bio = m.Bio
 	testtoo.City = m.City
-	testtoo.Country = m.Country
 	testtoo.Email = &m.Email
+	testtoo.Country = m.Country
 	testtoo.Firstname = &m.Firstname
-	testtoo.State = m.State
 	testtoo.Lastname = &m.Lastname
+	testtoo.State = m.State
 
 	return testtoo
 }
 
 // OneAppUser returns an array of view: default
 func (m *TestTooDB) OneUser(ctx context.Context, idone int, idtwo int) (*app.User, error) {
-	now := time.Now()
+	defer goa.MeasureSince([]string{"goa", "db", "user", "oneuser"}, time.Now())
+
 	var native TestToo
-	defer goa.MeasureSince([]string{"goa", "db", "user", "oneuser"}, now)
 	err := m.Db.Scopes().Table(m.TableName()).Where("idone = ? and idtwo = ?", idone, idtwo).Find(&native).Error
 
 	if err != nil && err != gorm.RecordNotFound {
@@ -75,9 +74,8 @@ func (m *TestTooDB) OneUser(ctx context.Context, idone int, idtwo int) (*app.Use
 // MediaType Retrieval Functions
 // ListUserLink returns an array of view: link
 func (m *TestTooDB) ListAppUserLink(ctx context.Context) []*app.UserLink {
-	now := time.Now()
+	defer goa.MeasureSince([]string{"goa", "db", "user", "listuserlink"}, time.Now())
 
-	defer goa.MeasureSince([]string{"goa", "db", "user", "listuserlink"}, now)
 	var native []*TestToo
 	var objs []*app.UserLink
 	err := m.Db.Scopes().Table(m.TableName()).Find(&native).Error
@@ -104,9 +102,9 @@ func (m *TestToo) TestTooToAppUserLink() *app.UserLink {
 
 // OneAppUserLink returns an array of view: link
 func (m *TestTooDB) OneUserLink(ctx context.Context, idone int, idtwo int) (*app.UserLink, error) {
-	now := time.Now()
+	defer goa.MeasureSince([]string{"goa", "db", "user", "oneuserlink"}, time.Now())
+
 	var native TestToo
-	defer goa.MeasureSince([]string{"goa", "db", "user", "oneuserlink"}, now)
 	err := m.Db.Scopes().Table(m.TableName()).Where("idone = ? and idtwo = ?", idone, idtwo).Find(&native).Error
 
 	if err != nil && err != gorm.RecordNotFound {

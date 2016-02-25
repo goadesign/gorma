@@ -22,9 +22,8 @@ import (
 // MediaType Retrieval Functions
 // ListUser returns an array of view: default
 func (m *UserDB) ListAppUser(ctx context.Context) []*app.User {
-	now := time.Now()
+	defer goa.MeasureSince([]string{"goa", "db", "user", "listuser"}, time.Now())
 
-	defer goa.MeasureSince([]string{"goa", "db", "user", "listuser"}, now)
 	var native []*User
 	var objs []*app.User
 	err := m.Db.Scopes().Table(m.TableName()).Find(&native).Error
@@ -44,23 +43,23 @@ func (m *UserDB) ListAppUser(ctx context.Context) []*app.User {
 
 func (m *User) UserToAppUser() *app.User {
 	user := &app.User{}
-	user.Firstname = &m.Firstname
-	user.Lastname = &m.Lastname
-	user.State = m.State
-	user.ID = &m.ID
 	user.Bio = m.Bio
 	user.City = m.City
 	user.Country = m.Country
 	user.Email = &m.Email
+	user.State = m.State
+	user.ID = &m.ID
+	user.Firstname = &m.Firstname
+	user.Lastname = &m.Lastname
 
 	return user
 }
 
 // OneAppUser returns an array of view: default
 func (m *UserDB) OneUser(ctx context.Context, id int) (*app.User, error) {
-	now := time.Now()
+	defer goa.MeasureSince([]string{"goa", "db", "user", "oneuser"}, time.Now())
+
 	var native User
-	defer goa.MeasureSince([]string{"goa", "db", "user", "oneuser"}, now)
 	err := m.Db.Scopes().Table(m.TableName()).Preload("Proposals").Preload("Reviews").Where("id = ?", id).Find(&native).Error
 
 	if err != nil && err != gorm.RecordNotFound {
@@ -76,9 +75,8 @@ func (m *UserDB) OneUser(ctx context.Context, id int) (*app.User, error) {
 // MediaType Retrieval Functions
 // ListUserLink returns an array of view: link
 func (m *UserDB) ListAppUserLink(ctx context.Context) []*app.UserLink {
-	now := time.Now()
+	defer goa.MeasureSince([]string{"goa", "db", "user", "listuserlink"}, time.Now())
 
-	defer goa.MeasureSince([]string{"goa", "db", "user", "listuserlink"}, now)
 	var native []*User
 	var objs []*app.UserLink
 	err := m.Db.Scopes().Table(m.TableName()).Find(&native).Error
@@ -98,17 +96,17 @@ func (m *UserDB) ListAppUserLink(ctx context.Context) []*app.UserLink {
 
 func (m *User) UserToAppUserLink() *app.UserLink {
 	user := &app.UserLink{}
-	user.Email = &m.Email
 	user.ID = &m.ID
+	user.Email = &m.Email
 
 	return user
 }
 
 // OneAppUserLink returns an array of view: link
 func (m *UserDB) OneUserLink(ctx context.Context, id int) (*app.UserLink, error) {
-	now := time.Now()
+	defer goa.MeasureSince([]string{"goa", "db", "user", "oneuserlink"}, time.Now())
+
 	var native User
-	defer goa.MeasureSince([]string{"goa", "db", "user", "oneuserlink"}, now)
 	err := m.Db.Scopes().Table(m.TableName()).Preload("Proposals").Preload("Reviews").Where("id = ?", id).Find(&native).Error
 
 	if err != nil && err != gorm.RecordNotFound {

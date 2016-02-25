@@ -49,8 +49,8 @@ func main() {
 	c := NewAuthController(service)
 	app.MountAuthController(service, c)
 	// Mount "ui" controller
-	c2 := NewUiController(service)
-	app.MountUiController(service, c2)
+	c2 := NewUIController(service)
+	app.MountUIController(service, c2)
 	// Mount "user" controller
 	c3 := NewUserController(service)
 	app.MountUserController(service, c3)

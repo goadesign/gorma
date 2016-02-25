@@ -179,11 +179,9 @@ func (payload *CreateProposalPayload) Validate() (err error) {
 	if payload.Title == "" {
 		err = goa.MissingAttributeError(`raw`, "title", err)
 	}
-
 	if payload.Abstract == "" {
 		err = goa.MissingAttributeError(`raw`, "abstract", err)
 	}
-
 	if payload.Detail == "" {
 		err = goa.MissingAttributeError(`raw`, "detail", err)
 	}
@@ -734,24 +732,24 @@ func (ctx *UpdateReviewContext) NotFound() error {
 	return nil
 }
 
-// BootstrapUiContext provides the ui bootstrap action context.
-type BootstrapUiContext struct {
+// BootstrapUIContext provides the ui bootstrap action context.
+type BootstrapUIContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
 }
 
-// NewBootstrapUiContext parses the incoming request URL and body, performs validations and creates the
+// NewBootstrapUIContext parses the incoming request URL and body, performs validations and creates the
 // context used by the ui controller bootstrap action.
-func NewBootstrapUiContext(ctx context.Context) (*BootstrapUiContext, error) {
+func NewBootstrapUIContext(ctx context.Context) (*BootstrapUIContext, error) {
 	var err error
 	req := goa.Request(ctx)
-	rctx := BootstrapUiContext{Context: ctx, ResponseData: goa.Response(ctx), RequestData: req}
+	rctx := BootstrapUIContext{Context: ctx, ResponseData: goa.Response(ctx), RequestData: req}
 	return &rctx, err
 }
 
 // OK sends a HTTP response with status code 200.
-func (ctx *BootstrapUiContext) OK(resp []byte) error {
+func (ctx *BootstrapUIContext) OK(resp []byte) error {
 	ctx.ResponseData.Header().Set("Content-Type", "text/html")
 	ctx.ResponseData.WriteHeader(200)
 	ctx.ResponseData.Write(resp)
@@ -791,11 +789,9 @@ func (payload *CreateUserPayload) Validate() (err error) {
 	if payload.Firstname == "" {
 		err = goa.MissingAttributeError(`raw`, "firstname", err)
 	}
-
 	if payload.Lastname == "" {
 		err = goa.MissingAttributeError(`raw`, "lastname", err)
 	}
-
 	if payload.Email == "" {
 		err = goa.MissingAttributeError(`raw`, "email", err)
 	}
