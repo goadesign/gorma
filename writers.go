@@ -101,7 +101,7 @@ func fieldAssignmentPayloadToModel(model *RelationalModelDefinition, ut *design.
 }
 
 func fieldAssignmentModelToType(model *RelationalModelDefinition, ut *design.ViewDefinition, verpkg, v, mtype, utype string) string {
-	var tmp int = 1
+	tmp := 1
 	var fieldAssignments []string
 
 	if !strings.Contains(ut.Name, "link") {
