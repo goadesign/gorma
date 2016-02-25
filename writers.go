@@ -39,10 +39,16 @@ type (
 )
 
 func fieldAssignmentPayloadToModel(model *RelationalModelDefinition, ut *design.UserTypeDefinition, verpkg, v, mtype, utype string) string {
-	//utPackage := "app"
+	// Get a sortable slice of field names
+	var keys []string
+	for k := range model.RelationalFields {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+
 	var fieldAssignments []string
-	// type.Field = model.Field
-	for fname, field := range model.RelationalFields {
+	for _, fname := range keys {
+		field := model.RelationalFields[fname]
 
 		var mpointer, upointer bool
 		mpointer = field.Nullable
@@ -95,11 +101,8 @@ func fieldAssignmentPayloadToModel(model *RelationalModelDefinition, ut *design.
 }
 
 func fieldAssignmentModelToType(model *RelationalModelDefinition, ut *design.ViewDefinition, verpkg, v, mtype, utype string) string {
-	//utPackage := "app"
-	var tmp int
-	tmp = 1
+	var tmp int = 1
 	var fieldAssignments []string
-	// type.Field = model.Field
 
 	if !strings.Contains(ut.Name, "link") {
 		for ln := range ut.Parent.Links {
@@ -115,11 +118,18 @@ func fieldAssignmentModelToType(model *RelationalModelDefinition, ut *design.Vie
 			ifd := fmt.Sprintf("%s.Links = &%s.%sLinks{%s: tmp%dCollection}", utype, codegen.Goify(verpkg, false), codegen.Goify(utype, true), codegen.Goify(ln, true), tmp)
 			fieldAssignments = append(fieldAssignments, ifd)
 			tmp++
-
 		}
-
 	}
-	for fname, field := range model.RelationalFields {
+
+	// Get a sortable slice of field names
+	var keys []string
+	for k := range model.RelationalFields {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+
+	for _, fname := range keys {
+		field := model.RelationalFields[fname]
 
 		var mpointer, upointer bool
 		mpointer = field.Nullable
@@ -191,10 +201,17 @@ func fieldAssignmentModelToType(model *RelationalModelDefinition, ut *design.Vie
 }
 
 func fieldAssignmentTypeToModel(model *RelationalModelDefinition, ut *design.UserTypeDefinition, utype, mtype string) string {
-	//utPackage := "app"
+	// Get a sortable slice of field names
+	var keys []string
+	for k := range model.RelationalFields {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+
 	var fieldAssignments []string
-	// type.Field = model.Field
-	for fname, field := range model.RelationalFields {
+	for _, fname := range keys {
+		field := model.RelationalFields[fname]
+
 		var mpointer, upointer bool
 		mpointer = field.Nullable
 		obj := ut.ToObject()
