@@ -18,7 +18,7 @@ import (
 	"time"
 )
 
-// TestModel
+// Test Model
 type Test struct {
 	CreatedAt time.Time  // timestamp
 	DeletedAt *time.Time // nullable timestamp (soft delete)

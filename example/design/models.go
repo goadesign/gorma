@@ -67,14 +67,14 @@ var _ = StorageGroup("CongoStorageGroup", func() {
 		})
 
 		Model("Test", func() {
-			Description("TestModel")
+			Description("Test Model")
 			NoAutomaticIDFields()
 			Field("created_at", gorma.Timestamp, func() {})
 			Field("updated_at", gorma.Timestamp, func() {})
 			Field("deleted_at", gorma.NullableTimestamp, func() {})
 		})
 		Model("TestToo", func() {
-			Description("TestTooModel")
+			Description("TestToo Model")
 			NoAutomaticIDFields()
 			Field("idone", gorma.Integer, func() {
 				PrimaryKey()

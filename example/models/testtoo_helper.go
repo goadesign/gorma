@@ -20,7 +20,8 @@ import (
 )
 
 // MediaType Retrieval Functions
-// ListUser returns an array of view: default
+
+// ListAppUser returns an array of view: default.
 func (m *TestTooDB) ListAppUser(ctx context.Context) []*app.User {
 	defer goa.MeasureSince([]string{"goa", "db", "user", "listuser"}, time.Now())
 
@@ -28,7 +29,6 @@ func (m *TestTooDB) ListAppUser(ctx context.Context) []*app.User {
 	var objs []*app.User
 	err := m.Db.Scopes().Table(m.TableName()).Find(&native).Error
 
-	//	err := m.Db.Table(m.TableName()).Find(&objs).Error
 	if err != nil {
 		goa.Error(ctx, "error listing TestToo", goa.KV{"error", err.Error()})
 		return objs
@@ -41,6 +41,7 @@ func (m *TestTooDB) ListAppUser(ctx context.Context) []*app.User {
 	return objs
 }
 
+// TestTooToAppUser returns the App User representation of TestToo.
 func (m *TestToo) TestTooToAppUser() *app.User {
 	testtoo := &app.User{}
 	testtoo.Bio = m.Bio
@@ -54,7 +55,7 @@ func (m *TestToo) TestTooToAppUser() *app.User {
 	return testtoo
 }
 
-// OneAppUser returns an array of view: default
+// OneUser returns an array of view: default.
 func (m *TestTooDB) OneUser(ctx context.Context, idone int, idtwo int) (*app.User, error) {
 	defer goa.MeasureSince([]string{"goa", "db", "user", "oneuser"}, time.Now())
 
@@ -68,11 +69,11 @@ func (m *TestTooDB) OneUser(ctx context.Context, idone int, idtwo int) (*app.Use
 
 	view := *native.TestTooToAppUser()
 	return &view, err
-
 }
 
 // MediaType Retrieval Functions
-// ListUserLink returns an array of view: link
+
+// ListAppUserLink returns an array of view: link.
 func (m *TestTooDB) ListAppUserLink(ctx context.Context) []*app.UserLink {
 	defer goa.MeasureSince([]string{"goa", "db", "user", "listuserlink"}, time.Now())
 
@@ -80,7 +81,6 @@ func (m *TestTooDB) ListAppUserLink(ctx context.Context) []*app.UserLink {
 	var objs []*app.UserLink
 	err := m.Db.Scopes().Table(m.TableName()).Find(&native).Error
 
-	//	err := m.Db.Table(m.TableName()).Find(&objs).Error
 	if err != nil {
 		goa.Error(ctx, "error listing TestToo", goa.KV{"error", err.Error()})
 		return objs
@@ -93,6 +93,7 @@ func (m *TestTooDB) ListAppUserLink(ctx context.Context) []*app.UserLink {
 	return objs
 }
 
+// TestTooToAppUserLink returns the App User representation of TestToo.
 func (m *TestToo) TestTooToAppUserLink() *app.UserLink {
 	testtoo := &app.UserLink{}
 	testtoo.Email = &m.Email
@@ -100,7 +101,7 @@ func (m *TestToo) TestTooToAppUserLink() *app.UserLink {
 	return testtoo
 }
 
-// OneAppUserLink returns an array of view: link
+// OneUserLink returns an array of view: link.
 func (m *TestTooDB) OneUserLink(ctx context.Context, idone int, idtwo int) (*app.UserLink, error) {
 	defer goa.MeasureSince([]string{"goa", "db", "user", "oneuserlink"}, time.Now())
 
@@ -114,5 +115,4 @@ func (m *TestTooDB) OneUserLink(ctx context.Context, idone int, idtwo int) (*app
 
 	view := *native.TestTooToAppUserLink()
 	return &view, err
-
 }
