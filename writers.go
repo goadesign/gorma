@@ -67,7 +67,7 @@ func fieldAssignmentPayloadToModel(model *RelationalModelDefinition, ut *design.
 				if gfield.Type.IsObject() || definition.IsPrimitivePointer(key) {
 					upointer = true
 				} else {
-					// set it explicity because we're reusing the same bool
+					// set it explicitly because we're reusing the same bool
 					upointer = false
 				}
 
@@ -160,7 +160,7 @@ func fieldAssignmentModelToType(model *RelationalModelDefinition, ut *design.Vie
 				if gfield.Type.IsObject() || definition.IsPrimitivePointer(key) {
 					upointer = true
 				} else {
-					// set it explicity because we're reusing the same bool
+					// set it explicitly because we're reusing the same bool
 					upointer = false
 				}
 
@@ -226,7 +226,7 @@ func fieldAssignmentTypeToModel(model *RelationalModelDefinition, ut *design.Use
 				if gfield.Type.IsObject() || definition.IsPrimitivePointer(key) {
 					upointer = true
 				} else {
-					// set it explicity because we're reusing the same bool
+					// set it explicitly because we're reusing the same bool
 					upointer = false
 				}
 
@@ -390,7 +390,7 @@ func newMediaTemplateVersion(mtd *design.MediaTypeDefinition, vn string, view *d
 const (
 	// userTypeT generates the code for a user type.
 	// template input: UserTypeTemplateData
-	userTypeT = `{{$ut := .UserType}}{{$ap := .AppPkg}}// {{if $ut.Description}}{{$ut.Description}} {{end}}
+	userTypeT = `{{$ut := .UserType}}{{$ap := .AppPkg}}// {{if $ut.Description}}{{$ut.Description}}{{else}}{{$ut.ModelName}} Relational Model{{end}}
 {{$ut.StructDefinition}}
 // TableName overrides the table name settings in Gorm to force a specific table name
 // in the database.
@@ -429,14 +429,14 @@ type {{$ut.ModelName}}Storage interface {
 	Delete(ctx context.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, {{ $ut.PKAttributes}}) (error)
 {{ range $rname, $rmt := $ut.RenderTo }}{{ range $vname, $view := $rmt.Views}}{{ $mtd := $ut.Project $rname $vname }}{{$vp := vp "app"}}{{$vpn := goify $vp true}}
 {{ if $rmt.UserTypeDefinition.SupportsNoVersion }}
-List{{$vpn}}{{goify $rmt.TypeName true}}{{if eq $vname "default"}}{{else}}{{goify $vname true}}{{end}} (ctx context.Context{{ if $ut.DynamicTableName}}, tableName string{{ end }} {{range $nm, $bt := $ut.BelongsTo}},{{goify $bt.ModelName false}}id int{{end}}) []*{{goify $vpn false}}.{{goify $rmt.TypeName true}}{{if eq $vname "default"}}{{else}}{{goify $vname true}}{{end}}
-One{{goify $rmt.TypeName true}}{{if eq $vname "default"}}{{else}}{{goify $vname true}}{{end}} (ctx context.Context{{ if $ut.DynamicTableName}}, tableName string{{ end }}, {{$ut.PKAttributes}}{{range $nm, $bt := $ut.BelongsTo}},{{goify $bt.ModelName false}}id int{{end}}) (*{{goify $vpn false}}.{{goify $rmt.TypeName true}}{{if eq $vname "default"}}{{else}}{{goify $vname true}}{{end}}, error)
+	List{{$vpn}}{{goify $rmt.TypeName true}}{{if eq $vname "default"}}{{else}}{{goify $vname true}}{{end}} (ctx context.Context{{ if $ut.DynamicTableName}}, tableName string{{ end }} {{range $nm, $bt := $ut.BelongsTo}},{{goify $bt.ModelName false}}id int{{end}}) []*{{goify $vpn false}}.{{goify $rmt.TypeName true}}{{if eq $vname "default"}}{{else}}{{goify $vname true}}{{end}}
+	One{{goify $rmt.TypeName true}}{{if eq $vname "default"}}{{else}}{{goify $vname true}}{{end}} (ctx context.Context{{ if $ut.DynamicTableName}}, tableName string{{ end }}, {{$ut.PKAttributes}}{{range $nm, $bt := $ut.BelongsTo}},{{goify $bt.ModelName false}}id int{{end}}) (*{{goify $vpn false}}.{{goify $rmt.TypeName true}}{{if eq $vname "default"}}{{else}}{{goify $vname true}}{{end}}, error)
 {{ end }}
 {{ range $version :=  $rmt.Versions }} {{$vp := vp $version}}{{$vpn := goify $vp true}}
 // {{$version}} I don't remember why I put this here.  Don't delete until I remember.  What versioned things might we add to the Interface?
 {{end}}{{end}}{{end}}
 {{range $bfn, $bf := $ut.BuiltFrom}}
-UpdateFrom{{$bfn}}(ctx context.Context{{ if $ut.DynamicTableName}}, tableName string{{ end }},payload *app.{{goify $bfn true}}, {{$ut.PKAttributes}}) error
+	UpdateFrom{{$bfn}}(ctx context.Context{{ if $ut.DynamicTableName}}, tableName string{{ end }},payload *app.{{goify $bfn true}}, {{$ut.PKAttributes}}) error
 {{end }}
 }
 
@@ -444,23 +444,21 @@ UpdateFrom{{$bfn}}(ctx context.Context{{ if $ut.DynamicTableName}}, tableName st
 // in the database.
 func (m *{{$ut.ModelName}}DB) TableName() string {
 {{ if ne $ut.Alias "" }}
-return "{{ $ut.Alias}}" {{ else }} return "{{ $ut.TableName }}"
+	return "{{ $ut.Alias}}" {{ else }} return "{{ $ut.TableName }}"
 {{end}}
 }
 
 {{ range $idx, $bt := $ut.BelongsTo}}
 // Belongs To Relationships
+
 // {{$ut.ModelName}}FilterBy{{$bt.ModelName}} is a gorm filter for a Belongs To relationship.
 func {{$ut.ModelName}}FilterBy{{$bt.ModelName}}({{goify $bt.ModelName false}}id int, originaldb *gorm.DB) func(db *gorm.DB) *gorm.DB {
 	if {{goify $bt.ModelName false}}id > 0 {
 		return func(db *gorm.DB) *gorm.DB {
 			return db.Where("{{$bt.LowerName}}_id = ?", {{goify $bt.ModelName false}}id)
 		}
-	} else {
-		return func(db *gorm.DB) *gorm.DB {
-			return db
-		}
 	}
+	return func(db *gorm.DB) *gorm.DB { return db }
 }
 {{end}}
 
@@ -494,6 +492,7 @@ func (m *{{$ut.ModelName}}DB) List(ctx context.Context{{ if $ut.DynamicTableName
 
 	return objs
 }
+
 // Add creates a new record.  /// Maybe shouldn't return the model, it's a pointer.
 func (m *{{$ut.ModelName}}DB) Add(ctx context.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, model *{{$ut.ModelName}}) (*{{$ut.ModelName}}, error) {
 	defer goa.MeasureSince([]string{"goa","db","{{goify $ut.ModelName false}}", "add"}, time.Now())
@@ -507,6 +506,7 @@ func (m *{{$ut.ModelName}}DB) Add(ctx context.Context{{ if $ut.DynamicTableName 
 	go m.cache.Set(strconv.Itoa(model.ID), model, cache.DefaultExpiration) {{ end }}
 	return model, err
 }
+
 // Update modifies a single record.
 func (m *{{$ut.ModelName}}DB) Update(ctx context.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, model *{{$ut.ModelName}}) error {
 	defer goa.MeasureSince([]string{"goa","db","{{goify $ut.ModelName false}}", "update"}, time.Now())
@@ -522,6 +522,7 @@ func (m *{{$ut.ModelName}}DB) Update(ctx context.Context{{ if $ut.DynamicTableNa
 	{{ end }}
 	return err
 }
+
 // Delete removes a single record.
 func (m *{{$ut.ModelName}}DB) Delete(ctx context.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, {{$ut.PKAttributes}})  error {
 	defer goa.MeasureSince([]string{"goa","db","{{goify $ut.ModelName false}}", "delete"}, time.Now())
@@ -540,9 +541,9 @@ func (m *{{$ut.ModelName}}DB) Delete(ctx context.Context{{ if $ut.DynamicTableNa
 }
 
 {{ range $bfn, $bf := $ut.BuiltFrom }}
-	// {{$ut.ModelName}}From{{$bfn}} Converts source {{goify $bfn true}} to target {{$ut.ModelName}} model
-	// only copying the non-nil fields from the source.
-	func {{$ut.ModelName}}From{{$bfn}}(payload *app.{{goify $bfn true}}) *{{$ut.ModelName}} {
+// {{$ut.ModelName}}From{{$bfn}} Converts source {{goify $bfn true}} to target {{$ut.ModelName}} model
+// only copying the non-nil fields from the source.
+func {{$ut.ModelName}}From{{$bfn}}(payload *app.{{goify $bfn true}}) *{{$ut.ModelName}} {
 	{{$ut.LowerName}} := &{{$ut.ModelName}}{}
  	{{ fapm $ut $bf "app" "payload" "payload" $ut.LowerName}}
 
@@ -593,16 +594,15 @@ func (m {{$ut.ModelName}}) GetRole() string {
 `
 
 	mediaVersionT = `// MediaType Retrieval Functions
-// List{{goify .Media.TypeName true}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}} returns an array of view: {{.ViewName}}
+
+// List{{.VersionPackageName}}{{goify .Media.TypeName true}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}} returns an array of view: {{.ViewName}}.
 func (m *{{.Model.ModelName}}DB) List{{.VersionPackageName}}{{goify .Media.TypeName true}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}} (ctx context.Context{{ if .Model.DynamicTableName}}, tableName string{{ end }} {{range $nm, $bt := .Model.BelongsTo}},{{goify $bt.ModelName false}}id int{{end}}) []*{{.VersionPackage}}.{{goify .Media.TypeName true}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}}{
 	defer goa.MeasureSince([]string{"goa","db","{{goify .Media.TypeName false}}", "list{{goify .Media.TypeName false}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName false}}{{end}}"}, time.Now())
 
 	var native []*{{goify .Model.ModelName true}}
 	var objs []*{{.VersionPackage}}.{{goify .Media.TypeName true}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}} {{$ctx:= .}}
 	err := m.Db.Scopes({{range $nm, $bt := .Model.BelongsTo}}{{$ctx.Model.ModelName}}FilterBy{{goify $bt.ModelName true}}({{goify $bt.ModelName false}}id, &m.Db), {{end}}).Table({{ if .Model.DynamicTableName }}tableName{{else}}m.TableName(){{ end }}).{{ range $ln, $lv := .Media.Links }}Preload("{{goify $ln true}}").{{end}}Find(&native).Error
-
-
-//	err := m.Db.Table({{ if .Model.DynamicTableName }}tableName{{else}}m.TableName(){{ end }}).{{ range $ln, $lv := .Media.Links }}Preload("{{goify $ln true}}").{{end}}Find(&objs).Error
+{{/* //	err := m.Db.Table({{ if .Model.DynamicTableName }}tableName{{else}}m.TableName(){{ end }}).{{ range $ln, $lv := .Media.Links }}Preload("{{goify $ln true}}").{{end}}Find(&objs).Error */}}
 	if err != nil {
 		goa.Error(ctx, "error listing {{.Model.ModelName}}", goa.KV{"error", err.Error()})
 		return objs
@@ -615,6 +615,7 @@ func (m *{{.Model.ModelName}}DB) List{{.VersionPackageName}}{{goify .Media.TypeN
 	return objs
 }
 
+// {{$.Model.ModelName}}To{{.VersionPackageName}}{{.Media.UserTypeDefinition.TypeName}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}} returns the {{.VersionPackageName}} {{.Media.UserTypeDefinition.TypeName}} representation of {{$.Model.ModelName}}.
 func (m *{{.Model.ModelName}}) {{$.Model.ModelName}}To{{.VersionPackageName}}{{.Media.UserTypeDefinition.TypeName}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}}() *{{.VersionPackage}}.{{goify .Media.TypeName true}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}} {
 	{{.Model.LowerName}} := &{{.VersionPackage}}.{{goify .Media.TypeName true}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}}{}
  	{{ famt .Model .View .VersionPackageName "m" "m" .Model.LowerName}}
@@ -622,7 +623,7 @@ func (m *{{.Model.ModelName}}) {{$.Model.ModelName}}To{{.VersionPackageName}}{{.
  	 return {{.Model.LowerName}}
 }
 
-// One{{.VersionPackageName}}{{goify .Media.TypeName true}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}} returns an array of view: {{.ViewName}}{{$ut := .Model}}
+// One{{goify .Media.TypeName true}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}} returns an array of view: {{.ViewName}}{{$ut := .Model}}.
 func (m *{{.Model.ModelName}}DB) One{{goify .Media.TypeName true}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}} (ctx context.Context{{ if .Model.DynamicTableName}}, tableName string{{ end }},{{.Model.PKAttributes}}{{range $nm, $bt := .Model.BelongsTo}},{{goify $bt.ModelName false}}id int{{end}}) (*{{.VersionPackage}}.{{goify .Media.TypeName true}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}}, error){
 	defer goa.MeasureSince([]string{"goa","db","{{goify .Media.TypeName false}}", "one{{goify .Media.TypeName false}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName false}}{{end}}"}, time.Now())
 
@@ -636,9 +637,8 @@ func (m *{{.Model.ModelName}}DB) One{{goify .Media.TypeName true}}{{if eq .ViewN
 	{{ if .Model.Cached }} go func(){
 		m.cache.Set(strconv.Itoa(native.ID), native, cache.DefaultExpiration)
 	}() {{ end }}
-	view := *native.{{.Model.ModelName}}To{{.VersionPackageName}}{{.Media.UserTypeDefinition.TypeName}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}}()
+	view := *native.{{.Model.ModelName}}To{{.VersionPackageName}}{{goify .Media.UserTypeDefinition.TypeName true}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}}()
 	return &view, err
-
 }
 `
 )

@@ -20,7 +20,8 @@ import (
 )
 
 // MediaType Retrieval Functions
-// ListReview returns an array of view: default
+
+// ListAppReview returns an array of view: default.
 func (m *ReviewDB) ListAppReview(ctx context.Context, proposalid int, userid int) []*app.Review {
 	defer goa.MeasureSince([]string{"goa", "db", "review", "listreview"}, time.Now())
 
@@ -28,7 +29,6 @@ func (m *ReviewDB) ListAppReview(ctx context.Context, proposalid int, userid int
 	var objs []*app.Review
 	err := m.Db.Scopes(ReviewFilterByProposal(proposalid, &m.Db), ReviewFilterByUser(userid, &m.Db)).Table(m.TableName()).Find(&native).Error
 
-	//	err := m.Db.Table(m.TableName()).Find(&objs).Error
 	if err != nil {
 		goa.Error(ctx, "error listing Review", goa.KV{"error", err.Error()})
 		return objs
@@ -41,6 +41,7 @@ func (m *ReviewDB) ListAppReview(ctx context.Context, proposalid int, userid int
 	return objs
 }
 
+// ReviewToAppReview returns the App Review representation of Review.
 func (m *Review) ReviewToAppReview() *app.Review {
 	review := &app.Review{}
 	review.Comment = m.Comment
@@ -50,7 +51,7 @@ func (m *Review) ReviewToAppReview() *app.Review {
 	return review
 }
 
-// OneAppReview returns an array of view: default
+// OneReview returns an array of view: default.
 func (m *ReviewDB) OneReview(ctx context.Context, id int, proposalid int, userid int) (*app.Review, error) {
 	defer goa.MeasureSince([]string{"goa", "db", "review", "onereview"}, time.Now())
 
@@ -64,11 +65,11 @@ func (m *ReviewDB) OneReview(ctx context.Context, id int, proposalid int, userid
 
 	view := *native.ReviewToAppReview()
 	return &view, err
-
 }
 
 // MediaType Retrieval Functions
-// ListReviewLink returns an array of view: link
+
+// ListAppReviewLink returns an array of view: link.
 func (m *ReviewDB) ListAppReviewLink(ctx context.Context, proposalid int, userid int) []*app.ReviewLink {
 	defer goa.MeasureSince([]string{"goa", "db", "review", "listreviewlink"}, time.Now())
 
@@ -76,7 +77,6 @@ func (m *ReviewDB) ListAppReviewLink(ctx context.Context, proposalid int, userid
 	var objs []*app.ReviewLink
 	err := m.Db.Scopes(ReviewFilterByProposal(proposalid, &m.Db), ReviewFilterByUser(userid, &m.Db)).Table(m.TableName()).Find(&native).Error
 
-	//	err := m.Db.Table(m.TableName()).Find(&objs).Error
 	if err != nil {
 		goa.Error(ctx, "error listing Review", goa.KV{"error", err.Error()})
 		return objs
@@ -89,6 +89,7 @@ func (m *ReviewDB) ListAppReviewLink(ctx context.Context, proposalid int, userid
 	return objs
 }
 
+// ReviewToAppReviewLink returns the App Review representation of Review.
 func (m *Review) ReviewToAppReviewLink() *app.ReviewLink {
 	review := &app.ReviewLink{}
 	review.ID = &m.ID
@@ -96,7 +97,7 @@ func (m *Review) ReviewToAppReviewLink() *app.ReviewLink {
 	return review
 }
 
-// OneAppReviewLink returns an array of view: link
+// OneReviewLink returns an array of view: link.
 func (m *ReviewDB) OneReviewLink(ctx context.Context, id int, proposalid int, userid int) (*app.ReviewLink, error) {
 	defer goa.MeasureSince([]string{"goa", "db", "review", "onereviewlink"}, time.Now())
 
@@ -110,5 +111,4 @@ func (m *ReviewDB) OneReviewLink(ctx context.Context, id int, proposalid int, us
 
 	view := *native.ReviewToAppReviewLink()
 	return &view, err
-
 }

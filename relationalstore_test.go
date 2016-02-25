@@ -36,5 +36,4 @@ func TestStoreDSL(t *testing.T) {
 	if c == nil {
 		t.Errorf("Expected %s, got nil", f)
 	}
-
 }

@@ -19,7 +19,7 @@ import (
 	"time"
 )
 
-// TestTooModel
+// TestToo Model
 type TestToo struct {
 	Idone     int `gorm:"primary_key"` // This is one of the TestToo Model PK fields
 	Idtwo     int `gorm:"primary_key"` // This is one of the TestToo Model PK fields
