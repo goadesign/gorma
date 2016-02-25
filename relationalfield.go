@@ -80,7 +80,7 @@ func goDatatype(f *RelationalFieldDefinition, includePtr bool) string {
 	case AutoInteger, AutoBigInteger:
 		return ptr + "int " // sql/gorm tags later
 	case Decimal, BigDecimal:
-		return ptr + "float"
+		return ptr + "float32"
 	case String:
 		return ptr + "string"
 	case Text:
