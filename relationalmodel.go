@@ -115,18 +115,24 @@ func (f *RelationalModelDefinition) StructDefinition() string {
 		output = output + field.FieldDefinition()
 		return nil
 	})
-	for _, bt := range f.BelongsTo {
-		output = output + bt.ModelName + "\t" + bt.ModelName + "\n"
+
+	// Get a sortable slice of BelongsTo relationships
+	var keys []string
+	for k := range f.BelongsTo {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+
+	for _, k := range keys {
+		output = output + f.BelongsTo[k].ModelName + "\t" + f.BelongsTo[k].ModelName + "\n"
 	}
 	footer := "}\n"
 	return header + output + footer
-
 }
 
 // Attribute implements the Container interface of goa.
 func (f *RelationalModelDefinition) Attribute() *design.AttributeDefinition {
 	return f.AttributeDefinition
-
 }
 
 // Project does something interesting, and I don't remember if I use it
@@ -134,7 +140,6 @@ func (f *RelationalModelDefinition) Attribute() *design.AttributeDefinition {
 //
 // TODO find out
 func (f *RelationalModelDefinition) Project(name, v string) *design.MediaTypeDefinition {
-
 	p, _, _ := f.RenderTo[name].Project(v)
 	return p
 }
@@ -160,53 +165,41 @@ func (f *RelationalModelDefinition) IterateBuildSources(it BuildSourceIterator) 
 func (f *RelationalModelDefinition) IterateFields(it FieldIterator) error {
 	// Break out each type of fields
 
+	var pkkeys []string
 	pks := make(map[string]string)
 	for n := range f.RelationalFields {
 		if f.RelationalFields[n].PrimaryKey {
-			//	names[i] = n
 			pks[n] = n
+			pkkeys = append(pkkeys, n)
 		}
 	}
+	sort.Strings(pkkeys)
 
+	var namekeys []string
 	names := make(map[string]string)
 	for n := range f.RelationalFields {
 		if !f.RelationalFields[n].PrimaryKey && !f.RelationalFields[n].Timestamp {
 			names[n] = n
+			namekeys = append(namekeys, n)
 		}
 	}
+	sort.Strings(namekeys)
 
+	var datekeys []string
 	dates := make(map[string]string)
 	for n := range f.RelationalFields {
 		if f.RelationalFields[n].Timestamp {
 			dates[n] = n
+			datekeys = append(datekeys, n)
 		}
 	}
+	sort.Strings(datekeys)
 
-	// Sort only the fields that aren't pk or date
-	j := 0
-	sortnames := make([]string, len(names))
-	for n := range names {
-		sortnames[j] = n
-		j++
-	}
-	sort.Strings(sortnames)
-
-	// Put them back together
-	j = 0
-	i := len(pks) + len(names) + len(dates)
-	fields := make([]string, i)
-	for _, pk := range pks {
-		fields[j] = pk
-		j++
-	}
-	for _, name := range sortnames {
-		fields[j] = name
-		j++
-	}
-	for _, date := range dates {
-		fields[j] = date
-		j++
-	}
+	// Combine the sorted slices
+	var fields []string
+	fields = append(fields, pkkeys...)
+	fields = append(fields, namekeys...)
+	fields = append(fields, datekeys...)
 
 	// Iterate them
 	for _, n := range fields {

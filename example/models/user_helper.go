@@ -20,7 +20,8 @@ import (
 )
 
 // MediaType Retrieval Functions
-// ListUser returns an array of view: default
+
+// ListAppUser returns an array of view: default.
 func (m *UserDB) ListAppUser(ctx context.Context) []*app.User {
 	defer goa.MeasureSince([]string{"goa", "db", "user", "listuser"}, time.Now())
 
@@ -28,7 +29,6 @@ func (m *UserDB) ListAppUser(ctx context.Context) []*app.User {
 	var objs []*app.User
 	err := m.Db.Scopes().Table(m.TableName()).Find(&native).Error
 
-	//	err := m.Db.Table(m.TableName()).Find(&objs).Error
 	if err != nil {
 		goa.Error(ctx, "error listing User", goa.KV{"error", err.Error()})
 		return objs
@@ -41,21 +41,22 @@ func (m *UserDB) ListAppUser(ctx context.Context) []*app.User {
 	return objs
 }
 
+// UserToAppUser returns the App User representation of User.
 func (m *User) UserToAppUser() *app.User {
 	user := &app.User{}
 	user.Bio = m.Bio
 	user.City = m.City
 	user.Country = m.Country
 	user.Email = &m.Email
-	user.State = m.State
-	user.ID = &m.ID
 	user.Firstname = &m.Firstname
+	user.ID = &m.ID
 	user.Lastname = &m.Lastname
+	user.State = m.State
 
 	return user
 }
 
-// OneAppUser returns an array of view: default
+// OneUser returns an array of view: default.
 func (m *UserDB) OneUser(ctx context.Context, id int) (*app.User, error) {
 	defer goa.MeasureSince([]string{"goa", "db", "user", "oneuser"}, time.Now())
 
@@ -69,11 +70,11 @@ func (m *UserDB) OneUser(ctx context.Context, id int) (*app.User, error) {
 
 	view := *native.UserToAppUser()
 	return &view, err
-
 }
 
 // MediaType Retrieval Functions
-// ListUserLink returns an array of view: link
+
+// ListAppUserLink returns an array of view: link.
 func (m *UserDB) ListAppUserLink(ctx context.Context) []*app.UserLink {
 	defer goa.MeasureSince([]string{"goa", "db", "user", "listuserlink"}, time.Now())
 
@@ -81,7 +82,6 @@ func (m *UserDB) ListAppUserLink(ctx context.Context) []*app.UserLink {
 	var objs []*app.UserLink
 	err := m.Db.Scopes().Table(m.TableName()).Find(&native).Error
 
-	//	err := m.Db.Table(m.TableName()).Find(&objs).Error
 	if err != nil {
 		goa.Error(ctx, "error listing User", goa.KV{"error", err.Error()})
 		return objs
@@ -94,15 +94,16 @@ func (m *UserDB) ListAppUserLink(ctx context.Context) []*app.UserLink {
 	return objs
 }
 
+// UserToAppUserLink returns the App User representation of User.
 func (m *User) UserToAppUserLink() *app.UserLink {
 	user := &app.UserLink{}
-	user.ID = &m.ID
 	user.Email = &m.Email
+	user.ID = &m.ID
 
 	return user
 }
 
-// OneAppUserLink returns an array of view: link
+// OneUserLink returns an array of view: link.
 func (m *UserDB) OneUserLink(ctx context.Context, id int) (*app.UserLink, error) {
 	defer goa.MeasureSince([]string{"goa", "db", "user", "oneuserlink"}, time.Now())
 
@@ -116,5 +117,4 @@ func (m *UserDB) OneUserLink(ctx context.Context, id int) (*app.UserLink, error)
 
 	view := *native.UserToAppUserLink()
 	return &view, err
-
 }

@@ -26,11 +26,11 @@ type Review struct {
 	ProposalID int // Belongs To Proposal
 	Rating     int
 	UserID     int        // has many Review
-	DeletedAt  *time.Time // nullable timestamp (soft delete)
 	CreatedAt  time.Time  // timestamp
+	DeletedAt  *time.Time // nullable timestamp (soft delete)
 	UpdatedAt  time.Time  // timestamp
-	User       User
 	Proposal   Proposal
+	User       User
 }
 
 // TableName overrides the table name settings in Gorm to force a specific table name
@@ -84,31 +84,27 @@ func (m *ReviewDB) TableName() string {
 }
 
 // Belongs To Relationships
+
 // ReviewFilterByProposal is a gorm filter for a Belongs To relationship.
 func ReviewFilterByProposal(proposalid int, originaldb *gorm.DB) func(db *gorm.DB) *gorm.DB {
 	if proposalid > 0 {
 		return func(db *gorm.DB) *gorm.DB {
 			return db.Where("proposal_id = ?", proposalid)
 		}
-	} else {
-		return func(db *gorm.DB) *gorm.DB {
-			return db
-		}
 	}
+	return func(db *gorm.DB) *gorm.DB { return db }
 }
 
 // Belongs To Relationships
+
 // ReviewFilterByUser is a gorm filter for a Belongs To relationship.
 func ReviewFilterByUser(userid int, originaldb *gorm.DB) func(db *gorm.DB) *gorm.DB {
 	if userid > 0 {
 		return func(db *gorm.DB) *gorm.DB {
 			return db.Where("user_id = ?", userid)
 		}
-	} else {
-		return func(db *gorm.DB) *gorm.DB {
-			return db
-		}
 	}
+	return func(db *gorm.DB) *gorm.DB { return db }
 }
 
 // CRUD Functions
