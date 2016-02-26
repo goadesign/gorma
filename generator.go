@@ -159,7 +159,6 @@ func (g *Generator) generateUserTypes(outdir string, api *design.APIDefinition) 
 					codegen.SimpleImport("github.com/jinzhu/gorm"),
 					codegen.SimpleImport("golang.org/x/net/context"),
 					codegen.SimpleImport("golang.org/x/net/context"),
-					codegen.NewImport("log", "gopkg.in/inconshreveable/log15.v2"),
 				}
 
 				if model.Cached {
