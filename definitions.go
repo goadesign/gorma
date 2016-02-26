@@ -128,13 +128,12 @@ type RelationalFieldDefinition struct {
 	FieldName         string
 	Datatype          FieldType
 	SQLTag            string
-	DatabaseFieldName string
+	DatabaseFieldName string // gorm:column
 	Description       string
 	Nullable          bool
 	PrimaryKey        bool
 	Timestamp         bool
-	Size              int    // string field size
-	Alias             string // gorm:column
+	Size              int // string field size
 	BelongsTo         string
 	HasOne            string
 	HasMany           string

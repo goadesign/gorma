@@ -3,8 +3,8 @@ package gorma
 import (
 	"fmt"
 	"strings"
+	"unicode"
 
-	"bitbucket.org/pkg/inflect"
 	"github.com/goadesign/goa/design"
 	"github.com/goadesign/goa/dslengine"
 )
@@ -65,8 +65,20 @@ func (f *RelationalFieldDefinition) LowerName() string {
 
 // Underscore returns the field name as a lowercase string in snake case.
 func (f *RelationalFieldDefinition) Underscore() string {
-	return inflect.Underscore(f.FieldName)
+	runes := []rune(f.FieldName)
+	length := len(runes)
+
+	var out []rune
+	for i := 0; i < length; i++ {
+		if i > 0 && unicode.IsUpper(runes[i]) && ((i+1 < length && unicode.IsLower(runes[i+1])) || unicode.IsLower(runes[i-1])) {
+			out = append(out, '_')
+		}
+		out = append(out, unicode.ToLower(runes[i]))
+	}
+
+	return string(out)
 }
+
 func goDatatype(f *RelationalFieldDefinition, includePtr bool) string {
 	var ptr string
 	if f.Nullable && includePtr {
@@ -116,8 +128,8 @@ func tags(f *RelationalFieldDefinition) string {
 	}
 
 	var gormtags []string
-	if f.Alias != "" {
-		gormtags = append(gormtags, "column:"+f.Alias)
+	if f.DatabaseFieldName != "" && f.DatabaseFieldName != f.Underscore() {
+		gormtags = append(gormtags, "column:"+f.DatabaseFieldName)
 	}
 	if f.PrimaryKey {
 		gormtags = append(gormtags, "primary_key")

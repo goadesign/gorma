@@ -252,11 +252,7 @@ func viewSelect(ut *RelationalModelDefinition, v *design.ViewDefinition) string 
 			if strings.TrimSpace(name) != "" && name != "links" {
 				bf, ok := ut.RelationalFields[codegen.Goify(name, true)]
 				if ok {
-					if bf.Alias != "" {
-						fields = append(fields, bf.Alias)
-					} else {
-						fields = append(fields, bf.DatabaseFieldName)
-					}
+					fields = append(fields, bf.DatabaseFieldName)
 				}
 			}
 		}
@@ -529,7 +525,7 @@ func (m *{{$ut.ModelName}}DB) Delete(ctx context.Context{{ if $ut.DynamicTableNa
 
 	var obj {{$ut.ModelName}}{{ $l := len $ut.PrimaryKeys }}
 	{{ if eq $l 1 }}
-	err := m.Db{{ if $ut.DynamicTableName }}.Table(tableName){{ end }}.Delete(&obj, id).Error
+	err := m.Db{{ if $ut.DynamicTableName }}.Table(tableName){{ end }}.Delete(&obj, {{$ut.PKWhereFields}}).Error
 	{{ else  }}err := m.Db{{ if $ut.DynamicTableName }}.Table(tableName){{ end }}.Delete(&obj).Where("{{$ut.PKWhere}}", {{$ut.PKWhereFields}}).Error
 	{{ end }}
 	if err != nil {
@@ -609,14 +605,14 @@ func (m *{{.Model.ModelName}}DB) List{{.VersionPackageName}}{{goify .Media.TypeN
 	}
 
 	for _, t := range native {
-		objs = append(objs, t.{{.Model.ModelName}}To{{.VersionPackageName}}{{.Media.UserTypeDefinition.TypeName}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}}())
+		objs = append(objs, t.{{.Model.ModelName}}To{{.VersionPackageName}}{{goify .Media.UserTypeDefinition.TypeName true}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}}())
 	}
 
 	return objs
 }
 
-// {{$.Model.ModelName}}To{{.VersionPackageName}}{{.Media.UserTypeDefinition.TypeName}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}} returns the {{.VersionPackageName}} {{.Media.UserTypeDefinition.TypeName}} representation of {{$.Model.ModelName}}.
-func (m *{{.Model.ModelName}}) {{$.Model.ModelName}}To{{.VersionPackageName}}{{.Media.UserTypeDefinition.TypeName}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}}() *{{.VersionPackage}}.{{goify .Media.TypeName true}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}} {
+// {{$.Model.ModelName}}To{{.VersionPackageName}}{{goify .Media.UserTypeDefinition.TypeName true}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}} returns the {{.VersionPackageName}} {{goify .Media.UserTypeDefinition.TypeName true}} representation of {{$.Model.ModelName}}.
+func (m *{{.Model.ModelName}}) {{$.Model.ModelName}}To{{.VersionPackageName}}{{goify .Media.UserTypeDefinition.TypeName true}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}}() *{{.VersionPackage}}.{{goify .Media.TypeName true}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}} {
 	{{.Model.LowerName}} := &{{.VersionPackage}}.{{goify .Media.TypeName true}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName true}}{{end}}{}
  	{{ famt .Model .View .VersionPackageName "m" "m" .Model.LowerName}}
 
