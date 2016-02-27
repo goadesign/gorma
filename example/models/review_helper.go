@@ -22,12 +22,12 @@ import (
 // MediaType Retrieval Functions
 
 // ListAppReview returns an array of view: default.
-func (m *ReviewDB) ListAppReview(ctx context.Context, proposalid int, userid int) []*app.Review {
+func (m *ReviewDB) ListAppReview(ctx context.Context, proposalID int, userID int) []*app.Review {
 	defer goa.MeasureSince([]string{"goa", "db", "review", "listreview"}, time.Now())
 
 	var native []*Review
 	var objs []*app.Review
-	err := m.Db.Scopes(ReviewFilterByProposal(proposalid, &m.Db), ReviewFilterByUser(userid, &m.Db)).Table(m.TableName()).Find(&native).Error
+	err := m.Db.Scopes(ReviewFilterByProposal(proposalID, &m.Db), ReviewFilterByUser(userID, &m.Db)).Table(m.TableName()).Find(&native).Error
 
 	if err != nil {
 		goa.Error(ctx, "error listing Review", goa.KV{"error", err.Error()})
@@ -52,11 +52,11 @@ func (m *Review) ReviewToAppReview() *app.Review {
 }
 
 // OneReview returns an array of view: default.
-func (m *ReviewDB) OneReview(ctx context.Context, id int, proposalid int, userid int) (*app.Review, error) {
+func (m *ReviewDB) OneReview(ctx context.Context, id int, proposalID int, userID int) (*app.Review, error) {
 	defer goa.MeasureSince([]string{"goa", "db", "review", "onereview"}, time.Now())
 
 	var native Review
-	err := m.Db.Scopes(ReviewFilterByProposal(proposalid, &m.Db), ReviewFilterByUser(userid, &m.Db)).Table(m.TableName()).Preload("Proposal").Preload("User").Where("id = ?", id).Find(&native).Error
+	err := m.Db.Scopes(ReviewFilterByProposal(proposalID, &m.Db), ReviewFilterByUser(userID, &m.Db)).Table(m.TableName()).Preload("Proposal").Preload("User").Where("id = ?", id).Find(&native).Error
 
 	if err != nil && err != gorm.RecordNotFound {
 		goa.Error(ctx, "error getting Review", goa.KV{"error", err.Error()})
@@ -70,12 +70,12 @@ func (m *ReviewDB) OneReview(ctx context.Context, id int, proposalid int, userid
 // MediaType Retrieval Functions
 
 // ListAppReviewLink returns an array of view: link.
-func (m *ReviewDB) ListAppReviewLink(ctx context.Context, proposalid int, userid int) []*app.ReviewLink {
+func (m *ReviewDB) ListAppReviewLink(ctx context.Context, proposalID int, userID int) []*app.ReviewLink {
 	defer goa.MeasureSince([]string{"goa", "db", "review", "listreviewlink"}, time.Now())
 
 	var native []*Review
 	var objs []*app.ReviewLink
-	err := m.Db.Scopes(ReviewFilterByProposal(proposalid, &m.Db), ReviewFilterByUser(userid, &m.Db)).Table(m.TableName()).Find(&native).Error
+	err := m.Db.Scopes(ReviewFilterByProposal(proposalID, &m.Db), ReviewFilterByUser(userID, &m.Db)).Table(m.TableName()).Find(&native).Error
 
 	if err != nil {
 		goa.Error(ctx, "error listing Review", goa.KV{"error", err.Error()})
@@ -98,11 +98,11 @@ func (m *Review) ReviewToAppReviewLink() *app.ReviewLink {
 }
 
 // OneReviewLink returns an array of view: link.
-func (m *ReviewDB) OneReviewLink(ctx context.Context, id int, proposalid int, userid int) (*app.ReviewLink, error) {
+func (m *ReviewDB) OneReviewLink(ctx context.Context, id int, proposalID int, userID int) (*app.ReviewLink, error) {
 	defer goa.MeasureSince([]string{"goa", "db", "review", "onereviewlink"}, time.Now())
 
 	var native Review
-	err := m.Db.Scopes(ReviewFilterByProposal(proposalid, &m.Db), ReviewFilterByUser(userid, &m.Db)).Table(m.TableName()).Preload("Proposal").Preload("User").Where("id = ?", id).Find(&native).Error
+	err := m.Db.Scopes(ReviewFilterByProposal(proposalID, &m.Db), ReviewFilterByUser(userID, &m.Db)).Table(m.TableName()).Preload("Proposal").Preload("User").Where("id = ?", id).Find(&native).Error
 
 	if err != nil && err != gorm.RecordNotFound {
 		goa.Error(ctx, "error getting Review", goa.KV{"error", err.Error()})

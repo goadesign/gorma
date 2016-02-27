@@ -65,11 +65,11 @@ type ReviewStorage interface {
 	Update(ctx context.Context, review *Review) error
 	Delete(ctx context.Context, id int) error
 
-	ListAppReview(ctx context.Context, proposalid int, userid int) []*app.Review
-	OneReview(ctx context.Context, id int, proposalid int, userid int) (*app.Review, error)
+	ListAppReview(ctx context.Context, proposalID int, userID int) []*app.Review
+	OneReview(ctx context.Context, id int, proposalID int, userID int) (*app.Review, error)
 
-	ListAppReviewLink(ctx context.Context, proposalid int, userid int) []*app.ReviewLink
-	OneReviewLink(ctx context.Context, id int, proposalid int, userid int) (*app.ReviewLink, error)
+	ListAppReviewLink(ctx context.Context, proposalID int, userID int) []*app.ReviewLink
+	OneReviewLink(ctx context.Context, id int, proposalID int, userID int) (*app.ReviewLink, error)
 
 	UpdateFromCreateReviewPayload(ctx context.Context, payload *app.CreateReviewPayload, id int) error
 
@@ -86,10 +86,10 @@ func (m *ReviewDB) TableName() string {
 // Belongs To Relationships
 
 // ReviewFilterByProposal is a gorm filter for a Belongs To relationship.
-func ReviewFilterByProposal(proposalid int, originaldb *gorm.DB) func(db *gorm.DB) *gorm.DB {
-	if proposalid > 0 {
+func ReviewFilterByProposal(proposalID int, originaldb *gorm.DB) func(db *gorm.DB) *gorm.DB {
+	if proposalID > 0 {
 		return func(db *gorm.DB) *gorm.DB {
-			return db.Where("proposal_id = ?", proposalid)
+			return db.Where("proposal_id = ?", proposalID)
 		}
 	}
 	return func(db *gorm.DB) *gorm.DB { return db }
@@ -98,10 +98,10 @@ func ReviewFilterByProposal(proposalid int, originaldb *gorm.DB) func(db *gorm.D
 // Belongs To Relationships
 
 // ReviewFilterByUser is a gorm filter for a Belongs To relationship.
-func ReviewFilterByUser(userid int, originaldb *gorm.DB) func(db *gorm.DB) *gorm.DB {
-	if userid > 0 {
+func ReviewFilterByUser(userID int, originaldb *gorm.DB) func(db *gorm.DB) *gorm.DB {
+	if userID > 0 {
 		return func(db *gorm.DB) *gorm.DB {
-			return db.Where("user_id = ?", userid)
+			return db.Where("user_id = ?", userID)
 		}
 	}
 	return func(db *gorm.DB) *gorm.DB { return db }

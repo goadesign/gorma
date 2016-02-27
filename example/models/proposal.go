@@ -66,11 +66,11 @@ type ProposalStorage interface {
 	Update(ctx context.Context, proposal *Proposal) error
 	Delete(ctx context.Context, id int) error
 
-	ListAppProposal(ctx context.Context, userid int) []*app.Proposal
-	OneProposal(ctx context.Context, id int, userid int) (*app.Proposal, error)
+	ListAppProposal(ctx context.Context, userID int) []*app.Proposal
+	OneProposal(ctx context.Context, id int, userID int) (*app.Proposal, error)
 
-	ListAppProposalLink(ctx context.Context, userid int) []*app.ProposalLink
-	OneProposalLink(ctx context.Context, id int, userid int) (*app.ProposalLink, error)
+	ListAppProposalLink(ctx context.Context, userID int) []*app.ProposalLink
+	OneProposalLink(ctx context.Context, id int, userID int) (*app.ProposalLink, error)
 
 	UpdateFromCreateProposalPayload(ctx context.Context, payload *app.CreateProposalPayload, id int) error
 
@@ -87,10 +87,10 @@ func (m *ProposalDB) TableName() string {
 // Belongs To Relationships
 
 // ProposalFilterByUser is a gorm filter for a Belongs To relationship.
-func ProposalFilterByUser(userid int, originaldb *gorm.DB) func(db *gorm.DB) *gorm.DB {
-	if userid > 0 {
+func ProposalFilterByUser(userID int, originaldb *gorm.DB) func(db *gorm.DB) *gorm.DB {
+	if userID > 0 {
 		return func(db *gorm.DB) *gorm.DB {
-			return db.Where("user_id = ?", userid)
+			return db.Where("user_id = ?", userID)
 		}
 	}
 	return func(db *gorm.DB) *gorm.DB { return db }
