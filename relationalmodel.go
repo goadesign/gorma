@@ -67,7 +67,7 @@ func (f RelationalModelDefinition) Children() []dslengine.Definition {
 func (f *RelationalModelDefinition) PKAttributes() string {
 	var attr []string
 	for _, pk := range f.PrimaryKeys {
-		attr = append(attr, fmt.Sprintf("%s %s", pk.DatabaseFieldName, goDatatype(pk, true)))
+		attr = append(attr, fmt.Sprintf("%s %s", codegen.Goify(pk.DatabaseFieldName, false), goDatatype(pk, true)))
 	}
 	return strings.Join(attr, ",")
 }
@@ -88,7 +88,7 @@ func (f *RelationalModelDefinition) PKWhere() string {
 func (f *RelationalModelDefinition) PKWhereFields() string {
 	var pkwhere []string
 	for _, pk := range f.PrimaryKeys {
-		def := fmt.Sprintf("%s", pk.DatabaseFieldName)
+		def := fmt.Sprintf("%s", codegen.Goify(pk.DatabaseFieldName, false))
 		pkwhere = append(pkwhere, def)
 	}
 	return strings.Join(pkwhere, ",")

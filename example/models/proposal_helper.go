@@ -22,12 +22,12 @@ import (
 // MediaType Retrieval Functions
 
 // ListAppProposal returns an array of view: default.
-func (m *ProposalDB) ListAppProposal(ctx context.Context, userid int) []*app.Proposal {
+func (m *ProposalDB) ListAppProposal(ctx context.Context, userID int) []*app.Proposal {
 	defer goa.MeasureSince([]string{"goa", "db", "proposal", "listproposal"}, time.Now())
 
 	var native []*Proposal
 	var objs []*app.Proposal
-	err := m.Db.Scopes(ProposalFilterByUser(userid, &m.Db)).Table(m.TableName()).Preload("Reviews").Find(&native).Error
+	err := m.Db.Scopes(ProposalFilterByUser(userID, &m.Db)).Table(m.TableName()).Preload("Reviews").Find(&native).Error
 
 	if err != nil {
 		goa.Error(ctx, "error listing Proposal", goa.KV{"error", err.Error()})
@@ -61,11 +61,11 @@ func (m *Proposal) ProposalToAppProposal() *app.Proposal {
 }
 
 // OneProposal returns an array of view: default.
-func (m *ProposalDB) OneProposal(ctx context.Context, id int, userid int) (*app.Proposal, error) {
+func (m *ProposalDB) OneProposal(ctx context.Context, id int, userID int) (*app.Proposal, error) {
 	defer goa.MeasureSince([]string{"goa", "db", "proposal", "oneproposal"}, time.Now())
 
 	var native Proposal
-	err := m.Db.Scopes(ProposalFilterByUser(userid, &m.Db)).Table(m.TableName()).Preload("Reviews").Preload("User").Where("id = ?", id).Find(&native).Error
+	err := m.Db.Scopes(ProposalFilterByUser(userID, &m.Db)).Table(m.TableName()).Preload("Reviews").Preload("User").Where("id = ?", id).Find(&native).Error
 
 	if err != nil && err != gorm.RecordNotFound {
 		goa.Error(ctx, "error getting Proposal", goa.KV{"error", err.Error()})
@@ -79,12 +79,12 @@ func (m *ProposalDB) OneProposal(ctx context.Context, id int, userid int) (*app.
 // MediaType Retrieval Functions
 
 // ListAppProposalLink returns an array of view: link.
-func (m *ProposalDB) ListAppProposalLink(ctx context.Context, userid int) []*app.ProposalLink {
+func (m *ProposalDB) ListAppProposalLink(ctx context.Context, userID int) []*app.ProposalLink {
 	defer goa.MeasureSince([]string{"goa", "db", "proposal", "listproposallink"}, time.Now())
 
 	var native []*Proposal
 	var objs []*app.ProposalLink
-	err := m.Db.Scopes(ProposalFilterByUser(userid, &m.Db)).Table(m.TableName()).Preload("Reviews").Find(&native).Error
+	err := m.Db.Scopes(ProposalFilterByUser(userID, &m.Db)).Table(m.TableName()).Preload("Reviews").Find(&native).Error
 
 	if err != nil {
 		goa.Error(ctx, "error listing Proposal", goa.KV{"error", err.Error()})
@@ -108,11 +108,11 @@ func (m *Proposal) ProposalToAppProposalLink() *app.ProposalLink {
 }
 
 // OneProposalLink returns an array of view: link.
-func (m *ProposalDB) OneProposalLink(ctx context.Context, id int, userid int) (*app.ProposalLink, error) {
+func (m *ProposalDB) OneProposalLink(ctx context.Context, id int, userID int) (*app.ProposalLink, error) {
 	defer goa.MeasureSince([]string{"goa", "db", "proposal", "oneproposallink"}, time.Now())
 
 	var native Proposal
-	err := m.Db.Scopes(ProposalFilterByUser(userid, &m.Db)).Table(m.TableName()).Preload("Reviews").Preload("User").Where("id = ?", id).Find(&native).Error
+	err := m.Db.Scopes(ProposalFilterByUser(userID, &m.Db)).Table(m.TableName()).Preload("Reviews").Preload("User").Where("id = ?", id).Find(&native).Error
 
 	if err != nil && err != gorm.RecordNotFound {
 		goa.Error(ctx, "error getting Proposal", goa.KV{"error", err.Error()})

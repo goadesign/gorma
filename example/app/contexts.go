@@ -43,8 +43,8 @@ func NewCallbackAuthContext(ctx context.Context) (*CallbackAuthContext, error) {
 func (ctx *CallbackAuthContext) OK(resp []byte) error {
 	ctx.ResponseData.Header().Set("Content-Type", "text/html")
 	ctx.ResponseData.WriteHeader(200)
-	ctx.ResponseData.Write(resp)
-	return nil
+	_, err := ctx.ResponseData.Write(resp)
+	return err
 }
 
 // OauthAuthContext provides the auth oauth action context.
@@ -158,7 +158,7 @@ func NewCreateProposalContext(ctx context.Context) (*CreateProposalContext, erro
 	rawUserID := req.Params.Get("userID")
 	if rawUserID != "" {
 		if userID, err2 := strconv.Atoi(rawUserID); err2 == nil {
-			rctx.UserID = int(userID)
+			rctx.UserID = userID
 		} else {
 			err = goa.InvalidParamTypeError("userID", rawUserID, "integer", err)
 		}
@@ -231,7 +231,7 @@ func NewDeleteProposalContext(ctx context.Context) (*DeleteProposalContext, erro
 	rawProposalID := req.Params.Get("proposalID")
 	if rawProposalID != "" {
 		if proposalID, err2 := strconv.Atoi(rawProposalID); err2 == nil {
-			rctx.ProposalID = int(proposalID)
+			rctx.ProposalID = proposalID
 		} else {
 			err = goa.InvalidParamTypeError("proposalID", rawProposalID, "integer", err)
 		}
@@ -239,7 +239,7 @@ func NewDeleteProposalContext(ctx context.Context) (*DeleteProposalContext, erro
 	rawUserID := req.Params.Get("userID")
 	if rawUserID != "" {
 		if userID, err2 := strconv.Atoi(rawUserID); err2 == nil {
-			rctx.UserID = int(userID)
+			rctx.UserID = userID
 		} else {
 			err = goa.InvalidParamTypeError("userID", rawUserID, "integer", err)
 		}
@@ -276,7 +276,7 @@ func NewListProposalContext(ctx context.Context) (*ListProposalContext, error) {
 	rawUserID := req.Params.Get("userID")
 	if rawUserID != "" {
 		if userID, err2 := strconv.Atoi(rawUserID); err2 == nil {
-			rctx.UserID = int(userID)
+			rctx.UserID = userID
 		} else {
 			err = goa.InvalidParamTypeError("userID", rawUserID, "integer", err)
 		}
@@ -308,7 +308,7 @@ func NewShowProposalContext(ctx context.Context) (*ShowProposalContext, error) {
 	rawProposalID := req.Params.Get("proposalID")
 	if rawProposalID != "" {
 		if proposalID, err2 := strconv.Atoi(rawProposalID); err2 == nil {
-			rctx.ProposalID = int(proposalID)
+			rctx.ProposalID = proposalID
 		} else {
 			err = goa.InvalidParamTypeError("proposalID", rawProposalID, "integer", err)
 		}
@@ -316,7 +316,7 @@ func NewShowProposalContext(ctx context.Context) (*ShowProposalContext, error) {
 	rawUserID := req.Params.Get("userID")
 	if rawUserID != "" {
 		if userID, err2 := strconv.Atoi(rawUserID); err2 == nil {
-			rctx.UserID = int(userID)
+			rctx.UserID = userID
 		} else {
 			err = goa.InvalidParamTypeError("userID", rawUserID, "integer", err)
 		}
@@ -355,7 +355,7 @@ func NewUpdateProposalContext(ctx context.Context) (*UpdateProposalContext, erro
 	rawProposalID := req.Params.Get("proposalID")
 	if rawProposalID != "" {
 		if proposalID, err2 := strconv.Atoi(rawProposalID); err2 == nil {
-			rctx.ProposalID = int(proposalID)
+			rctx.ProposalID = proposalID
 		} else {
 			err = goa.InvalidParamTypeError("proposalID", rawProposalID, "integer", err)
 		}
@@ -363,7 +363,7 @@ func NewUpdateProposalContext(ctx context.Context) (*UpdateProposalContext, erro
 	rawUserID := req.Params.Get("userID")
 	if rawUserID != "" {
 		if userID, err2 := strconv.Atoi(rawUserID); err2 == nil {
-			rctx.UserID = int(userID)
+			rctx.UserID = userID
 		} else {
 			err = goa.InvalidParamTypeError("userID", rawUserID, "integer", err)
 		}
@@ -445,7 +445,7 @@ func NewCreateReviewContext(ctx context.Context) (*CreateReviewContext, error) {
 	rawProposalID := req.Params.Get("proposalID")
 	if rawProposalID != "" {
 		if proposalID, err2 := strconv.Atoi(rawProposalID); err2 == nil {
-			rctx.ProposalID = int(proposalID)
+			rctx.ProposalID = proposalID
 		} else {
 			err = goa.InvalidParamTypeError("proposalID", rawProposalID, "integer", err)
 		}
@@ -453,7 +453,7 @@ func NewCreateReviewContext(ctx context.Context) (*CreateReviewContext, error) {
 	rawUserID := req.Params.Get("userID")
 	if rawUserID != "" {
 		if userID, err2 := strconv.Atoi(rawUserID); err2 == nil {
-			rctx.UserID = int(userID)
+			rctx.UserID = userID
 		} else {
 			err = goa.InvalidParamTypeError("userID", rawUserID, "integer", err)
 		}
@@ -514,7 +514,7 @@ func NewDeleteReviewContext(ctx context.Context) (*DeleteReviewContext, error) {
 	rawProposalID := req.Params.Get("proposalID")
 	if rawProposalID != "" {
 		if proposalID, err2 := strconv.Atoi(rawProposalID); err2 == nil {
-			rctx.ProposalID = int(proposalID)
+			rctx.ProposalID = proposalID
 		} else {
 			err = goa.InvalidParamTypeError("proposalID", rawProposalID, "integer", err)
 		}
@@ -522,7 +522,7 @@ func NewDeleteReviewContext(ctx context.Context) (*DeleteReviewContext, error) {
 	rawReviewID := req.Params.Get("reviewID")
 	if rawReviewID != "" {
 		if reviewID, err2 := strconv.Atoi(rawReviewID); err2 == nil {
-			rctx.ReviewID = int(reviewID)
+			rctx.ReviewID = reviewID
 		} else {
 			err = goa.InvalidParamTypeError("reviewID", rawReviewID, "integer", err)
 		}
@@ -530,7 +530,7 @@ func NewDeleteReviewContext(ctx context.Context) (*DeleteReviewContext, error) {
 	rawUserID := req.Params.Get("userID")
 	if rawUserID != "" {
 		if userID, err2 := strconv.Atoi(rawUserID); err2 == nil {
-			rctx.UserID = int(userID)
+			rctx.UserID = userID
 		} else {
 			err = goa.InvalidParamTypeError("userID", rawUserID, "integer", err)
 		}
@@ -568,7 +568,7 @@ func NewListReviewContext(ctx context.Context) (*ListReviewContext, error) {
 	rawProposalID := req.Params.Get("proposalID")
 	if rawProposalID != "" {
 		if proposalID, err2 := strconv.Atoi(rawProposalID); err2 == nil {
-			rctx.ProposalID = int(proposalID)
+			rctx.ProposalID = proposalID
 		} else {
 			err = goa.InvalidParamTypeError("proposalID", rawProposalID, "integer", err)
 		}
@@ -576,7 +576,7 @@ func NewListReviewContext(ctx context.Context) (*ListReviewContext, error) {
 	rawUserID := req.Params.Get("userID")
 	if rawUserID != "" {
 		if userID, err2 := strconv.Atoi(rawUserID); err2 == nil {
-			rctx.UserID = int(userID)
+			rctx.UserID = userID
 		} else {
 			err = goa.InvalidParamTypeError("userID", rawUserID, "integer", err)
 		}
@@ -609,7 +609,7 @@ func NewShowReviewContext(ctx context.Context) (*ShowReviewContext, error) {
 	rawProposalID := req.Params.Get("proposalID")
 	if rawProposalID != "" {
 		if proposalID, err2 := strconv.Atoi(rawProposalID); err2 == nil {
-			rctx.ProposalID = int(proposalID)
+			rctx.ProposalID = proposalID
 		} else {
 			err = goa.InvalidParamTypeError("proposalID", rawProposalID, "integer", err)
 		}
@@ -617,7 +617,7 @@ func NewShowReviewContext(ctx context.Context) (*ShowReviewContext, error) {
 	rawReviewID := req.Params.Get("reviewID")
 	if rawReviewID != "" {
 		if reviewID, err2 := strconv.Atoi(rawReviewID); err2 == nil {
-			rctx.ReviewID = int(reviewID)
+			rctx.ReviewID = reviewID
 		} else {
 			err = goa.InvalidParamTypeError("reviewID", rawReviewID, "integer", err)
 		}
@@ -625,7 +625,7 @@ func NewShowReviewContext(ctx context.Context) (*ShowReviewContext, error) {
 	rawUserID := req.Params.Get("userID")
 	if rawUserID != "" {
 		if userID, err2 := strconv.Atoi(rawUserID); err2 == nil {
-			rctx.UserID = int(userID)
+			rctx.UserID = userID
 		} else {
 			err = goa.InvalidParamTypeError("userID", rawUserID, "integer", err)
 		}
@@ -665,7 +665,7 @@ func NewUpdateReviewContext(ctx context.Context) (*UpdateReviewContext, error) {
 	rawProposalID := req.Params.Get("proposalID")
 	if rawProposalID != "" {
 		if proposalID, err2 := strconv.Atoi(rawProposalID); err2 == nil {
-			rctx.ProposalID = int(proposalID)
+			rctx.ProposalID = proposalID
 		} else {
 			err = goa.InvalidParamTypeError("proposalID", rawProposalID, "integer", err)
 		}
@@ -673,7 +673,7 @@ func NewUpdateReviewContext(ctx context.Context) (*UpdateReviewContext, error) {
 	rawReviewID := req.Params.Get("reviewID")
 	if rawReviewID != "" {
 		if reviewID, err2 := strconv.Atoi(rawReviewID); err2 == nil {
-			rctx.ReviewID = int(reviewID)
+			rctx.ReviewID = reviewID
 		} else {
 			err = goa.InvalidParamTypeError("reviewID", rawReviewID, "integer", err)
 		}
@@ -681,7 +681,7 @@ func NewUpdateReviewContext(ctx context.Context) (*UpdateReviewContext, error) {
 	rawUserID := req.Params.Get("userID")
 	if rawUserID != "" {
 		if userID, err2 := strconv.Atoi(rawUserID); err2 == nil {
-			rctx.UserID = int(userID)
+			rctx.UserID = userID
 		} else {
 			err = goa.InvalidParamTypeError("userID", rawUserID, "integer", err)
 		}
@@ -752,8 +752,8 @@ func NewBootstrapUIContext(ctx context.Context) (*BootstrapUIContext, error) {
 func (ctx *BootstrapUIContext) OK(resp []byte) error {
 	ctx.ResponseData.Header().Set("Content-Type", "text/html")
 	ctx.ResponseData.WriteHeader(200)
-	ctx.ResponseData.Write(resp)
-	return nil
+	_, err := ctx.ResponseData.Write(resp)
+	return err
 }
 
 // CreateUserContext provides the user create action context.
@@ -830,7 +830,7 @@ func NewDeleteUserContext(ctx context.Context) (*DeleteUserContext, error) {
 	rawUserID := req.Params.Get("userID")
 	if rawUserID != "" {
 		if userID, err2 := strconv.Atoi(rawUserID); err2 == nil {
-			rctx.UserID = int(userID)
+			rctx.UserID = userID
 		} else {
 			err = goa.InvalidParamTypeError("userID", rawUserID, "integer", err)
 		}
@@ -889,7 +889,7 @@ func NewShowUserContext(ctx context.Context) (*ShowUserContext, error) {
 	rawUserID := req.Params.Get("userID")
 	if rawUserID != "" {
 		if userID, err2 := strconv.Atoi(rawUserID); err2 == nil {
-			rctx.UserID = int(userID)
+			rctx.UserID = userID
 		} else {
 			err = goa.InvalidParamTypeError("userID", rawUserID, "integer", err)
 		}
@@ -927,7 +927,7 @@ func NewUpdateUserContext(ctx context.Context) (*UpdateUserContext, error) {
 	rawUserID := req.Params.Get("userID")
 	if rawUserID != "" {
 		if userID, err2 := strconv.Atoi(rawUserID); err2 == nil {
-			rctx.UserID = int(userID)
+			rctx.UserID = userID
 		} else {
 			err = goa.InvalidParamTypeError("userID", rawUserID, "integer", err)
 		}
