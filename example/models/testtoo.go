@@ -67,10 +67,10 @@ type TestTooStorage interface {
 	Update(ctx context.Context, testtoo *TestToo) error
 	Delete(ctx context.Context, idone int, idtwo int) error
 
-	ListAppUser(ctx context.Context) []*app.User
+	ListUser(ctx context.Context) []*app.User
 	OneUser(ctx context.Context, idone int, idtwo int) (*app.User, error)
 
-	ListAppUserLink(ctx context.Context) []*app.UserLink
+	ListUserLink(ctx context.Context) []*app.UserLink
 	OneUserLink(ctx context.Context, idone int, idtwo int) (*app.UserLink, error)
 
 	UpdateFromCreateUserPayload(ctx context.Context, payload *app.CreateUserPayload, idone int, idtwo int) error

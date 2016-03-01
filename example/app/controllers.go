@@ -49,7 +49,6 @@ type AuthController interface {
 func MountAuthController(service *goa.Service, ctrl AuthController) {
 	initService(service)
 	var h goa.Handler
-	mux := service.Mux
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		rctx, err := NewCallbackAuthContext(ctx)
 		if err != nil {
@@ -57,7 +56,7 @@ func MountAuthController(service *goa.Service, ctrl AuthController) {
 		}
 		return ctrl.Callback(rctx)
 	}
-	mux.Handle("GET", "/api/auth/:provider/callback", ctrl.MuxHandler("Callback", "", h, nil))
+	service.Mux.Handle("GET", "/api/auth/:provider/callback", ctrl.MuxHandler("Callback", h, nil))
 	goa.Info(goa.RootContext, "mount", goa.KV{"ctrl", "Auth"}, goa.KV{"action", "Callback"}, goa.KV{"route", "GET /api/auth/:provider/callback"})
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		rctx, err := NewOauthAuthContext(ctx)
@@ -66,7 +65,7 @@ func MountAuthController(service *goa.Service, ctrl AuthController) {
 		}
 		return ctrl.Oauth(rctx)
 	}
-	mux.Handle("GET", "/api/auth/:provider", ctrl.MuxHandler("Oauth", "", h, nil))
+	service.Mux.Handle("GET", "/api/auth/:provider", ctrl.MuxHandler("Oauth", h, nil))
 	goa.Info(goa.RootContext, "mount", goa.KV{"ctrl", "Auth"}, goa.KV{"action", "Oauth"}, goa.KV{"route", "GET /api/auth/:provider"})
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		rctx, err := NewRefreshAuthContext(ctx)
@@ -78,7 +77,7 @@ func MountAuthController(service *goa.Service, ctrl AuthController) {
 		}
 		return ctrl.Refresh(rctx)
 	}
-	mux.Handle("POST", "/api/auth/refresh", ctrl.MuxHandler("Refresh", "", h, unmarshalRefreshAuthPayload))
+	service.Mux.Handle("POST", "/api/auth/refresh", ctrl.MuxHandler("Refresh", h, unmarshalRefreshAuthPayload))
 	goa.Info(goa.RootContext, "mount", goa.KV{"ctrl", "Auth"}, goa.KV{"action", "Refresh"}, goa.KV{"route", "POST /api/auth/refresh"})
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		rctx, err := NewTokenAuthContext(ctx)
@@ -90,7 +89,7 @@ func MountAuthController(service *goa.Service, ctrl AuthController) {
 		}
 		return ctrl.Token(rctx)
 	}
-	mux.Handle("POST", "/api/auth/token", ctrl.MuxHandler("Token", "", h, unmarshalTokenAuthPayload))
+	service.Mux.Handle("POST", "/api/auth/token", ctrl.MuxHandler("Token", h, unmarshalTokenAuthPayload))
 	goa.Info(goa.RootContext, "mount", goa.KV{"ctrl", "Auth"}, goa.KV{"action", "Token"}, goa.KV{"route", "POST /api/auth/token"})
 }
 
@@ -128,7 +127,6 @@ type ProposalController interface {
 func MountProposalController(service *goa.Service, ctrl ProposalController) {
 	initService(service)
 	var h goa.Handler
-	mux := service.Mux
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		rctx, err := NewCreateProposalContext(ctx)
 		if err != nil {
@@ -139,7 +137,7 @@ func MountProposalController(service *goa.Service, ctrl ProposalController) {
 		}
 		return ctrl.Create(rctx)
 	}
-	mux.Handle("POST", "/api/users/:userID/proposals", ctrl.MuxHandler("Create", "", h, unmarshalCreateProposalPayload))
+	service.Mux.Handle("POST", "/api/users/:userID/proposals", ctrl.MuxHandler("Create", h, unmarshalCreateProposalPayload))
 	goa.Info(goa.RootContext, "mount", goa.KV{"ctrl", "Proposal"}, goa.KV{"action", "Create"}, goa.KV{"route", "POST /api/users/:userID/proposals"})
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		rctx, err := NewDeleteProposalContext(ctx)
@@ -148,7 +146,7 @@ func MountProposalController(service *goa.Service, ctrl ProposalController) {
 		}
 		return ctrl.Delete(rctx)
 	}
-	mux.Handle("DELETE", "/api/users/:userID/proposals/:proposalID", ctrl.MuxHandler("Delete", "", h, nil))
+	service.Mux.Handle("DELETE", "/api/users/:userID/proposals/:proposalID", ctrl.MuxHandler("Delete", h, nil))
 	goa.Info(goa.RootContext, "mount", goa.KV{"ctrl", "Proposal"}, goa.KV{"action", "Delete"}, goa.KV{"route", "DELETE /api/users/:userID/proposals/:proposalID"})
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		rctx, err := NewListProposalContext(ctx)
@@ -157,7 +155,7 @@ func MountProposalController(service *goa.Service, ctrl ProposalController) {
 		}
 		return ctrl.List(rctx)
 	}
-	mux.Handle("GET", "/api/users/:userID/proposals", ctrl.MuxHandler("List", "", h, nil))
+	service.Mux.Handle("GET", "/api/users/:userID/proposals", ctrl.MuxHandler("List", h, nil))
 	goa.Info(goa.RootContext, "mount", goa.KV{"ctrl", "Proposal"}, goa.KV{"action", "List"}, goa.KV{"route", "GET /api/users/:userID/proposals"})
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		rctx, err := NewShowProposalContext(ctx)
@@ -166,7 +164,7 @@ func MountProposalController(service *goa.Service, ctrl ProposalController) {
 		}
 		return ctrl.Show(rctx)
 	}
-	mux.Handle("GET", "/api/users/:userID/proposals/:proposalID", ctrl.MuxHandler("Show", "", h, nil))
+	service.Mux.Handle("GET", "/api/users/:userID/proposals/:proposalID", ctrl.MuxHandler("Show", h, nil))
 	goa.Info(goa.RootContext, "mount", goa.KV{"ctrl", "Proposal"}, goa.KV{"action", "Show"}, goa.KV{"route", "GET /api/users/:userID/proposals/:proposalID"})
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		rctx, err := NewUpdateProposalContext(ctx)
@@ -178,7 +176,7 @@ func MountProposalController(service *goa.Service, ctrl ProposalController) {
 		}
 		return ctrl.Update(rctx)
 	}
-	mux.Handle("PATCH", "/api/users/:userID/proposals/:proposalID", ctrl.MuxHandler("Update", "", h, unmarshalUpdateProposalPayload))
+	service.Mux.Handle("PATCH", "/api/users/:userID/proposals/:proposalID", ctrl.MuxHandler("Update", h, unmarshalUpdateProposalPayload))
 	goa.Info(goa.RootContext, "mount", goa.KV{"ctrl", "Proposal"}, goa.KV{"action", "Update"}, goa.KV{"route", "PATCH /api/users/:userID/proposals/:proposalID"})
 }
 
@@ -222,7 +220,6 @@ type ReviewController interface {
 func MountReviewController(service *goa.Service, ctrl ReviewController) {
 	initService(service)
 	var h goa.Handler
-	mux := service.Mux
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		rctx, err := NewCreateReviewContext(ctx)
 		if err != nil {
@@ -233,7 +230,7 @@ func MountReviewController(service *goa.Service, ctrl ReviewController) {
 		}
 		return ctrl.Create(rctx)
 	}
-	mux.Handle("POST", "/api/users/:userID/proposals/:proposalID/review", ctrl.MuxHandler("Create", "", h, unmarshalCreateReviewPayload))
+	service.Mux.Handle("POST", "/api/users/:userID/proposals/:proposalID/review", ctrl.MuxHandler("Create", h, unmarshalCreateReviewPayload))
 	goa.Info(goa.RootContext, "mount", goa.KV{"ctrl", "Review"}, goa.KV{"action", "Create"}, goa.KV{"route", "POST /api/users/:userID/proposals/:proposalID/review"})
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		rctx, err := NewDeleteReviewContext(ctx)
@@ -242,7 +239,7 @@ func MountReviewController(service *goa.Service, ctrl ReviewController) {
 		}
 		return ctrl.Delete(rctx)
 	}
-	mux.Handle("DELETE", "/api/users/:userID/proposals/:proposalID/review/:reviewID", ctrl.MuxHandler("Delete", "", h, nil))
+	service.Mux.Handle("DELETE", "/api/users/:userID/proposals/:proposalID/review/:reviewID", ctrl.MuxHandler("Delete", h, nil))
 	goa.Info(goa.RootContext, "mount", goa.KV{"ctrl", "Review"}, goa.KV{"action", "Delete"}, goa.KV{"route", "DELETE /api/users/:userID/proposals/:proposalID/review/:reviewID"})
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		rctx, err := NewListReviewContext(ctx)
@@ -251,7 +248,7 @@ func MountReviewController(service *goa.Service, ctrl ReviewController) {
 		}
 		return ctrl.List(rctx)
 	}
-	mux.Handle("GET", "/api/users/:userID/proposals/:proposalID/review", ctrl.MuxHandler("List", "", h, nil))
+	service.Mux.Handle("GET", "/api/users/:userID/proposals/:proposalID/review", ctrl.MuxHandler("List", h, nil))
 	goa.Info(goa.RootContext, "mount", goa.KV{"ctrl", "Review"}, goa.KV{"action", "List"}, goa.KV{"route", "GET /api/users/:userID/proposals/:proposalID/review"})
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		rctx, err := NewShowReviewContext(ctx)
@@ -260,7 +257,7 @@ func MountReviewController(service *goa.Service, ctrl ReviewController) {
 		}
 		return ctrl.Show(rctx)
 	}
-	mux.Handle("GET", "/api/users/:userID/proposals/:proposalID/review/:reviewID", ctrl.MuxHandler("Show", "", h, nil))
+	service.Mux.Handle("GET", "/api/users/:userID/proposals/:proposalID/review/:reviewID", ctrl.MuxHandler("Show", h, nil))
 	goa.Info(goa.RootContext, "mount", goa.KV{"ctrl", "Review"}, goa.KV{"action", "Show"}, goa.KV{"route", "GET /api/users/:userID/proposals/:proposalID/review/:reviewID"})
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		rctx, err := NewUpdateReviewContext(ctx)
@@ -272,7 +269,7 @@ func MountReviewController(service *goa.Service, ctrl ReviewController) {
 		}
 		return ctrl.Update(rctx)
 	}
-	mux.Handle("PATCH", "/api/users/:userID/proposals/:proposalID/review/:reviewID", ctrl.MuxHandler("Update", "", h, unmarshalUpdateReviewPayload))
+	service.Mux.Handle("PATCH", "/api/users/:userID/proposals/:proposalID/review/:reviewID", ctrl.MuxHandler("Update", h, unmarshalUpdateReviewPayload))
 	goa.Info(goa.RootContext, "mount", goa.KV{"ctrl", "Review"}, goa.KV{"action", "Update"}, goa.KV{"route", "PATCH /api/users/:userID/proposals/:proposalID/review/:reviewID"})
 }
 
@@ -312,7 +309,6 @@ type UIController interface {
 func MountUIController(service *goa.Service, ctrl UIController) {
 	initService(service)
 	var h goa.Handler
-	mux := service.Mux
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		rctx, err := NewBootstrapUIContext(ctx)
 		if err != nil {
@@ -320,7 +316,7 @@ func MountUIController(service *goa.Service, ctrl UIController) {
 		}
 		return ctrl.Bootstrap(rctx)
 	}
-	mux.Handle("GET", "/", ctrl.MuxHandler("Bootstrap", "", h, nil))
+	service.Mux.Handle("GET", "/", ctrl.MuxHandler("Bootstrap", h, nil))
 	goa.Info(goa.RootContext, "mount", goa.KV{"ctrl", "UI"}, goa.KV{"action", "Bootstrap"}, goa.KV{"route", "GET /"})
 }
 
@@ -338,7 +334,6 @@ type UserController interface {
 func MountUserController(service *goa.Service, ctrl UserController) {
 	initService(service)
 	var h goa.Handler
-	mux := service.Mux
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		rctx, err := NewCreateUserContext(ctx)
 		if err != nil {
@@ -349,7 +344,7 @@ func MountUserController(service *goa.Service, ctrl UserController) {
 		}
 		return ctrl.Create(rctx)
 	}
-	mux.Handle("POST", "/api/users", ctrl.MuxHandler("Create", "", h, unmarshalCreateUserPayload))
+	service.Mux.Handle("POST", "/api/users", ctrl.MuxHandler("Create", h, unmarshalCreateUserPayload))
 	goa.Info(goa.RootContext, "mount", goa.KV{"ctrl", "User"}, goa.KV{"action", "Create"}, goa.KV{"route", "POST /api/users"})
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		rctx, err := NewDeleteUserContext(ctx)
@@ -358,7 +353,7 @@ func MountUserController(service *goa.Service, ctrl UserController) {
 		}
 		return ctrl.Delete(rctx)
 	}
-	mux.Handle("DELETE", "/api/users/:userID", ctrl.MuxHandler("Delete", "", h, nil))
+	service.Mux.Handle("DELETE", "/api/users/:userID", ctrl.MuxHandler("Delete", h, nil))
 	goa.Info(goa.RootContext, "mount", goa.KV{"ctrl", "User"}, goa.KV{"action", "Delete"}, goa.KV{"route", "DELETE /api/users/:userID"})
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		rctx, err := NewListUserContext(ctx)
@@ -367,7 +362,7 @@ func MountUserController(service *goa.Service, ctrl UserController) {
 		}
 		return ctrl.List(rctx)
 	}
-	mux.Handle("GET", "/api/users", ctrl.MuxHandler("List", "", h, nil))
+	service.Mux.Handle("GET", "/api/users", ctrl.MuxHandler("List", h, nil))
 	goa.Info(goa.RootContext, "mount", goa.KV{"ctrl", "User"}, goa.KV{"action", "List"}, goa.KV{"route", "GET /api/users"})
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		rctx, err := NewShowUserContext(ctx)
@@ -376,7 +371,7 @@ func MountUserController(service *goa.Service, ctrl UserController) {
 		}
 		return ctrl.Show(rctx)
 	}
-	mux.Handle("GET", "/api/users/:userID", ctrl.MuxHandler("Show", "", h, nil))
+	service.Mux.Handle("GET", "/api/users/:userID", ctrl.MuxHandler("Show", h, nil))
 	goa.Info(goa.RootContext, "mount", goa.KV{"ctrl", "User"}, goa.KV{"action", "Show"}, goa.KV{"route", "GET /api/users/:userID"})
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		rctx, err := NewUpdateUserContext(ctx)
@@ -388,7 +383,7 @@ func MountUserController(service *goa.Service, ctrl UserController) {
 		}
 		return ctrl.Update(rctx)
 	}
-	mux.Handle("PATCH", "/api/users/:userID", ctrl.MuxHandler("Update", "", h, unmarshalUpdateUserPayload))
+	service.Mux.Handle("PATCH", "/api/users/:userID", ctrl.MuxHandler("Update", h, unmarshalUpdateUserPayload))
 	goa.Info(goa.RootContext, "mount", goa.KV{"ctrl", "User"}, goa.KV{"action", "Update"}, goa.KV{"route", "PATCH /api/users/:userID"})
 }
 

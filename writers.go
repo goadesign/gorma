@@ -100,22 +100,22 @@ func fieldAssignmentPayloadToModel(model *RelationalModelDefinition, ut *design.
 	return strings.Join(fieldAssignments, "\n")
 }
 
-func fieldAssignmentModelToType(model *RelationalModelDefinition, ut *design.ViewDefinition, verpkg, v, mtype, utype string) string {
+func fieldAssignmentModelToType(model *RelationalModelDefinition, ut *design.ViewDefinition, v, mtype, utype string) string {
 	tmp := 1
 	var fieldAssignments []string
 
 	if !strings.Contains(ut.Name, "link") {
 		for ln := range ut.Parent.Links {
-			iff := fmt.Sprintf("var tmp%dCollection %s.%sLinkCollection", tmp, codegen.Goify(verpkg, false), inflect.Singularize(codegen.Goify(ln, true)))
+			iff := fmt.Sprintf("var tmp%dCollection app.%sLinkCollection", tmp, inflect.Singularize(codegen.Goify(ln, true)))
 			fieldAssignments = append(fieldAssignments, iff)
 			ifa := fmt.Sprintf("for _,k := range %s.%s {", v, codegen.Goify(ln, true))
 			fieldAssignments = append(fieldAssignments, ifa)
-			ifb := fmt.Sprintf("tmp%dCollection = append(tmp%dCollection,  k.%sTo%s%sLink())", tmp, tmp, inflect.Singularize(codegen.Goify(ln, true)), verpkg, inflect.Singularize(codegen.Goify(ln, true)))
+			ifb := fmt.Sprintf("tmp%dCollection = append(tmp%dCollection,  k.%sTo%sLink())", tmp, tmp, inflect.Singularize(codegen.Goify(ln, true)), inflect.Singularize(codegen.Goify(ln, true)))
 
 			fieldAssignments = append(fieldAssignments, ifb)
 			ifc := fmt.Sprintf("}")
 			fieldAssignments = append(fieldAssignments, ifc)
-			ifd := fmt.Sprintf("%s.Links = &%s.%sLinks{%s: tmp%dCollection}", utype, codegen.Goify(verpkg, false), codegen.Goify(utype, true), codegen.Goify(ln, true), tmp)
+			ifd := fmt.Sprintf("%s.Links = &app.%sLinks{%s: tmp%dCollection}", utype, codegen.Goify(utype, true), codegen.Goify(ln, true), tmp)
 			fieldAssignments = append(fieldAssignments, ifd)
 			tmp++
 		}
@@ -147,7 +147,7 @@ func fieldAssignmentModelToType(model *RelationalModelDefinition, ut *design.Vie
 			if ok {
 				fa := fmt.Sprintf("tmp%d := &%s.%s", tmp, mtype, codegen.Goify(fn, true))
 				fieldAssignments = append(fieldAssignments, fa)
-				fa = fmt.Sprintf("%s.%s = tmp%d.%sTo%s%s()", utype, codegen.Goify(fn, true), tmp, codegen.Goify(fn, true), verpkg, codegen.Goify(fn, true))
+				fa = fmt.Sprintf("%s.%s = tmp%d.%sTo%s()", utype, codegen.Goify(fn, true), tmp, codegen.Goify(fn, true), codegen.Goify(fn, true))
 				fieldAssignments = append(fieldAssignments, fa)
 				tmp++
 			}
@@ -165,7 +165,7 @@ func fieldAssignmentModelToType(model *RelationalModelDefinition, ut *design.Vie
 				}
 
 				if field.Datatype == HasOne {
-					fa := fmt.Sprintf("%s.%s = %s.%s.%sTo%s%s()", utype, codegen.Goify(field.FieldName, true), v, codegen.Goify(field.FieldName, true), codegen.Goify(field.FieldName, true), verpkg, codegen.Goify(field.FieldName, true))
+					fa := fmt.Sprintf("%s.%s = %s.%s.%sTo%s()", utype, codegen.Goify(field.FieldName, true), v, codegen.Goify(field.FieldName, true), codegen.Goify(field.FieldName, true))
 					fieldAssignments = append(fieldAssignments, fa)
 					continue
 				}
@@ -185,7 +185,7 @@ func fieldAssignmentModelToType(model *RelationalModelDefinition, ut *design.Vie
 				if gfield.Type.IsObject() || gfield.Type.IsArray() {
 					ifa := fmt.Sprintf("for _,k := range %s.%s {", v, codegen.Goify(fname, true))
 					fieldAssignments = append(fieldAssignments, ifa)
-					ifb := fmt.Sprintf("%s.%s = append(%s.%s, k.%sTo%s%s())", utype, codegen.Goify(key, true), utype, codegen.Goify(key, true), inflect.Singularize(codegen.Goify(key, true)), verpkg, inflect.Singularize(codegen.Goify(key, true)))
+					ifb := fmt.Sprintf("%s.%s = append(%s.%s, k.%sTo%s())", utype, codegen.Goify(key, true), utype, codegen.Goify(key, true), inflect.Singularize(codegen.Goify(key, true)), inflect.Singularize(codegen.Goify(key, true)))
 					fieldAssignments = append(fieldAssignments, ifb)
 					ifc := fmt.Sprintf("}")
 					fieldAssignments = append(fieldAssignments, ifc)
@@ -408,7 +408,6 @@ func (m *{{$ut.ModelName}}DB) DB() interface{} {
 	return &m.Db
 }
 
-
 // {{$ut.ModelName}}Storage represents the storage interface.
 type {{$ut.ModelName}}Storage interface {
 	DB() interface{}
@@ -417,15 +416,20 @@ type {{$ut.ModelName}}Storage interface {
 	Add(ctx context.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, {{$ut.LowerName}} *{{$ut.ModelName}}) (*{{$ut.ModelName}}, error)
 	Update(ctx context.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, {{$ut.LowerName}} *{{$ut.ModelName}}) (error)
 	Delete(ctx context.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, {{ $ut.PKAttributes}}) (error)
-{{ range $rname, $rmt := $ut.RenderTo }}{{ range $vname, $view := $rmt.Views}}{{ $mtd := $ut.Project $rname $vname }}
+{{range $rname, $rmt := $ut.RenderTo}}{{/*
+	
+*/}}{{range $vname, $view := $rmt.Views}}{{ $mtd := $ut.Project $rname $vname }}
 	List{{goify $rmt.TypeName true}}{{if not (eq $vname "default")}}{{goify $vname true}}{{end}} (ctx context.Context{{ if $ut.DynamicTableName}}, tableName string{{ end }}{{/*
 */}}{{range $nm, $bt := $ut.BelongsTo}}, {{goify (printf "%s%s" $bt.ModelName "ID") false}} int{{end}}) []*app.{{goify $rmt.TypeName true}}{{if not (eq $vname "default")}}{{goify $vname true}}{{end}}
 	One{{goify $rmt.TypeName true}}{{if not (eq $vname "default")}}{{goify $vname true}}{{end}} (ctx context.Context{{ if $ut.DynamicTableName}}, tableName string{{ end }}{{/*
-*/}}, {{$ut.PKAttributes}}{{range $nm, $bt := $ut.BelongsTo}},{{goify (printf "%s%s" $bt.ModelName "ID") false}} int{{end}}) (*app.{{goify $rmt.TypeName true}}{{if not (eq $vname "default")}}{{goify $vname true}}{{end}}, error)
-{{end}}{{end}}
+*/}}, {{$ut.PKAttributes}}{{range $nm, $bt := $ut.BelongsTo}},{{goify (printf "%s%s" $bt.ModelName "ID") false}} int{{end}}){{/*
+*/}} (*app.{{goify $rmt.TypeName true}}{{if not (eq $vname "default")}}{{goify $vname true}}{{end}}, error)
+{{end}}{{/*
+
+*/}}{{end}}
 {{range $bfn, $bf := $ut.BuiltFrom}}
 	UpdateFrom{{$bfn}}(ctx context.Context{{ if $ut.DynamicTableName}}, tableName string{{ end }},payload *app.{{goify $bfn true}}, {{$ut.PKAttributes}}) error
-{{end }}
+{{end}}
 }
 
 // TableName overrides the table name settings in Gorm to force a specific table name
@@ -571,7 +575,7 @@ func (m {{$ut.ModelName}}) GetRole() string {
 {{ $mtd := $ut.Project $rname $vname }}
 
 {{template "Media" (newMediaTemplate $rmt $vname $view $ut)}}
-{{end}}
+{{end}}{{end}}
 
 `
 
@@ -587,7 +591,7 @@ func (m *{{.Model.ModelName}}DB) List{{goify .Media.TypeName true}}{{if not (eq 
 	var native []*{{goify .Model.ModelName true}}
 	var objs []*app.{{goify .Media.TypeName true}}{{if not (eq .ViewName "default")}}{{goify .ViewName true}}{{end}}{{$ctx:= .}}
 	err := m.Db.Scopes({{range $nm, $bt := .Model.BelongsTo}}{{/*
-*/}}{{$ctx.Model.ModelName}}FilterBy{{goify $bt.ModelName true}}({{goify (printf "%s%s" $bt.ModelName "ID") false}}, &m.Db){{end}}){{/*
+*/}}{{$ctx.Model.ModelName}}FilterBy{{goify $bt.ModelName true}}({{goify (printf "%s%s" $bt.ModelName "ID") false}}, &m.Db), {{end}}){{/*
 */}}.Table({{ if .Model.DynamicTableName }}tableName{{else}}m.TableName(){{ end }}).{{ range $ln, $lv := .Media.Links }}Preload("{{goify $ln true}}").{{end}}Find(&native).Error
 {{/* //	err := m.Db.Table({{ if .Model.DynamicTableName }}tableName{{else}}m.TableName(){{ end }}).{{ range $ln, $lv := .Media.Links }}Preload("{{goify $ln true}}").{{end}}Find(&objs).Error */}}
 	if err != nil {
@@ -607,7 +611,7 @@ func (m *{{.Model.ModelName}}DB) List{{goify .Media.TypeName true}}{{if not (eq 
 func (m *{{.Model.ModelName}}) {{$.Model.ModelName}}To{{goify .Media.UserTypeDefinition.TypeName true}}{{if not (eq .ViewName "default")}}{{goify .ViewName true}}{{end}}(){{/*
 */}} *app.{{goify .Media.TypeName true}}{{if not (eq .ViewName "default")}}{{goify .ViewName true}}{{end}} {
 	{{.Model.LowerName}} := &app.{{goify .Media.TypeName true}}{{if not (eq .ViewName "default")}}{{goify .ViewName true}}{{end}}{}
- 	{{ famt .Model .View "" "m" "m" .Model.LowerName}}
+ 	{{ famt .Model .View "m" "m" .Model.LowerName}}
 
  	 return {{.Model.LowerName}}
 }

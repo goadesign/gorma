@@ -65,10 +65,10 @@ type ReviewStorage interface {
 	Update(ctx context.Context, review *Review) error
 	Delete(ctx context.Context, id int) error
 
-	ListAppReview(ctx context.Context, proposalID int, userID int) []*app.Review
+	ListReview(ctx context.Context, proposalID int, userID int) []*app.Review
 	OneReview(ctx context.Context, id int, proposalID int, userID int) (*app.Review, error)
 
-	ListAppReviewLink(ctx context.Context, proposalID int, userID int) []*app.ReviewLink
+	ListReviewLink(ctx context.Context, proposalID int, userID int) []*app.ReviewLink
 	OneReviewLink(ctx context.Context, id int, proposalID int, userID int) (*app.ReviewLink, error)
 
 	UpdateFromCreateReviewPayload(ctx context.Context, payload *app.CreateReviewPayload, id int) error

@@ -28,7 +28,7 @@ func (c *ProposalController) Delete(ctx *app.DeleteProposalContext) error {
 
 // List runs the list action.
 func (c *ProposalController) List(ctx *app.ListProposalContext) error {
-	proposals := pdb.ListAppProposal(ctx.Context, ctx.UserID)
+	proposals := pdb.ListProposal(ctx.Context, ctx.UserID)
 	return ctx.OK(proposals)
 }
 
