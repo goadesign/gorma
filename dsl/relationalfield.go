@@ -27,7 +27,7 @@ import (
 //	Field("Title", gorma.String, func(){... other field level dsl ...})
 func Field(name string, args ...interface{}) {
 	// We can't rely on this being run first, any of the top level DSL could run
-	// in any order. The top level DSLs are API, Version, Resource, MediaType and Type.
+	// in any order. The top level DSLs are API, Resource, MediaType and Type.
 	// The first one to be called executes InitDesign.
 
 	checkInit()

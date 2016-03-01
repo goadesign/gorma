@@ -116,76 +116,61 @@ func (g *Generator) Cleanup() {
 	g.genfiles = nil
 }
 
-// Generated package name for resources supporting the given version.
-func packageName(version *design.APIVersionDefinition) (pack string) {
-	pack = AppPackage
-	if version.Version != "" {
-		pack = codegen.Goify(codegen.VersionPackage(version.Version), false)
-	}
-	return
-}
-
 // generateUserTypes iterates through the user types and generates the data structures and
 // marshaling code.
 func (g *Generator) generateUserTypes(outdir string, api *design.APIDefinition) error {
-	err := api.IterateVersions(func(version *design.APIVersionDefinition) error {
-		if version.Version != "" {
-			return nil
-		}
-		var modelname, filename string
-		err := GormaDesign.IterateStores(func(store *RelationalStoreDefinition) error {
-			err := store.IterateModels(func(model *RelationalModelDefinition) error {
-				modelname = strings.ToLower(codegen.Goify(model.ModelName, false))
+	var modelname, filename string
+	err := GormaDesign.IterateStores(func(store *RelationalStoreDefinition) error {
+		err := store.IterateModels(func(model *RelationalModelDefinition) error {
+			modelname = strings.ToLower(codegen.Goify(model.ModelName, false))
 
-				filename = fmt.Sprintf("%s.go", modelname)
-				utFile := filepath.Join(outdir, filename)
-				err := os.RemoveAll(utFile)
-				if err != nil {
-					fmt.Println(err)
-				}
-				utWr, err := NewUserTypesWriter(utFile)
-				if err != nil {
-					panic(err) // bug
-				}
-				title := fmt.Sprintf("%s: Models", version.Context())
-				ap, err := AppPackagePath()
-				if err != nil {
-					panic(err)
-				}
-				imports := []*codegen.ImportSpec{
-					codegen.SimpleImport(ap),
-					codegen.SimpleImport("time"),
-					codegen.SimpleImport("github.com/goadesign/goa"),
-					codegen.SimpleImport("github.com/jinzhu/gorm"),
-					codegen.SimpleImport("golang.org/x/net/context"),
-					codegen.SimpleImport("golang.org/x/net/context"),
-				}
+			filename = fmt.Sprintf("%s.go", modelname)
+			utFile := filepath.Join(outdir, filename)
+			err := os.RemoveAll(utFile)
+			if err != nil {
+				fmt.Println(err)
+			}
+			utWr, err := NewUserTypesWriter(utFile)
+			if err != nil {
+				panic(err) // bug
+			}
+			title := fmt.Sprintf("%s: Models", api.Context())
+			ap, err := AppPackagePath()
+			if err != nil {
+				panic(err)
+			}
+			imports := []*codegen.ImportSpec{
+				codegen.SimpleImport(ap),
+				codegen.SimpleImport("time"),
+				codegen.SimpleImport("github.com/goadesign/goa"),
+				codegen.SimpleImport("github.com/jinzhu/gorm"),
+				codegen.SimpleImport("golang.org/x/net/context"),
+				codegen.SimpleImport("golang.org/x/net/context"),
+			}
 
-				if model.Cached {
-					imp := codegen.NewImport("cache", "github.com/patrickmn/go-cache")
-					imports = append(imports, imp)
-					imp = codegen.SimpleImport("strconv")
-					imports = append(imports, imp)
-				}
-				utWr.WriteHeader(title, TargetPackage, imports)
-				data := &UserTypeTemplateData{
-					APIDefinition: api,
-					UserType:      model,
-					DefaultPkg:    TargetPackage,
-					AppPkg:        AppPackage,
-				}
-				err = utWr.Execute(data)
-				g.genfiles = append(g.genfiles, utFile)
-				if err != nil {
-					fmt.Println(err)
-					return err
-				}
-				err = utWr.FormatCode()
-				if err != nil {
-					fmt.Println(err)
-				}
+			if model.Cached {
+				imp := codegen.NewImport("cache", "github.com/patrickmn/go-cache")
+				imports = append(imports, imp)
+				imp = codegen.SimpleImport("strconv")
+				imports = append(imports, imp)
+			}
+			utWr.WriteHeader(title, TargetPackage, imports)
+			data := &UserTypeTemplateData{
+				APIDefinition: api,
+				UserType:      model,
+				DefaultPkg:    TargetPackage,
+				AppPkg:        AppPackage,
+			}
+			err = utWr.Execute(data)
+			g.genfiles = append(g.genfiles, utFile)
+			if err != nil {
+				fmt.Println(err)
 				return err
-			})
+			}
+			err = utWr.FormatCode()
+			if err != nil {
+				fmt.Println(err)
+			}
 			return err
 		})
 		return err
@@ -196,64 +181,58 @@ func (g *Generator) generateUserTypes(outdir string, api *design.APIDefinition) 
 // generateUserHelpers iterates through the user types and generates the data structures and
 // marshaling code.
 func (g *Generator) generateUserHelpers(outdir string, api *design.APIDefinition) error {
-	err := api.IterateVersions(func(version *design.APIVersionDefinition) error {
-		if version.Version != "" {
-			return nil
-		}
-		var modelname, filename string
-		err := GormaDesign.IterateStores(func(store *RelationalStoreDefinition) error {
-			err := store.IterateModels(func(model *RelationalModelDefinition) error {
-				modelname = strings.ToLower(codegen.Goify(model.ModelName, false))
+	var modelname, filename string
+	err := GormaDesign.IterateStores(func(store *RelationalStoreDefinition) error {
+		err := store.IterateModels(func(model *RelationalModelDefinition) error {
+			modelname = strings.ToLower(codegen.Goify(model.ModelName, false))
 
-				filename = fmt.Sprintf("%s_helper.go", modelname)
-				utFile := filepath.Join(outdir, filename)
-				err := os.RemoveAll(utFile)
-				if err != nil {
-					fmt.Println(err)
-				}
-				utWr, err := NewUserHelperWriter(utFile)
-				if err != nil {
-					panic(err) // bug
-				}
-				title := fmt.Sprintf("%s: Model Helpers", version.Context())
-				ap, err := AppPackagePath()
-				if err != nil {
-					panic(err)
-				}
-				imports := []*codegen.ImportSpec{
-					codegen.SimpleImport(ap),
-					codegen.SimpleImport("time"),
-					codegen.SimpleImport("github.com/goadesign/goa"),
-					codegen.SimpleImport("github.com/jinzhu/gorm"),
-					codegen.SimpleImport("golang.org/x/net/context"),
-					codegen.SimpleImport("golang.org/x/net/context"),
-				}
+			filename = fmt.Sprintf("%s_helper.go", modelname)
+			utFile := filepath.Join(outdir, filename)
+			err := os.RemoveAll(utFile)
+			if err != nil {
+				fmt.Println(err)
+			}
+			utWr, err := NewUserHelperWriter(utFile)
+			if err != nil {
+				panic(err) // bug
+			}
+			title := fmt.Sprintf("%s: Model Helpers", api.Context())
+			ap, err := AppPackagePath()
+			if err != nil {
+				panic(err)
+			}
+			imports := []*codegen.ImportSpec{
+				codegen.SimpleImport(ap),
+				codegen.SimpleImport("time"),
+				codegen.SimpleImport("github.com/goadesign/goa"),
+				codegen.SimpleImport("github.com/jinzhu/gorm"),
+				codegen.SimpleImport("golang.org/x/net/context"),
+				codegen.SimpleImport("golang.org/x/net/context"),
+			}
 
-				if model.Cached {
-					imp := codegen.NewImport("cache", "github.com/patrickmn/go-cache")
-					imports = append(imports, imp)
-					imp = codegen.SimpleImport("strconv")
-					imports = append(imports, imp)
-				}
-				utWr.WriteHeader(title, TargetPackage, imports)
-				data := &UserTypeTemplateData{
-					APIDefinition: api,
-					UserType:      model,
-					DefaultPkg:    TargetPackage,
-					AppPkg:        AppPackage,
-				}
-				err = utWr.Execute(data)
-				g.genfiles = append(g.genfiles, utFile)
-				if err != nil {
-					fmt.Println(err)
-					return err
-				}
-				err = utWr.FormatCode()
-				if err != nil {
-					fmt.Println(err)
-				}
+			if model.Cached {
+				imp := codegen.NewImport("cache", "github.com/patrickmn/go-cache")
+				imports = append(imports, imp)
+				imp = codegen.SimpleImport("strconv")
+				imports = append(imports, imp)
+			}
+			utWr.WriteHeader(title, TargetPackage, imports)
+			data := &UserTypeTemplateData{
+				APIDefinition: api,
+				UserType:      model,
+				DefaultPkg:    TargetPackage,
+				AppPkg:        AppPackage,
+			}
+			err = utWr.Execute(data)
+			g.genfiles = append(g.genfiles, utFile)
+			if err != nil {
+				fmt.Println(err)
 				return err
-			})
+			}
+			err = utWr.FormatCode()
+			if err != nil {
+				fmt.Println(err)
+			}
 			return err
 		})
 		return err
