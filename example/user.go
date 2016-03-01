@@ -28,7 +28,7 @@ func (c *UserController) Delete(ctx *app.DeleteUserContext) error {
 
 // List runs the list action.
 func (c *UserController) List(ctx *app.ListUserContext) error {
-	users := udb.ListAppUser(ctx.Context)
+	users := udb.ListUser(ctx.Context)
 	return ctx.OK(users)
 }
 

@@ -21,8 +21,8 @@ import (
 
 // MediaType Retrieval Functions
 
-// ListAppProposal returns an array of view: default.
-func (m *ProposalDB) ListAppProposal(ctx context.Context, userID int) []*app.Proposal {
+// ListProposal returns an array of view: default.
+func (m *ProposalDB) ListProposal(ctx context.Context, userID int) []*app.Proposal {
 	defer goa.MeasureSince([]string{"goa", "db", "proposal", "listproposal"}, time.Now())
 
 	var native []*Proposal
@@ -35,25 +35,25 @@ func (m *ProposalDB) ListAppProposal(ctx context.Context, userID int) []*app.Pro
 	}
 
 	for _, t := range native {
-		objs = append(objs, t.ProposalToAppProposal())
+		objs = append(objs, t.ProposalToProposal())
 	}
 
 	return objs
 }
 
-// ProposalToAppProposal returns the App Proposal representation of Proposal.
-func (m *Proposal) ProposalToAppProposal() *app.Proposal {
+// ProposalToProposal returns the Proposal representation of Proposal.
+func (m *Proposal) ProposalToProposal() *app.Proposal {
 	proposal := &app.Proposal{}
 	var tmp1Collection app.ReviewLinkCollection
 	for _, k := range m.Reviews {
-		tmp1Collection = append(tmp1Collection, k.ReviewToAppReviewLink())
+		tmp1Collection = append(tmp1Collection, k.ReviewToReviewLink())
 	}
 	proposal.Links = &app.ProposalLinks{Reviews: tmp1Collection}
 	proposal.Abstract = &m.Abstract
 	proposal.Detail = &m.Detail
 	proposal.ID = &m.ID
 	for _, k := range m.Reviews {
-		proposal.Reviews = append(proposal.Reviews, k.ReviewToAppReview())
+		proposal.Reviews = append(proposal.Reviews, k.ReviewToReview())
 	}
 	proposal.Title = &m.Title
 
@@ -72,14 +72,14 @@ func (m *ProposalDB) OneProposal(ctx context.Context, id int, userID int) (*app.
 		return nil, err
 	}
 
-	view := *native.ProposalToAppProposal()
+	view := *native.ProposalToProposal()
 	return &view, err
 }
 
 // MediaType Retrieval Functions
 
-// ListAppProposalLink returns an array of view: link.
-func (m *ProposalDB) ListAppProposalLink(ctx context.Context, userID int) []*app.ProposalLink {
+// ListProposalLink returns an array of view: link.
+func (m *ProposalDB) ListProposalLink(ctx context.Context, userID int) []*app.ProposalLink {
 	defer goa.MeasureSince([]string{"goa", "db", "proposal", "listproposallink"}, time.Now())
 
 	var native []*Proposal
@@ -92,14 +92,14 @@ func (m *ProposalDB) ListAppProposalLink(ctx context.Context, userID int) []*app
 	}
 
 	for _, t := range native {
-		objs = append(objs, t.ProposalToAppProposalLink())
+		objs = append(objs, t.ProposalToProposalLink())
 	}
 
 	return objs
 }
 
-// ProposalToAppProposalLink returns the App Proposal representation of Proposal.
-func (m *Proposal) ProposalToAppProposalLink() *app.ProposalLink {
+// ProposalToProposalLink returns the Proposal representation of Proposal.
+func (m *Proposal) ProposalToProposalLink() *app.ProposalLink {
 	proposal := &app.ProposalLink{}
 	proposal.ID = &m.ID
 	proposal.Title = &m.Title
@@ -119,6 +119,6 @@ func (m *ProposalDB) OneProposalLink(ctx context.Context, id int, userID int) (*
 		return nil, err
 	}
 
-	view := *native.ProposalToAppProposalLink()
+	view := *native.ProposalToProposalLink()
 	return &view, err
 }

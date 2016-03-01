@@ -21,8 +21,8 @@ import (
 
 // MediaType Retrieval Functions
 
-// ListAppReview returns an array of view: default.
-func (m *ReviewDB) ListAppReview(ctx context.Context, proposalID int, userID int) []*app.Review {
+// ListReview returns an array of view: default.
+func (m *ReviewDB) ListReview(ctx context.Context, proposalID int, userID int) []*app.Review {
 	defer goa.MeasureSince([]string{"goa", "db", "review", "listreview"}, time.Now())
 
 	var native []*Review
@@ -35,14 +35,14 @@ func (m *ReviewDB) ListAppReview(ctx context.Context, proposalID int, userID int
 	}
 
 	for _, t := range native {
-		objs = append(objs, t.ReviewToAppReview())
+		objs = append(objs, t.ReviewToReview())
 	}
 
 	return objs
 }
 
-// ReviewToAppReview returns the App Review representation of Review.
-func (m *Review) ReviewToAppReview() *app.Review {
+// ReviewToReview returns the Review representation of Review.
+func (m *Review) ReviewToReview() *app.Review {
 	review := &app.Review{}
 	review.Comment = m.Comment
 	review.ID = &m.ID
@@ -63,14 +63,14 @@ func (m *ReviewDB) OneReview(ctx context.Context, id int, proposalID int, userID
 		return nil, err
 	}
 
-	view := *native.ReviewToAppReview()
+	view := *native.ReviewToReview()
 	return &view, err
 }
 
 // MediaType Retrieval Functions
 
-// ListAppReviewLink returns an array of view: link.
-func (m *ReviewDB) ListAppReviewLink(ctx context.Context, proposalID int, userID int) []*app.ReviewLink {
+// ListReviewLink returns an array of view: link.
+func (m *ReviewDB) ListReviewLink(ctx context.Context, proposalID int, userID int) []*app.ReviewLink {
 	defer goa.MeasureSince([]string{"goa", "db", "review", "listreviewlink"}, time.Now())
 
 	var native []*Review
@@ -83,14 +83,14 @@ func (m *ReviewDB) ListAppReviewLink(ctx context.Context, proposalID int, userID
 	}
 
 	for _, t := range native {
-		objs = append(objs, t.ReviewToAppReviewLink())
+		objs = append(objs, t.ReviewToReviewLink())
 	}
 
 	return objs
 }
 
-// ReviewToAppReviewLink returns the App Review representation of Review.
-func (m *Review) ReviewToAppReviewLink() *app.ReviewLink {
+// ReviewToReviewLink returns the Review representation of Review.
+func (m *Review) ReviewToReviewLink() *app.ReviewLink {
 	review := &app.ReviewLink{}
 	review.ID = &m.ID
 
@@ -109,6 +109,6 @@ func (m *ReviewDB) OneReviewLink(ctx context.Context, id int, proposalID int, us
 		return nil, err
 	}
 
-	view := *native.ReviewToAppReviewLink()
+	view := *native.ReviewToReviewLink()
 	return &view, err
 }

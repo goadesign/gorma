@@ -21,8 +21,8 @@ import (
 
 // MediaType Retrieval Functions
 
-// ListAppUser returns an array of view: default.
-func (m *TestTooDB) ListAppUser(ctx context.Context) []*app.User {
+// ListUser returns an array of view: default.
+func (m *TestTooDB) ListUser(ctx context.Context) []*app.User {
 	defer goa.MeasureSince([]string{"goa", "db", "user", "listuser"}, time.Now())
 
 	var native []*TestToo
@@ -35,14 +35,14 @@ func (m *TestTooDB) ListAppUser(ctx context.Context) []*app.User {
 	}
 
 	for _, t := range native {
-		objs = append(objs, t.TestTooToAppUser())
+		objs = append(objs, t.TestTooToUser())
 	}
 
 	return objs
 }
 
-// TestTooToAppUser returns the App User representation of TestToo.
-func (m *TestToo) TestTooToAppUser() *app.User {
+// TestTooToUser returns the User representation of TestToo.
+func (m *TestToo) TestTooToUser() *app.User {
 	testtoo := &app.User{}
 	testtoo.Bio = m.Bio
 	testtoo.City = m.City
@@ -67,14 +67,14 @@ func (m *TestTooDB) OneUser(ctx context.Context, idone int, idtwo int) (*app.Use
 		return nil, err
 	}
 
-	view := *native.TestTooToAppUser()
+	view := *native.TestTooToUser()
 	return &view, err
 }
 
 // MediaType Retrieval Functions
 
-// ListAppUserLink returns an array of view: link.
-func (m *TestTooDB) ListAppUserLink(ctx context.Context) []*app.UserLink {
+// ListUserLink returns an array of view: link.
+func (m *TestTooDB) ListUserLink(ctx context.Context) []*app.UserLink {
 	defer goa.MeasureSince([]string{"goa", "db", "user", "listuserlink"}, time.Now())
 
 	var native []*TestToo
@@ -87,14 +87,14 @@ func (m *TestTooDB) ListAppUserLink(ctx context.Context) []*app.UserLink {
 	}
 
 	for _, t := range native {
-		objs = append(objs, t.TestTooToAppUserLink())
+		objs = append(objs, t.TestTooToUserLink())
 	}
 
 	return objs
 }
 
-// TestTooToAppUserLink returns the App User representation of TestToo.
-func (m *TestToo) TestTooToAppUserLink() *app.UserLink {
+// TestTooToUserLink returns the User representation of TestToo.
+func (m *TestToo) TestTooToUserLink() *app.UserLink {
 	testtoo := &app.UserLink{}
 	testtoo.Email = &m.Email
 
@@ -113,6 +113,6 @@ func (m *TestTooDB) OneUserLink(ctx context.Context, idone int, idtwo int) (*app
 		return nil, err
 	}
 
-	view := *native.TestTooToAppUserLink()
+	view := *native.TestTooToUserLink()
 	return &view, err
 }

@@ -21,8 +21,8 @@ import (
 
 // MediaType Retrieval Functions
 
-// ListAppUser returns an array of view: default.
-func (m *UserDB) ListAppUser(ctx context.Context) []*app.User {
+// ListUser returns an array of view: default.
+func (m *UserDB) ListUser(ctx context.Context) []*app.User {
 	defer goa.MeasureSince([]string{"goa", "db", "user", "listuser"}, time.Now())
 
 	var native []*User
@@ -35,14 +35,14 @@ func (m *UserDB) ListAppUser(ctx context.Context) []*app.User {
 	}
 
 	for _, t := range native {
-		objs = append(objs, t.UserToAppUser())
+		objs = append(objs, t.UserToUser())
 	}
 
 	return objs
 }
 
-// UserToAppUser returns the App User representation of User.
-func (m *User) UserToAppUser() *app.User {
+// UserToUser returns the User representation of User.
+func (m *User) UserToUser() *app.User {
 	user := &app.User{}
 	user.Bio = m.Bio
 	user.City = m.City
@@ -68,14 +68,14 @@ func (m *UserDB) OneUser(ctx context.Context, id int) (*app.User, error) {
 		return nil, err
 	}
 
-	view := *native.UserToAppUser()
+	view := *native.UserToUser()
 	return &view, err
 }
 
 // MediaType Retrieval Functions
 
-// ListAppUserLink returns an array of view: link.
-func (m *UserDB) ListAppUserLink(ctx context.Context) []*app.UserLink {
+// ListUserLink returns an array of view: link.
+func (m *UserDB) ListUserLink(ctx context.Context) []*app.UserLink {
 	defer goa.MeasureSince([]string{"goa", "db", "user", "listuserlink"}, time.Now())
 
 	var native []*User
@@ -88,14 +88,14 @@ func (m *UserDB) ListAppUserLink(ctx context.Context) []*app.UserLink {
 	}
 
 	for _, t := range native {
-		objs = append(objs, t.UserToAppUserLink())
+		objs = append(objs, t.UserToUserLink())
 	}
 
 	return objs
 }
 
-// UserToAppUserLink returns the App User representation of User.
-func (m *User) UserToAppUserLink() *app.UserLink {
+// UserToUserLink returns the User representation of User.
+func (m *User) UserToUserLink() *app.UserLink {
 	user := &app.UserLink{}
 	user.Email = &m.Email
 	user.ID = &m.ID
@@ -115,6 +115,6 @@ func (m *UserDB) OneUserLink(ctx context.Context, id int) (*app.UserLink, error)
 		return nil, err
 	}
 
-	view := *native.UserToAppUserLink()
+	view := *native.UserToUserLink()
 	return &view, err
 }

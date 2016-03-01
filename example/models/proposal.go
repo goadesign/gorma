@@ -66,10 +66,10 @@ type ProposalStorage interface {
 	Update(ctx context.Context, proposal *Proposal) error
 	Delete(ctx context.Context, id int) error
 
-	ListAppProposal(ctx context.Context, userID int) []*app.Proposal
+	ListProposal(ctx context.Context, userID int) []*app.Proposal
 	OneProposal(ctx context.Context, id int, userID int) (*app.Proposal, error)
 
-	ListAppProposalLink(ctx context.Context, userID int) []*app.ProposalLink
+	ListProposalLink(ctx context.Context, userID int) []*app.ProposalLink
 	OneProposalLink(ctx context.Context, id int, userID int) (*app.ProposalLink, error)
 
 	UpdateFromCreateProposalPayload(ctx context.Context, payload *app.CreateProposalPayload, id int) error
