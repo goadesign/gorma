@@ -19,6 +19,9 @@ func NewStorageGroupDefinition() *StorageGroupDefinition {
 // IterateStores runs an iterator function once per Relational Store in the
 // StorageGroup's Store list.
 func (sd *StorageGroupDefinition) IterateStores(it StoreIterator) error {
+	if sd == nil {
+		return nil
+	}
 	if sd.RelationalStores != nil {
 		names := make([]string, len(sd.RelationalStores))
 		i := 0
