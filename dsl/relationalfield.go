@@ -26,11 +26,6 @@ import (
 //	// All options specified: name, type and dsl.
 //	Field("Title", gorma.String, func(){... other field level dsl ...})
 func Field(name string, args ...interface{}) {
-	// We can't rely on this being run first, any of the top level DSL could run
-	// in any order. The top level DSLs are API, Resource, MediaType and Type.
-	// The first one to be called executes InitDesign.
-
-	checkInit()
 	name = codegen.Goify(name, true)
 	name = SanitizeFieldName(name)
 	fieldType, dsl := parseFieldArgs(args...)
@@ -72,7 +67,6 @@ func Field(name string, args ...interface{}) {
 // in goa.  These are typically Payloads.
 func MapsFrom(utd *design.UserTypeDefinition, field string) {
 	if f, ok := relationalFieldDefinition(true); ok {
-		checkInit()
 		md := gorma.NewMapDefinition()
 		md.RemoteField = field
 		md.RemoteType = utd
@@ -85,7 +79,6 @@ func MapsFrom(utd *design.UserTypeDefinition, field string) {
 // a MediaType in goa.
 func MapsTo(mtd *design.MediaTypeDefinition, field string) {
 	if f, ok := relationalFieldDefinition(true); ok {
-		checkInit()
 		md := gorma.NewMapDefinition()
 		md.RemoteField = field
 		md.RemoteType = mtd.UserTypeDefinition
@@ -115,7 +108,6 @@ func Nullable() {
 // Valid only for `Integer` datatypes currently
 func PrimaryKey() {
 	if f, ok := relationalFieldDefinition(true); ok {
-		checkInit()
 		if f.Datatype != gorma.Integer {
 			dslengine.ReportError("Integer is the only supported Primary Key field type for now.")
 
@@ -161,7 +153,7 @@ func parseFieldArgs(args ...interface{}) (gorma.FieldType, func()) {
 
 	parseFieldType := func(expected string, index int) {
 		if fieldType, ok = args[index].(gorma.FieldType); !ok {
-			invalidArgError(expected, args[index])
+			dslengine.InvalidArgError(expected, args[index])
 		}
 	}
 	parseDSL := func(index int, success, failure func()) {
@@ -181,7 +173,7 @@ func parseFieldArgs(args ...interface{}) (gorma.FieldType, func()) {
 		parseDSL(0, success, func() { parseFieldType("DataType or func()", 0) })
 	case 2:
 		parseFieldType("FieldType", 0)
-		parseDSL(1, success, func() { invalidArgError("DSL", args[1]) })
+		parseDSL(1, success, func() { dslengine.InvalidArgError("DSL", args[1]) })
 
 	default:
 		dslengine.ReportError("too many arguments in call to Attribute")

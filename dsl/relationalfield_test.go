@@ -17,8 +17,7 @@ var _ = Describe("RelationalField", func() {
 	var dsl, modeldsl func()
 	var RandomPayload *UserTypeDefinition
 	BeforeEach(func() {
-		Design = nil
-		Errors = nil
+		Reset()
 		sgname = "production"
 		dsl = nil
 		modeldsl = nil
@@ -26,8 +25,6 @@ var _ = Describe("RelationalField", func() {
 		modelname = "Users"
 		name = ""
 		ft = gorma.String
-		gorma.GormaDesign = nil
-		InitDesign()
 		RandomPayload = Type("RandomPayload", func() {
 			Attribute("first_name", String)
 			Attribute("last_name", String)

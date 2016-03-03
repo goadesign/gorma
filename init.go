@@ -1,18 +1,9 @@
 package gorma
 
-import "github.com/goadesign/goa/dslengine"
-
 // GormaDesign is the root definition for Gorma
 var GormaDesign *StorageGroupDefinition
 
-func init() {
-	//GormaDesign = &StorageGroupDefinition{}
-}
-
 const (
-	// Gorma is the constant string used as the index in the
-	// goa DesignConstructs map
-	Gorma = "gorma"
 	// StorageGroup is the constant string used as the index in the
 	// GormaConstructs map
 	StorageGroup = "storagegroup"
@@ -60,12 +51,3 @@ const (
 	// BelongsTo is used internally
 	BelongsTo FieldType = "belongsto"
 )
-
-// Init creates the necessary data structures for parsing a DSL.
-// Should not be called directly, but instead is called
-// by many of the DSL functions to ensure that the design is initialized.
-func Init() {
-	sg := NewStorageGroupDefinition()
-	dslengine.Roots = append(dslengine.Roots, sg)
-	GormaDesign = sg
-}

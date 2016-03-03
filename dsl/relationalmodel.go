@@ -22,8 +22,6 @@ import (
 // Similarly, use NoAutomaticTimestamps() and NoAutomaticSoftDelete() to
 // prevent CreatedAt, UpdatedAt and DeletedAt fields from being created.
 func Model(name string, dsl func()) {
-
-	checkInit()
 	if s, ok := relationalStoreDefinition(true); ok {
 		var model *gorma.RelationalModelDefinition
 		var ok bool
@@ -88,7 +86,6 @@ func Model(name string, dsl func()) {
 //
 // Usage: RendersTo(MediaType)
 func RendersTo(rt interface{}) {
-	checkInit()
 	if m, ok := relationalModelDefinition(false); ok {
 		mts, ok := rt.(*design.MediaTypeDefinition)
 		if ok {
@@ -107,7 +104,6 @@ func RendersTo(rt interface{}) {
 // Fields not in `YourType` that you want in your model must be
 // added explicitly with the `Field` DSL.
 func BuildsFrom(dsl func()) {
-	checkInit()
 	if m, ok := relationalModelDefinition(false); ok {
 		/*		mts, ok := bf.(*design.UserTypeDefinition)
 				if ok {
@@ -131,7 +127,6 @@ func BuildsFrom(dsl func()) {
 // the Model.
 func Payload(r interface{}, act string) {
 	if bs, ok := buildSourceDefinition(true); ok {
-
 		var res *design.ResourceDefinition
 		var resName string
 		if n, ok := r.(string); ok {
@@ -155,7 +150,6 @@ func Payload(r interface{}, act string) {
 
 		bs.Parent.BuiltFrom[payload.TypeName] = payload
 		bs.Parent.PopulateFromModeledType()
-
 	}
 }
 
