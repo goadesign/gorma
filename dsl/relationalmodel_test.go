@@ -23,16 +23,12 @@ var _ = Describe("RelationalModel", func() {
 	var TestResource *ResourceDefinition
 
 	BeforeEach(func() {
-		Roots = []Root{}
-		Design = nil
-		Errors = nil
+		Reset()
 		sgname = "production"
 		dsl = nil
 		storename = "mysql"
 		name = ""
 		modeldsl = nil
-		gorma.GormaDesign = nil
-		InitDesign()
 
 		TestResource = Resource("testresource", func() {
 			BasePath("/tests")
@@ -390,14 +386,11 @@ var _ = Describe("RelationalModel with auto fields enabled and auto fields set i
 	var HasManyPayload *UserTypeDefinition
 
 	BeforeEach(func() {
-		Design = nil
-		Errors = nil
+		Reset()
 		sgname = "production"
 		dsl = nil
 		storename = "mysql"
 		name = ""
-		gorma.GormaDesign = nil
-		InitDesign()
 
 		RandomPayload = Type("RandomPayload", func() {
 			Attribute("first_name", String)
@@ -483,14 +476,11 @@ var _ = Describe("RelationalModel with auto fields explicitly enabled", func() {
 	var HasManyPayload *UserTypeDefinition
 
 	BeforeEach(func() {
-		Design = nil
-		Errors = nil
+		Reset()
 		sgname = "production"
 		dsl = nil
 		storename = "mysql"
 		name = ""
-		gorma.GormaDesign = nil
-		InitDesign()
 
 		RandomPayload = Type("RandomPayload", func() {
 			Attribute("first_name", String)
@@ -570,14 +560,11 @@ var _ = Describe("RelationalModel with auto fields disabled", func() {
 	var HasManyPayload *UserTypeDefinition
 
 	BeforeEach(func() {
-		Design = nil
-		Errors = nil
+		Reset()
 		sgname = "production"
 		dsl = nil
 		storename = "mysql"
 		name = ""
-		gorma.GormaDesign = nil
-		InitDesign()
 
 		RandomPayload = Type("RandomPayload", func() {
 			Attribute("first_name", String)
@@ -660,14 +647,11 @@ var _ = Describe("RelationalModel with auto fields unset", func() {
 	var HasManyPayload *UserTypeDefinition
 
 	BeforeEach(func() {
-		Design = nil
-		Errors = nil
+		Reset()
 		sgname = "production"
 		dsl = nil
 		storename = "mysql"
 		name = ""
-		gorma.GormaDesign = nil
-		InitDesign()
 
 		RandomPayload = Type("RandomPayload", func() {
 			Attribute("first_name", String)

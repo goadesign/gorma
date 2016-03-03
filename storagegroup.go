@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"sort"
 
+	"github.com/goadesign/goa/design"
 	"github.com/goadesign/goa/dslengine"
 )
 
@@ -61,6 +62,16 @@ func (sd StorageGroupDefinition) Children() []dslengine.Definition {
 	return stores
 }
 
+// DSLName is displayed to the user when the DSL executes.
+func (sd *StorageGroupDefinition) DSLName() string {
+	return "Gorma storage group"
+}
+
+// DependsOn return the DSL roots the Gorma DSL root depends on, that's the goa API DSL.
+func (sd *StorageGroupDefinition) DependsOn() []dslengine.Root {
+	return []dslengine.Root{design.Design, design.GeneratedMediaTypes}
+}
+
 // IterateSets goes over all the definition sets of the StorageGroup: the
 // StorageGroup definition itself, each store definition, models and fields.
 func (sd *StorageGroupDefinition) IterateSets(iterator dslengine.SetIterator) {
@@ -84,4 +95,10 @@ func (sd *StorageGroupDefinition) IterateSets(iterator dslengine.SetIterator) {
 		})
 		return nil
 	})
+}
+
+// Reset resets the storage group to pre DSL execution state.
+func (sd *StorageGroupDefinition) Reset() {
+	n := NewStorageGroupDefinition()
+	*sd = *n
 }

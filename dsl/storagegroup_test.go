@@ -5,8 +5,6 @@ import (
 	gdsl "github.com/goadesign/gorma/dsl"
 
 	. "github.com/goadesign/goa/design"
-	. "github.com/goadesign/goa/design/apidsl"
-	"github.com/goadesign/goa/dslengine"
 	. "github.com/goadesign/goa/dslengine"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -17,14 +15,9 @@ var _ = Describe("StorageGroup", func() {
 	var dsl func()
 
 	BeforeEach(func() {
-		dslengine.Roots = []dslengine.Root{}
-		Design = nil
-		Errors = nil
+		Reset()
 		name = "mysql"
 		dsl = nil
-		gorma.GormaDesign = nil
-		InitDesign()
-
 	})
 
 	JustBeforeEach(func() {
