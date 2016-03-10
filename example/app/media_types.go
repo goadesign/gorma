@@ -14,7 +14,8 @@ package app
 
 import "github.com/goadesign/goa"
 
-// Token authorization response
+// Authorize media type.
+//
 // Identifier: application/vnd.authorize+json
 type Authorize struct {
 	// access token
@@ -25,7 +26,8 @@ type Authorize struct {
 	TokenType *string `json:"token_type,omitempty" xml:"token_type,omitempty"`
 }
 
-// Login media type
+// Login media type.
+//
 // Identifier: application/vnd.login+json
 type Login struct {
 	// UUID of requesting application
@@ -36,7 +38,8 @@ type Login struct {
 	Password *string `json:"password,omitempty" xml:"password,omitempty"`
 }
 
-// A response to a CFP
+// Proposal media type.
+//
 // Identifier: application/vnd.proposal+json
 type Proposal struct {
 	// Response abstract
@@ -55,7 +58,7 @@ type Proposal struct {
 	Title *string `json:"title,omitempty" xml:"title,omitempty"`
 }
 
-// Validate validates the media type instance.
+// Validate validates the Proposal media type instance.
 func (mt *Proposal) Validate() (err error) {
 	if mt.Abstract != nil {
 		if len(*mt.Abstract) < 50 {
@@ -112,7 +115,8 @@ func (mt *Proposal) Validate() (err error) {
 	return
 }
 
-// A response to a CFP, link view
+// ProposalLink media type.
+//
 // Identifier: application/vnd.proposal+json
 type ProposalLink struct {
 	// API href of user
@@ -123,7 +127,7 @@ type ProposalLink struct {
 	Title *string `json:"title,omitempty" xml:"title,omitempty"`
 }
 
-// Validate validates the media type instance.
+// Validate validates the ProposalLink media type instance.
 func (mt *ProposalLink) Validate() (err error) {
 	if mt.Title != nil {
 		if len(*mt.Title) < 10 {
@@ -143,11 +147,12 @@ type ProposalLinks struct {
 	Reviews ReviewLinkCollection `json:"reviews,omitempty" xml:"reviews,omitempty"`
 }
 
-// , default view
+// ProposalCollection media type is a collection of Proposal.
+//
 // Identifier: application/vnd.proposal+json; type=collection
 type ProposalCollection []*Proposal
 
-// Validate validates the media type instance.
+// Validate validates the ProposalCollection media type instance.
 func (mt ProposalCollection) Validate() (err error) {
 	for _, e := range mt {
 		if e.Abstract != nil {
@@ -209,7 +214,8 @@ func (mt ProposalCollection) Validate() (err error) {
 // ProposalLinksArray contains links to related resources of ProposalCollection.
 type ProposalLinksArray []*ProposalLinks
 
-// A review is submitted by a reviewer
+// Review media type.
+//
 // Identifier: application/vnd.review+json
 type Review struct {
 	// Review comments
@@ -222,7 +228,7 @@ type Review struct {
 	Rating *int `json:"rating,omitempty" xml:"rating,omitempty"`
 }
 
-// Validate validates the media type instance.
+// Validate validates the Review media type instance.
 func (mt *Review) Validate() (err error) {
 	if mt.Comment != nil {
 		if len(*mt.Comment) < 10 {
@@ -247,7 +253,8 @@ func (mt *Review) Validate() (err error) {
 	return
 }
 
-// A review is submitted by a reviewer, link view
+// ReviewLink media type.
+//
 // Identifier: application/vnd.review+json
 type ReviewLink struct {
 	// API href of user
@@ -256,11 +263,12 @@ type ReviewLink struct {
 	ID *int `json:"id,omitempty" xml:"id,omitempty"`
 }
 
-// , default view
+// ReviewCollection media type is a collection of Review.
+//
 // Identifier: application/vnd.review+json; type=collection
 type ReviewCollection []*Review
 
-// Validate validates the media type instance.
+// Validate validates the ReviewCollection media type instance.
 func (mt ReviewCollection) Validate() (err error) {
 	for _, e := range mt {
 		if e.Comment != nil {
@@ -287,11 +295,13 @@ func (mt ReviewCollection) Validate() (err error) {
 	return
 }
 
-// , link view
+// ReviewLinkCollection media type is a collection of ReviewLink.
+//
 // Identifier: application/vnd.review+json; type=collection
 type ReviewLinkCollection []*ReviewLink
 
-// A user belonging to a tenant account
+// User media type.
+//
 // Identifier: application/vnd.user+json
 type User struct {
 	// Biography of user
@@ -316,7 +326,7 @@ type User struct {
 	State *string `json:"state,omitempty" xml:"state,omitempty"`
 }
 
-// Validate validates the media type instance.
+// Validate validates the User media type instance.
 func (mt *User) Validate() (err error) {
 	if mt.Bio != nil {
 		if len(*mt.Bio) > 500 {
@@ -331,7 +341,8 @@ func (mt *User) Validate() (err error) {
 	return
 }
 
-// A user belonging to a tenant account, link view
+// UserLink media type.
+//
 // Identifier: application/vnd.user+json
 type UserLink struct {
 	// Email address of user
@@ -342,7 +353,7 @@ type UserLink struct {
 	ID *int `json:"id,omitempty" xml:"id,omitempty"`
 }
 
-// Validate validates the media type instance.
+// Validate validates the UserLink media type instance.
 func (mt *UserLink) Validate() (err error) {
 	if mt.Email != nil {
 		if err2 := goa.ValidateFormat(goa.FormatEmail, *mt.Email); err2 != nil {
@@ -352,11 +363,12 @@ func (mt *UserLink) Validate() (err error) {
 	return
 }
 
-// , default view
+// UserCollection media type is a collection of User.
+//
 // Identifier: application/vnd.user+json; type=collection
 type UserCollection []*User
 
-// Validate validates the media type instance.
+// Validate validates the UserCollection media type instance.
 func (mt UserCollection) Validate() (err error) {
 	for _, e := range mt {
 		if e.Bio != nil {

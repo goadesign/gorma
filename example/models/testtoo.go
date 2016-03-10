@@ -108,7 +108,7 @@ func (m *TestTooDB) List(ctx context.Context) []TestToo {
 	var objs []TestToo
 	err := m.Db.Table(m.TableName()).Find(&objs).Error
 	if err != nil && err != gorm.RecordNotFound {
-		goa.Error(ctx, "error listing TestToo", goa.KV{"error", err.Error()})
+		goa.Error(ctx, "error listing TestToo", "error", err.Error())
 		return objs
 	}
 
@@ -121,7 +121,7 @@ func (m *TestTooDB) Add(ctx context.Context, model *TestToo) (*TestToo, error) {
 
 	err := m.Db.Create(model).Error
 	if err != nil {
-		goa.Error(ctx, "error updating TestToo", goa.KV{"error", err.Error()})
+		goa.Error(ctx, "error updating TestToo", "error", err.Error())
 		return model, err
 	}
 
@@ -149,7 +149,7 @@ func (m *TestTooDB) Delete(ctx context.Context, idone int, idtwo int) error {
 	err := m.Db.Delete(&obj).Where("idone = ? and idtwo = ?", idone, idtwo).Error
 
 	if err != nil {
-		goa.Error(ctx, "error retrieving TestToo", goa.KV{"error", err.Error()})
+		goa.Error(ctx, "error retrieving TestToo", "error", err.Error())
 		return err
 	}
 
@@ -186,7 +186,7 @@ func (m *TestTooDB) UpdateFromCreateUserPayload(ctx context.Context, payload *ap
 	var obj TestToo
 	err := m.Db.Table(m.TableName()).Where("idone = ? and idtwo = ?", idone, idtwo).Find(&obj).Error
 	if err != nil {
-		goa.Error(ctx, "error retrieving TestToo", goa.KV{"error", err.Error()})
+		goa.Error(ctx, "error retrieving TestToo", "error", err.Error())
 		return err
 	}
 	if payload.Bio != nil {
@@ -243,7 +243,7 @@ func (m *TestTooDB) UpdateFromUpdateUserPayload(ctx context.Context, payload *ap
 	var obj TestToo
 	err := m.Db.Table(m.TableName()).Where("idone = ? and idtwo = ?", idone, idtwo).Find(&obj).Error
 	if err != nil {
-		goa.Error(ctx, "error retrieving TestToo", goa.KV{"error", err.Error()})
+		goa.Error(ctx, "error retrieving TestToo", "error", err.Error())
 		return err
 	}
 	if payload.Bio != nil {

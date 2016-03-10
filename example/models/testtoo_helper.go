@@ -30,7 +30,7 @@ func (m *TestTooDB) ListUser(ctx context.Context) []*app.User {
 	err := m.Db.Scopes().Table(m.TableName()).Find(&native).Error
 
 	if err != nil {
-		goa.Error(ctx, "error listing TestToo", goa.KV{"error", err.Error()})
+		goa.Error(ctx, "error listing TestToo", "error", err.Error())
 		return objs
 	}
 
@@ -63,7 +63,7 @@ func (m *TestTooDB) OneUser(ctx context.Context, idone int, idtwo int) (*app.Use
 	err := m.Db.Scopes().Table(m.TableName()).Where("idone = ? and idtwo = ?", idone, idtwo).Find(&native).Error
 
 	if err != nil && err != gorm.RecordNotFound {
-		goa.Error(ctx, "error getting TestToo", goa.KV{"error", err.Error()})
+		goa.Error(ctx, "error getting TestToo", "error", err.Error())
 		return nil, err
 	}
 
@@ -82,7 +82,7 @@ func (m *TestTooDB) ListUserLink(ctx context.Context) []*app.UserLink {
 	err := m.Db.Scopes().Table(m.TableName()).Find(&native).Error
 
 	if err != nil {
-		goa.Error(ctx, "error listing TestToo", goa.KV{"error", err.Error()})
+		goa.Error(ctx, "error listing TestToo", "error", err.Error())
 		return objs
 	}
 
@@ -109,7 +109,7 @@ func (m *TestTooDB) OneUserLink(ctx context.Context, idone int, idtwo int) (*app
 	err := m.Db.Scopes().Table(m.TableName()).Where("idone = ? and idtwo = ?", idone, idtwo).Find(&native).Error
 
 	if err != nil && err != gorm.RecordNotFound {
-		goa.Error(ctx, "error getting TestToo", goa.KV{"error", err.Error()})
+		goa.Error(ctx, "error getting TestToo", "error", err.Error())
 		return nil, err
 	}
 
