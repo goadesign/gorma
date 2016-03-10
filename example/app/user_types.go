@@ -14,7 +14,7 @@ package app
 
 import "github.com/goadesign/goa"
 
-// ProposalPayload type
+// ProposalPayload user type.
 type ProposalPayload struct {
 	Abstract  *string `json:"abstract,omitempty" xml:"abstract,omitempty"`
 	Detail    *string `json:"detail,omitempty" xml:"detail,omitempty"`
@@ -22,7 +22,7 @@ type ProposalPayload struct {
 	Withdrawn *bool   `json:"withdrawn,omitempty" xml:"withdrawn,omitempty"`
 }
 
-// Validate validates the type instance.
+// Validate validates the ProposalPayload type instance.
 func (ut *ProposalPayload) Validate() (err error) {
 	if ut.Abstract != nil {
 		if len(*ut.Abstract) < 50 {
@@ -57,13 +57,13 @@ func (ut *ProposalPayload) Validate() (err error) {
 	return
 }
 
-// ReviewPayload type
+// ReviewPayload user type.
 type ReviewPayload struct {
 	Comment *string `json:"comment,omitempty" xml:"comment,omitempty"`
 	Rating  *int    `json:"rating,omitempty" xml:"rating,omitempty"`
 }
 
-// Validate validates the type instance.
+// Validate validates the ReviewPayload type instance.
 func (ut *ReviewPayload) Validate() (err error) {
 	if ut.Comment != nil {
 		if len(*ut.Comment) < 10 {
@@ -88,7 +88,7 @@ func (ut *ReviewPayload) Validate() (err error) {
 	return
 }
 
-// UserPayload type
+// UserPayload user type.
 type UserPayload struct {
 	Bio       *string `json:"bio,omitempty" xml:"bio,omitempty"`
 	City      *string `json:"city,omitempty" xml:"city,omitempty"`
@@ -99,7 +99,7 @@ type UserPayload struct {
 	State     *string `json:"state,omitempty" xml:"state,omitempty"`
 }
 
-// Validate validates the type instance.
+// Validate validates the UserPayload type instance.
 func (ut *UserPayload) Validate() (err error) {
 	if ut.Bio != nil {
 		if len(*ut.Bio) > 500 {

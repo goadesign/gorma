@@ -88,7 +88,7 @@ func (m *TestDB) List(ctx context.Context) []Test {
 	var objs []Test
 	err := m.Db.Table(m.TableName()).Find(&objs).Error
 	if err != nil && err != gorm.RecordNotFound {
-		goa.Error(ctx, "error listing Test", goa.KV{"error", err.Error()})
+		goa.Error(ctx, "error listing Test", "error", err.Error())
 		return objs
 	}
 
@@ -101,7 +101,7 @@ func (m *TestDB) Add(ctx context.Context, model *Test) (*Test, error) {
 
 	err := m.Db.Create(model).Error
 	if err != nil {
-		goa.Error(ctx, "error updating Test", goa.KV{"error", err.Error()})
+		goa.Error(ctx, "error updating Test", "error", err.Error())
 		return model, err
 	}
 
@@ -129,7 +129,7 @@ func (m *TestDB) Delete(ctx context.Context) error {
 	err := m.Db.Delete(&obj).Where("").Error
 
 	if err != nil {
-		goa.Error(ctx, "error retrieving Test", goa.KV{"error", err.Error()})
+		goa.Error(ctx, "error retrieving Test", "error", err.Error())
 		return err
 	}
 

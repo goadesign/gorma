@@ -30,7 +30,7 @@ func (m *ProposalDB) ListProposal(ctx context.Context, userID int) []*app.Propos
 	err := m.Db.Scopes(ProposalFilterByUser(userID, &m.Db)).Table(m.TableName()).Preload("Reviews").Find(&native).Error
 
 	if err != nil {
-		goa.Error(ctx, "error listing Proposal", goa.KV{"error", err.Error()})
+		goa.Error(ctx, "error listing Proposal", "error", err.Error())
 		return objs
 	}
 
@@ -68,7 +68,7 @@ func (m *ProposalDB) OneProposal(ctx context.Context, id int, userID int) (*app.
 	err := m.Db.Scopes(ProposalFilterByUser(userID, &m.Db)).Table(m.TableName()).Preload("Reviews").Preload("User").Where("id = ?", id).Find(&native).Error
 
 	if err != nil && err != gorm.RecordNotFound {
-		goa.Error(ctx, "error getting Proposal", goa.KV{"error", err.Error()})
+		goa.Error(ctx, "error getting Proposal", "error", err.Error())
 		return nil, err
 	}
 
@@ -87,7 +87,7 @@ func (m *ProposalDB) ListProposalLink(ctx context.Context, userID int) []*app.Pr
 	err := m.Db.Scopes(ProposalFilterByUser(userID, &m.Db)).Table(m.TableName()).Preload("Reviews").Find(&native).Error
 
 	if err != nil {
-		goa.Error(ctx, "error listing Proposal", goa.KV{"error", err.Error()})
+		goa.Error(ctx, "error listing Proposal", "error", err.Error())
 		return objs
 	}
 
@@ -115,7 +115,7 @@ func (m *ProposalDB) OneProposalLink(ctx context.Context, id int, userID int) (*
 	err := m.Db.Scopes(ProposalFilterByUser(userID, &m.Db)).Table(m.TableName()).Preload("Reviews").Preload("User").Where("id = ?", id).Find(&native).Error
 
 	if err != nil && err != gorm.RecordNotFound {
-		goa.Error(ctx, "error getting Proposal", goa.KV{"error", err.Error()})
+		goa.Error(ctx, "error getting Proposal", "error", err.Error())
 		return nil, err
 	}
 
