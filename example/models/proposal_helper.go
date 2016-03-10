@@ -67,7 +67,7 @@ func (m *ProposalDB) OneProposal(ctx context.Context, id int, userID int) (*app.
 	var native Proposal
 	err := m.Db.Scopes(ProposalFilterByUser(userID, &m.Db)).Table(m.TableName()).Preload("Reviews").Preload("User").Where("id = ?", id).Find(&native).Error
 
-	if err != nil && err != gorm.RecordNotFound {
+	if err != nil && err !=  gorm.ErrRecordNotFound {
 		goa.Error(ctx, "error getting Proposal", "error", err.Error())
 		return nil, err
 	}
@@ -114,7 +114,7 @@ func (m *ProposalDB) OneProposalLink(ctx context.Context, id int, userID int) (*
 	var native Proposal
 	err := m.Db.Scopes(ProposalFilterByUser(userID, &m.Db)).Table(m.TableName()).Preload("Reviews").Preload("User").Where("id = ?", id).Find(&native).Error
 
-	if err != nil && err != gorm.RecordNotFound {
+	if err != nil && err !=  gorm.ErrRecordNotFound {
 		goa.Error(ctx, "error getting Proposal", "error", err.Error())
 		return nil, err
 	}

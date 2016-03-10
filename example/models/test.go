@@ -74,7 +74,7 @@ func (m *TestDB) Get(ctx context.Context) (Test, error) {
 
 	var native Test
 	err := m.Db.Table(m.TableName()).Where("").Find(&native).Error
-	if err == gorm.RecordNotFound {
+	if err ==  gorm.ErrRecordNotFound {
 		return Test{}, nil
 	}
 
@@ -87,7 +87,7 @@ func (m *TestDB) List(ctx context.Context) []Test {
 
 	var objs []Test
 	err := m.Db.Table(m.TableName()).Find(&objs).Error
-	if err != nil && err != gorm.RecordNotFound {
+	if err != nil && err !=  gorm.ErrRecordNotFound {
 		goa.Error(ctx, "error listing Test", "error", err.Error())
 		return objs
 	}

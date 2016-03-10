@@ -94,7 +94,7 @@ func (m *TestTooDB) Get(ctx context.Context, idone int, idtwo int) (TestToo, err
 
 	var native TestToo
 	err := m.Db.Table(m.TableName()).Where("idone = ? and idtwo = ?", idone, idtwo).Find(&native).Error
-	if err == gorm.RecordNotFound {
+	if err ==  gorm.ErrRecordNotFound {
 		return TestToo{}, nil
 	}
 
@@ -107,7 +107,7 @@ func (m *TestTooDB) List(ctx context.Context) []TestToo {
 
 	var objs []TestToo
 	err := m.Db.Table(m.TableName()).Find(&objs).Error
-	if err != nil && err != gorm.RecordNotFound {
+	if err != nil && err !=  gorm.ErrRecordNotFound {
 		goa.Error(ctx, "error listing TestToo", "error", err.Error())
 		return objs
 	}

@@ -14,7 +14,7 @@ import (
 	"gopkg.in/inconshreveable/log15.v2"
 )
 
-var db gorm.DB
+var db *gorm.DB
 var logger log15.Logger
 var udb *models.UserDB
 var rdb *models.ReviewDB

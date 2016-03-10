@@ -95,7 +95,7 @@ func (m *UserDB) Get(ctx context.Context, id int) (User, error) {
 
 	var native User
 	err := m.Db.Table(m.TableName()).Where("id = ?", id).Find(&native).Error
-	if err == gorm.RecordNotFound {
+	if err ==  gorm.ErrRecordNotFound {
 		return User{}, nil
 	}
 
@@ -108,7 +108,7 @@ func (m *UserDB) List(ctx context.Context) []User {
 
 	var objs []User
 	err := m.Db.Table(m.TableName()).Find(&objs).Error
-	if err != nil && err != gorm.RecordNotFound {
+	if err != nil && err !=  gorm.ErrRecordNotFound {
 		goa.Error(ctx, "error listing User", "error", err.Error())
 		return objs
 	}
