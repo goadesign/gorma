@@ -35,7 +35,7 @@ func (c *ProposalController) List(ctx *app.ListProposalContext) error {
 // Show runs the show action.
 func (c *ProposalController) Show(ctx *app.ShowProposalContext) error {
 	proposal, err := pdb.OneProposal(ctx.Context, ctx.ProposalID, ctx.UserID)
-	if err == gorm.RecordNotFound {
+	if err ==  gorm.ErrRecordNotFound {
 		return ctx.NotFound()
 	} else if err != nil {
 		return goa.Response(ctx).Send(ctx, 500, err.Error)
