@@ -38,7 +38,7 @@ func NewRelationalModelDefinition() *RelationalModelDefinition {
 // Context returns the generic definition name used in error messages.
 func (f *RelationalModelDefinition) Context() string {
 	if f.ModelName != "" {
-		return fmt.Sprintf("RelationalModel %#v", f.Name)
+		return fmt.Sprintf("RelationalModel %#v", f.ModelName)
 	}
 	return "unnamed RelationalModel"
 }

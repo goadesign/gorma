@@ -33,6 +33,7 @@ func Store(name string, storeType gorma.RelationalStorageType, dsl func()) {
 				Parent:           s,
 				Type:             storeType,
 				RelationalModels: make(map[string]*gorma.RelationalModelDefinition),
+				Roles:            gorma.NewRolesDefinition(),
 			}
 		} else {
 			dslengine.ReportError("Relational Store %s can only be declared once.", name)
@@ -75,4 +76,40 @@ func NoAutomaticSoftDelete() {
 	} else if m, ok := relationalModelDefinition(false); ok {
 		delete(m.RelationalFields, "DeletedAt")
 	}
+}
+
+// Roles defines a list of named roles and the scopes that are
+// assigned to each role.
+// Usage:
+//        Roles(func() {
+//            Role("Admin", func() {
+//                Scope("myscope:mysubscope")
+//            })
+//        })
+func Roles(dsl func()) {
+	if sd, ok := relationalStoreDefinition(true); ok {
+		rd := sd.Roles
+		rd.DefinitionDSL = dsl
+	}
+}
+
+// Role is a named set of scopes that can be applied
+// to a user
+func Role(name string, dsl func()) {
+	if roles, ok := rolesDefinition(true); ok {
+		rd := gorma.NewRoleDefinition()
+		rd.DefinitionDSL = dsl
+		rd.Name = name
+		roles.Roles[name] = rd
+	}
+
+}
+
+// Scope is a named permission that can be checked
+// at the API, Resource, and Action level
+func Scope(name string) {
+	if role, ok := roleDefinition(true); ok {
+		role.Scopes = append(role.Scopes, name)
+	}
+
 }

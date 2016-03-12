@@ -13,7 +13,7 @@ func TestModelContext(t *testing.T) {
 	sg.ModelName = "SG"
 
 	c := sg.Context()
-	exp := fmt.Sprintf("RelationalModel %#v", sg.Name)
+	exp := fmt.Sprintf("RelationalModel %#v", sg.ModelName)
 	if c != exp {
 		t.Errorf("Expected %s, got %s", exp, c)
 	}

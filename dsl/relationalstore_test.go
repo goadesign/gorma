@@ -166,6 +166,30 @@ var _ = Describe("RelationalStore", func() {
 			})
 		})
 
+		Context("with Roles", func() {
+			BeforeEach(func() {
+				name = "mysql"
+				dsl = func() {
+					gdsl.Roles(func() {
+						gdsl.Role("Admin", func() {
+							gdsl.Scope("scope:1")
+							gdsl.Scope("scope:2")
+						})
+					})
+				}
+			})
+
+			It("generates a role", func() {
+				sg := gorma.GormaDesign
+				Ω(len(sg.RelationalStores[name].Roles.Roles)).ShouldNot(BeZero())
+			})
+			It("has scopes", func() {
+				sg := gorma.GormaDesign
+				admin := sg.RelationalStores[name].Roles.Roles["Admin"]
+				Ω(len(admin.Scopes)).Should(Equal(2))
+			})
+		})
+
 	})
 
 })
