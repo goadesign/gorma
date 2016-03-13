@@ -73,6 +73,7 @@ type RelationalModelDefinition struct {
 	Cached           bool
 	CacheDuration    int
 	Roler            bool
+	DefaultRole      string
 	DynamicTableName bool
 	SQLTag           string
 	RelationalFields map[string]*RelationalFieldDefinition

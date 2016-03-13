@@ -172,8 +172,8 @@ var _ = Describe("RelationalStore", func() {
 				dsl = func() {
 					gdsl.Roles(func() {
 						gdsl.Role("Admin", func() {
-							gdsl.Scope("scope:1")
-							gdsl.Scope("scope:2")
+							gdsl.AllowedScope("scope:1")
+							gdsl.AllowedScope("scope:2")
 						})
 					})
 				}
@@ -196,14 +196,14 @@ var _ = Describe("RelationalStore", func() {
 				dsl = func() {
 					gdsl.Roles(func() {
 						gdsl.Role("Admin", func() {
-							gdsl.Scope("scope:1")
-							gdsl.Scope("scope:2")
+							gdsl.AllowedScope("scope:1")
+							gdsl.AllowedScope("scope:2")
 						})
 						gdsl.Role("User", func() {
-							gdsl.Scope("scope:3")
-							gdsl.Scope("scope:4")
-							gdsl.Scope("scope:5")
-							gdsl.Scope("scope:6")
+							gdsl.AllowedScope("scope:3")
+							gdsl.AllowedScope("scope:4")
+							gdsl.AllowedScope("scope:5")
+							gdsl.AllowedScope("scope:6")
 						})
 					})
 				}

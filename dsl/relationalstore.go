@@ -83,7 +83,7 @@ func NoAutomaticSoftDelete() {
 // Usage:
 //        Roles(func() {
 //            Role("Admin", func() {
-//                Scope("myscope:mysubscope")
+//                AllowedScope("myscope:mysubscope")
 //            })
 //        })
 func Roles(dsl func()) {
@@ -105,9 +105,9 @@ func Role(name string, dsl func()) {
 
 }
 
-// Scope is a named permission that can be checked
+// AllowedScope is a named permission that can be checked
 // at the API, Resource, and Action level
-func Scope(name string) {
+func AllowedScope(name string) {
 	if role, ok := roleDefinition(true); ok {
 		role.Scopes = append(role.Scopes, name)
 	}
