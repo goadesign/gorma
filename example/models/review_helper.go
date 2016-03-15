@@ -58,7 +58,7 @@ func (m *ReviewDB) OneReview(ctx context.Context, id int, proposalID int, userID
 	var native Review
 	err := m.Db.Scopes(ReviewFilterByProposal(proposalID, &m.Db), ReviewFilterByUser(userID, &m.Db)).Table(m.TableName()).Preload("Proposal").Preload("User").Where("id = ?", id).Find(&native).Error
 
-	if err != nil && err !=  gorm.ErrRecordNotFound {
+	if err != nil && err != gorm.ErrRecordNotFound {
 		goa.Error(ctx, "error getting Review", "error", err.Error())
 		return nil, err
 	}
@@ -104,7 +104,7 @@ func (m *ReviewDB) OneReviewLink(ctx context.Context, id int, proposalID int, us
 	var native Review
 	err := m.Db.Scopes(ReviewFilterByProposal(proposalID, &m.Db), ReviewFilterByUser(userID, &m.Db)).Table(m.TableName()).Preload("Proposal").Preload("User").Where("id = ?", id).Find(&native).Error
 
-	if err != nil && err !=  gorm.ErrRecordNotFound {
+	if err != nil && err != gorm.ErrRecordNotFound {
 		goa.Error(ctx, "error getting Review", "error", err.Error())
 		return nil, err
 	}

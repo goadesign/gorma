@@ -160,7 +160,7 @@ func NewCreateProposalContext(ctx context.Context) (*CreateProposalContext, erro
 		if userID, err2 := strconv.Atoi(rawUserID); err2 == nil {
 			rctx.UserID = userID
 		} else {
-			err = goa.InvalidParamTypeError("userID", rawUserID, "integer", err)
+			err = goa.StackErrors(err, goa.InvalidParamTypeError("userID", rawUserID, "integer"))
 		}
 	}
 	return &rctx, err
@@ -177,32 +177,32 @@ type CreateProposalPayload struct {
 // Validate runs the validation rules defined in the design.
 func (payload *CreateProposalPayload) Validate() (err error) {
 	if payload.Title == "" {
-		err = goa.MissingAttributeError(`raw`, "title", err)
+		err = goa.StackErrors(err, goa.MissingAttributeError(`raw`, "title"))
 	}
 	if payload.Abstract == "" {
-		err = goa.MissingAttributeError(`raw`, "abstract", err)
+		err = goa.StackErrors(err, goa.MissingAttributeError(`raw`, "abstract"))
 	}
 	if payload.Detail == "" {
-		err = goa.MissingAttributeError(`raw`, "detail", err)
+		err = goa.StackErrors(err, goa.MissingAttributeError(`raw`, "detail"))
 	}
 
 	if len(payload.Abstract) < 50 {
-		err = goa.InvalidLengthError(`raw.abstract`, payload.Abstract, len(payload.Abstract), 50, true, err)
+		err = goa.StackErrors(err, goa.InvalidLengthError(`raw.abstract`, payload.Abstract, len(payload.Abstract), 50, true))
 	}
 	if len(payload.Abstract) > 500 {
-		err = goa.InvalidLengthError(`raw.abstract`, payload.Abstract, len(payload.Abstract), 500, false, err)
+		err = goa.StackErrors(err, goa.InvalidLengthError(`raw.abstract`, payload.Abstract, len(payload.Abstract), 500, false))
 	}
 	if len(payload.Detail) < 100 {
-		err = goa.InvalidLengthError(`raw.detail`, payload.Detail, len(payload.Detail), 100, true, err)
+		err = goa.StackErrors(err, goa.InvalidLengthError(`raw.detail`, payload.Detail, len(payload.Detail), 100, true))
 	}
 	if len(payload.Detail) > 2000 {
-		err = goa.InvalidLengthError(`raw.detail`, payload.Detail, len(payload.Detail), 2000, false, err)
+		err = goa.StackErrors(err, goa.InvalidLengthError(`raw.detail`, payload.Detail, len(payload.Detail), 2000, false))
 	}
 	if len(payload.Title) < 10 {
-		err = goa.InvalidLengthError(`raw.title`, payload.Title, len(payload.Title), 10, true, err)
+		err = goa.StackErrors(err, goa.InvalidLengthError(`raw.title`, payload.Title, len(payload.Title), 10, true))
 	}
 	if len(payload.Title) > 200 {
-		err = goa.InvalidLengthError(`raw.title`, payload.Title, len(payload.Title), 200, false, err)
+		err = goa.StackErrors(err, goa.InvalidLengthError(`raw.title`, payload.Title, len(payload.Title), 200, false))
 	}
 	return
 }
@@ -233,7 +233,7 @@ func NewDeleteProposalContext(ctx context.Context) (*DeleteProposalContext, erro
 		if proposalID, err2 := strconv.Atoi(rawProposalID); err2 == nil {
 			rctx.ProposalID = proposalID
 		} else {
-			err = goa.InvalidParamTypeError("proposalID", rawProposalID, "integer", err)
+			err = goa.StackErrors(err, goa.InvalidParamTypeError("proposalID", rawProposalID, "integer"))
 		}
 	}
 	rawUserID := req.Params.Get("userID")
@@ -241,7 +241,7 @@ func NewDeleteProposalContext(ctx context.Context) (*DeleteProposalContext, erro
 		if userID, err2 := strconv.Atoi(rawUserID); err2 == nil {
 			rctx.UserID = userID
 		} else {
-			err = goa.InvalidParamTypeError("userID", rawUserID, "integer", err)
+			err = goa.StackErrors(err, goa.InvalidParamTypeError("userID", rawUserID, "integer"))
 		}
 	}
 	return &rctx, err
@@ -278,7 +278,7 @@ func NewListProposalContext(ctx context.Context) (*ListProposalContext, error) {
 		if userID, err2 := strconv.Atoi(rawUserID); err2 == nil {
 			rctx.UserID = userID
 		} else {
-			err = goa.InvalidParamTypeError("userID", rawUserID, "integer", err)
+			err = goa.StackErrors(err, goa.InvalidParamTypeError("userID", rawUserID, "integer"))
 		}
 	}
 	return &rctx, err
@@ -310,7 +310,7 @@ func NewShowProposalContext(ctx context.Context) (*ShowProposalContext, error) {
 		if proposalID, err2 := strconv.Atoi(rawProposalID); err2 == nil {
 			rctx.ProposalID = proposalID
 		} else {
-			err = goa.InvalidParamTypeError("proposalID", rawProposalID, "integer", err)
+			err = goa.StackErrors(err, goa.InvalidParamTypeError("proposalID", rawProposalID, "integer"))
 		}
 	}
 	rawUserID := req.Params.Get("userID")
@@ -318,7 +318,7 @@ func NewShowProposalContext(ctx context.Context) (*ShowProposalContext, error) {
 		if userID, err2 := strconv.Atoi(rawUserID); err2 == nil {
 			rctx.UserID = userID
 		} else {
-			err = goa.InvalidParamTypeError("userID", rawUserID, "integer", err)
+			err = goa.StackErrors(err, goa.InvalidParamTypeError("userID", rawUserID, "integer"))
 		}
 	}
 	return &rctx, err
@@ -357,7 +357,7 @@ func NewUpdateProposalContext(ctx context.Context) (*UpdateProposalContext, erro
 		if proposalID, err2 := strconv.Atoi(rawProposalID); err2 == nil {
 			rctx.ProposalID = proposalID
 		} else {
-			err = goa.InvalidParamTypeError("proposalID", rawProposalID, "integer", err)
+			err = goa.StackErrors(err, goa.InvalidParamTypeError("proposalID", rawProposalID, "integer"))
 		}
 	}
 	rawUserID := req.Params.Get("userID")
@@ -365,7 +365,7 @@ func NewUpdateProposalContext(ctx context.Context) (*UpdateProposalContext, erro
 		if userID, err2 := strconv.Atoi(rawUserID); err2 == nil {
 			rctx.UserID = userID
 		} else {
-			err = goa.InvalidParamTypeError("userID", rawUserID, "integer", err)
+			err = goa.StackErrors(err, goa.InvalidParamTypeError("userID", rawUserID, "integer"))
 		}
 	}
 	return &rctx, err
@@ -383,32 +383,32 @@ type UpdateProposalPayload struct {
 func (payload *UpdateProposalPayload) Validate() (err error) {
 	if payload.Abstract != nil {
 		if len(*payload.Abstract) < 50 {
-			err = goa.InvalidLengthError(`raw.abstract`, *payload.Abstract, len(*payload.Abstract), 50, true, err)
+			err = goa.StackErrors(err, goa.InvalidLengthError(`raw.abstract`, *payload.Abstract, len(*payload.Abstract), 50, true))
 		}
 	}
 	if payload.Abstract != nil {
 		if len(*payload.Abstract) > 500 {
-			err = goa.InvalidLengthError(`raw.abstract`, *payload.Abstract, len(*payload.Abstract), 500, false, err)
+			err = goa.StackErrors(err, goa.InvalidLengthError(`raw.abstract`, *payload.Abstract, len(*payload.Abstract), 500, false))
 		}
 	}
 	if payload.Detail != nil {
 		if len(*payload.Detail) < 100 {
-			err = goa.InvalidLengthError(`raw.detail`, *payload.Detail, len(*payload.Detail), 100, true, err)
+			err = goa.StackErrors(err, goa.InvalidLengthError(`raw.detail`, *payload.Detail, len(*payload.Detail), 100, true))
 		}
 	}
 	if payload.Detail != nil {
 		if len(*payload.Detail) > 2000 {
-			err = goa.InvalidLengthError(`raw.detail`, *payload.Detail, len(*payload.Detail), 2000, false, err)
+			err = goa.StackErrors(err, goa.InvalidLengthError(`raw.detail`, *payload.Detail, len(*payload.Detail), 2000, false))
 		}
 	}
 	if payload.Title != nil {
 		if len(*payload.Title) < 10 {
-			err = goa.InvalidLengthError(`raw.title`, *payload.Title, len(*payload.Title), 10, true, err)
+			err = goa.StackErrors(err, goa.InvalidLengthError(`raw.title`, *payload.Title, len(*payload.Title), 10, true))
 		}
 	}
 	if payload.Title != nil {
 		if len(*payload.Title) > 200 {
-			err = goa.InvalidLengthError(`raw.title`, *payload.Title, len(*payload.Title), 200, false, err)
+			err = goa.StackErrors(err, goa.InvalidLengthError(`raw.title`, *payload.Title, len(*payload.Title), 200, false))
 		}
 	}
 	return
@@ -447,7 +447,7 @@ func NewCreateReviewContext(ctx context.Context) (*CreateReviewContext, error) {
 		if proposalID, err2 := strconv.Atoi(rawProposalID); err2 == nil {
 			rctx.ProposalID = proposalID
 		} else {
-			err = goa.InvalidParamTypeError("proposalID", rawProposalID, "integer", err)
+			err = goa.StackErrors(err, goa.InvalidParamTypeError("proposalID", rawProposalID, "integer"))
 		}
 	}
 	rawUserID := req.Params.Get("userID")
@@ -455,7 +455,7 @@ func NewCreateReviewContext(ctx context.Context) (*CreateReviewContext, error) {
 		if userID, err2 := strconv.Atoi(rawUserID); err2 == nil {
 			rctx.UserID = userID
 		} else {
-			err = goa.InvalidParamTypeError("userID", rawUserID, "integer", err)
+			err = goa.StackErrors(err, goa.InvalidParamTypeError("userID", rawUserID, "integer"))
 		}
 	}
 	return &rctx, err
@@ -472,19 +472,19 @@ func (payload *CreateReviewPayload) Validate() (err error) {
 
 	if payload.Comment != nil {
 		if len(*payload.Comment) < 10 {
-			err = goa.InvalidLengthError(`raw.comment`, *payload.Comment, len(*payload.Comment), 10, true, err)
+			err = goa.StackErrors(err, goa.InvalidLengthError(`raw.comment`, *payload.Comment, len(*payload.Comment), 10, true))
 		}
 	}
 	if payload.Comment != nil {
 		if len(*payload.Comment) > 200 {
-			err = goa.InvalidLengthError(`raw.comment`, *payload.Comment, len(*payload.Comment), 200, false, err)
+			err = goa.StackErrors(err, goa.InvalidLengthError(`raw.comment`, *payload.Comment, len(*payload.Comment), 200, false))
 		}
 	}
 	if payload.Rating < 1 {
-		err = goa.InvalidRangeError(`raw.rating`, payload.Rating, 1, true, err)
+		err = goa.StackErrors(err, goa.InvalidRangeError(`raw.rating`, payload.Rating, 1, true))
 	}
 	if payload.Rating > 5 {
-		err = goa.InvalidRangeError(`raw.rating`, payload.Rating, 5, false, err)
+		err = goa.StackErrors(err, goa.InvalidRangeError(`raw.rating`, payload.Rating, 5, false))
 	}
 	return
 }
@@ -516,7 +516,7 @@ func NewDeleteReviewContext(ctx context.Context) (*DeleteReviewContext, error) {
 		if proposalID, err2 := strconv.Atoi(rawProposalID); err2 == nil {
 			rctx.ProposalID = proposalID
 		} else {
-			err = goa.InvalidParamTypeError("proposalID", rawProposalID, "integer", err)
+			err = goa.StackErrors(err, goa.InvalidParamTypeError("proposalID", rawProposalID, "integer"))
 		}
 	}
 	rawReviewID := req.Params.Get("reviewID")
@@ -524,7 +524,7 @@ func NewDeleteReviewContext(ctx context.Context) (*DeleteReviewContext, error) {
 		if reviewID, err2 := strconv.Atoi(rawReviewID); err2 == nil {
 			rctx.ReviewID = reviewID
 		} else {
-			err = goa.InvalidParamTypeError("reviewID", rawReviewID, "integer", err)
+			err = goa.StackErrors(err, goa.InvalidParamTypeError("reviewID", rawReviewID, "integer"))
 		}
 	}
 	rawUserID := req.Params.Get("userID")
@@ -532,7 +532,7 @@ func NewDeleteReviewContext(ctx context.Context) (*DeleteReviewContext, error) {
 		if userID, err2 := strconv.Atoi(rawUserID); err2 == nil {
 			rctx.UserID = userID
 		} else {
-			err = goa.InvalidParamTypeError("userID", rawUserID, "integer", err)
+			err = goa.StackErrors(err, goa.InvalidParamTypeError("userID", rawUserID, "integer"))
 		}
 	}
 	return &rctx, err
@@ -570,7 +570,7 @@ func NewListReviewContext(ctx context.Context) (*ListReviewContext, error) {
 		if proposalID, err2 := strconv.Atoi(rawProposalID); err2 == nil {
 			rctx.ProposalID = proposalID
 		} else {
-			err = goa.InvalidParamTypeError("proposalID", rawProposalID, "integer", err)
+			err = goa.StackErrors(err, goa.InvalidParamTypeError("proposalID", rawProposalID, "integer"))
 		}
 	}
 	rawUserID := req.Params.Get("userID")
@@ -578,7 +578,7 @@ func NewListReviewContext(ctx context.Context) (*ListReviewContext, error) {
 		if userID, err2 := strconv.Atoi(rawUserID); err2 == nil {
 			rctx.UserID = userID
 		} else {
-			err = goa.InvalidParamTypeError("userID", rawUserID, "integer", err)
+			err = goa.StackErrors(err, goa.InvalidParamTypeError("userID", rawUserID, "integer"))
 		}
 	}
 	return &rctx, err
@@ -611,7 +611,7 @@ func NewShowReviewContext(ctx context.Context) (*ShowReviewContext, error) {
 		if proposalID, err2 := strconv.Atoi(rawProposalID); err2 == nil {
 			rctx.ProposalID = proposalID
 		} else {
-			err = goa.InvalidParamTypeError("proposalID", rawProposalID, "integer", err)
+			err = goa.StackErrors(err, goa.InvalidParamTypeError("proposalID", rawProposalID, "integer"))
 		}
 	}
 	rawReviewID := req.Params.Get("reviewID")
@@ -619,7 +619,7 @@ func NewShowReviewContext(ctx context.Context) (*ShowReviewContext, error) {
 		if reviewID, err2 := strconv.Atoi(rawReviewID); err2 == nil {
 			rctx.ReviewID = reviewID
 		} else {
-			err = goa.InvalidParamTypeError("reviewID", rawReviewID, "integer", err)
+			err = goa.StackErrors(err, goa.InvalidParamTypeError("reviewID", rawReviewID, "integer"))
 		}
 	}
 	rawUserID := req.Params.Get("userID")
@@ -627,7 +627,7 @@ func NewShowReviewContext(ctx context.Context) (*ShowReviewContext, error) {
 		if userID, err2 := strconv.Atoi(rawUserID); err2 == nil {
 			rctx.UserID = userID
 		} else {
-			err = goa.InvalidParamTypeError("userID", rawUserID, "integer", err)
+			err = goa.StackErrors(err, goa.InvalidParamTypeError("userID", rawUserID, "integer"))
 		}
 	}
 	return &rctx, err
@@ -667,7 +667,7 @@ func NewUpdateReviewContext(ctx context.Context) (*UpdateReviewContext, error) {
 		if proposalID, err2 := strconv.Atoi(rawProposalID); err2 == nil {
 			rctx.ProposalID = proposalID
 		} else {
-			err = goa.InvalidParamTypeError("proposalID", rawProposalID, "integer", err)
+			err = goa.StackErrors(err, goa.InvalidParamTypeError("proposalID", rawProposalID, "integer"))
 		}
 	}
 	rawReviewID := req.Params.Get("reviewID")
@@ -675,7 +675,7 @@ func NewUpdateReviewContext(ctx context.Context) (*UpdateReviewContext, error) {
 		if reviewID, err2 := strconv.Atoi(rawReviewID); err2 == nil {
 			rctx.ReviewID = reviewID
 		} else {
-			err = goa.InvalidParamTypeError("reviewID", rawReviewID, "integer", err)
+			err = goa.StackErrors(err, goa.InvalidParamTypeError("reviewID", rawReviewID, "integer"))
 		}
 	}
 	rawUserID := req.Params.Get("userID")
@@ -683,7 +683,7 @@ func NewUpdateReviewContext(ctx context.Context) (*UpdateReviewContext, error) {
 		if userID, err2 := strconv.Atoi(rawUserID); err2 == nil {
 			rctx.UserID = userID
 		} else {
-			err = goa.InvalidParamTypeError("userID", rawUserID, "integer", err)
+			err = goa.StackErrors(err, goa.InvalidParamTypeError("userID", rawUserID, "integer"))
 		}
 	}
 	return &rctx, err
@@ -699,22 +699,22 @@ type UpdateReviewPayload struct {
 func (payload *UpdateReviewPayload) Validate() (err error) {
 	if payload.Comment != nil {
 		if len(*payload.Comment) < 10 {
-			err = goa.InvalidLengthError(`raw.comment`, *payload.Comment, len(*payload.Comment), 10, true, err)
+			err = goa.StackErrors(err, goa.InvalidLengthError(`raw.comment`, *payload.Comment, len(*payload.Comment), 10, true))
 		}
 	}
 	if payload.Comment != nil {
 		if len(*payload.Comment) > 200 {
-			err = goa.InvalidLengthError(`raw.comment`, *payload.Comment, len(*payload.Comment), 200, false, err)
+			err = goa.StackErrors(err, goa.InvalidLengthError(`raw.comment`, *payload.Comment, len(*payload.Comment), 200, false))
 		}
 	}
 	if payload.Rating != nil {
 		if *payload.Rating < 1 {
-			err = goa.InvalidRangeError(`raw.rating`, *payload.Rating, 1, true, err)
+			err = goa.StackErrors(err, goa.InvalidRangeError(`raw.rating`, *payload.Rating, 1, true))
 		}
 	}
 	if payload.Rating != nil {
 		if *payload.Rating > 5 {
-			err = goa.InvalidRangeError(`raw.rating`, *payload.Rating, 5, false, err)
+			err = goa.StackErrors(err, goa.InvalidRangeError(`raw.rating`, *payload.Rating, 5, false))
 		}
 	}
 	return
@@ -787,22 +787,22 @@ type CreateUserPayload struct {
 // Validate runs the validation rules defined in the design.
 func (payload *CreateUserPayload) Validate() (err error) {
 	if payload.Firstname == "" {
-		err = goa.MissingAttributeError(`raw`, "firstname", err)
+		err = goa.StackErrors(err, goa.MissingAttributeError(`raw`, "firstname"))
 	}
 	if payload.Lastname == "" {
-		err = goa.MissingAttributeError(`raw`, "lastname", err)
+		err = goa.StackErrors(err, goa.MissingAttributeError(`raw`, "lastname"))
 	}
 	if payload.Email == "" {
-		err = goa.MissingAttributeError(`raw`, "email", err)
+		err = goa.StackErrors(err, goa.MissingAttributeError(`raw`, "email"))
 	}
 
 	if payload.Bio != nil {
 		if len(*payload.Bio) > 500 {
-			err = goa.InvalidLengthError(`raw.bio`, *payload.Bio, len(*payload.Bio), 500, false, err)
+			err = goa.StackErrors(err, goa.InvalidLengthError(`raw.bio`, *payload.Bio, len(*payload.Bio), 500, false))
 		}
 	}
 	if err2 := goa.ValidateFormat(goa.FormatEmail, payload.Email); err2 != nil {
-		err = goa.InvalidFormatError(`raw.email`, payload.Email, goa.FormatEmail, err2, err)
+		err = goa.StackErrors(err, goa.InvalidFormatError(`raw.email`, payload.Email, goa.FormatEmail, err2))
 	}
 	return
 }
@@ -832,7 +832,7 @@ func NewDeleteUserContext(ctx context.Context) (*DeleteUserContext, error) {
 		if userID, err2 := strconv.Atoi(rawUserID); err2 == nil {
 			rctx.UserID = userID
 		} else {
-			err = goa.InvalidParamTypeError("userID", rawUserID, "integer", err)
+			err = goa.StackErrors(err, goa.InvalidParamTypeError("userID", rawUserID, "integer"))
 		}
 	}
 	return &rctx, err
@@ -891,7 +891,7 @@ func NewShowUserContext(ctx context.Context) (*ShowUserContext, error) {
 		if userID, err2 := strconv.Atoi(rawUserID); err2 == nil {
 			rctx.UserID = userID
 		} else {
-			err = goa.InvalidParamTypeError("userID", rawUserID, "integer", err)
+			err = goa.StackErrors(err, goa.InvalidParamTypeError("userID", rawUserID, "integer"))
 		}
 	}
 	return &rctx, err
@@ -929,7 +929,7 @@ func NewUpdateUserContext(ctx context.Context) (*UpdateUserContext, error) {
 		if userID, err2 := strconv.Atoi(rawUserID); err2 == nil {
 			rctx.UserID = userID
 		} else {
-			err = goa.InvalidParamTypeError("userID", rawUserID, "integer", err)
+			err = goa.StackErrors(err, goa.InvalidParamTypeError("userID", rawUserID, "integer"))
 		}
 	}
 	return &rctx, err
@@ -949,16 +949,16 @@ type UpdateUserPayload struct {
 // Validate runs the validation rules defined in the design.
 func (payload *UpdateUserPayload) Validate() (err error) {
 	if payload.Email == "" {
-		err = goa.MissingAttributeError(`raw`, "email", err)
+		err = goa.StackErrors(err, goa.MissingAttributeError(`raw`, "email"))
 	}
 
 	if payload.Bio != nil {
 		if len(*payload.Bio) > 500 {
-			err = goa.InvalidLengthError(`raw.bio`, *payload.Bio, len(*payload.Bio), 500, false, err)
+			err = goa.StackErrors(err, goa.InvalidLengthError(`raw.bio`, *payload.Bio, len(*payload.Bio), 500, false))
 		}
 	}
 	if err2 := goa.ValidateFormat(goa.FormatEmail, payload.Email); err2 != nil {
-		err = goa.InvalidFormatError(`raw.email`, payload.Email, goa.FormatEmail, err2, err)
+		err = goa.StackErrors(err, goa.InvalidFormatError(`raw.email`, payload.Email, goa.FormatEmail, err2))
 	}
 	return
 }

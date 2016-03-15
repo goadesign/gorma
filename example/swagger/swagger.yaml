@@ -1,0 +1,994 @@
+basePath: /api
+consumes:
+- application/json
+- application/xml
+- application/gob
+- application/x-gob
+definitions:
+  Authorize:
+    description: Token authorization response
+    example:
+      access_token: Sunt et.
+      expires_in: 2.9899432e+18
+      token_type: Minima error.
+    properties:
+      access_token:
+        description: access token
+        example: Aut aspernatur excepturi.
+        type: string
+      expires_in:
+        description: Time to expiration in seconds
+        example: 1.4238748e+18
+        format: int64
+        type: integer
+      token_type:
+        description: type of token
+        example: Ab sit eos.
+        type: string
+    title: 'Mediatype identifier: application/vnd.authorize+json'
+    type: object
+  CreateProposalPayload:
+    properties:
+      abstract:
+        example: 26mzb6pqca
+        maxLength: 500
+        minLength: 50
+        type: string
+      detail:
+        example: cv1kxva4vw
+        maxLength: 2000
+        minLength: 100
+        type: string
+      title:
+        example: omleumo5c9
+        maxLength: 200
+        minLength: 10
+        type: string
+      withdrawn:
+        example: false
+        type: boolean
+    required:
+    - title
+    - abstract
+    - detail
+    title: CreateProposalPayload
+    type: object
+  CreateReviewPayload:
+    properties:
+      comment:
+        example: mtnbtdfthr
+        maxLength: 200
+        minLength: 10
+        type: string
+      rating:
+        example: 4
+        maximum: 5
+        minimum: 1
+        type: integer
+    required:
+    - rating
+    title: CreateReviewPayload
+    type: object
+  CreateUserPayload:
+    properties:
+      bio:
+        example: qo3aze8pv1
+        maxLength: 500
+        type: string
+      city:
+        example: Consequatur voluptatem natus error nihil animi esse.
+        type: string
+      country:
+        example: Saepe veniam occaecati tempore.
+        type: string
+      email:
+        example: william.fisher@cassin.org
+        format: email
+        type: string
+      firstname:
+        example: Doloribus qui non doloribus.
+        type: string
+      lastname:
+        example: Libero sed ipsum nihil.
+        type: string
+      state:
+        example: Ipsum quidem voluptatem perferendis inventore.
+        type: string
+    required:
+    - firstname
+    - lastname
+    - email
+    title: CreateUserPayload
+    type: object
+  Proposal:
+    description: A response to a CFP
+    example:
+      abstract: Nihil aliquam qui ut nihil.
+      detail: Sit ducimus cupiditate quo molestias.
+      href: Excepturi corporis ullam itaque ex.
+      id: 8.994647e+18
+      reviews:
+      - comment: Qui aspernatur vitae voluptatum saepe.
+        href: Porro officia harum tenetur sint aspernatur nemo.
+        id: 6.598852e+18
+        rating: 8.985207e+18
+      title: Impedit vel.
+    properties:
+      abstract:
+        description: Response abstract
+        example: ktb5njwyki
+        maxLength: 500
+        minLength: 50
+        type: string
+      detail:
+        description: Response detail
+        example: 9rjqyyxrev
+        maxLength: 2000
+        minLength: 100
+        type: string
+      href:
+        description: API href of user
+        example: Minus nam enim doloremque blanditiis quo nostrum.
+        type: string
+      id:
+        description: ID of user
+        example: 6.223143e+18
+        format: int64
+        type: integer
+      reviews:
+        description: Reviews
+        example:
+        - comment: Suscipit debitis.
+          href: Esse a.
+          id: 8.914908e+18
+          rating: 6.174726e+18
+        - comment: Cumque voluptatum iste qui molestiae.
+          href: Atque dolorem voluptas et.
+          id: 6.2444844e+18
+          rating: 6.572515e+18
+        items:
+          example:
+            comment: Aperiam quo rerum neque beatae consequatur.
+            href: Sed explicabo id eum eos tempora.
+            id: 4.0015508e+18
+            rating: 7.1817807e+18
+          properties:
+            comment:
+              description: Review comments
+              example: on0mcoyx7h
+              maxLength: 200
+              minLength: 10
+              type: string
+            href:
+              description: API href of user
+              example: Adipisci eaque molestias dolorum illo.
+              type: string
+            id:
+              description: ID of user
+              example: 7.300619e+18
+              format: int64
+              type: integer
+            rating:
+              description: Rating of proposal, from 1-5
+              example: 3
+              maximum: 5
+              minimum: 1
+              type: integer
+          type: object
+        type: array
+      title:
+        description: Response title
+        example: iya6xlve8o
+        maxLength: 200
+        minLength: 10
+        type: string
+    title: 'Mediatype identifier: application/vnd.proposal+json'
+    type: object
+  ProposalCollection:
+    example:
+    - abstract: Cumque aut sit.
+      detail: Numquam ex minima.
+      href: Ex distinctio dolorem similique.
+      id: 3.8096618e+18
+      reviews:
+      - comment: Numquam quae ut porro.
+        href: Quo dolor.
+        id: 1.149594e+18
+        rating: 9.8992605e+17
+      - comment: Neque iusto commodi.
+        href: Quae incidunt voluptatem dolores tempora esse impedit.
+        id: 4.9986506e+17
+        rating: 8.5741703e+18
+      title: Incidunt illo.
+    items:
+      example:
+        abstract: Delectus ipsum facere qui vel.
+        detail: Praesentium debitis nostrum aut quia.
+        href: Sed recusandae amet voluptatem omnis necessitatibus sequi.
+        id: 7.8863835e+18
+        reviews:
+        - comment: Cum est delectus sint.
+          href: Reiciendis hic.
+          id: 7.562909e+18
+          rating: 6.6455247e+18
+        - comment: Veniam et dolor.
+          href: Molestias voluptate rerum.
+          id: 5.079042e+18
+          rating: 6.4350243e+18
+        - comment: Tempore accusantium id tempora facilis voluptas.
+          href: Tempora ipsum aperiam nihil voluptatem.
+          id: 7.568579e+18
+          rating: 3.3609094e+18
+        title: Nihil nesciunt voluptatem reprehenderit et qui.
+      properties:
+        abstract:
+          description: Response abstract
+          example: ktb5njwyki
+          maxLength: 500
+          minLength: 50
+          type: string
+        detail:
+          description: Response detail
+          example: 9rjqyyxrev
+          maxLength: 2000
+          minLength: 100
+          type: string
+        href:
+          description: API href of user
+          example: Minus nam enim doloremque blanditiis quo nostrum.
+          type: string
+        id:
+          description: ID of user
+          example: 6.223143e+18
+          format: int64
+          type: integer
+        reviews:
+          description: Reviews
+          example:
+          - comment: Suscipit debitis.
+            href: Esse a.
+            id: 8.914908e+18
+            rating: 6.174726e+18
+          - comment: Cumque voluptatum iste qui molestiae.
+            href: Atque dolorem voluptas et.
+            id: 6.2444844e+18
+            rating: 6.572515e+18
+          items:
+            example:
+              comment: Aperiam quo rerum neque beatae consequatur.
+              href: Sed explicabo id eum eos tempora.
+              id: 4.0015508e+18
+              rating: 7.1817807e+18
+            properties:
+              comment:
+                description: Review comments
+                example: on0mcoyx7h
+                maxLength: 200
+                minLength: 10
+                type: string
+              href:
+                description: API href of user
+                example: Adipisci eaque molestias dolorum illo.
+                type: string
+              id:
+                description: ID of user
+                example: 7.300619e+18
+                format: int64
+                type: integer
+              rating:
+                description: Rating of proposal, from 1-5
+                example: 3
+                maximum: 5
+                minimum: 1
+                type: integer
+            type: object
+          type: array
+        title:
+          description: Response title
+          example: iya6xlve8o
+          maxLength: 200
+          minLength: 10
+          type: string
+      type: object
+    title: 'Mediatype identifier: application/vnd.proposal+json; type=collection'
+    type: array
+  RefreshAuthPayload:
+    properties:
+      application:
+        description: UUID of requesting application
+        type: string
+      email:
+        description: email
+        type: string
+      password:
+        description: password
+        type: string
+    title: RefreshAuthPayload
+    type: object
+  Review:
+    description: A review is submitted by a reviewer
+    example:
+      comment: Fugit molestias eos ex harum quis ea.
+      href: Ipsum dolor.
+      id: 7.0860424e+18
+      rating: 5.995526e+18
+    properties:
+      comment:
+        description: Review comments
+        example: on0mcoyx7h
+        maxLength: 200
+        minLength: 10
+        type: string
+      href:
+        description: API href of user
+        example: Adipisci eaque molestias dolorum illo.
+        type: string
+      id:
+        description: ID of user
+        example: 7.300619e+18
+        format: int64
+        type: integer
+      rating:
+        description: Rating of proposal, from 1-5
+        example: 3
+        maximum: 5
+        minimum: 1
+        type: integer
+    title: 'Mediatype identifier: application/vnd.review+json'
+    type: object
+  ReviewCollection:
+    example:
+    - comment: Consequatur sit autem vel mollitia et maiores.
+      href: Dolorum ab officia aut.
+      id: 6.6587254e+18
+      rating: 5.566292e+18
+    items:
+      example:
+        comment: Aperiam quo rerum neque beatae consequatur.
+        href: Sed explicabo id eum eos tempora.
+        id: 4.0015508e+18
+        rating: 7.1817807e+18
+      properties:
+        comment:
+          description: Review comments
+          example: on0mcoyx7h
+          maxLength: 200
+          minLength: 10
+          type: string
+        href:
+          description: API href of user
+          example: Adipisci eaque molestias dolorum illo.
+          type: string
+        id:
+          description: ID of user
+          example: 7.300619e+18
+          format: int64
+          type: integer
+        rating:
+          description: Rating of proposal, from 1-5
+          example: 3
+          maximum: 5
+          minimum: 1
+          type: integer
+      type: object
+    title: 'Mediatype identifier: application/vnd.review+json; type=collection'
+    type: array
+  TokenAuthPayload:
+    properties:
+      application:
+        description: UUID of requesting application
+        type: string
+      email:
+        description: email
+        type: string
+      password:
+        description: password
+        type: string
+    title: TokenAuthPayload
+    type: object
+  UpdateProposalPayload:
+    properties:
+      abstract:
+        maxLength: 500
+        minLength: 50
+        type: string
+      detail:
+        maxLength: 2000
+        minLength: 100
+        type: string
+      title:
+        maxLength: 200
+        minLength: 10
+        type: string
+      withdrawn:
+        type: boolean
+    title: UpdateProposalPayload
+    type: object
+  UpdateReviewPayload:
+    properties:
+      comment:
+        maxLength: 200
+        minLength: 10
+        type: string
+      rating:
+        maximum: 5
+        minimum: 1
+        type: integer
+    title: UpdateReviewPayload
+    type: object
+  UpdateUserPayload:
+    properties:
+      bio:
+        maxLength: 500
+        type: string
+      city:
+        type: string
+      country:
+        type: string
+      email:
+        format: email
+        type: string
+      firstname:
+        type: string
+      lastname:
+        type: string
+      state:
+        type: string
+    required:
+    - email
+    title: UpdateUserPayload
+    type: object
+  User:
+    description: A user belonging to a tenant account
+    example:
+      bio: Officiis a at quia.
+      city: Nisi nihil.
+      country: Est perferendis velit et.
+      email: Earum ipsa.
+      firstname: Iste eos qui earum sed nam.
+      href: Minus molestiae necessitatibus totam porro.
+      id: 7.850095e+18
+      lastname: At hic.
+      role: Occaecati enim.
+      state: Incidunt sed aspernatur laudantium suscipit nihil omnis.
+    properties:
+      bio:
+        description: Biography of user
+        example: wmmy449jxq
+        maxLength: 500
+        type: string
+      city:
+        description: City of residence
+        example: Dolor iure.
+        type: string
+      country:
+        description: Country of residence
+        example: Harum aut placeat cumque.
+        type: string
+      email:
+        description: Email address of user
+        example: bart.bruen@will.net
+        format: email
+        type: string
+      firstname:
+        description: First name of user
+        example: Hic ex ea ut.
+        type: string
+      href:
+        description: API href of user
+        example: Dignissimos rerum repellat aut tempora nihil voluptas.
+        type: string
+      id:
+        description: ID of user
+        example: 8.1248096e+17
+        format: int64
+        type: integer
+      lastname:
+        description: Last name of user
+        example: Dolor dolorum sequi corporis non.
+        type: string
+      role:
+        description: Role of user
+        example: Earum ut eum alias voluptatibus dolorem non.
+        type: string
+      state:
+        description: State of residence
+        example: Praesentium quia enim et eos earum.
+        type: string
+    title: 'Mediatype identifier: application/vnd.user+json'
+    type: object
+  UserCollection:
+    example:
+    - bio: Ipsum quaerat.
+      city: Aut fugit dolor molestiae.
+      country: Pariatur dolores.
+      email: Quas necessitatibus ea vel.
+      firstname: Et inventore sequi.
+      href: Molestias nesciunt aspernatur excepturi.
+      id: 4.627212e+18
+      lastname: Ea temporibus quibusdam vitae.
+      role: Ut a et sit.
+      state: Quos in doloremque illo hic.
+    - bio: Incidunt quis quo.
+      city: Et illo reiciendis quos dolores enim est.
+      country: Dicta eum.
+      email: Vitae enim ipsum.
+      firstname: Perferendis sapiente velit vero fugiat odio est.
+      href: Omnis quia perferendis.
+      id: 5.6807654e+18
+      lastname: Cum hic incidunt aut.
+      role: Aut repudiandae asperiores dolor.
+      state: Voluptas aut doloremque fugit omnis debitis.
+    items:
+      example:
+        bio: Tempore est est quis autem.
+        city: Accusantium et.
+        country: Possimus dolore aut.
+        email: Suscipit fuga modi aut delectus qui.
+        firstname: Vel saepe vel eum necessitatibus.
+        href: Repellat quos fugit quod dicta dolores iusto.
+        id: 1.2162482e+18
+        lastname: Id iusto minima est omnis mollitia quo.
+        role: Accusantium molestiae culpa.
+        state: Et et totam repellat.
+      properties:
+        bio:
+          description: Biography of user
+          example: wmmy449jxq
+          maxLength: 500
+          type: string
+        city:
+          description: City of residence
+          example: Dolor iure.
+          type: string
+        country:
+          description: Country of residence
+          example: Harum aut placeat cumque.
+          type: string
+        email:
+          description: Email address of user
+          example: bart.bruen@will.net
+          format: email
+          type: string
+        firstname:
+          description: First name of user
+          example: Hic ex ea ut.
+          type: string
+        href:
+          description: API href of user
+          example: Dignissimos rerum repellat aut tempora nihil voluptas.
+          type: string
+        id:
+          description: ID of user
+          example: 8.1248096e+17
+          format: int64
+          type: integer
+        lastname:
+          description: Last name of user
+          example: Dolor dolorum sequi corporis non.
+          type: string
+        role:
+          description: Role of user
+          example: Earum ut eum alias voluptatibus dolorem non.
+          type: string
+        state:
+          description: State of residence
+          example: Praesentium quia enim et eos earum.
+          type: string
+      type: object
+    title: 'Mediatype identifier: application/vnd.user+json; type=collection'
+    type: array
+externalDocs:
+  description: congo guide
+  url: https://gopheracademy.com/congo/getting-started.html
+host: api.gopheracademy.com
+info:
+  contact:
+    email: social@gopheracademy.com
+    name: Gopher Academy
+    url: https://gopheracademy.com
+  description: Multi-tenant conference management application
+  license:
+    name: MIT
+    url: https://github.com/gopheracademy/congo/blob/master/LICENSE
+  title: Congo - Conference Management Made Easy
+  version: ""
+paths:
+  /:
+    get:
+      description: Render single page app HTML
+      operationId: ui#bootstrap
+      responses:
+        "200":
+          description: OK
+      schemes:
+      - http
+  /auth/{provider}:
+    get:
+      description: OAUTH2 login endpoint
+      operationId: auth#oauth
+      parameters:
+      - in: path
+        name: provider
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Authorize'
+      schemes:
+      - http
+  /auth/{provider}/callback:
+    get:
+      description: OAUTH2 callback endpoint
+      operationId: auth#callback
+      parameters:
+      - in: path
+        name: provider
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+      schemes:
+      - http
+  /auth/refresh:
+    post:
+      description: Obtain a refreshed access token
+      operationId: auth#refresh
+      parameters:
+      - in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/RefreshAuthPayload'
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/Authorize'
+      schemes:
+      - http
+  /auth/token:
+    post:
+      description: Obtain an access token
+      operationId: auth#token
+      parameters:
+      - in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/TokenAuthPayload'
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/Authorize'
+      schemes:
+      - http
+  /users:
+    get:
+      description: List all users in account
+      operationId: user#list
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/UserCollection'
+      schemes:
+      - http
+    post:
+      description: Record new user
+      operationId: user#create
+      parameters:
+      - in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/CreateUserPayload'
+      responses:
+        "201":
+          description: Resource created
+          headers:
+            Location:
+              description: href to created resource
+              pattern: ^/accounts/[0-9]+/users/[0-9]+$
+              type: string
+      schemes:
+      - http
+  /users/{userID}:
+    delete:
+      operationId: user#delete
+      parameters:
+      - description: User ID
+        in: path
+        name: userID
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Not Found
+      schemes:
+      - http
+    get:
+      description: Retrieve user with given id
+      operationId: user#show
+      parameters:
+      - in: path
+        name: userID
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/User'
+        "404":
+          description: Not Found
+      schemes:
+      - http
+    patch:
+      operationId: user#update
+      parameters:
+      - in: path
+        name: userID
+        required: true
+        type: integer
+      - in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/UpdateUserPayload'
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Not Found
+      schemes:
+      - http
+  /users/{userID}/proposals:
+    get:
+      description: List all proposals for a user
+      operationId: proposal#list
+      parameters:
+      - in: path
+        name: userID
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ProposalCollection'
+      schemes:
+      - http
+    post:
+      description: Create a new proposal
+      operationId: proposal#create
+      parameters:
+      - in: path
+        name: userID
+        required: true
+        type: integer
+      - in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/CreateProposalPayload'
+      responses:
+        "201":
+          description: Resource created
+          headers:
+            Location:
+              description: href to created resource
+              pattern: ^/users/[0-9]+/proposals/[0-9]+$
+              type: string
+      schemes:
+      - http
+  /users/{userID}/proposals/{proposalID}:
+    delete:
+      operationId: proposal#delete
+      parameters:
+      - description: Proposal ID
+        in: path
+        name: proposalID
+        required: true
+        type: integer
+      - in: path
+        name: userID
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Not Found
+      schemes:
+      - http
+    get:
+      description: Retrieve proposal with given id
+      operationId: proposal#show
+      parameters:
+      - in: path
+        name: proposalID
+        required: true
+        type: integer
+      - in: path
+        name: userID
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Proposal'
+        "404":
+          description: Not Found
+      schemes:
+      - http
+    patch:
+      operationId: proposal#update
+      parameters:
+      - in: path
+        name: proposalID
+        required: true
+        type: integer
+      - in: path
+        name: userID
+        required: true
+        type: integer
+      - in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/UpdateProposalPayload'
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Not Found
+      schemes:
+      - http
+  /users/{userID}/proposals/{proposalID}/review:
+    get:
+      description: List all reviews for a proposal
+      operationId: review#list
+      parameters:
+      - in: path
+        name: proposalID
+        required: true
+        type: integer
+      - in: path
+        name: userID
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ReviewCollection'
+      schemes:
+      - http
+    post:
+      description: Create a new review
+      operationId: review#create
+      parameters:
+      - in: path
+        name: proposalID
+        required: true
+        type: integer
+      - in: path
+        name: userID
+        required: true
+        type: integer
+      - in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/CreateReviewPayload'
+      responses:
+        "201":
+          description: Resource created
+          headers:
+            Location:
+              description: href to created resource
+              pattern: ^/users/[0-9]+/proposals/[0-9]+/reviews/[0-9]+$
+              type: string
+      schemes:
+      - http
+  /users/{userID}/proposals/{proposalID}/review/{reviewID}:
+    delete:
+      operationId: review#delete
+      parameters:
+      - in: path
+        name: proposalID
+        required: true
+        type: integer
+      - description: Review ID
+        in: path
+        name: reviewID
+        required: true
+        type: integer
+      - in: path
+        name: userID
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Not Found
+      schemes:
+      - http
+    get:
+      description: Retrieve review with given id
+      operationId: review#show
+      parameters:
+      - in: path
+        name: proposalID
+        required: true
+        type: integer
+      - in: path
+        name: reviewID
+        required: true
+        type: integer
+      - in: path
+        name: userID
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Review'
+        "404":
+          description: Not Found
+      schemes:
+      - http
+    patch:
+      operationId: review#update
+      parameters:
+      - in: path
+        name: proposalID
+        required: true
+        type: integer
+      - in: path
+        name: reviewID
+        required: true
+        type: integer
+      - in: path
+        name: userID
+        required: true
+        type: integer
+      - in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/UpdateReviewPayload'
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Not Found
+      schemes:
+      - http
+produces:
+- application/json
+- application/xml
+- application/gob
+- application/x-gob
+responses:
+  NoContent:
+    description: No Content
+  NotFound:
+    description: Not Found
+  OK:
+    description: OK
+    schema:
+      $ref: '#/definitions/Authorize'
+schemes:
+- http
+swagger: "2.0"

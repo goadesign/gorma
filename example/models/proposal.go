@@ -105,7 +105,7 @@ func (m *ProposalDB) Get(ctx context.Context, id int) (Proposal, error) {
 
 	var native Proposal
 	err := m.Db.Table(m.TableName()).Where("id = ?", id).Find(&native).Error
-	if err ==  gorm.ErrRecordNotFound {
+	if err == gorm.ErrRecordNotFound {
 		return Proposal{}, nil
 	}
 
@@ -118,7 +118,7 @@ func (m *ProposalDB) List(ctx context.Context) []Proposal {
 
 	var objs []Proposal
 	err := m.Db.Table(m.TableName()).Find(&objs).Error
-	if err != nil && err !=  gorm.ErrRecordNotFound {
+	if err != nil && err != gorm.ErrRecordNotFound {
 		goa.Error(ctx, "error listing Proposal", "error", err.Error())
 		return objs
 	}

@@ -8,7 +8,7 @@ import (
 // StorageGroup implements the top level Gorma DSL
 // There should be one StorageGroup per Goa application.
 func StorageGroup(name string, dsli func()) *gorma.StorageGroupDefinition {
-	if !dslengine.TopLevelDefinition(true) {
+	if !dslengine.IsTopLevelDefinition() {
 		return nil
 	}
 	if name == "" {

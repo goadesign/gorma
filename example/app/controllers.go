@@ -54,10 +54,11 @@ type AuthController interface {
 func MountAuthController(service *goa.Service, ctrl AuthController) {
 	initService(service)
 	var h goa.Handler
+
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		rctx, err := NewCallbackAuthContext(ctx)
 		if err != nil {
-			return goa.NewBadRequestError(err)
+			return err
 		}
 		return ctrl.Callback(rctx)
 	}
@@ -66,7 +67,7 @@ func MountAuthController(service *goa.Service, ctrl AuthController) {
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		rctx, err := NewOauthAuthContext(ctx)
 		if err != nil {
-			return goa.NewBadRequestError(err)
+			return err
 		}
 		return ctrl.Oauth(rctx)
 	}
@@ -75,7 +76,7 @@ func MountAuthController(service *goa.Service, ctrl AuthController) {
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		rctx, err := NewRefreshAuthContext(ctx)
 		if err != nil {
-			return goa.NewBadRequestError(err)
+			return err
 		}
 		if rawPayload := goa.Request(ctx).Payload; rawPayload != nil {
 			rctx.Payload = rawPayload.(*RefreshAuthPayload)
@@ -87,7 +88,7 @@ func MountAuthController(service *goa.Service, ctrl AuthController) {
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		rctx, err := NewTokenAuthContext(ctx)
 		if err != nil {
-			return goa.NewBadRequestError(err)
+			return err
 		}
 		if rawPayload := goa.Request(ctx).Payload; rawPayload != nil {
 			rctx.Payload = rawPayload.(*TokenAuthPayload)
@@ -132,10 +133,11 @@ type ProposalController interface {
 func MountProposalController(service *goa.Service, ctrl ProposalController) {
 	initService(service)
 	var h goa.Handler
+
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		rctx, err := NewCreateProposalContext(ctx)
 		if err != nil {
-			return goa.NewBadRequestError(err)
+			return err
 		}
 		if rawPayload := goa.Request(ctx).Payload; rawPayload != nil {
 			rctx.Payload = rawPayload.(*CreateProposalPayload)
@@ -147,7 +149,7 @@ func MountProposalController(service *goa.Service, ctrl ProposalController) {
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		rctx, err := NewDeleteProposalContext(ctx)
 		if err != nil {
-			return goa.NewBadRequestError(err)
+			return err
 		}
 		return ctrl.Delete(rctx)
 	}
@@ -156,7 +158,7 @@ func MountProposalController(service *goa.Service, ctrl ProposalController) {
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		rctx, err := NewListProposalContext(ctx)
 		if err != nil {
-			return goa.NewBadRequestError(err)
+			return err
 		}
 		return ctrl.List(rctx)
 	}
@@ -165,7 +167,7 @@ func MountProposalController(service *goa.Service, ctrl ProposalController) {
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		rctx, err := NewShowProposalContext(ctx)
 		if err != nil {
-			return goa.NewBadRequestError(err)
+			return err
 		}
 		return ctrl.Show(rctx)
 	}
@@ -174,7 +176,7 @@ func MountProposalController(service *goa.Service, ctrl ProposalController) {
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		rctx, err := NewUpdateProposalContext(ctx)
 		if err != nil {
-			return goa.NewBadRequestError(err)
+			return err
 		}
 		if rawPayload := goa.Request(ctx).Payload; rawPayload != nil {
 			rctx.Payload = rawPayload.(*UpdateProposalPayload)
@@ -225,10 +227,11 @@ type ReviewController interface {
 func MountReviewController(service *goa.Service, ctrl ReviewController) {
 	initService(service)
 	var h goa.Handler
+
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		rctx, err := NewCreateReviewContext(ctx)
 		if err != nil {
-			return goa.NewBadRequestError(err)
+			return err
 		}
 		if rawPayload := goa.Request(ctx).Payload; rawPayload != nil {
 			rctx.Payload = rawPayload.(*CreateReviewPayload)
@@ -240,7 +243,7 @@ func MountReviewController(service *goa.Service, ctrl ReviewController) {
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		rctx, err := NewDeleteReviewContext(ctx)
 		if err != nil {
-			return goa.NewBadRequestError(err)
+			return err
 		}
 		return ctrl.Delete(rctx)
 	}
@@ -249,7 +252,7 @@ func MountReviewController(service *goa.Service, ctrl ReviewController) {
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		rctx, err := NewListReviewContext(ctx)
 		if err != nil {
-			return goa.NewBadRequestError(err)
+			return err
 		}
 		return ctrl.List(rctx)
 	}
@@ -258,7 +261,7 @@ func MountReviewController(service *goa.Service, ctrl ReviewController) {
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		rctx, err := NewShowReviewContext(ctx)
 		if err != nil {
-			return goa.NewBadRequestError(err)
+			return err
 		}
 		return ctrl.Show(rctx)
 	}
@@ -267,7 +270,7 @@ func MountReviewController(service *goa.Service, ctrl ReviewController) {
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		rctx, err := NewUpdateReviewContext(ctx)
 		if err != nil {
-			return goa.NewBadRequestError(err)
+			return err
 		}
 		if rawPayload := goa.Request(ctx).Payload; rawPayload != nil {
 			rctx.Payload = rawPayload.(*UpdateReviewPayload)
@@ -314,10 +317,11 @@ type UIController interface {
 func MountUIController(service *goa.Service, ctrl UIController) {
 	initService(service)
 	var h goa.Handler
+
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		rctx, err := NewBootstrapUIContext(ctx)
 		if err != nil {
-			return goa.NewBadRequestError(err)
+			return err
 		}
 		return ctrl.Bootstrap(rctx)
 	}
@@ -339,10 +343,11 @@ type UserController interface {
 func MountUserController(service *goa.Service, ctrl UserController) {
 	initService(service)
 	var h goa.Handler
+
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		rctx, err := NewCreateUserContext(ctx)
 		if err != nil {
-			return goa.NewBadRequestError(err)
+			return err
 		}
 		if rawPayload := goa.Request(ctx).Payload; rawPayload != nil {
 			rctx.Payload = rawPayload.(*CreateUserPayload)
@@ -354,7 +359,7 @@ func MountUserController(service *goa.Service, ctrl UserController) {
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		rctx, err := NewDeleteUserContext(ctx)
 		if err != nil {
-			return goa.NewBadRequestError(err)
+			return err
 		}
 		return ctrl.Delete(rctx)
 	}
@@ -363,7 +368,7 @@ func MountUserController(service *goa.Service, ctrl UserController) {
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		rctx, err := NewListUserContext(ctx)
 		if err != nil {
-			return goa.NewBadRequestError(err)
+			return err
 		}
 		return ctrl.List(rctx)
 	}
@@ -372,7 +377,7 @@ func MountUserController(service *goa.Service, ctrl UserController) {
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		rctx, err := NewShowUserContext(ctx)
 		if err != nil {
-			return goa.NewBadRequestError(err)
+			return err
 		}
 		return ctrl.Show(rctx)
 	}
@@ -381,7 +386,7 @@ func MountUserController(service *goa.Service, ctrl UserController) {
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		rctx, err := NewUpdateUserContext(ctx)
 		if err != nil {
-			return goa.NewBadRequestError(err)
+			return err
 		}
 		if rawPayload := goa.Request(ctx).Payload; rawPayload != nil {
 			rctx.Payload = rawPayload.(*UpdateUserPayload)

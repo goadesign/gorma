@@ -62,7 +62,7 @@ func (m *TestTooDB) OneUser(ctx context.Context, idone int, idtwo int) (*app.Use
 	var native TestToo
 	err := m.Db.Scopes().Table(m.TableName()).Where("idone = ? and idtwo = ?", idone, idtwo).Find(&native).Error
 
-	if err != nil && err !=  gorm.ErrRecordNotFound {
+	if err != nil && err != gorm.ErrRecordNotFound {
 		goa.Error(ctx, "error getting TestToo", "error", err.Error())
 		return nil, err
 	}
@@ -108,7 +108,7 @@ func (m *TestTooDB) OneUserLink(ctx context.Context, idone int, idtwo int) (*app
 	var native TestToo
 	err := m.Db.Scopes().Table(m.TableName()).Where("idone = ? and idtwo = ?", idone, idtwo).Find(&native).Error
 
-	if err != nil && err !=  gorm.ErrRecordNotFound {
+	if err != nil && err != gorm.ErrRecordNotFound {
 		goa.Error(ctx, "error getting TestToo", "error", err.Error())
 		return nil, err
 	}

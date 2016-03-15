@@ -26,32 +26,32 @@ type ProposalPayload struct {
 func (ut *ProposalPayload) Validate() (err error) {
 	if ut.Abstract != nil {
 		if len(*ut.Abstract) < 50 {
-			err = goa.InvalidLengthError(`response.abstract`, *ut.Abstract, len(*ut.Abstract), 50, true, err)
+			err = goa.StackErrors(err, goa.InvalidLengthError(`response.abstract`, *ut.Abstract, len(*ut.Abstract), 50, true))
 		}
 	}
 	if ut.Abstract != nil {
 		if len(*ut.Abstract) > 500 {
-			err = goa.InvalidLengthError(`response.abstract`, *ut.Abstract, len(*ut.Abstract), 500, false, err)
+			err = goa.StackErrors(err, goa.InvalidLengthError(`response.abstract`, *ut.Abstract, len(*ut.Abstract), 500, false))
 		}
 	}
 	if ut.Detail != nil {
 		if len(*ut.Detail) < 100 {
-			err = goa.InvalidLengthError(`response.detail`, *ut.Detail, len(*ut.Detail), 100, true, err)
+			err = goa.StackErrors(err, goa.InvalidLengthError(`response.detail`, *ut.Detail, len(*ut.Detail), 100, true))
 		}
 	}
 	if ut.Detail != nil {
 		if len(*ut.Detail) > 2000 {
-			err = goa.InvalidLengthError(`response.detail`, *ut.Detail, len(*ut.Detail), 2000, false, err)
+			err = goa.StackErrors(err, goa.InvalidLengthError(`response.detail`, *ut.Detail, len(*ut.Detail), 2000, false))
 		}
 	}
 	if ut.Title != nil {
 		if len(*ut.Title) < 10 {
-			err = goa.InvalidLengthError(`response.title`, *ut.Title, len(*ut.Title), 10, true, err)
+			err = goa.StackErrors(err, goa.InvalidLengthError(`response.title`, *ut.Title, len(*ut.Title), 10, true))
 		}
 	}
 	if ut.Title != nil {
 		if len(*ut.Title) > 200 {
-			err = goa.InvalidLengthError(`response.title`, *ut.Title, len(*ut.Title), 200, false, err)
+			err = goa.StackErrors(err, goa.InvalidLengthError(`response.title`, *ut.Title, len(*ut.Title), 200, false))
 		}
 	}
 	return
@@ -67,22 +67,22 @@ type ReviewPayload struct {
 func (ut *ReviewPayload) Validate() (err error) {
 	if ut.Comment != nil {
 		if len(*ut.Comment) < 10 {
-			err = goa.InvalidLengthError(`response.comment`, *ut.Comment, len(*ut.Comment), 10, true, err)
+			err = goa.StackErrors(err, goa.InvalidLengthError(`response.comment`, *ut.Comment, len(*ut.Comment), 10, true))
 		}
 	}
 	if ut.Comment != nil {
 		if len(*ut.Comment) > 200 {
-			err = goa.InvalidLengthError(`response.comment`, *ut.Comment, len(*ut.Comment), 200, false, err)
+			err = goa.StackErrors(err, goa.InvalidLengthError(`response.comment`, *ut.Comment, len(*ut.Comment), 200, false))
 		}
 	}
 	if ut.Rating != nil {
 		if *ut.Rating < 1 {
-			err = goa.InvalidRangeError(`response.rating`, *ut.Rating, 1, true, err)
+			err = goa.StackErrors(err, goa.InvalidRangeError(`response.rating`, *ut.Rating, 1, true))
 		}
 	}
 	if ut.Rating != nil {
 		if *ut.Rating > 5 {
-			err = goa.InvalidRangeError(`response.rating`, *ut.Rating, 5, false, err)
+			err = goa.StackErrors(err, goa.InvalidRangeError(`response.rating`, *ut.Rating, 5, false))
 		}
 	}
 	return
@@ -103,12 +103,12 @@ type UserPayload struct {
 func (ut *UserPayload) Validate() (err error) {
 	if ut.Bio != nil {
 		if len(*ut.Bio) > 500 {
-			err = goa.InvalidLengthError(`response.bio`, *ut.Bio, len(*ut.Bio), 500, false, err)
+			err = goa.StackErrors(err, goa.InvalidLengthError(`response.bio`, *ut.Bio, len(*ut.Bio), 500, false))
 		}
 	}
 	if ut.Email != nil {
 		if err2 := goa.ValidateFormat(goa.FormatEmail, *ut.Email); err2 != nil {
-			err = goa.InvalidFormatError(`response.email`, *ut.Email, goa.FormatEmail, err2, err)
+			err = goa.StackErrors(err, goa.InvalidFormatError(`response.email`, *ut.Email, goa.FormatEmail, err2))
 		}
 	}
 	return

@@ -116,7 +116,7 @@ func (m *ReviewDB) Get(ctx context.Context, id int) (Review, error) {
 
 	var native Review
 	err := m.Db.Table(m.TableName()).Where("id = ?", id).Find(&native).Error
-	if err ==  gorm.ErrRecordNotFound {
+	if err == gorm.ErrRecordNotFound {
 		return Review{}, nil
 	}
 
@@ -129,7 +129,7 @@ func (m *ReviewDB) List(ctx context.Context) []Review {
 
 	var objs []Review
 	err := m.Db.Table(m.TableName()).Find(&objs).Error
-	if err != nil && err !=  gorm.ErrRecordNotFound {
+	if err != nil && err != gorm.ErrRecordNotFound {
 		goa.Error(ctx, "error listing Review", "error", err.Error())
 		return objs
 	}

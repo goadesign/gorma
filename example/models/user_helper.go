@@ -63,7 +63,7 @@ func (m *UserDB) OneUser(ctx context.Context, id int) (*app.User, error) {
 	var native User
 	err := m.Db.Scopes().Table(m.TableName()).Preload("Proposals").Preload("Reviews").Where("id = ?", id).Find(&native).Error
 
-	if err != nil && err !=  gorm.ErrRecordNotFound {
+	if err != nil && err != gorm.ErrRecordNotFound {
 		goa.Error(ctx, "error getting User", "error", err.Error())
 		return nil, err
 	}
@@ -110,7 +110,7 @@ func (m *UserDB) OneUserLink(ctx context.Context, id int) (*app.UserLink, error)
 	var native User
 	err := m.Db.Scopes().Table(m.TableName()).Preload("Proposals").Preload("Reviews").Where("id = ?", id).Find(&native).Error
 
-	if err != nil && err !=  gorm.ErrRecordNotFound {
+	if err != nil && err != gorm.ErrRecordNotFound {
 		goa.Error(ctx, "error getting User", "error", err.Error())
 		return nil, err
 	}
