@@ -1,30 +1,16 @@
 package client
 
 import (
+	goaclient "github.com/goadesign/goa/client"
 	"net/http"
-
-	"github.com/goadesign/goa"
-	"gopkg.in/alecthomas/kingpin.v2"
 )
 
-type (
-	// Client is the cellar service client.
-	Client struct {
-		*goa.Client
-	}
-
-	// ActionCommand represents a single action command as defined on the command line.
-	// Each command is associated with a generated client method and contains the logic to
-	// call the method passing in arguments computed from the command line.
-	ActionCommand interface {
-		// Run makes the HTTP request and returns the response.
-		Run(c *Client) (*http.Response, error)
-		// RegisterFlags defines the command flags.
-		RegisterFlags(*kingpin.CmdClause)
-	}
-)
+// Client is the congo service client.
+type Client struct {
+	*goaclient.Client
+}
 
 // New instantiates the client.
-func New() *Client {
-	return &Client{Client: goa.NewClient()}
+func New(c *http.Client) *Client {
+	return &Client{Client: goaclient.New(c)}
 }
