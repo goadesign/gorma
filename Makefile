@@ -28,7 +28,7 @@ docs:
 	@git clone https://github.com/goadesign/goa.design
 	@rm -rf goa.design/content/reference goa.design/public
 	@mdc github.com/goadesign/gorma goa.design/content/reference --exclude goa.design --exclude example
-	@cd goa.design && hugo --theme goa --uglyURLs=true
+	@cd goa.design && hugo
 	@rm -rf public
 	@mv goa.design/public public
 	@rm -rf goa.design
