@@ -23,38 +23,39 @@ type ProposalPayload struct {
 }
 
 // Validate validates the ProposalPayload type instance.
-func (ut *ProposalPayload) Validate() (err error) {
+func (ut *ProposalPayload) Validate() error {
+	var err *goa.Error
 	if ut.Abstract != nil {
 		if len(*ut.Abstract) < 50 {
-			err = goa.StackErrors(err, goa.InvalidLengthError(`response.abstract`, *ut.Abstract, len(*ut.Abstract), 50, true))
+			err = err.Merge(goa.InvalidLengthError(`response.abstract`, *ut.Abstract, len(*ut.Abstract), 50, true))
 		}
 	}
 	if ut.Abstract != nil {
 		if len(*ut.Abstract) > 500 {
-			err = goa.StackErrors(err, goa.InvalidLengthError(`response.abstract`, *ut.Abstract, len(*ut.Abstract), 500, false))
+			err = err.Merge(goa.InvalidLengthError(`response.abstract`, *ut.Abstract, len(*ut.Abstract), 500, false))
 		}
 	}
 	if ut.Detail != nil {
 		if len(*ut.Detail) < 100 {
-			err = goa.StackErrors(err, goa.InvalidLengthError(`response.detail`, *ut.Detail, len(*ut.Detail), 100, true))
+			err = err.Merge(goa.InvalidLengthError(`response.detail`, *ut.Detail, len(*ut.Detail), 100, true))
 		}
 	}
 	if ut.Detail != nil {
 		if len(*ut.Detail) > 2000 {
-			err = goa.StackErrors(err, goa.InvalidLengthError(`response.detail`, *ut.Detail, len(*ut.Detail), 2000, false))
+			err = err.Merge(goa.InvalidLengthError(`response.detail`, *ut.Detail, len(*ut.Detail), 2000, false))
 		}
 	}
 	if ut.Title != nil {
 		if len(*ut.Title) < 10 {
-			err = goa.StackErrors(err, goa.InvalidLengthError(`response.title`, *ut.Title, len(*ut.Title), 10, true))
+			err = err.Merge(goa.InvalidLengthError(`response.title`, *ut.Title, len(*ut.Title), 10, true))
 		}
 	}
 	if ut.Title != nil {
 		if len(*ut.Title) > 200 {
-			err = goa.StackErrors(err, goa.InvalidLengthError(`response.title`, *ut.Title, len(*ut.Title), 200, false))
+			err = err.Merge(goa.InvalidLengthError(`response.title`, *ut.Title, len(*ut.Title), 200, false))
 		}
 	}
-	return
+	return err
 }
 
 // ReviewPayload user type.
@@ -64,28 +65,29 @@ type ReviewPayload struct {
 }
 
 // Validate validates the ReviewPayload type instance.
-func (ut *ReviewPayload) Validate() (err error) {
+func (ut *ReviewPayload) Validate() error {
+	var err *goa.Error
 	if ut.Comment != nil {
 		if len(*ut.Comment) < 10 {
-			err = goa.StackErrors(err, goa.InvalidLengthError(`response.comment`, *ut.Comment, len(*ut.Comment), 10, true))
+			err = err.Merge(goa.InvalidLengthError(`response.comment`, *ut.Comment, len(*ut.Comment), 10, true))
 		}
 	}
 	if ut.Comment != nil {
 		if len(*ut.Comment) > 200 {
-			err = goa.StackErrors(err, goa.InvalidLengthError(`response.comment`, *ut.Comment, len(*ut.Comment), 200, false))
+			err = err.Merge(goa.InvalidLengthError(`response.comment`, *ut.Comment, len(*ut.Comment), 200, false))
 		}
 	}
 	if ut.Rating != nil {
 		if *ut.Rating < 1 {
-			err = goa.StackErrors(err, goa.InvalidRangeError(`response.rating`, *ut.Rating, 1, true))
+			err = err.Merge(goa.InvalidRangeError(`response.rating`, *ut.Rating, 1, true))
 		}
 	}
 	if ut.Rating != nil {
 		if *ut.Rating > 5 {
-			err = goa.StackErrors(err, goa.InvalidRangeError(`response.rating`, *ut.Rating, 5, false))
+			err = err.Merge(goa.InvalidRangeError(`response.rating`, *ut.Rating, 5, false))
 		}
 	}
-	return
+	return err
 }
 
 // UserPayload user type.
@@ -100,16 +102,17 @@ type UserPayload struct {
 }
 
 // Validate validates the UserPayload type instance.
-func (ut *UserPayload) Validate() (err error) {
+func (ut *UserPayload) Validate() error {
+	var err *goa.Error
 	if ut.Bio != nil {
 		if len(*ut.Bio) > 500 {
-			err = goa.StackErrors(err, goa.InvalidLengthError(`response.bio`, *ut.Bio, len(*ut.Bio), 500, false))
+			err = err.Merge(goa.InvalidLengthError(`response.bio`, *ut.Bio, len(*ut.Bio), 500, false))
 		}
 	}
 	if ut.Email != nil {
 		if err2 := goa.ValidateFormat(goa.FormatEmail, *ut.Email); err2 != nil {
-			err = goa.StackErrors(err, goa.InvalidFormatError(`response.email`, *ut.Email, goa.FormatEmail, err2))
+			err = err.Merge(goa.InvalidFormatError(`response.email`, *ut.Email, goa.FormatEmail, err2))
 		}
 	}
-	return
+	return err
 }

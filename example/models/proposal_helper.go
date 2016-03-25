@@ -30,7 +30,7 @@ func (m *ProposalDB) ListProposal(ctx context.Context, userID int) []*app.Propos
 	err := m.Db.Scopes(ProposalFilterByUser(userID, &m.Db)).Table(m.TableName()).Preload("Reviews").Find(&native).Error
 
 	if err != nil {
-		goa.Error(ctx, "error listing Proposal", "error", err.Error())
+		goa.LogError(ctx, "error listing Proposal", "error", err.Error())
 		return objs
 	}
 
@@ -44,11 +44,8 @@ func (m *ProposalDB) ListProposal(ctx context.Context, userID int) []*app.Propos
 // ProposalToProposal returns the Proposal representation of Proposal.
 func (m *Proposal) ProposalToProposal() *app.Proposal {
 	proposal := &app.Proposal{}
-	var tmp1Collection app.ReviewLinkCollection
-	for _, k := range m.Reviews {
-		tmp1Collection = append(tmp1Collection, k.ReviewToReviewLink())
-	}
-	proposal.Links = &app.ProposalLinks{Reviews: tmp1Collection}
+	tmp1 := m.Reviews.ReviewToReviewLink()
+	proposal.Links = &app.ProposalLinks{Reviews: tmp1}
 	proposal.Abstract = &m.Abstract
 	proposal.Detail = &m.Detail
 	proposal.ID = &m.ID
@@ -68,7 +65,7 @@ func (m *ProposalDB) OneProposal(ctx context.Context, id int, userID int) (*app.
 	err := m.Db.Scopes(ProposalFilterByUser(userID, &m.Db)).Table(m.TableName()).Preload("Reviews").Preload("User").Where("id = ?", id).Find(&native).Error
 
 	if err != nil && err != gorm.ErrRecordNotFound {
-		goa.Error(ctx, "error getting Proposal", "error", err.Error())
+		goa.LogError(ctx, "error getting Proposal", "error", err.Error())
 		return nil, err
 	}
 
@@ -87,7 +84,7 @@ func (m *ProposalDB) ListProposalLink(ctx context.Context, userID int) []*app.Pr
 	err := m.Db.Scopes(ProposalFilterByUser(userID, &m.Db)).Table(m.TableName()).Preload("Reviews").Find(&native).Error
 
 	if err != nil {
-		goa.Error(ctx, "error listing Proposal", "error", err.Error())
+		goa.LogError(ctx, "error listing Proposal", "error", err.Error())
 		return objs
 	}
 
@@ -115,7 +112,7 @@ func (m *ProposalDB) OneProposalLink(ctx context.Context, id int, userID int) (*
 	err := m.Db.Scopes(ProposalFilterByUser(userID, &m.Db)).Table(m.TableName()).Preload("Reviews").Preload("User").Where("id = ?", id).Find(&native).Error
 
 	if err != nil && err != gorm.ErrRecordNotFound {
-		goa.Error(ctx, "error getting Proposal", "error", err.Error())
+		goa.LogError(ctx, "error getting Proposal", "error", err.Error())
 		return nil, err
 	}
 

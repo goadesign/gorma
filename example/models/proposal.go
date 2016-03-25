@@ -119,7 +119,7 @@ func (m *ProposalDB) List(ctx context.Context) []Proposal {
 	var objs []Proposal
 	err := m.Db.Table(m.TableName()).Find(&objs).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
-		goa.Error(ctx, "error listing Proposal", "error", err.Error())
+		goa.LogError(ctx, "error listing Proposal", "error", err.Error())
 		return objs
 	}
 
@@ -132,7 +132,7 @@ func (m *ProposalDB) Add(ctx context.Context, model *Proposal) (*Proposal, error
 
 	err := m.Db.Create(model).Error
 	if err != nil {
-		goa.Error(ctx, "error updating Proposal", "error", err.Error())
+		goa.LogError(ctx, "error updating Proposal", "error", err.Error())
 		return model, err
 	}
 
@@ -161,7 +161,7 @@ func (m *ProposalDB) Delete(ctx context.Context, id int) error {
 	err := m.Db.Delete(&obj, id).Error
 
 	if err != nil {
-		goa.Error(ctx, "error retrieving Proposal", "error", err.Error())
+		goa.LogError(ctx, "error retrieving Proposal", "error", err.Error())
 		return err
 	}
 
@@ -189,7 +189,7 @@ func (m *ProposalDB) UpdateFromCreateProposalPayload(ctx context.Context, payloa
 	var obj Proposal
 	err := m.Db.Table(m.TableName()).Where("id = ?", id).Find(&obj).Error
 	if err != nil {
-		goa.Error(ctx, "error retrieving Proposal", "error", err.Error())
+		goa.LogError(ctx, "error retrieving Proposal", "error", err.Error())
 		return err
 	}
 	obj.Abstract = payload.Abstract
@@ -230,7 +230,7 @@ func (m *ProposalDB) UpdateFromUpdateProposalPayload(ctx context.Context, payloa
 	var obj Proposal
 	err := m.Db.Table(m.TableName()).Where("id = ?", id).Find(&obj).Error
 	if err != nil {
-		goa.Error(ctx, "error retrieving Proposal", "error", err.Error())
+		goa.LogError(ctx, "error retrieving Proposal", "error", err.Error())
 		return err
 	}
 	if payload.Abstract != nil {

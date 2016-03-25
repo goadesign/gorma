@@ -130,7 +130,7 @@ func (m *ReviewDB) List(ctx context.Context) []Review {
 	var objs []Review
 	err := m.Db.Table(m.TableName()).Find(&objs).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
-		goa.Error(ctx, "error listing Review", "error", err.Error())
+		goa.LogError(ctx, "error listing Review", "error", err.Error())
 		return objs
 	}
 
@@ -143,7 +143,7 @@ func (m *ReviewDB) Add(ctx context.Context, model *Review) (*Review, error) {
 
 	err := m.Db.Create(model).Error
 	if err != nil {
-		goa.Error(ctx, "error updating Review", "error", err.Error())
+		goa.LogError(ctx, "error updating Review", "error", err.Error())
 		return model, err
 	}
 
@@ -172,7 +172,7 @@ func (m *ReviewDB) Delete(ctx context.Context, id int) error {
 	err := m.Db.Delete(&obj, id).Error
 
 	if err != nil {
-		goa.Error(ctx, "error retrieving Review", "error", err.Error())
+		goa.LogError(ctx, "error retrieving Review", "error", err.Error())
 		return err
 	}
 
@@ -198,7 +198,7 @@ func (m *ReviewDB) UpdateFromCreateReviewPayload(ctx context.Context, payload *a
 	var obj Review
 	err := m.Db.Table(m.TableName()).Where("id = ?", id).Find(&obj).Error
 	if err != nil {
-		goa.Error(ctx, "error retrieving Review", "error", err.Error())
+		goa.LogError(ctx, "error retrieving Review", "error", err.Error())
 		return err
 	}
 	if payload.Comment != nil {
@@ -231,7 +231,7 @@ func (m *ReviewDB) UpdateFromUpdateReviewPayload(ctx context.Context, payload *a
 	var obj Review
 	err := m.Db.Table(m.TableName()).Where("id = ?", id).Find(&obj).Error
 	if err != nil {
-		goa.Error(ctx, "error retrieving Review", "error", err.Error())
+		goa.LogError(ctx, "error retrieving Review", "error", err.Error())
 		return err
 	}
 	if payload.Comment != nil {

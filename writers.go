@@ -474,7 +474,7 @@ func (m *{{$ut.ModelName}}DB) List(ctx context.Context{{ if $ut.DynamicTableName
 	var objs []{{$ut.ModelName}}
 	err := m.Db.Table({{ if $ut.DynamicTableName }}tableName{{else}}m.TableName(){{ end }}).Find(&objs).Error
 	if err != nil && err !=  gorm.ErrRecordNotFound {
-		goa.Error(ctx, "error listing {{$ut.ModelName}}", "error", err.Error())
+		goa.LogError(ctx, "error listing {{$ut.ModelName}}", "error", err.Error())
 		return objs
 	}
 
@@ -487,7 +487,7 @@ func (m *{{$ut.ModelName}}DB) Add(ctx context.Context{{ if $ut.DynamicTableName 
 
 	err := m.Db{{ if $ut.DynamicTableName }}.Table(tableName){{ end }}.Create(model).Error
 	if err != nil {
-		goa.Error(ctx, "error updating {{$ut.ModelName}}", "error", err.Error())
+		goa.LogError(ctx, "error updating {{$ut.ModelName}}", "error", err.Error())
 		return model, err
 	}
 	{{ if $ut.Cached }}
@@ -521,7 +521,7 @@ func (m *{{$ut.ModelName}}DB) Delete(ctx context.Context{{ if $ut.DynamicTableNa
 	{{ else  }}err := m.Db{{ if $ut.DynamicTableName }}.Table(tableName){{ end }}.Delete(&obj).Where("{{$ut.PKWhere}}", {{$ut.PKWhereFields}}).Error
 	{{ end }}
 	if err != nil {
-		goa.Error(ctx, "error retrieving {{$ut.ModelName}}", "error", err.Error())
+		goa.LogError(ctx, "error retrieving {{$ut.ModelName}}", "error", err.Error())
 		return  err
 	}
 	{{ if $ut.Cached }} go m.cache.Delete(strconv.Itoa(id)) {{ end }}
@@ -545,7 +545,7 @@ func (m *{{$ut.ModelName}}DB)UpdateFrom{{$bfn}}(ctx context.Context{{ if $ut.Dyn
 	var obj {{$ut.ModelName}}
 	 err := m.Db.Table({{ if $ut.DynamicTableName }}tableName{{else}}m.TableName(){{ end }}).Where("{{$ut.PKWhere}}",{{$ut.PKWhereFields}} ).Find(&obj).Error
 	if err != nil {
-		goa.Error(ctx, "error retrieving {{$ut.ModelName}}", "error", err.Error())
+		goa.LogError(ctx, "error retrieving {{$ut.ModelName}}", "error", err.Error())
 		return  err
 	}
  	{{ fapm $ut $bf "app" "payload" "payload" "obj"}}
@@ -591,7 +591,7 @@ func (m *{{.Model.ModelName}}DB) List{{goify .Media.TypeName true}}{{if not (eq 
 */}}.Table({{ if .Model.DynamicTableName }}tableName{{else}}m.TableName(){{ end }}).{{ range $ln, $lv := .Media.Links }}Preload("{{goify $ln true}}").{{end}}Find(&native).Error
 {{/* //	err := m.Db.Table({{ if .Model.DynamicTableName }}tableName{{else}}m.TableName(){{ end }}).{{ range $ln, $lv := .Media.Links }}Preload("{{goify $ln true}}").{{end}}Find(&objs).Error */}}
 	if err != nil {
-		goa.Error(ctx, "error listing {{.Model.ModelName}}", "error", err.Error())
+		goa.LogError(ctx, "error listing {{.Model.ModelName}}", "error", err.Error())
 		return objs
 	}
 
@@ -623,7 +623,7 @@ func (m *{{.Model.ModelName}}DB) One{{goify .Media.TypeName true}}{{if not (eq .
 	err := m.Db.Scopes({{range $nm, $bt := .Model.BelongsTo}}{{$ctx.Model.ModelName}}FilterBy{{goify $bt.ModelName true}}({{goify (printf "%s%s" $bt.ModelName "ID") false}}, &m.Db), {{end}}).Table({{ if .Model.DynamicTableName }}tableName{{else}}m.TableName(){{ end }}){{range $na, $hm:= .Model.HasMany}}.Preload("{{plural $hm.ModelName}}"){{end}}{{range $nm, $bt := .Model.BelongsTo}}.Preload("{{$bt.ModelName}}"){{end}}.Where("{{.Model.PKWhere}}",{{.Model.PKWhereFields}}).Find(&native).Error
 
 	if err != nil && err !=  gorm.ErrRecordNotFound {
-		goa.Error(ctx, "error getting {{.Model.ModelName}}", "error", err.Error())
+		goa.LogError(ctx, "error getting {{.Model.ModelName}}", "error", err.Error())
 		return nil, err
 	}
 	{{ if .Model.Cached }} go func(){
