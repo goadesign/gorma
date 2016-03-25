@@ -30,8 +30,8 @@ type CallbackAuthContext struct {
 // context used by the auth controller callback action.
 func NewCallbackAuthContext(ctx context.Context) (*CallbackAuthContext, error) {
 	var err *goa.Error
-	req := goa.Request(ctx)
-	rctx := CallbackAuthContext{Context: ctx, ResponseData: goa.Response(ctx), RequestData: req}
+	req := goa.ContextRequest(ctx)
+	rctx := CallbackAuthContext{Context: ctx, ResponseData: goa.ContextResponse(ctx), RequestData: req}
 	rawProvider := req.Params.Get("provider")
 	if rawProvider != "" {
 		rctx.Provider = rawProvider
@@ -59,8 +59,8 @@ type OauthAuthContext struct {
 // context used by the auth controller oauth action.
 func NewOauthAuthContext(ctx context.Context) (*OauthAuthContext, error) {
 	var err *goa.Error
-	req := goa.Request(ctx)
-	rctx := OauthAuthContext{Context: ctx, ResponseData: goa.Response(ctx), RequestData: req}
+	req := goa.ContextRequest(ctx)
+	rctx := OauthAuthContext{Context: ctx, ResponseData: goa.ContextResponse(ctx), RequestData: req}
 	rawProvider := req.Params.Get("provider")
 	if rawProvider != "" {
 		rctx.Provider = rawProvider
@@ -86,8 +86,8 @@ type RefreshAuthContext struct {
 // context used by the auth controller refresh action.
 func NewRefreshAuthContext(ctx context.Context) (*RefreshAuthContext, error) {
 	var err *goa.Error
-	req := goa.Request(ctx)
-	rctx := RefreshAuthContext{Context: ctx, ResponseData: goa.Response(ctx), RequestData: req}
+	req := goa.ContextRequest(ctx)
+	rctx := RefreshAuthContext{Context: ctx, ResponseData: goa.ContextResponse(ctx), RequestData: req}
 	return &rctx, err
 }
 
@@ -119,8 +119,8 @@ type TokenAuthContext struct {
 // context used by the auth controller token action.
 func NewTokenAuthContext(ctx context.Context) (*TokenAuthContext, error) {
 	var err *goa.Error
-	req := goa.Request(ctx)
-	rctx := TokenAuthContext{Context: ctx, ResponseData: goa.Response(ctx), RequestData: req}
+	req := goa.ContextRequest(ctx)
+	rctx := TokenAuthContext{Context: ctx, ResponseData: goa.ContextResponse(ctx), RequestData: req}
 	return &rctx, err
 }
 
@@ -153,8 +153,8 @@ type CreateProposalContext struct {
 // context used by the proposal controller create action.
 func NewCreateProposalContext(ctx context.Context) (*CreateProposalContext, error) {
 	var err *goa.Error
-	req := goa.Request(ctx)
-	rctx := CreateProposalContext{Context: ctx, ResponseData: goa.Response(ctx), RequestData: req}
+	req := goa.ContextRequest(ctx)
+	rctx := CreateProposalContext{Context: ctx, ResponseData: goa.ContextResponse(ctx), RequestData: req}
 	rawUserID := req.Params.Get("userID")
 	if rawUserID != "" {
 		if userID, err2 := strconv.Atoi(rawUserID); err2 == nil {
@@ -227,8 +227,8 @@ type DeleteProposalContext struct {
 // context used by the proposal controller delete action.
 func NewDeleteProposalContext(ctx context.Context) (*DeleteProposalContext, error) {
 	var err *goa.Error
-	req := goa.Request(ctx)
-	rctx := DeleteProposalContext{Context: ctx, ResponseData: goa.Response(ctx), RequestData: req}
+	req := goa.ContextRequest(ctx)
+	rctx := DeleteProposalContext{Context: ctx, ResponseData: goa.ContextResponse(ctx), RequestData: req}
 	rawProposalID := req.Params.Get("proposalID")
 	if rawProposalID != "" {
 		if proposalID, err2 := strconv.Atoi(rawProposalID); err2 == nil {
@@ -272,8 +272,8 @@ type ListProposalContext struct {
 // context used by the proposal controller list action.
 func NewListProposalContext(ctx context.Context) (*ListProposalContext, error) {
 	var err *goa.Error
-	req := goa.Request(ctx)
-	rctx := ListProposalContext{Context: ctx, ResponseData: goa.Response(ctx), RequestData: req}
+	req := goa.ContextRequest(ctx)
+	rctx := ListProposalContext{Context: ctx, ResponseData: goa.ContextResponse(ctx), RequestData: req}
 	rawUserID := req.Params.Get("userID")
 	if rawUserID != "" {
 		if userID, err2 := strconv.Atoi(rawUserID); err2 == nil {
@@ -304,8 +304,8 @@ type ShowProposalContext struct {
 // context used by the proposal controller show action.
 func NewShowProposalContext(ctx context.Context) (*ShowProposalContext, error) {
 	var err *goa.Error
-	req := goa.Request(ctx)
-	rctx := ShowProposalContext{Context: ctx, ResponseData: goa.Response(ctx), RequestData: req}
+	req := goa.ContextRequest(ctx)
+	rctx := ShowProposalContext{Context: ctx, ResponseData: goa.ContextResponse(ctx), RequestData: req}
 	rawProposalID := req.Params.Get("proposalID")
 	if rawProposalID != "" {
 		if proposalID, err2 := strconv.Atoi(rawProposalID); err2 == nil {
@@ -351,8 +351,8 @@ type UpdateProposalContext struct {
 // context used by the proposal controller update action.
 func NewUpdateProposalContext(ctx context.Context) (*UpdateProposalContext, error) {
 	var err *goa.Error
-	req := goa.Request(ctx)
-	rctx := UpdateProposalContext{Context: ctx, ResponseData: goa.Response(ctx), RequestData: req}
+	req := goa.ContextRequest(ctx)
+	rctx := UpdateProposalContext{Context: ctx, ResponseData: goa.ContextResponse(ctx), RequestData: req}
 	rawProposalID := req.Params.Get("proposalID")
 	if rawProposalID != "" {
 		if proposalID, err2 := strconv.Atoi(rawProposalID); err2 == nil {
@@ -442,8 +442,8 @@ type CreateReviewContext struct {
 // context used by the review controller create action.
 func NewCreateReviewContext(ctx context.Context) (*CreateReviewContext, error) {
 	var err *goa.Error
-	req := goa.Request(ctx)
-	rctx := CreateReviewContext{Context: ctx, ResponseData: goa.Response(ctx), RequestData: req}
+	req := goa.ContextRequest(ctx)
+	rctx := CreateReviewContext{Context: ctx, ResponseData: goa.ContextResponse(ctx), RequestData: req}
 	rawProposalID := req.Params.Get("proposalID")
 	if rawProposalID != "" {
 		if proposalID, err2 := strconv.Atoi(rawProposalID); err2 == nil {
@@ -511,8 +511,8 @@ type DeleteReviewContext struct {
 // context used by the review controller delete action.
 func NewDeleteReviewContext(ctx context.Context) (*DeleteReviewContext, error) {
 	var err *goa.Error
-	req := goa.Request(ctx)
-	rctx := DeleteReviewContext{Context: ctx, ResponseData: goa.Response(ctx), RequestData: req}
+	req := goa.ContextRequest(ctx)
+	rctx := DeleteReviewContext{Context: ctx, ResponseData: goa.ContextResponse(ctx), RequestData: req}
 	rawProposalID := req.Params.Get("proposalID")
 	if rawProposalID != "" {
 		if proposalID, err2 := strconv.Atoi(rawProposalID); err2 == nil {
@@ -565,8 +565,8 @@ type ListReviewContext struct {
 // context used by the review controller list action.
 func NewListReviewContext(ctx context.Context) (*ListReviewContext, error) {
 	var err *goa.Error
-	req := goa.Request(ctx)
-	rctx := ListReviewContext{Context: ctx, ResponseData: goa.Response(ctx), RequestData: req}
+	req := goa.ContextRequest(ctx)
+	rctx := ListReviewContext{Context: ctx, ResponseData: goa.ContextResponse(ctx), RequestData: req}
 	rawProposalID := req.Params.Get("proposalID")
 	if rawProposalID != "" {
 		if proposalID, err2 := strconv.Atoi(rawProposalID); err2 == nil {
@@ -606,8 +606,8 @@ type ShowReviewContext struct {
 // context used by the review controller show action.
 func NewShowReviewContext(ctx context.Context) (*ShowReviewContext, error) {
 	var err *goa.Error
-	req := goa.Request(ctx)
-	rctx := ShowReviewContext{Context: ctx, ResponseData: goa.Response(ctx), RequestData: req}
+	req := goa.ContextRequest(ctx)
+	rctx := ShowReviewContext{Context: ctx, ResponseData: goa.ContextResponse(ctx), RequestData: req}
 	rawProposalID := req.Params.Get("proposalID")
 	if rawProposalID != "" {
 		if proposalID, err2 := strconv.Atoi(rawProposalID); err2 == nil {
@@ -662,8 +662,8 @@ type UpdateReviewContext struct {
 // context used by the review controller update action.
 func NewUpdateReviewContext(ctx context.Context) (*UpdateReviewContext, error) {
 	var err *goa.Error
-	req := goa.Request(ctx)
-	rctx := UpdateReviewContext{Context: ctx, ResponseData: goa.Response(ctx), RequestData: req}
+	req := goa.ContextRequest(ctx)
+	rctx := UpdateReviewContext{Context: ctx, ResponseData: goa.ContextResponse(ctx), RequestData: req}
 	rawProposalID := req.Params.Get("proposalID")
 	if rawProposalID != "" {
 		if proposalID, err2 := strconv.Atoi(rawProposalID); err2 == nil {
@@ -746,8 +746,8 @@ type BootstrapUIContext struct {
 // context used by the ui controller bootstrap action.
 func NewBootstrapUIContext(ctx context.Context) (*BootstrapUIContext, error) {
 	var err *goa.Error
-	req := goa.Request(ctx)
-	rctx := BootstrapUIContext{Context: ctx, ResponseData: goa.Response(ctx), RequestData: req}
+	req := goa.ContextRequest(ctx)
+	rctx := BootstrapUIContext{Context: ctx, ResponseData: goa.ContextResponse(ctx), RequestData: req}
 	return &rctx, err
 }
 
@@ -771,8 +771,8 @@ type CreateUserContext struct {
 // context used by the user controller create action.
 func NewCreateUserContext(ctx context.Context) (*CreateUserContext, error) {
 	var err *goa.Error
-	req := goa.Request(ctx)
-	rctx := CreateUserContext{Context: ctx, ResponseData: goa.Response(ctx), RequestData: req}
+	req := goa.ContextRequest(ctx)
+	rctx := CreateUserContext{Context: ctx, ResponseData: goa.ContextResponse(ctx), RequestData: req}
 	return &rctx, err
 }
 
@@ -829,8 +829,8 @@ type DeleteUserContext struct {
 // context used by the user controller delete action.
 func NewDeleteUserContext(ctx context.Context) (*DeleteUserContext, error) {
 	var err *goa.Error
-	req := goa.Request(ctx)
-	rctx := DeleteUserContext{Context: ctx, ResponseData: goa.Response(ctx), RequestData: req}
+	req := goa.ContextRequest(ctx)
+	rctx := DeleteUserContext{Context: ctx, ResponseData: goa.ContextResponse(ctx), RequestData: req}
 	rawUserID := req.Params.Get("userID")
 	if rawUserID != "" {
 		if userID, err2 := strconv.Atoi(rawUserID); err2 == nil {
@@ -865,8 +865,8 @@ type ListUserContext struct {
 // context used by the user controller list action.
 func NewListUserContext(ctx context.Context) (*ListUserContext, error) {
 	var err *goa.Error
-	req := goa.Request(ctx)
-	rctx := ListUserContext{Context: ctx, ResponseData: goa.Response(ctx), RequestData: req}
+	req := goa.ContextRequest(ctx)
+	rctx := ListUserContext{Context: ctx, ResponseData: goa.ContextResponse(ctx), RequestData: req}
 	return &rctx, err
 }
 
@@ -888,8 +888,8 @@ type ShowUserContext struct {
 // context used by the user controller show action.
 func NewShowUserContext(ctx context.Context) (*ShowUserContext, error) {
 	var err *goa.Error
-	req := goa.Request(ctx)
-	rctx := ShowUserContext{Context: ctx, ResponseData: goa.Response(ctx), RequestData: req}
+	req := goa.ContextRequest(ctx)
+	rctx := ShowUserContext{Context: ctx, ResponseData: goa.ContextResponse(ctx), RequestData: req}
 	rawUserID := req.Params.Get("userID")
 	if rawUserID != "" {
 		if userID, err2 := strconv.Atoi(rawUserID); err2 == nil {
@@ -926,8 +926,8 @@ type UpdateUserContext struct {
 // context used by the user controller update action.
 func NewUpdateUserContext(ctx context.Context) (*UpdateUserContext, error) {
 	var err *goa.Error
-	req := goa.Request(ctx)
-	rctx := UpdateUserContext{Context: ctx, ResponseData: goa.Response(ctx), RequestData: req}
+	req := goa.ContextRequest(ctx)
+	rctx := UpdateUserContext{Context: ctx, ResponseData: goa.ContextResponse(ctx), RequestData: req}
 	rawUserID := req.Params.Get("userID")
 	if rawUserID != "" {
 		if userID, err2 := strconv.Atoi(rawUserID); err2 == nil {
