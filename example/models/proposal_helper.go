@@ -12,11 +12,12 @@
 package models
 
 import (
+	"time"
+
 	"github.com/goadesign/goa"
 	"github.com/goadesign/gorma/example/app"
 	"github.com/jinzhu/gorm"
 	"golang.org/x/net/context"
-	"time"
 )
 
 // MediaType Retrieval Functions
@@ -44,7 +45,7 @@ func (m *ProposalDB) ListProposal(ctx context.Context, userID int) []*app.Propos
 // ProposalToProposal returns the Proposal representation of Proposal.
 func (m *Proposal) ProposalToProposal() *app.Proposal {
 	proposal := &app.Proposal{}
-	tmp1 := m.Reviews.ReviewToReviewLink()
+	tmp1 := app.ReviewLinkCollection{}
 	proposal.Links = &app.ProposalLinks{Reviews: tmp1}
 	proposal.Abstract = &m.Abstract
 	proposal.Detail = &m.Detail
