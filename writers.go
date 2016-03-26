@@ -106,16 +106,10 @@ func fieldAssignmentModelToType(model *RelationalModelDefinition, ut *design.Vie
 
 	if !strings.Contains(ut.Name, "link") {
 		for ln := range ut.Parent.Links {
-			iff := fmt.Sprintf("var tmp%dCollection app.%sLinkCollection", tmp, inflect.Singularize(codegen.Goify(ln, true)))
-			fieldAssignments = append(fieldAssignments, iff)
-			ifa := fmt.Sprintf("for _,k := range %s.%s {", v, codegen.Goify(ln, true))
-			fieldAssignments = append(fieldAssignments, ifa)
-			ifb := fmt.Sprintf("tmp%dCollection = append(tmp%dCollection,  k.%sTo%sLink())", tmp, tmp, inflect.Singularize(codegen.Goify(ln, true)), inflect.Singularize(codegen.Goify(ln, true)))
+			ifb := fmt.Sprintf("tmp%d := %s.%s.%sTo%sLink()", tmp, v, codegen.Goify(ln, true), inflect.Singularize(codegen.Goify(ln, true)), inflect.Singularize(codegen.Goify(ln, true)))
 
 			fieldAssignments = append(fieldAssignments, ifb)
-			ifc := fmt.Sprintf("}")
-			fieldAssignments = append(fieldAssignments, ifc)
-			ifd := fmt.Sprintf("%s.Links = &app.%sLinks{%s: tmp%dCollection}", utype, codegen.Goify(utype, true), codegen.Goify(ln, true), tmp)
+			ifd := fmt.Sprintf("%s.Links = &app.%sLinks{%s: tmp%d}", utype, codegen.Goify(utype, true), codegen.Goify(ln, true), tmp)
 			fieldAssignments = append(fieldAssignments, ifd)
 			tmp++
 		}
@@ -273,7 +267,6 @@ func viewFields(ut *RelationalModelDefinition, v *design.ViewDefinition) []*Rela
 				}
 			} else if name == "links" {
 				for n, ld := range v.Parent.Links {
-					fmt.Println("LINK:", n)
 					pretty.Println(ld.Name, ld.View)
 				}
 			}
