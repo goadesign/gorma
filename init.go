@@ -48,6 +48,10 @@ const (
 	HasMany FieldType = "hasmany"
 	// HasManyKey is used internally
 	HasManyKey FieldType = "hasmanykey"
+	// Many2Many is used internally
+	Many2Many FieldType = "many2many"
+	// Many2ManyKey is used internally
+	Many2ManyKey FieldType = "many2manykey"
 	// BelongsTo is used internally
 	BelongsTo FieldType = "belongsto"
 )

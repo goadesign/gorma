@@ -59,60 +59,61 @@ type Proposal struct {
 }
 
 // Validate validates the Proposal media type instance.
-func (mt *Proposal) Validate() (err error) {
+func (mt *Proposal) Validate() error {
+	var err *goa.Error
 	if mt.Abstract != nil {
 		if len(*mt.Abstract) < 50 {
-			err = goa.StackErrors(err, goa.InvalidLengthError(`response.abstract`, *mt.Abstract, len(*mt.Abstract), 50, true))
+			err = err.Merge(goa.InvalidLengthError(`response.abstract`, *mt.Abstract, len(*mt.Abstract), 50, true))
 		}
 	}
 	if mt.Abstract != nil {
 		if len(*mt.Abstract) > 500 {
-			err = goa.StackErrors(err, goa.InvalidLengthError(`response.abstract`, *mt.Abstract, len(*mt.Abstract), 500, false))
+			err = err.Merge(goa.InvalidLengthError(`response.abstract`, *mt.Abstract, len(*mt.Abstract), 500, false))
 		}
 	}
 	if mt.Detail != nil {
 		if len(*mt.Detail) < 100 {
-			err = goa.StackErrors(err, goa.InvalidLengthError(`response.detail`, *mt.Detail, len(*mt.Detail), 100, true))
+			err = err.Merge(goa.InvalidLengthError(`response.detail`, *mt.Detail, len(*mt.Detail), 100, true))
 		}
 	}
 	if mt.Detail != nil {
 		if len(*mt.Detail) > 2000 {
-			err = goa.StackErrors(err, goa.InvalidLengthError(`response.detail`, *mt.Detail, len(*mt.Detail), 2000, false))
+			err = err.Merge(goa.InvalidLengthError(`response.detail`, *mt.Detail, len(*mt.Detail), 2000, false))
 		}
 	}
 	for _, e := range mt.Reviews {
 		if e.Comment != nil {
 			if len(*e.Comment) < 10 {
-				err = goa.StackErrors(err, goa.InvalidLengthError(`response.reviews[*].comment`, *e.Comment, len(*e.Comment), 10, true))
+				err = err.Merge(goa.InvalidLengthError(`response.reviews[*].comment`, *e.Comment, len(*e.Comment), 10, true))
 			}
 		}
 		if e.Comment != nil {
 			if len(*e.Comment) > 200 {
-				err = goa.StackErrors(err, goa.InvalidLengthError(`response.reviews[*].comment`, *e.Comment, len(*e.Comment), 200, false))
+				err = err.Merge(goa.InvalidLengthError(`response.reviews[*].comment`, *e.Comment, len(*e.Comment), 200, false))
 			}
 		}
 		if e.Rating != nil {
 			if *e.Rating < 1 {
-				err = goa.StackErrors(err, goa.InvalidRangeError(`response.reviews[*].rating`, *e.Rating, 1, true))
+				err = err.Merge(goa.InvalidRangeError(`response.reviews[*].rating`, *e.Rating, 1, true))
 			}
 		}
 		if e.Rating != nil {
 			if *e.Rating > 5 {
-				err = goa.StackErrors(err, goa.InvalidRangeError(`response.reviews[*].rating`, *e.Rating, 5, false))
+				err = err.Merge(goa.InvalidRangeError(`response.reviews[*].rating`, *e.Rating, 5, false))
 			}
 		}
 	}
 	if mt.Title != nil {
 		if len(*mt.Title) < 10 {
-			err = goa.StackErrors(err, goa.InvalidLengthError(`response.title`, *mt.Title, len(*mt.Title), 10, true))
+			err = err.Merge(goa.InvalidLengthError(`response.title`, *mt.Title, len(*mt.Title), 10, true))
 		}
 	}
 	if mt.Title != nil {
 		if len(*mt.Title) > 200 {
-			err = goa.StackErrors(err, goa.InvalidLengthError(`response.title`, *mt.Title, len(*mt.Title), 200, false))
+			err = err.Merge(goa.InvalidLengthError(`response.title`, *mt.Title, len(*mt.Title), 200, false))
 		}
 	}
-	return
+	return err
 }
 
 // ProposalLink media type.
@@ -128,18 +129,19 @@ type ProposalLink struct {
 }
 
 // Validate validates the ProposalLink media type instance.
-func (mt *ProposalLink) Validate() (err error) {
+func (mt *ProposalLink) Validate() error {
+	var err *goa.Error
 	if mt.Title != nil {
 		if len(*mt.Title) < 10 {
-			err = goa.StackErrors(err, goa.InvalidLengthError(`response.title`, *mt.Title, len(*mt.Title), 10, true))
+			err = err.Merge(goa.InvalidLengthError(`response.title`, *mt.Title, len(*mt.Title), 10, true))
 		}
 	}
 	if mt.Title != nil {
 		if len(*mt.Title) > 200 {
-			err = goa.StackErrors(err, goa.InvalidLengthError(`response.title`, *mt.Title, len(*mt.Title), 200, false))
+			err = err.Merge(goa.InvalidLengthError(`response.title`, *mt.Title, len(*mt.Title), 200, false))
 		}
 	}
-	return
+	return err
 }
 
 // ProposalLinks contains links to related resources of Proposal.
@@ -153,62 +155,63 @@ type ProposalLinks struct {
 type ProposalCollection []*Proposal
 
 // Validate validates the ProposalCollection media type instance.
-func (mt ProposalCollection) Validate() (err error) {
+func (mt ProposalCollection) Validate() error {
+	var err *goa.Error
 	for _, e := range mt {
 		if e.Abstract != nil {
 			if len(*e.Abstract) < 50 {
-				err = goa.StackErrors(err, goa.InvalidLengthError(`response[*].abstract`, *e.Abstract, len(*e.Abstract), 50, true))
+				err = err.Merge(goa.InvalidLengthError(`response[*].abstract`, *e.Abstract, len(*e.Abstract), 50, true))
 			}
 		}
 		if e.Abstract != nil {
 			if len(*e.Abstract) > 500 {
-				err = goa.StackErrors(err, goa.InvalidLengthError(`response[*].abstract`, *e.Abstract, len(*e.Abstract), 500, false))
+				err = err.Merge(goa.InvalidLengthError(`response[*].abstract`, *e.Abstract, len(*e.Abstract), 500, false))
 			}
 		}
 		if e.Detail != nil {
 			if len(*e.Detail) < 100 {
-				err = goa.StackErrors(err, goa.InvalidLengthError(`response[*].detail`, *e.Detail, len(*e.Detail), 100, true))
+				err = err.Merge(goa.InvalidLengthError(`response[*].detail`, *e.Detail, len(*e.Detail), 100, true))
 			}
 		}
 		if e.Detail != nil {
 			if len(*e.Detail) > 2000 {
-				err = goa.StackErrors(err, goa.InvalidLengthError(`response[*].detail`, *e.Detail, len(*e.Detail), 2000, false))
+				err = err.Merge(goa.InvalidLengthError(`response[*].detail`, *e.Detail, len(*e.Detail), 2000, false))
 			}
 		}
 		for _, e := range e.Reviews {
 			if e.Comment != nil {
 				if len(*e.Comment) < 10 {
-					err = goa.StackErrors(err, goa.InvalidLengthError(`response[*].reviews[*].comment`, *e.Comment, len(*e.Comment), 10, true))
+					err = err.Merge(goa.InvalidLengthError(`response[*].reviews[*].comment`, *e.Comment, len(*e.Comment), 10, true))
 				}
 			}
 			if e.Comment != nil {
 				if len(*e.Comment) > 200 {
-					err = goa.StackErrors(err, goa.InvalidLengthError(`response[*].reviews[*].comment`, *e.Comment, len(*e.Comment), 200, false))
+					err = err.Merge(goa.InvalidLengthError(`response[*].reviews[*].comment`, *e.Comment, len(*e.Comment), 200, false))
 				}
 			}
 			if e.Rating != nil {
 				if *e.Rating < 1 {
-					err = goa.StackErrors(err, goa.InvalidRangeError(`response[*].reviews[*].rating`, *e.Rating, 1, true))
+					err = err.Merge(goa.InvalidRangeError(`response[*].reviews[*].rating`, *e.Rating, 1, true))
 				}
 			}
 			if e.Rating != nil {
 				if *e.Rating > 5 {
-					err = goa.StackErrors(err, goa.InvalidRangeError(`response[*].reviews[*].rating`, *e.Rating, 5, false))
+					err = err.Merge(goa.InvalidRangeError(`response[*].reviews[*].rating`, *e.Rating, 5, false))
 				}
 			}
 		}
 		if e.Title != nil {
 			if len(*e.Title) < 10 {
-				err = goa.StackErrors(err, goa.InvalidLengthError(`response[*].title`, *e.Title, len(*e.Title), 10, true))
+				err = err.Merge(goa.InvalidLengthError(`response[*].title`, *e.Title, len(*e.Title), 10, true))
 			}
 		}
 		if e.Title != nil {
 			if len(*e.Title) > 200 {
-				err = goa.StackErrors(err, goa.InvalidLengthError(`response[*].title`, *e.Title, len(*e.Title), 200, false))
+				err = err.Merge(goa.InvalidLengthError(`response[*].title`, *e.Title, len(*e.Title), 200, false))
 			}
 		}
 	}
-	return
+	return err
 }
 
 // ProposalLinksArray contains links to related resources of ProposalCollection.
@@ -229,28 +232,29 @@ type Review struct {
 }
 
 // Validate validates the Review media type instance.
-func (mt *Review) Validate() (err error) {
+func (mt *Review) Validate() error {
+	var err *goa.Error
 	if mt.Comment != nil {
 		if len(*mt.Comment) < 10 {
-			err = goa.StackErrors(err, goa.InvalidLengthError(`response.comment`, *mt.Comment, len(*mt.Comment), 10, true))
+			err = err.Merge(goa.InvalidLengthError(`response.comment`, *mt.Comment, len(*mt.Comment), 10, true))
 		}
 	}
 	if mt.Comment != nil {
 		if len(*mt.Comment) > 200 {
-			err = goa.StackErrors(err, goa.InvalidLengthError(`response.comment`, *mt.Comment, len(*mt.Comment), 200, false))
+			err = err.Merge(goa.InvalidLengthError(`response.comment`, *mt.Comment, len(*mt.Comment), 200, false))
 		}
 	}
 	if mt.Rating != nil {
 		if *mt.Rating < 1 {
-			err = goa.StackErrors(err, goa.InvalidRangeError(`response.rating`, *mt.Rating, 1, true))
+			err = err.Merge(goa.InvalidRangeError(`response.rating`, *mt.Rating, 1, true))
 		}
 	}
 	if mt.Rating != nil {
 		if *mt.Rating > 5 {
-			err = goa.StackErrors(err, goa.InvalidRangeError(`response.rating`, *mt.Rating, 5, false))
+			err = err.Merge(goa.InvalidRangeError(`response.rating`, *mt.Rating, 5, false))
 		}
 	}
-	return
+	return err
 }
 
 // ReviewLink media type.
@@ -269,30 +273,31 @@ type ReviewLink struct {
 type ReviewCollection []*Review
 
 // Validate validates the ReviewCollection media type instance.
-func (mt ReviewCollection) Validate() (err error) {
+func (mt ReviewCollection) Validate() error {
+	var err *goa.Error
 	for _, e := range mt {
 		if e.Comment != nil {
 			if len(*e.Comment) < 10 {
-				err = goa.StackErrors(err, goa.InvalidLengthError(`response[*].comment`, *e.Comment, len(*e.Comment), 10, true))
+				err = err.Merge(goa.InvalidLengthError(`response[*].comment`, *e.Comment, len(*e.Comment), 10, true))
 			}
 		}
 		if e.Comment != nil {
 			if len(*e.Comment) > 200 {
-				err = goa.StackErrors(err, goa.InvalidLengthError(`response[*].comment`, *e.Comment, len(*e.Comment), 200, false))
+				err = err.Merge(goa.InvalidLengthError(`response[*].comment`, *e.Comment, len(*e.Comment), 200, false))
 			}
 		}
 		if e.Rating != nil {
 			if *e.Rating < 1 {
-				err = goa.StackErrors(err, goa.InvalidRangeError(`response[*].rating`, *e.Rating, 1, true))
+				err = err.Merge(goa.InvalidRangeError(`response[*].rating`, *e.Rating, 1, true))
 			}
 		}
 		if e.Rating != nil {
 			if *e.Rating > 5 {
-				err = goa.StackErrors(err, goa.InvalidRangeError(`response[*].rating`, *e.Rating, 5, false))
+				err = err.Merge(goa.InvalidRangeError(`response[*].rating`, *e.Rating, 5, false))
 			}
 		}
 	}
-	return
+	return err
 }
 
 // ReviewLinkCollection media type is a collection of ReviewLink.
@@ -327,18 +332,19 @@ type User struct {
 }
 
 // Validate validates the User media type instance.
-func (mt *User) Validate() (err error) {
+func (mt *User) Validate() error {
+	var err *goa.Error
 	if mt.Bio != nil {
 		if len(*mt.Bio) > 500 {
-			err = goa.StackErrors(err, goa.InvalidLengthError(`response.bio`, *mt.Bio, len(*mt.Bio), 500, false))
+			err = err.Merge(goa.InvalidLengthError(`response.bio`, *mt.Bio, len(*mt.Bio), 500, false))
 		}
 	}
 	if mt.Email != nil {
 		if err2 := goa.ValidateFormat(goa.FormatEmail, *mt.Email); err2 != nil {
-			err = goa.StackErrors(err, goa.InvalidFormatError(`response.email`, *mt.Email, goa.FormatEmail, err2))
+			err = err.Merge(goa.InvalidFormatError(`response.email`, *mt.Email, goa.FormatEmail, err2))
 		}
 	}
-	return
+	return err
 }
 
 // UserLink media type.
@@ -354,13 +360,14 @@ type UserLink struct {
 }
 
 // Validate validates the UserLink media type instance.
-func (mt *UserLink) Validate() (err error) {
+func (mt *UserLink) Validate() error {
+	var err *goa.Error
 	if mt.Email != nil {
 		if err2 := goa.ValidateFormat(goa.FormatEmail, *mt.Email); err2 != nil {
-			err = goa.StackErrors(err, goa.InvalidFormatError(`response.email`, *mt.Email, goa.FormatEmail, err2))
+			err = err.Merge(goa.InvalidFormatError(`response.email`, *mt.Email, goa.FormatEmail, err2))
 		}
 	}
-	return
+	return err
 }
 
 // UserCollection media type is a collection of User.
@@ -369,18 +376,19 @@ func (mt *UserLink) Validate() (err error) {
 type UserCollection []*User
 
 // Validate validates the UserCollection media type instance.
-func (mt UserCollection) Validate() (err error) {
+func (mt UserCollection) Validate() error {
+	var err *goa.Error
 	for _, e := range mt {
 		if e.Bio != nil {
 			if len(*e.Bio) > 500 {
-				err = goa.StackErrors(err, goa.InvalidLengthError(`response[*].bio`, *e.Bio, len(*e.Bio), 500, false))
+				err = err.Merge(goa.InvalidLengthError(`response[*].bio`, *e.Bio, len(*e.Bio), 500, false))
 			}
 		}
 		if e.Email != nil {
 			if err2 := goa.ValidateFormat(goa.FormatEmail, *e.Email); err2 != nil {
-				err = goa.StackErrors(err, goa.InvalidFormatError(`response[*].email`, *e.Email, goa.FormatEmail, err2))
+				err = err.Merge(goa.InvalidFormatError(`response[*].email`, *e.Email, goa.FormatEmail, err2))
 			}
 		}
 	}
-	return
+	return err
 }

@@ -30,7 +30,7 @@ func (m *UserDB) ListUser(ctx context.Context) []*app.User {
 	err := m.Db.Scopes().Table(m.TableName()).Find(&native).Error
 
 	if err != nil {
-		goa.Error(ctx, "error listing User", "error", err.Error())
+		goa.LogError(ctx, "error listing User", "error", err.Error())
 		return objs
 	}
 
@@ -64,7 +64,7 @@ func (m *UserDB) OneUser(ctx context.Context, id int) (*app.User, error) {
 	err := m.Db.Scopes().Table(m.TableName()).Preload("Proposals").Preload("Reviews").Where("id = ?", id).Find(&native).Error
 
 	if err != nil && err != gorm.ErrRecordNotFound {
-		goa.Error(ctx, "error getting User", "error", err.Error())
+		goa.LogError(ctx, "error getting User", "error", err.Error())
 		return nil, err
 	}
 
@@ -83,7 +83,7 @@ func (m *UserDB) ListUserLink(ctx context.Context) []*app.UserLink {
 	err := m.Db.Scopes().Table(m.TableName()).Find(&native).Error
 
 	if err != nil {
-		goa.Error(ctx, "error listing User", "error", err.Error())
+		goa.LogError(ctx, "error listing User", "error", err.Error())
 		return objs
 	}
 
@@ -111,7 +111,7 @@ func (m *UserDB) OneUserLink(ctx context.Context, id int) (*app.UserLink, error)
 	err := m.Db.Scopes().Table(m.TableName()).Preload("Proposals").Preload("Reviews").Where("id = ?", id).Find(&native).Error
 
 	if err != nil && err != gorm.ErrRecordNotFound {
-		goa.Error(ctx, "error getting User", "error", err.Error())
+		goa.LogError(ctx, "error getting User", "error", err.Error())
 		return nil, err
 	}
 

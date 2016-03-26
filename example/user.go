@@ -35,10 +35,10 @@ func (c *UserController) List(ctx *app.ListUserContext) error {
 // Show runs the show action.
 func (c *UserController) Show(ctx *app.ShowUserContext) error {
 	user, err := udb.OneUser(ctx.Context, ctx.UserID)
-	if err ==  gorm.ErrRecordNotFound {
+	if err == gorm.ErrRecordNotFound {
 		return ctx.NotFound()
 	} else if err != nil {
-		return goa.Response(ctx).Send(ctx, 500, err.Error)
+		return goa.ContextResponse(ctx).Send(ctx, 500, err.Error)
 	}
 	return ctx.OK(user)
 }

@@ -8,7 +8,7 @@ import (
 	"github.com/goadesign/gorma/example/app"
 	"github.com/goadesign/gorma/example/models"
 	"github.com/goadesign/gorma/example/swagger"
-	"github.com/goadesign/middleware"
+	"github.com/goadesign/goa/middleware"
 	"github.com/jinzhu/gorm"
 	_ "github.com/lib/pq"
 	"gopkg.in/inconshreveable/log15.v2"

@@ -109,7 +109,7 @@ func (m *UserDB) List(ctx context.Context) []User {
 	var objs []User
 	err := m.Db.Table(m.TableName()).Find(&objs).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
-		goa.Error(ctx, "error listing User", "error", err.Error())
+		goa.LogError(ctx, "error listing User", "error", err.Error())
 		return objs
 	}
 
@@ -122,7 +122,7 @@ func (m *UserDB) Add(ctx context.Context, model *User) (*User, error) {
 
 	err := m.Db.Create(model).Error
 	if err != nil {
-		goa.Error(ctx, "error updating User", "error", err.Error())
+		goa.LogError(ctx, "error updating User", "error", err.Error())
 		return model, err
 	}
 
@@ -151,7 +151,7 @@ func (m *UserDB) Delete(ctx context.Context, id int) error {
 	err := m.Db.Delete(&obj, id).Error
 
 	if err != nil {
-		goa.Error(ctx, "error retrieving User", "error", err.Error())
+		goa.LogError(ctx, "error retrieving User", "error", err.Error())
 		return err
 	}
 
@@ -188,7 +188,7 @@ func (m *UserDB) UpdateFromCreateUserPayload(ctx context.Context, payload *app.C
 	var obj User
 	err := m.Db.Table(m.TableName()).Where("id = ?", id).Find(&obj).Error
 	if err != nil {
-		goa.Error(ctx, "error retrieving User", "error", err.Error())
+		goa.LogError(ctx, "error retrieving User", "error", err.Error())
 		return err
 	}
 	if payload.Bio != nil {
@@ -245,7 +245,7 @@ func (m *UserDB) UpdateFromUpdateUserPayload(ctx context.Context, payload *app.U
 	var obj User
 	err := m.Db.Table(m.TableName()).Where("id = ?", id).Find(&obj).Error
 	if err != nil {
-		goa.Error(ctx, "error retrieving User", "error", err.Error())
+		goa.LogError(ctx, "error retrieving User", "error", err.Error())
 		return err
 	}
 	if payload.Bio != nil {

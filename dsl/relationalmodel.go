@@ -292,12 +292,13 @@ func HasMany(name, child string) {
 // This specifies that the Order and Product tables have a "junction" table
 // called `order_lines` that contains the order and product information.
 // The generated model will have a field called `Products` that will
-// be an array of type `product.Product`.
+// be an array of type `Product`.
 func ManyToMany(other, tablename string) {
 	if r, ok := relationalModelDefinition(false); ok {
 		field := gorma.NewRelationalFieldDefinition()
 		field.FieldName = inflect.Pluralize(other)
 		field.Many2Many = other
+		field.Datatype = gorma.Many2Many
 		field.Description = "many to many " + r.ModelName + "/" + strings.Title(other)
 		field.Parent = r
 		r.RelationalFields[field.FieldName] = field

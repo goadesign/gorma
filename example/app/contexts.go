@@ -29,9 +29,9 @@ type CallbackAuthContext struct {
 // NewCallbackAuthContext parses the incoming request URL and body, performs validations and creates the
 // context used by the auth controller callback action.
 func NewCallbackAuthContext(ctx context.Context) (*CallbackAuthContext, error) {
-	var err error
-	req := goa.Request(ctx)
-	rctx := CallbackAuthContext{Context: ctx, ResponseData: goa.Response(ctx), RequestData: req}
+	var err *goa.Error
+	req := goa.ContextRequest(ctx)
+	rctx := CallbackAuthContext{Context: ctx, ResponseData: goa.ContextResponse(ctx), RequestData: req}
 	rawProvider := req.Params.Get("provider")
 	if rawProvider != "" {
 		rctx.Provider = rawProvider
@@ -58,9 +58,9 @@ type OauthAuthContext struct {
 // NewOauthAuthContext parses the incoming request URL and body, performs validations and creates the
 // context used by the auth controller oauth action.
 func NewOauthAuthContext(ctx context.Context) (*OauthAuthContext, error) {
-	var err error
-	req := goa.Request(ctx)
-	rctx := OauthAuthContext{Context: ctx, ResponseData: goa.Response(ctx), RequestData: req}
+	var err *goa.Error
+	req := goa.ContextRequest(ctx)
+	rctx := OauthAuthContext{Context: ctx, ResponseData: goa.ContextResponse(ctx), RequestData: req}
 	rawProvider := req.Params.Get("provider")
 	if rawProvider != "" {
 		rctx.Provider = rawProvider
@@ -85,9 +85,9 @@ type RefreshAuthContext struct {
 // NewRefreshAuthContext parses the incoming request URL and body, performs validations and creates the
 // context used by the auth controller refresh action.
 func NewRefreshAuthContext(ctx context.Context) (*RefreshAuthContext, error) {
-	var err error
-	req := goa.Request(ctx)
-	rctx := RefreshAuthContext{Context: ctx, ResponseData: goa.Response(ctx), RequestData: req}
+	var err *goa.Error
+	req := goa.ContextRequest(ctx)
+	rctx := RefreshAuthContext{Context: ctx, ResponseData: goa.ContextResponse(ctx), RequestData: req}
 	return &rctx, err
 }
 
@@ -118,9 +118,9 @@ type TokenAuthContext struct {
 // NewTokenAuthContext parses the incoming request URL and body, performs validations and creates the
 // context used by the auth controller token action.
 func NewTokenAuthContext(ctx context.Context) (*TokenAuthContext, error) {
-	var err error
-	req := goa.Request(ctx)
-	rctx := TokenAuthContext{Context: ctx, ResponseData: goa.Response(ctx), RequestData: req}
+	var err *goa.Error
+	req := goa.ContextRequest(ctx)
+	rctx := TokenAuthContext{Context: ctx, ResponseData: goa.ContextResponse(ctx), RequestData: req}
 	return &rctx, err
 }
 
@@ -152,15 +152,15 @@ type CreateProposalContext struct {
 // NewCreateProposalContext parses the incoming request URL and body, performs validations and creates the
 // context used by the proposal controller create action.
 func NewCreateProposalContext(ctx context.Context) (*CreateProposalContext, error) {
-	var err error
-	req := goa.Request(ctx)
-	rctx := CreateProposalContext{Context: ctx, ResponseData: goa.Response(ctx), RequestData: req}
+	var err *goa.Error
+	req := goa.ContextRequest(ctx)
+	rctx := CreateProposalContext{Context: ctx, ResponseData: goa.ContextResponse(ctx), RequestData: req}
 	rawUserID := req.Params.Get("userID")
 	if rawUserID != "" {
 		if userID, err2 := strconv.Atoi(rawUserID); err2 == nil {
 			rctx.UserID = userID
 		} else {
-			err = goa.StackErrors(err, goa.InvalidParamTypeError("userID", rawUserID, "integer"))
+			err = err.Merge(goa.InvalidParamTypeError("userID", rawUserID, "integer"))
 		}
 	}
 	return &rctx, err
@@ -175,36 +175,37 @@ type CreateProposalPayload struct {
 }
 
 // Validate runs the validation rules defined in the design.
-func (payload *CreateProposalPayload) Validate() (err error) {
+func (payload *CreateProposalPayload) Validate() error {
+	var err *goa.Error
 	if payload.Title == "" {
-		err = goa.StackErrors(err, goa.MissingAttributeError(`raw`, "title"))
+		err = err.Merge(goa.MissingAttributeError(`raw`, "title"))
 	}
 	if payload.Abstract == "" {
-		err = goa.StackErrors(err, goa.MissingAttributeError(`raw`, "abstract"))
+		err = err.Merge(goa.MissingAttributeError(`raw`, "abstract"))
 	}
 	if payload.Detail == "" {
-		err = goa.StackErrors(err, goa.MissingAttributeError(`raw`, "detail"))
+		err = err.Merge(goa.MissingAttributeError(`raw`, "detail"))
 	}
 
 	if len(payload.Abstract) < 50 {
-		err = goa.StackErrors(err, goa.InvalidLengthError(`raw.abstract`, payload.Abstract, len(payload.Abstract), 50, true))
+		err = err.Merge(goa.InvalidLengthError(`raw.abstract`, payload.Abstract, len(payload.Abstract), 50, true))
 	}
 	if len(payload.Abstract) > 500 {
-		err = goa.StackErrors(err, goa.InvalidLengthError(`raw.abstract`, payload.Abstract, len(payload.Abstract), 500, false))
+		err = err.Merge(goa.InvalidLengthError(`raw.abstract`, payload.Abstract, len(payload.Abstract), 500, false))
 	}
 	if len(payload.Detail) < 100 {
-		err = goa.StackErrors(err, goa.InvalidLengthError(`raw.detail`, payload.Detail, len(payload.Detail), 100, true))
+		err = err.Merge(goa.InvalidLengthError(`raw.detail`, payload.Detail, len(payload.Detail), 100, true))
 	}
 	if len(payload.Detail) > 2000 {
-		err = goa.StackErrors(err, goa.InvalidLengthError(`raw.detail`, payload.Detail, len(payload.Detail), 2000, false))
+		err = err.Merge(goa.InvalidLengthError(`raw.detail`, payload.Detail, len(payload.Detail), 2000, false))
 	}
 	if len(payload.Title) < 10 {
-		err = goa.StackErrors(err, goa.InvalidLengthError(`raw.title`, payload.Title, len(payload.Title), 10, true))
+		err = err.Merge(goa.InvalidLengthError(`raw.title`, payload.Title, len(payload.Title), 10, true))
 	}
 	if len(payload.Title) > 200 {
-		err = goa.StackErrors(err, goa.InvalidLengthError(`raw.title`, payload.Title, len(payload.Title), 200, false))
+		err = err.Merge(goa.InvalidLengthError(`raw.title`, payload.Title, len(payload.Title), 200, false))
 	}
-	return
+	return err
 }
 
 // Created sends a HTTP response with status code 201.
@@ -225,15 +226,15 @@ type DeleteProposalContext struct {
 // NewDeleteProposalContext parses the incoming request URL and body, performs validations and creates the
 // context used by the proposal controller delete action.
 func NewDeleteProposalContext(ctx context.Context) (*DeleteProposalContext, error) {
-	var err error
-	req := goa.Request(ctx)
-	rctx := DeleteProposalContext{Context: ctx, ResponseData: goa.Response(ctx), RequestData: req}
+	var err *goa.Error
+	req := goa.ContextRequest(ctx)
+	rctx := DeleteProposalContext{Context: ctx, ResponseData: goa.ContextResponse(ctx), RequestData: req}
 	rawProposalID := req.Params.Get("proposalID")
 	if rawProposalID != "" {
 		if proposalID, err2 := strconv.Atoi(rawProposalID); err2 == nil {
 			rctx.ProposalID = proposalID
 		} else {
-			err = goa.StackErrors(err, goa.InvalidParamTypeError("proposalID", rawProposalID, "integer"))
+			err = err.Merge(goa.InvalidParamTypeError("proposalID", rawProposalID, "integer"))
 		}
 	}
 	rawUserID := req.Params.Get("userID")
@@ -241,7 +242,7 @@ func NewDeleteProposalContext(ctx context.Context) (*DeleteProposalContext, erro
 		if userID, err2 := strconv.Atoi(rawUserID); err2 == nil {
 			rctx.UserID = userID
 		} else {
-			err = goa.StackErrors(err, goa.InvalidParamTypeError("userID", rawUserID, "integer"))
+			err = err.Merge(goa.InvalidParamTypeError("userID", rawUserID, "integer"))
 		}
 	}
 	return &rctx, err
@@ -270,15 +271,15 @@ type ListProposalContext struct {
 // NewListProposalContext parses the incoming request URL and body, performs validations and creates the
 // context used by the proposal controller list action.
 func NewListProposalContext(ctx context.Context) (*ListProposalContext, error) {
-	var err error
-	req := goa.Request(ctx)
-	rctx := ListProposalContext{Context: ctx, ResponseData: goa.Response(ctx), RequestData: req}
+	var err *goa.Error
+	req := goa.ContextRequest(ctx)
+	rctx := ListProposalContext{Context: ctx, ResponseData: goa.ContextResponse(ctx), RequestData: req}
 	rawUserID := req.Params.Get("userID")
 	if rawUserID != "" {
 		if userID, err2 := strconv.Atoi(rawUserID); err2 == nil {
 			rctx.UserID = userID
 		} else {
-			err = goa.StackErrors(err, goa.InvalidParamTypeError("userID", rawUserID, "integer"))
+			err = err.Merge(goa.InvalidParamTypeError("userID", rawUserID, "integer"))
 		}
 	}
 	return &rctx, err
@@ -302,15 +303,15 @@ type ShowProposalContext struct {
 // NewShowProposalContext parses the incoming request URL and body, performs validations and creates the
 // context used by the proposal controller show action.
 func NewShowProposalContext(ctx context.Context) (*ShowProposalContext, error) {
-	var err error
-	req := goa.Request(ctx)
-	rctx := ShowProposalContext{Context: ctx, ResponseData: goa.Response(ctx), RequestData: req}
+	var err *goa.Error
+	req := goa.ContextRequest(ctx)
+	rctx := ShowProposalContext{Context: ctx, ResponseData: goa.ContextResponse(ctx), RequestData: req}
 	rawProposalID := req.Params.Get("proposalID")
 	if rawProposalID != "" {
 		if proposalID, err2 := strconv.Atoi(rawProposalID); err2 == nil {
 			rctx.ProposalID = proposalID
 		} else {
-			err = goa.StackErrors(err, goa.InvalidParamTypeError("proposalID", rawProposalID, "integer"))
+			err = err.Merge(goa.InvalidParamTypeError("proposalID", rawProposalID, "integer"))
 		}
 	}
 	rawUserID := req.Params.Get("userID")
@@ -318,7 +319,7 @@ func NewShowProposalContext(ctx context.Context) (*ShowProposalContext, error) {
 		if userID, err2 := strconv.Atoi(rawUserID); err2 == nil {
 			rctx.UserID = userID
 		} else {
-			err = goa.StackErrors(err, goa.InvalidParamTypeError("userID", rawUserID, "integer"))
+			err = err.Merge(goa.InvalidParamTypeError("userID", rawUserID, "integer"))
 		}
 	}
 	return &rctx, err
@@ -349,15 +350,15 @@ type UpdateProposalContext struct {
 // NewUpdateProposalContext parses the incoming request URL and body, performs validations and creates the
 // context used by the proposal controller update action.
 func NewUpdateProposalContext(ctx context.Context) (*UpdateProposalContext, error) {
-	var err error
-	req := goa.Request(ctx)
-	rctx := UpdateProposalContext{Context: ctx, ResponseData: goa.Response(ctx), RequestData: req}
+	var err *goa.Error
+	req := goa.ContextRequest(ctx)
+	rctx := UpdateProposalContext{Context: ctx, ResponseData: goa.ContextResponse(ctx), RequestData: req}
 	rawProposalID := req.Params.Get("proposalID")
 	if rawProposalID != "" {
 		if proposalID, err2 := strconv.Atoi(rawProposalID); err2 == nil {
 			rctx.ProposalID = proposalID
 		} else {
-			err = goa.StackErrors(err, goa.InvalidParamTypeError("proposalID", rawProposalID, "integer"))
+			err = err.Merge(goa.InvalidParamTypeError("proposalID", rawProposalID, "integer"))
 		}
 	}
 	rawUserID := req.Params.Get("userID")
@@ -365,7 +366,7 @@ func NewUpdateProposalContext(ctx context.Context) (*UpdateProposalContext, erro
 		if userID, err2 := strconv.Atoi(rawUserID); err2 == nil {
 			rctx.UserID = userID
 		} else {
-			err = goa.StackErrors(err, goa.InvalidParamTypeError("userID", rawUserID, "integer"))
+			err = err.Merge(goa.InvalidParamTypeError("userID", rawUserID, "integer"))
 		}
 	}
 	return &rctx, err
@@ -380,38 +381,39 @@ type UpdateProposalPayload struct {
 }
 
 // Validate runs the validation rules defined in the design.
-func (payload *UpdateProposalPayload) Validate() (err error) {
+func (payload *UpdateProposalPayload) Validate() error {
+	var err *goa.Error
 	if payload.Abstract != nil {
 		if len(*payload.Abstract) < 50 {
-			err = goa.StackErrors(err, goa.InvalidLengthError(`raw.abstract`, *payload.Abstract, len(*payload.Abstract), 50, true))
+			err = err.Merge(goa.InvalidLengthError(`raw.abstract`, *payload.Abstract, len(*payload.Abstract), 50, true))
 		}
 	}
 	if payload.Abstract != nil {
 		if len(*payload.Abstract) > 500 {
-			err = goa.StackErrors(err, goa.InvalidLengthError(`raw.abstract`, *payload.Abstract, len(*payload.Abstract), 500, false))
+			err = err.Merge(goa.InvalidLengthError(`raw.abstract`, *payload.Abstract, len(*payload.Abstract), 500, false))
 		}
 	}
 	if payload.Detail != nil {
 		if len(*payload.Detail) < 100 {
-			err = goa.StackErrors(err, goa.InvalidLengthError(`raw.detail`, *payload.Detail, len(*payload.Detail), 100, true))
+			err = err.Merge(goa.InvalidLengthError(`raw.detail`, *payload.Detail, len(*payload.Detail), 100, true))
 		}
 	}
 	if payload.Detail != nil {
 		if len(*payload.Detail) > 2000 {
-			err = goa.StackErrors(err, goa.InvalidLengthError(`raw.detail`, *payload.Detail, len(*payload.Detail), 2000, false))
+			err = err.Merge(goa.InvalidLengthError(`raw.detail`, *payload.Detail, len(*payload.Detail), 2000, false))
 		}
 	}
 	if payload.Title != nil {
 		if len(*payload.Title) < 10 {
-			err = goa.StackErrors(err, goa.InvalidLengthError(`raw.title`, *payload.Title, len(*payload.Title), 10, true))
+			err = err.Merge(goa.InvalidLengthError(`raw.title`, *payload.Title, len(*payload.Title), 10, true))
 		}
 	}
 	if payload.Title != nil {
 		if len(*payload.Title) > 200 {
-			err = goa.StackErrors(err, goa.InvalidLengthError(`raw.title`, *payload.Title, len(*payload.Title), 200, false))
+			err = err.Merge(goa.InvalidLengthError(`raw.title`, *payload.Title, len(*payload.Title), 200, false))
 		}
 	}
-	return
+	return err
 }
 
 // NoContent sends a HTTP response with status code 204.
@@ -439,15 +441,15 @@ type CreateReviewContext struct {
 // NewCreateReviewContext parses the incoming request URL and body, performs validations and creates the
 // context used by the review controller create action.
 func NewCreateReviewContext(ctx context.Context) (*CreateReviewContext, error) {
-	var err error
-	req := goa.Request(ctx)
-	rctx := CreateReviewContext{Context: ctx, ResponseData: goa.Response(ctx), RequestData: req}
+	var err *goa.Error
+	req := goa.ContextRequest(ctx)
+	rctx := CreateReviewContext{Context: ctx, ResponseData: goa.ContextResponse(ctx), RequestData: req}
 	rawProposalID := req.Params.Get("proposalID")
 	if rawProposalID != "" {
 		if proposalID, err2 := strconv.Atoi(rawProposalID); err2 == nil {
 			rctx.ProposalID = proposalID
 		} else {
-			err = goa.StackErrors(err, goa.InvalidParamTypeError("proposalID", rawProposalID, "integer"))
+			err = err.Merge(goa.InvalidParamTypeError("proposalID", rawProposalID, "integer"))
 		}
 	}
 	rawUserID := req.Params.Get("userID")
@@ -455,7 +457,7 @@ func NewCreateReviewContext(ctx context.Context) (*CreateReviewContext, error) {
 		if userID, err2 := strconv.Atoi(rawUserID); err2 == nil {
 			rctx.UserID = userID
 		} else {
-			err = goa.StackErrors(err, goa.InvalidParamTypeError("userID", rawUserID, "integer"))
+			err = err.Merge(goa.InvalidParamTypeError("userID", rawUserID, "integer"))
 		}
 	}
 	return &rctx, err
@@ -468,25 +470,25 @@ type CreateReviewPayload struct {
 }
 
 // Validate runs the validation rules defined in the design.
-func (payload *CreateReviewPayload) Validate() (err error) {
-
+func (payload *CreateReviewPayload) Validate() error {
+	var err *goa.Error
 	if payload.Comment != nil {
 		if len(*payload.Comment) < 10 {
-			err = goa.StackErrors(err, goa.InvalidLengthError(`raw.comment`, *payload.Comment, len(*payload.Comment), 10, true))
+			err = err.Merge(goa.InvalidLengthError(`raw.comment`, *payload.Comment, len(*payload.Comment), 10, true))
 		}
 	}
 	if payload.Comment != nil {
 		if len(*payload.Comment) > 200 {
-			err = goa.StackErrors(err, goa.InvalidLengthError(`raw.comment`, *payload.Comment, len(*payload.Comment), 200, false))
+			err = err.Merge(goa.InvalidLengthError(`raw.comment`, *payload.Comment, len(*payload.Comment), 200, false))
 		}
 	}
 	if payload.Rating < 1 {
-		err = goa.StackErrors(err, goa.InvalidRangeError(`raw.rating`, payload.Rating, 1, true))
+		err = err.Merge(goa.InvalidRangeError(`raw.rating`, payload.Rating, 1, true))
 	}
 	if payload.Rating > 5 {
-		err = goa.StackErrors(err, goa.InvalidRangeError(`raw.rating`, payload.Rating, 5, false))
+		err = err.Merge(goa.InvalidRangeError(`raw.rating`, payload.Rating, 5, false))
 	}
-	return
+	return err
 }
 
 // Created sends a HTTP response with status code 201.
@@ -508,15 +510,15 @@ type DeleteReviewContext struct {
 // NewDeleteReviewContext parses the incoming request URL and body, performs validations and creates the
 // context used by the review controller delete action.
 func NewDeleteReviewContext(ctx context.Context) (*DeleteReviewContext, error) {
-	var err error
-	req := goa.Request(ctx)
-	rctx := DeleteReviewContext{Context: ctx, ResponseData: goa.Response(ctx), RequestData: req}
+	var err *goa.Error
+	req := goa.ContextRequest(ctx)
+	rctx := DeleteReviewContext{Context: ctx, ResponseData: goa.ContextResponse(ctx), RequestData: req}
 	rawProposalID := req.Params.Get("proposalID")
 	if rawProposalID != "" {
 		if proposalID, err2 := strconv.Atoi(rawProposalID); err2 == nil {
 			rctx.ProposalID = proposalID
 		} else {
-			err = goa.StackErrors(err, goa.InvalidParamTypeError("proposalID", rawProposalID, "integer"))
+			err = err.Merge(goa.InvalidParamTypeError("proposalID", rawProposalID, "integer"))
 		}
 	}
 	rawReviewID := req.Params.Get("reviewID")
@@ -524,7 +526,7 @@ func NewDeleteReviewContext(ctx context.Context) (*DeleteReviewContext, error) {
 		if reviewID, err2 := strconv.Atoi(rawReviewID); err2 == nil {
 			rctx.ReviewID = reviewID
 		} else {
-			err = goa.StackErrors(err, goa.InvalidParamTypeError("reviewID", rawReviewID, "integer"))
+			err = err.Merge(goa.InvalidParamTypeError("reviewID", rawReviewID, "integer"))
 		}
 	}
 	rawUserID := req.Params.Get("userID")
@@ -532,7 +534,7 @@ func NewDeleteReviewContext(ctx context.Context) (*DeleteReviewContext, error) {
 		if userID, err2 := strconv.Atoi(rawUserID); err2 == nil {
 			rctx.UserID = userID
 		} else {
-			err = goa.StackErrors(err, goa.InvalidParamTypeError("userID", rawUserID, "integer"))
+			err = err.Merge(goa.InvalidParamTypeError("userID", rawUserID, "integer"))
 		}
 	}
 	return &rctx, err
@@ -562,15 +564,15 @@ type ListReviewContext struct {
 // NewListReviewContext parses the incoming request URL and body, performs validations and creates the
 // context used by the review controller list action.
 func NewListReviewContext(ctx context.Context) (*ListReviewContext, error) {
-	var err error
-	req := goa.Request(ctx)
-	rctx := ListReviewContext{Context: ctx, ResponseData: goa.Response(ctx), RequestData: req}
+	var err *goa.Error
+	req := goa.ContextRequest(ctx)
+	rctx := ListReviewContext{Context: ctx, ResponseData: goa.ContextResponse(ctx), RequestData: req}
 	rawProposalID := req.Params.Get("proposalID")
 	if rawProposalID != "" {
 		if proposalID, err2 := strconv.Atoi(rawProposalID); err2 == nil {
 			rctx.ProposalID = proposalID
 		} else {
-			err = goa.StackErrors(err, goa.InvalidParamTypeError("proposalID", rawProposalID, "integer"))
+			err = err.Merge(goa.InvalidParamTypeError("proposalID", rawProposalID, "integer"))
 		}
 	}
 	rawUserID := req.Params.Get("userID")
@@ -578,7 +580,7 @@ func NewListReviewContext(ctx context.Context) (*ListReviewContext, error) {
 		if userID, err2 := strconv.Atoi(rawUserID); err2 == nil {
 			rctx.UserID = userID
 		} else {
-			err = goa.StackErrors(err, goa.InvalidParamTypeError("userID", rawUserID, "integer"))
+			err = err.Merge(goa.InvalidParamTypeError("userID", rawUserID, "integer"))
 		}
 	}
 	return &rctx, err
@@ -603,15 +605,15 @@ type ShowReviewContext struct {
 // NewShowReviewContext parses the incoming request URL and body, performs validations and creates the
 // context used by the review controller show action.
 func NewShowReviewContext(ctx context.Context) (*ShowReviewContext, error) {
-	var err error
-	req := goa.Request(ctx)
-	rctx := ShowReviewContext{Context: ctx, ResponseData: goa.Response(ctx), RequestData: req}
+	var err *goa.Error
+	req := goa.ContextRequest(ctx)
+	rctx := ShowReviewContext{Context: ctx, ResponseData: goa.ContextResponse(ctx), RequestData: req}
 	rawProposalID := req.Params.Get("proposalID")
 	if rawProposalID != "" {
 		if proposalID, err2 := strconv.Atoi(rawProposalID); err2 == nil {
 			rctx.ProposalID = proposalID
 		} else {
-			err = goa.StackErrors(err, goa.InvalidParamTypeError("proposalID", rawProposalID, "integer"))
+			err = err.Merge(goa.InvalidParamTypeError("proposalID", rawProposalID, "integer"))
 		}
 	}
 	rawReviewID := req.Params.Get("reviewID")
@@ -619,7 +621,7 @@ func NewShowReviewContext(ctx context.Context) (*ShowReviewContext, error) {
 		if reviewID, err2 := strconv.Atoi(rawReviewID); err2 == nil {
 			rctx.ReviewID = reviewID
 		} else {
-			err = goa.StackErrors(err, goa.InvalidParamTypeError("reviewID", rawReviewID, "integer"))
+			err = err.Merge(goa.InvalidParamTypeError("reviewID", rawReviewID, "integer"))
 		}
 	}
 	rawUserID := req.Params.Get("userID")
@@ -627,7 +629,7 @@ func NewShowReviewContext(ctx context.Context) (*ShowReviewContext, error) {
 		if userID, err2 := strconv.Atoi(rawUserID); err2 == nil {
 			rctx.UserID = userID
 		} else {
-			err = goa.StackErrors(err, goa.InvalidParamTypeError("userID", rawUserID, "integer"))
+			err = err.Merge(goa.InvalidParamTypeError("userID", rawUserID, "integer"))
 		}
 	}
 	return &rctx, err
@@ -659,15 +661,15 @@ type UpdateReviewContext struct {
 // NewUpdateReviewContext parses the incoming request URL and body, performs validations and creates the
 // context used by the review controller update action.
 func NewUpdateReviewContext(ctx context.Context) (*UpdateReviewContext, error) {
-	var err error
-	req := goa.Request(ctx)
-	rctx := UpdateReviewContext{Context: ctx, ResponseData: goa.Response(ctx), RequestData: req}
+	var err *goa.Error
+	req := goa.ContextRequest(ctx)
+	rctx := UpdateReviewContext{Context: ctx, ResponseData: goa.ContextResponse(ctx), RequestData: req}
 	rawProposalID := req.Params.Get("proposalID")
 	if rawProposalID != "" {
 		if proposalID, err2 := strconv.Atoi(rawProposalID); err2 == nil {
 			rctx.ProposalID = proposalID
 		} else {
-			err = goa.StackErrors(err, goa.InvalidParamTypeError("proposalID", rawProposalID, "integer"))
+			err = err.Merge(goa.InvalidParamTypeError("proposalID", rawProposalID, "integer"))
 		}
 	}
 	rawReviewID := req.Params.Get("reviewID")
@@ -675,7 +677,7 @@ func NewUpdateReviewContext(ctx context.Context) (*UpdateReviewContext, error) {
 		if reviewID, err2 := strconv.Atoi(rawReviewID); err2 == nil {
 			rctx.ReviewID = reviewID
 		} else {
-			err = goa.StackErrors(err, goa.InvalidParamTypeError("reviewID", rawReviewID, "integer"))
+			err = err.Merge(goa.InvalidParamTypeError("reviewID", rawReviewID, "integer"))
 		}
 	}
 	rawUserID := req.Params.Get("userID")
@@ -683,7 +685,7 @@ func NewUpdateReviewContext(ctx context.Context) (*UpdateReviewContext, error) {
 		if userID, err2 := strconv.Atoi(rawUserID); err2 == nil {
 			rctx.UserID = userID
 		} else {
-			err = goa.StackErrors(err, goa.InvalidParamTypeError("userID", rawUserID, "integer"))
+			err = err.Merge(goa.InvalidParamTypeError("userID", rawUserID, "integer"))
 		}
 	}
 	return &rctx, err
@@ -696,28 +698,29 @@ type UpdateReviewPayload struct {
 }
 
 // Validate runs the validation rules defined in the design.
-func (payload *UpdateReviewPayload) Validate() (err error) {
+func (payload *UpdateReviewPayload) Validate() error {
+	var err *goa.Error
 	if payload.Comment != nil {
 		if len(*payload.Comment) < 10 {
-			err = goa.StackErrors(err, goa.InvalidLengthError(`raw.comment`, *payload.Comment, len(*payload.Comment), 10, true))
+			err = err.Merge(goa.InvalidLengthError(`raw.comment`, *payload.Comment, len(*payload.Comment), 10, true))
 		}
 	}
 	if payload.Comment != nil {
 		if len(*payload.Comment) > 200 {
-			err = goa.StackErrors(err, goa.InvalidLengthError(`raw.comment`, *payload.Comment, len(*payload.Comment), 200, false))
+			err = err.Merge(goa.InvalidLengthError(`raw.comment`, *payload.Comment, len(*payload.Comment), 200, false))
 		}
 	}
 	if payload.Rating != nil {
 		if *payload.Rating < 1 {
-			err = goa.StackErrors(err, goa.InvalidRangeError(`raw.rating`, *payload.Rating, 1, true))
+			err = err.Merge(goa.InvalidRangeError(`raw.rating`, *payload.Rating, 1, true))
 		}
 	}
 	if payload.Rating != nil {
 		if *payload.Rating > 5 {
-			err = goa.StackErrors(err, goa.InvalidRangeError(`raw.rating`, *payload.Rating, 5, false))
+			err = err.Merge(goa.InvalidRangeError(`raw.rating`, *payload.Rating, 5, false))
 		}
 	}
-	return
+	return err
 }
 
 // NoContent sends a HTTP response with status code 204.
@@ -742,9 +745,9 @@ type BootstrapUIContext struct {
 // NewBootstrapUIContext parses the incoming request URL and body, performs validations and creates the
 // context used by the ui controller bootstrap action.
 func NewBootstrapUIContext(ctx context.Context) (*BootstrapUIContext, error) {
-	var err error
-	req := goa.Request(ctx)
-	rctx := BootstrapUIContext{Context: ctx, ResponseData: goa.Response(ctx), RequestData: req}
+	var err *goa.Error
+	req := goa.ContextRequest(ctx)
+	rctx := BootstrapUIContext{Context: ctx, ResponseData: goa.ContextResponse(ctx), RequestData: req}
 	return &rctx, err
 }
 
@@ -767,9 +770,9 @@ type CreateUserContext struct {
 // NewCreateUserContext parses the incoming request URL and body, performs validations and creates the
 // context used by the user controller create action.
 func NewCreateUserContext(ctx context.Context) (*CreateUserContext, error) {
-	var err error
-	req := goa.Request(ctx)
-	rctx := CreateUserContext{Context: ctx, ResponseData: goa.Response(ctx), RequestData: req}
+	var err *goa.Error
+	req := goa.ContextRequest(ctx)
+	rctx := CreateUserContext{Context: ctx, ResponseData: goa.ContextResponse(ctx), RequestData: req}
 	return &rctx, err
 }
 
@@ -785,26 +788,27 @@ type CreateUserPayload struct {
 }
 
 // Validate runs the validation rules defined in the design.
-func (payload *CreateUserPayload) Validate() (err error) {
+func (payload *CreateUserPayload) Validate() error {
+	var err *goa.Error
 	if payload.Firstname == "" {
-		err = goa.StackErrors(err, goa.MissingAttributeError(`raw`, "firstname"))
+		err = err.Merge(goa.MissingAttributeError(`raw`, "firstname"))
 	}
 	if payload.Lastname == "" {
-		err = goa.StackErrors(err, goa.MissingAttributeError(`raw`, "lastname"))
+		err = err.Merge(goa.MissingAttributeError(`raw`, "lastname"))
 	}
 	if payload.Email == "" {
-		err = goa.StackErrors(err, goa.MissingAttributeError(`raw`, "email"))
+		err = err.Merge(goa.MissingAttributeError(`raw`, "email"))
 	}
 
 	if payload.Bio != nil {
 		if len(*payload.Bio) > 500 {
-			err = goa.StackErrors(err, goa.InvalidLengthError(`raw.bio`, *payload.Bio, len(*payload.Bio), 500, false))
+			err = err.Merge(goa.InvalidLengthError(`raw.bio`, *payload.Bio, len(*payload.Bio), 500, false))
 		}
 	}
 	if err2 := goa.ValidateFormat(goa.FormatEmail, payload.Email); err2 != nil {
-		err = goa.StackErrors(err, goa.InvalidFormatError(`raw.email`, payload.Email, goa.FormatEmail, err2))
+		err = err.Merge(goa.InvalidFormatError(`raw.email`, payload.Email, goa.FormatEmail, err2))
 	}
-	return
+	return err
 }
 
 // Created sends a HTTP response with status code 201.
@@ -824,15 +828,15 @@ type DeleteUserContext struct {
 // NewDeleteUserContext parses the incoming request URL and body, performs validations and creates the
 // context used by the user controller delete action.
 func NewDeleteUserContext(ctx context.Context) (*DeleteUserContext, error) {
-	var err error
-	req := goa.Request(ctx)
-	rctx := DeleteUserContext{Context: ctx, ResponseData: goa.Response(ctx), RequestData: req}
+	var err *goa.Error
+	req := goa.ContextRequest(ctx)
+	rctx := DeleteUserContext{Context: ctx, ResponseData: goa.ContextResponse(ctx), RequestData: req}
 	rawUserID := req.Params.Get("userID")
 	if rawUserID != "" {
 		if userID, err2 := strconv.Atoi(rawUserID); err2 == nil {
 			rctx.UserID = userID
 		} else {
-			err = goa.StackErrors(err, goa.InvalidParamTypeError("userID", rawUserID, "integer"))
+			err = err.Merge(goa.InvalidParamTypeError("userID", rawUserID, "integer"))
 		}
 	}
 	return &rctx, err
@@ -860,9 +864,9 @@ type ListUserContext struct {
 // NewListUserContext parses the incoming request URL and body, performs validations and creates the
 // context used by the user controller list action.
 func NewListUserContext(ctx context.Context) (*ListUserContext, error) {
-	var err error
-	req := goa.Request(ctx)
-	rctx := ListUserContext{Context: ctx, ResponseData: goa.Response(ctx), RequestData: req}
+	var err *goa.Error
+	req := goa.ContextRequest(ctx)
+	rctx := ListUserContext{Context: ctx, ResponseData: goa.ContextResponse(ctx), RequestData: req}
 	return &rctx, err
 }
 
@@ -883,15 +887,15 @@ type ShowUserContext struct {
 // NewShowUserContext parses the incoming request URL and body, performs validations and creates the
 // context used by the user controller show action.
 func NewShowUserContext(ctx context.Context) (*ShowUserContext, error) {
-	var err error
-	req := goa.Request(ctx)
-	rctx := ShowUserContext{Context: ctx, ResponseData: goa.Response(ctx), RequestData: req}
+	var err *goa.Error
+	req := goa.ContextRequest(ctx)
+	rctx := ShowUserContext{Context: ctx, ResponseData: goa.ContextResponse(ctx), RequestData: req}
 	rawUserID := req.Params.Get("userID")
 	if rawUserID != "" {
 		if userID, err2 := strconv.Atoi(rawUserID); err2 == nil {
 			rctx.UserID = userID
 		} else {
-			err = goa.StackErrors(err, goa.InvalidParamTypeError("userID", rawUserID, "integer"))
+			err = err.Merge(goa.InvalidParamTypeError("userID", rawUserID, "integer"))
 		}
 	}
 	return &rctx, err
@@ -921,15 +925,15 @@ type UpdateUserContext struct {
 // NewUpdateUserContext parses the incoming request URL and body, performs validations and creates the
 // context used by the user controller update action.
 func NewUpdateUserContext(ctx context.Context) (*UpdateUserContext, error) {
-	var err error
-	req := goa.Request(ctx)
-	rctx := UpdateUserContext{Context: ctx, ResponseData: goa.Response(ctx), RequestData: req}
+	var err *goa.Error
+	req := goa.ContextRequest(ctx)
+	rctx := UpdateUserContext{Context: ctx, ResponseData: goa.ContextResponse(ctx), RequestData: req}
 	rawUserID := req.Params.Get("userID")
 	if rawUserID != "" {
 		if userID, err2 := strconv.Atoi(rawUserID); err2 == nil {
 			rctx.UserID = userID
 		} else {
-			err = goa.StackErrors(err, goa.InvalidParamTypeError("userID", rawUserID, "integer"))
+			err = err.Merge(goa.InvalidParamTypeError("userID", rawUserID, "integer"))
 		}
 	}
 	return &rctx, err
@@ -947,20 +951,21 @@ type UpdateUserPayload struct {
 }
 
 // Validate runs the validation rules defined in the design.
-func (payload *UpdateUserPayload) Validate() (err error) {
+func (payload *UpdateUserPayload) Validate() error {
+	var err *goa.Error
 	if payload.Email == "" {
-		err = goa.StackErrors(err, goa.MissingAttributeError(`raw`, "email"))
+		err = err.Merge(goa.MissingAttributeError(`raw`, "email"))
 	}
 
 	if payload.Bio != nil {
 		if len(*payload.Bio) > 500 {
-			err = goa.StackErrors(err, goa.InvalidLengthError(`raw.bio`, *payload.Bio, len(*payload.Bio), 500, false))
+			err = err.Merge(goa.InvalidLengthError(`raw.bio`, *payload.Bio, len(*payload.Bio), 500, false))
 		}
 	}
 	if err2 := goa.ValidateFormat(goa.FormatEmail, payload.Email); err2 != nil {
-		err = goa.StackErrors(err, goa.InvalidFormatError(`raw.email`, payload.Email, goa.FormatEmail, err2))
+		err = err.Merge(goa.InvalidFormatError(`raw.email`, payload.Email, goa.FormatEmail, err2))
 	}
-	return
+	return err
 }
 
 // NoContent sends a HTTP response with status code 204.

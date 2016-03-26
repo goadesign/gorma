@@ -96,7 +96,7 @@ func (cmd *CallbackAuthCommand) Run(c *client.Client, args []string) error {
 	ctx := goa.UseLogger(context.Background(), logger)
 	resp, err := c.CallbackAuth(ctx, path)
 	if err != nil {
-		goa.Error(ctx, "failed", "err", err)
+		goa.LogError(ctx, "failed", "err", err)
 		return err
 	}
 
@@ -120,7 +120,7 @@ func (cmd *OauthAuthCommand) Run(c *client.Client, args []string) error {
 	ctx := goa.UseLogger(context.Background(), logger)
 	resp, err := c.OauthAuth(ctx, path)
 	if err != nil {
-		goa.Error(ctx, "failed", "err", err)
+		goa.LogError(ctx, "failed", "err", err)
 		return err
 	}
 
@@ -151,7 +151,7 @@ func (cmd *RefreshAuthCommand) Run(c *client.Client, args []string) error {
 	ctx := goa.UseLogger(context.Background(), logger)
 	resp, err := c.RefreshAuth(ctx, path, &payload)
 	if err != nil {
-		goa.Error(ctx, "failed", "err", err)
+		goa.LogError(ctx, "failed", "err", err)
 		return err
 	}
 
@@ -183,7 +183,7 @@ func (cmd *TokenAuthCommand) Run(c *client.Client, args []string) error {
 	ctx := goa.UseLogger(context.Background(), logger)
 	resp, err := c.TokenAuth(ctx, path, &payload)
 	if err != nil {
-		goa.Error(ctx, "failed", "err", err)
+		goa.LogError(ctx, "failed", "err", err)
 		return err
 	}
 
@@ -215,7 +215,7 @@ func (cmd *CreateProposalCommand) Run(c *client.Client, args []string) error {
 	ctx := goa.UseLogger(context.Background(), logger)
 	resp, err := c.CreateProposal(ctx, path, &payload)
 	if err != nil {
-		goa.Error(ctx, "failed", "err", err)
+		goa.LogError(ctx, "failed", "err", err)
 		return err
 	}
 
@@ -240,7 +240,7 @@ func (cmd *DeleteProposalCommand) Run(c *client.Client, args []string) error {
 	ctx := goa.UseLogger(context.Background(), logger)
 	resp, err := c.DeleteProposal(ctx, path)
 	if err != nil {
-		goa.Error(ctx, "failed", "err", err)
+		goa.LogError(ctx, "failed", "err", err)
 		return err
 	}
 
@@ -264,7 +264,7 @@ func (cmd *ListProposalCommand) Run(c *client.Client, args []string) error {
 	ctx := goa.UseLogger(context.Background(), logger)
 	resp, err := c.ListProposal(ctx, path)
 	if err != nil {
-		goa.Error(ctx, "failed", "err", err)
+		goa.LogError(ctx, "failed", "err", err)
 		return err
 	}
 
@@ -288,7 +288,7 @@ func (cmd *ShowProposalCommand) Run(c *client.Client, args []string) error {
 	ctx := goa.UseLogger(context.Background(), logger)
 	resp, err := c.ShowProposal(ctx, path)
 	if err != nil {
-		goa.Error(ctx, "failed", "err", err)
+		goa.LogError(ctx, "failed", "err", err)
 		return err
 	}
 
@@ -319,7 +319,7 @@ func (cmd *UpdateProposalCommand) Run(c *client.Client, args []string) error {
 	ctx := goa.UseLogger(context.Background(), logger)
 	resp, err := c.UpdateProposal(ctx, path, &payload)
 	if err != nil {
-		goa.Error(ctx, "failed", "err", err)
+		goa.LogError(ctx, "failed", "err", err)
 		return err
 	}
 
@@ -351,7 +351,7 @@ func (cmd *CreateReviewCommand) Run(c *client.Client, args []string) error {
 	ctx := goa.UseLogger(context.Background(), logger)
 	resp, err := c.CreateReview(ctx, path, &payload)
 	if err != nil {
-		goa.Error(ctx, "failed", "err", err)
+		goa.LogError(ctx, "failed", "err", err)
 		return err
 	}
 
@@ -376,7 +376,7 @@ func (cmd *DeleteReviewCommand) Run(c *client.Client, args []string) error {
 	ctx := goa.UseLogger(context.Background(), logger)
 	resp, err := c.DeleteReview(ctx, path)
 	if err != nil {
-		goa.Error(ctx, "failed", "err", err)
+		goa.LogError(ctx, "failed", "err", err)
 		return err
 	}
 
@@ -400,7 +400,7 @@ func (cmd *ListReviewCommand) Run(c *client.Client, args []string) error {
 	ctx := goa.UseLogger(context.Background(), logger)
 	resp, err := c.ListReview(ctx, path)
 	if err != nil {
-		goa.Error(ctx, "failed", "err", err)
+		goa.LogError(ctx, "failed", "err", err)
 		return err
 	}
 
@@ -424,7 +424,7 @@ func (cmd *ShowReviewCommand) Run(c *client.Client, args []string) error {
 	ctx := goa.UseLogger(context.Background(), logger)
 	resp, err := c.ShowReview(ctx, path)
 	if err != nil {
-		goa.Error(ctx, "failed", "err", err)
+		goa.LogError(ctx, "failed", "err", err)
 		return err
 	}
 
@@ -455,7 +455,7 @@ func (cmd *UpdateReviewCommand) Run(c *client.Client, args []string) error {
 	ctx := goa.UseLogger(context.Background(), logger)
 	resp, err := c.UpdateReview(ctx, path, &payload)
 	if err != nil {
-		goa.Error(ctx, "failed", "err", err)
+		goa.LogError(ctx, "failed", "err", err)
 		return err
 	}
 
@@ -480,7 +480,7 @@ func (cmd *BootstrapUICommand) Run(c *client.Client, args []string) error {
 	ctx := goa.UseLogger(context.Background(), logger)
 	resp, err := c.BootstrapUI(ctx, path)
 	if err != nil {
-		goa.Error(ctx, "failed", "err", err)
+		goa.LogError(ctx, "failed", "err", err)
 		return err
 	}
 
@@ -511,7 +511,7 @@ func (cmd *CreateUserCommand) Run(c *client.Client, args []string) error {
 	ctx := goa.UseLogger(context.Background(), logger)
 	resp, err := c.CreateUser(ctx, path, &payload)
 	if err != nil {
-		goa.Error(ctx, "failed", "err", err)
+		goa.LogError(ctx, "failed", "err", err)
 		return err
 	}
 
@@ -536,7 +536,7 @@ func (cmd *DeleteUserCommand) Run(c *client.Client, args []string) error {
 	ctx := goa.UseLogger(context.Background(), logger)
 	resp, err := c.DeleteUser(ctx, path)
 	if err != nil {
-		goa.Error(ctx, "failed", "err", err)
+		goa.LogError(ctx, "failed", "err", err)
 		return err
 	}
 
@@ -560,7 +560,7 @@ func (cmd *ListUserCommand) Run(c *client.Client, args []string) error {
 	ctx := goa.UseLogger(context.Background(), logger)
 	resp, err := c.ListUser(ctx, path)
 	if err != nil {
-		goa.Error(ctx, "failed", "err", err)
+		goa.LogError(ctx, "failed", "err", err)
 		return err
 	}
 
@@ -584,7 +584,7 @@ func (cmd *ShowUserCommand) Run(c *client.Client, args []string) error {
 	ctx := goa.UseLogger(context.Background(), logger)
 	resp, err := c.ShowUser(ctx, path)
 	if err != nil {
-		goa.Error(ctx, "failed", "err", err)
+		goa.LogError(ctx, "failed", "err", err)
 		return err
 	}
 
@@ -615,7 +615,7 @@ func (cmd *UpdateUserCommand) Run(c *client.Client, args []string) error {
 	ctx := goa.UseLogger(context.Background(), logger)
 	resp, err := c.UpdateUser(ctx, path, &payload)
 	if err != nil {
-		goa.Error(ctx, "failed", "err", err)
+		goa.LogError(ctx, "failed", "err", err)
 		return err
 	}
 
