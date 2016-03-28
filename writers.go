@@ -267,7 +267,7 @@ func viewFields(ut *RelationalModelDefinition, v *design.ViewDefinition) []*Rela
 					fields = append(fields, bf)
 				}
 			} else if name == "links" {
-				for n, ld := range v.Parent.Links {
+				for _, ld := range v.Parent.Links {
 					pretty.Println(ld.Name, ld.View)
 				}
 			}
