@@ -11,6 +11,7 @@
 #
 DIRS=$(shell go list -f {{.Dir}} ./... | grep -v /example)
 DEPEND=\
+        bitbucket.org/pkg/inflect \
 	github.com/goadesign/goa.design/tools/mdc \
 	github.com/goadesign/goa.design/tools/godoc2md \
 	github.com/golang/lint/golint \
