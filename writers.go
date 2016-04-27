@@ -483,9 +483,12 @@ func (m *{{$ut.ModelName}}DB) List(ctx context.Context{{ if $ut.DynamicTableName
 func (m *{{$ut.ModelName}}DB) Add(ctx context.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, model *{{$ut.ModelName}}) (*{{$ut.ModelName}}, error) {
 	defer goa.MeasureSince([]string{"goa","db","{{goify $ut.ModelName false}}", "add"}, time.Now())
 
+{{ range $l, $pk := $ut.PrimaryKeys }}
+	{{ if eq $pk.Datatype "uuid" }}model.{{$pk.FieldName}} = uuid.NewV4(){{ end }}
+{{ end }}
 	err := m.Db{{ if $ut.DynamicTableName }}.Table(tableName){{ end }}.Create(model).Error
 	if err != nil {
-		goa.LogError(ctx, "error updating {{$ut.ModelName}}", "error", err.Error())
+		goa.LogError(ctx, "error adding {{$ut.ModelName}}", "error", err.Error())
 		return model, err
 	}
 	{{ if $ut.Cached }}
@@ -499,6 +502,7 @@ func (m *{{$ut.ModelName}}DB) Update(ctx context.Context{{ if $ut.DynamicTableNa
 
 	obj, err := m.Get(ctx{{ if $ut.DynamicTableName }}, tableName{{ end }}, {{$ut.PKUpdateFields "model"}})
 	if err != nil {
+		goa.LogError(ctx, "error updating {{$ut.ModelName}}", "error", err.Error())
 		return  err
 	}
 	err = m.Db{{ if $ut.DynamicTableName }}.Table(tableName){{ end }}.Model(&obj).Updates(model).Error
@@ -519,7 +523,7 @@ func (m *{{$ut.ModelName}}DB) Delete(ctx context.Context{{ if $ut.DynamicTableNa
 	{{ else  }}err := m.Db{{ if $ut.DynamicTableName }}.Table(tableName){{ end }}.Delete(&obj).Where("{{$ut.PKWhere}}", {{$ut.PKWhereFields}}).Error
 	{{ end }}
 	if err != nil {
-		goa.LogError(ctx, "error retrieving {{$ut.ModelName}}", "error", err.Error())
+		goa.LogError(ctx, "error deleting {{$ut.ModelName}}", "error", err.Error())
 		return  err
 	}
 	{{ if $ut.Cached }} go m.cache.Delete(strconv.Itoa(id)) {{ end }}

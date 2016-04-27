@@ -100,7 +100,7 @@ func goDatatype(f *RelationalFieldDefinition, includePtr bool) string {
 	case Text:
 		return ptr + "string"
 	case UUID:
-		return ptr + "string" // what to do about UUIDS?
+		return ptr + "uuid.UUID"
 	case Timestamp, NullableTimestamp:
 		return ptr + "time.Time"
 	case BelongsTo:
