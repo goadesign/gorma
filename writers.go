@@ -318,7 +318,7 @@ func (w *UserHelperWriter) Execute(data *UserTypeTemplateData) error {
 	fm["plural"] = inflect.Pluralize
 	fm["gtt"] = codegen.GoTypeTransform
 	fm["gttn"] = codegen.GoTypeTransformName
-	fm["gptn"] = codegen.GoPackageTypeName
+	fm["gptn"] = codegen.GoTypeName
 	fm["newMediaTemplate"] = newMediaTemplate
 	return w.ExecuteTemplate("types", userHelperT, fm, data)
 }
