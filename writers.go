@@ -106,8 +106,21 @@ func fieldAssignmentModelToType(model *RelationalModelDefinition, ut *design.Vie
 
 	if !strings.Contains(ut.Name, "link") {
 		fmt.Println(model.ModelName, "LINK ", ut.Name)
-		for ln := range ut.Parent.Links {
-			ifb := fmt.Sprintf("tmp%d := %s.%s.%sTo%sLink()", tmp, v, codegen.Goify(ln, true), inflect.Singularize(codegen.Goify(ln, true)), inflect.Singularize(codegen.Goify(ln, true)))
+		for ln, lnd := range ut.Parent.Links {
+			ln = codegen.Goify(ln, true)
+			s := inflect.Singularize(ln)
+			var ifb string
+			if lnd.MediaType().IsArray() {
+				mt := codegen.Goify(lnd.MediaType().ToArray().ElemType.Type.(*design.MediaTypeDefinition).TypeName, true) + "LinkCollection"
+				fa := make([]string, 4)
+				fa[0] = fmt.Sprintf("tmp%d := make(app.%s, len(%s.%s))", tmp, mt, v, ln)
+				fa[1] = fmt.Sprintf("for i, elem := range %s.%s {", v, ln)
+				fa[2] = fmt.Sprintf("	tmp%d[i] = elem.%sTo%sLink()", tmp, s, s)
+				fa[3] = fmt.Sprintf("}")
+				ifb = strings.Join(fa, "\n")
+			} else {
+				ifb = fmt.Sprintf("tmp%d := %s.%s.%sTo%sLink()", tmp, v, ln, s, s)
+			}
 
 			fieldAssignments = append(fieldAssignments, ifb)
 			ifd := fmt.Sprintf("%s.Links = &app.%sLinks{%s: tmp%d}", utype, codegen.Goify(utype, true), codegen.Goify(ln, true), tmp)
@@ -601,7 +614,7 @@ func (m *{{.Model.ModelName}}DB) List{{goify .Media.TypeName true}}{{if not (eq 
 }
 
 // {{$.Model.ModelName}}To{{goify .Media.UserTypeDefinition.TypeName true}}{{if not (eq .ViewName "default")}}{{goify .ViewName true}}{{end}}{{/*
-*/}} returns the {{goify .Media.UserTypeDefinition.TypeName true}} representation of {{$.Model.ModelName}}.
+*/}} loads a {{.Model.ModelName}} and builds the {{.ViewName}} view of media type {{.Media.TypeName}}.
 func (m *{{.Model.ModelName}}) {{$.Model.ModelName}}To{{goify .Media.UserTypeDefinition.TypeName true}}{{if not (eq .ViewName "default")}}{{goify .ViewName true}}{{end}}(){{/*
 */}} *app.{{goify .Media.TypeName true}}{{if not (eq .ViewName "default")}}{{goify .ViewName true}}{{end}} {
 	{{.Model.LowerName}} := &app.{{goify .Media.TypeName true}}{{if not (eq .ViewName "default")}}{{goify .ViewName true}}{{end}}{}
@@ -610,7 +623,7 @@ func (m *{{.Model.ModelName}}) {{$.Model.ModelName}}To{{goify .Media.UserTypeDef
  	 return {{.Model.LowerName}}
 }
 
-// One{{goify .Media.TypeName true}}{{if not (eq .ViewName "default")}}{{goify .ViewName true}}{{end}} returns an array of view: {{.ViewName}}{{$ut := .Model}}.
+// One{{goify .Media.TypeName true}}{{if not (eq .ViewName "default")}}{{goify .ViewName true}}{{end}} loads a {{.Model.ModelName}} and builds the {{.ViewName}} view of media type {{.Media.TypeName}}.
 func (m *{{.Model.ModelName}}DB) One{{goify .Media.TypeName true}}{{if not (eq .ViewName "default")}}{{goify .ViewName true}}{{end}}{{/*
 */}} (ctx context.Context{{ if .Model.DynamicTableName}}, tableName string{{ end }},{{.Model.PKAttributes}}{{/*
 */}}{{range $nm, $bt := .Model.BelongsTo}},{{goify (printf "%s%s" $bt.ModelName "ID") false}} int{{end}}){{/*
