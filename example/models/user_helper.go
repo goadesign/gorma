@@ -41,7 +41,7 @@ func (m *UserDB) ListUser(ctx context.Context) []*app.User {
 	return objs
 }
 
-// UserToUser returns the User representation of User.
+// UserToUser loads a User and builds the default view of media type User.
 func (m *User) UserToUser() *app.User {
 	user := &app.User{}
 	user.Bio = m.Bio
@@ -56,7 +56,7 @@ func (m *User) UserToUser() *app.User {
 	return user
 }
 
-// OneUser returns an array of view: default.
+// OneUser loads a User and builds the default view of media type User.
 func (m *UserDB) OneUser(ctx context.Context, id int) (*app.User, error) {
 	defer goa.MeasureSince([]string{"goa", "db", "user", "oneuser"}, time.Now())
 
@@ -94,7 +94,7 @@ func (m *UserDB) ListUserLink(ctx context.Context) []*app.UserLink {
 	return objs
 }
 
-// UserToUserLink returns the User representation of User.
+// UserToUserLink loads a User and builds the link view of media type User.
 func (m *User) UserToUserLink() *app.UserLink {
 	user := &app.UserLink{}
 	user.Email = &m.Email
@@ -103,7 +103,7 @@ func (m *User) UserToUserLink() *app.UserLink {
 	return user
 }
 
-// OneUserLink returns an array of view: link.
+// OneUserLink loads a User and builds the link view of media type User.
 func (m *UserDB) OneUserLink(ctx context.Context, id int) (*app.UserLink, error) {
 	defer goa.MeasureSince([]string{"goa", "db", "user", "oneuserlink"}, time.Now())
 

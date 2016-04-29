@@ -12,12 +12,11 @@
 package models
 
 import (
-	"time"
-
 	"github.com/goadesign/goa"
 	"github.com/goadesign/gorma/example/app"
 	"github.com/jinzhu/gorm"
 	"golang.org/x/net/context"
+	"time"
 )
 
 // MediaType Retrieval Functions
@@ -42,10 +41,13 @@ func (m *ProposalDB) ListProposal(ctx context.Context, userID int) []*app.Propos
 	return objs
 }
 
-// ProposalToProposal returns the Proposal representation of Proposal.
+// ProposalToProposal loads a Proposal and builds the default view of media type Proposal.
 func (m *Proposal) ProposalToProposal() *app.Proposal {
 	proposal := &app.Proposal{}
-	tmp1 := app.ReviewLinkCollection{}
+	tmp1 := make(app.ReviewLinkCollection, len(m.Reviews))
+	for i, elem := range m.Reviews {
+		tmp1[i] = elem.ReviewToReviewLink()
+	}
 	proposal.Links = &app.ProposalLinks{Reviews: tmp1}
 	proposal.Abstract = &m.Abstract
 	proposal.Detail = &m.Detail
@@ -58,7 +60,7 @@ func (m *Proposal) ProposalToProposal() *app.Proposal {
 	return proposal
 }
 
-// OneProposal returns an array of view: default.
+// OneProposal loads a Proposal and builds the default view of media type Proposal.
 func (m *ProposalDB) OneProposal(ctx context.Context, id int, userID int) (*app.Proposal, error) {
 	defer goa.MeasureSince([]string{"goa", "db", "proposal", "oneproposal"}, time.Now())
 
@@ -96,7 +98,7 @@ func (m *ProposalDB) ListProposalLink(ctx context.Context, userID int) []*app.Pr
 	return objs
 }
 
-// ProposalToProposalLink returns the Proposal representation of Proposal.
+// ProposalToProposalLink loads a Proposal and builds the link view of media type Proposal.
 func (m *Proposal) ProposalToProposalLink() *app.ProposalLink {
 	proposal := &app.ProposalLink{}
 	proposal.ID = &m.ID
@@ -105,7 +107,7 @@ func (m *Proposal) ProposalToProposalLink() *app.ProposalLink {
 	return proposal
 }
 
-// OneProposalLink returns an array of view: link.
+// OneProposalLink loads a Proposal and builds the link view of media type Proposal.
 func (m *ProposalDB) OneProposalLink(ctx context.Context, id int, userID int) (*app.ProposalLink, error) {
 	defer goa.MeasureSince([]string{"goa", "db", "proposal", "oneproposallink"}, time.Now())
 

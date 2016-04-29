@@ -41,7 +41,7 @@ func (m *ReviewDB) ListReview(ctx context.Context, proposalID int, userID int) [
 	return objs
 }
 
-// ReviewToReview returns the Review representation of Review.
+// ReviewToReview loads a Review and builds the default view of media type Review.
 func (m *Review) ReviewToReview() *app.Review {
 	review := &app.Review{}
 	review.Comment = m.Comment
@@ -51,7 +51,7 @@ func (m *Review) ReviewToReview() *app.Review {
 	return review
 }
 
-// OneReview returns an array of view: default.
+// OneReview loads a Review and builds the default view of media type Review.
 func (m *ReviewDB) OneReview(ctx context.Context, id int, proposalID int, userID int) (*app.Review, error) {
 	defer goa.MeasureSince([]string{"goa", "db", "review", "onereview"}, time.Now())
 
@@ -89,7 +89,7 @@ func (m *ReviewDB) ListReviewLink(ctx context.Context, proposalID int, userID in
 	return objs
 }
 
-// ReviewToReviewLink returns the Review representation of Review.
+// ReviewToReviewLink loads a Review and builds the link view of media type Review.
 func (m *Review) ReviewToReviewLink() *app.ReviewLink {
 	review := &app.ReviewLink{}
 	review.ID = &m.ID
@@ -97,7 +97,7 @@ func (m *Review) ReviewToReviewLink() *app.ReviewLink {
 	return review
 }
 
-// OneReviewLink returns an array of view: link.
+// OneReviewLink loads a Review and builds the link view of media type Review.
 func (m *ReviewDB) OneReviewLink(ctx context.Context, id int, proposalID int, userID int) (*app.ReviewLink, error) {
 	defer goa.MeasureSince([]string{"goa", "db", "review", "onereviewlink"}, time.Now())
 

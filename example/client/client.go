@@ -12,5 +12,7 @@ type Client struct {
 
 // New instantiates the client.
 func New(c *http.Client) *Client {
-	return &Client{Client: goaclient.New(c)}
+	return &Client{
+		Client: goaclient.New(c),
+	}
 }

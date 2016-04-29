@@ -41,7 +41,7 @@ func (m *TestTooDB) ListUser(ctx context.Context) []*app.User {
 	return objs
 }
 
-// TestTooToUser returns the User representation of TestToo.
+// TestTooToUser loads a TestToo and builds the default view of media type User.
 func (m *TestToo) TestTooToUser() *app.User {
 	testtoo := &app.User{}
 	testtoo.Bio = m.Bio
@@ -55,7 +55,7 @@ func (m *TestToo) TestTooToUser() *app.User {
 	return testtoo
 }
 
-// OneUser returns an array of view: default.
+// OneUser loads a TestToo and builds the default view of media type User.
 func (m *TestTooDB) OneUser(ctx context.Context, idone int, idtwo int) (*app.User, error) {
 	defer goa.MeasureSince([]string{"goa", "db", "user", "oneuser"}, time.Now())
 
@@ -93,7 +93,7 @@ func (m *TestTooDB) ListUserLink(ctx context.Context) []*app.UserLink {
 	return objs
 }
 
-// TestTooToUserLink returns the User representation of TestToo.
+// TestTooToUserLink loads a TestToo and builds the link view of media type User.
 func (m *TestToo) TestTooToUserLink() *app.UserLink {
 	testtoo := &app.UserLink{}
 	testtoo.Email = &m.Email
@@ -101,7 +101,7 @@ func (m *TestToo) TestTooToUserLink() *app.UserLink {
 	return testtoo
 }
 
-// OneUserLink returns an array of view: link.
+// OneUserLink loads a TestToo and builds the link view of media type User.
 func (m *TestTooDB) OneUserLink(ctx context.Context, idone int, idtwo int) (*app.UserLink, error) {
 	defer goa.MeasureSince([]string{"goa", "db", "user", "oneuserlink"}, time.Now())
 
