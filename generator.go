@@ -1,6 +1,7 @@
 package gorma
 
 import (
+	"flag"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -9,76 +10,37 @@ import (
 	"github.com/goadesign/goa/design"
 	"github.com/goadesign/goa/goagen/codegen"
 	"github.com/goadesign/goa/goagen/utils"
-	"github.com/spf13/cobra"
 )
 
 // Generator is the application code generator.
 type Generator struct {
-	genfiles []string
+	genfiles   []string // Generated files
+	outDir     string   // Absolute path to output directory
+	target     string   // Target package name - "models" by default
+	appPkg     string   // Generated goa app package name - "app" by default
+	appPkgPath string   // Generated goa app package import path
 }
 
 // Generate is the generator entry point called by the meta generator.
 func Generate() (files []string, err error) {
-	api := design.Design
-	g := new(Generator)
-	root := &cobra.Command{
-		Use:   "gorma",
-		Short: "Code generator",
-		Long:  "database model code generator",
-		PreRunE: func(*cobra.Command, []string) error {
-			outdir := ModelOutputDir()
-			g.genfiles = []string{outdir}
-			err = os.MkdirAll(outdir, 0777)
-			return err
-		},
-		Run: func(*cobra.Command, []string) { files, err = g.Generate(api) },
+	var outDir, target, appPkg string
+
+	set := flag.NewFlagSet("gorma", flag.PanicOnError)
+	set.String("design", "", "")
+	set.StringVar(&outDir, "out", "", "")
+	set.StringVar(&target, "pkg", "models", "")
+	set.StringVar(&appPkg, "app", "app", "")
+	set.Parse(os.Args[2:])
+
+	appPkgPath, err := codegen.PackagePath(filepath.Join(outDir, appPkg))
+	if err != nil {
+		return nil, fmt.Errorf("invalid app package: %s", err)
 	}
-	codegen.RegisterFlags(root)
-	NewCommand().RegisterFlags(root)
-	root.Execute()
-	return
-}
+	outDir = filepath.Join(outDir, target)
 
-// AppOutputDir returns the directory containing the generated files.
-func AppOutputDir() string {
-	return filepath.Join(codegen.OutputDir, AppPackage)
-}
+	g := &Generator{outDir: outDir, target: target, appPkg: appPkg, appPkgPath: appPkgPath}
 
-// ModelOutputDir returns the directory containing the generated files.
-func ModelOutputDir() string {
-	return filepath.Join(codegen.OutputDir, TargetPackage)
-}
-
-// ModelPackagePath returns the Go package path to the generated package.
-func ModelPackagePath() (string, error) {
-	outputDir := ModelOutputDir()
-	gopaths := filepath.SplitList(os.Getenv("GOPATH"))
-	for _, gopath := range gopaths {
-		if strings.HasPrefix(outputDir, gopath) {
-			path, err := filepath.Rel(filepath.Join(gopath, "src"), outputDir)
-			if err != nil {
-				return "", err
-			}
-			return filepath.ToSlash(path), nil
-		}
-	}
-	return "", fmt.Errorf("output directory outside of Go workspace, make sure to define GOPATH correctly or change output directory")
-}
-
-// AppPackagePath returns the Go package path to the generated package.
-func AppPackagePath() (string, error) {
-	outputDir := AppOutputDir()
-	gopaths := filepath.SplitList(os.Getenv("GOPATH"))
-	for _, gopath := range gopaths {
-		if strings.HasPrefix(outputDir, gopath) {
-			path, err := filepath.Rel(filepath.Join(gopath, "src"), outputDir)
-			if err != nil {
-				return "", err
-			}
-			return filepath.ToSlash(path), nil
-		}
-	}
-	return "", fmt.Errorf("output directory outside of Go workspace, make sure to define GOPATH correctly or change output directory")
+	return g.Generate(design.Design)
 }
 
 // Generate the application code, implement codegen.Generator.
@@ -92,15 +54,14 @@ func (g *Generator) Generate(api *design.APIDefinition) (_ []string, err error) 
 			g.Cleanup()
 		}
 	}()
-	outdir := ModelOutputDir()
-	if err := os.MkdirAll(outdir, 0755); err != nil {
+	if err := os.MkdirAll(g.outDir, 0755); err != nil {
 		return nil, err
 	}
 
-	if err := g.generateUserTypes(outdir, api); err != nil {
+	if err := g.generateUserTypes(g.outDir, api); err != nil {
 		return g.genfiles, err
 	}
-	if err := g.generateUserHelpers(outdir, api); err != nil {
+	if err := g.generateUserHelpers(g.outDir, api); err != nil {
 		return g.genfiles, err
 	}
 
@@ -135,12 +96,8 @@ func (g *Generator) generateUserTypes(outdir string, api *design.APIDefinition) 
 				panic(err) // bug
 			}
 			title := fmt.Sprintf("%s: Models", api.Context())
-			ap, err := AppPackagePath()
-			if err != nil {
-				panic(err)
-			}
 			imports := []*codegen.ImportSpec{
-				codegen.SimpleImport(ap),
+				codegen.SimpleImport(g.appPkgPath),
 				codegen.SimpleImport("time"),
 				codegen.SimpleImport("github.com/goadesign/goa"),
 				codegen.SimpleImport("github.com/jinzhu/gorm"),
@@ -155,12 +112,12 @@ func (g *Generator) generateUserTypes(outdir string, api *design.APIDefinition) 
 				imp = codegen.SimpleImport("strconv")
 				imports = append(imports, imp)
 			}
-			utWr.WriteHeader(title, TargetPackage, imports)
+			utWr.WriteHeader(title, g.target, imports)
 			data := &UserTypeTemplateData{
 				APIDefinition: api,
 				UserType:      model,
-				DefaultPkg:    TargetPackage,
-				AppPkg:        AppPackage,
+				DefaultPkg:    g.target,
+				AppPkg:        g.appPkgPath,
 			}
 			err = utWr.Execute(data)
 			g.genfiles = append(g.genfiles, utFile)
@@ -198,12 +155,8 @@ func (g *Generator) generateUserHelpers(outdir string, api *design.APIDefinition
 				panic(err) // bug
 			}
 			title := fmt.Sprintf("%s: Model Helpers", api.Context())
-			ap, err := AppPackagePath()
-			if err != nil {
-				panic(err)
-			}
 			imports := []*codegen.ImportSpec{
-				codegen.SimpleImport(ap),
+				codegen.SimpleImport(g.appPkgPath),
 				codegen.SimpleImport("time"),
 				codegen.SimpleImport("github.com/goadesign/goa"),
 				codegen.SimpleImport("github.com/jinzhu/gorm"),
@@ -218,12 +171,12 @@ func (g *Generator) generateUserHelpers(outdir string, api *design.APIDefinition
 				imp = codegen.SimpleImport("strconv")
 				imports = append(imports, imp)
 			}
-			utWr.WriteHeader(title, TargetPackage, imports)
+			utWr.WriteHeader(title, g.target, imports)
 			data := &UserTypeTemplateData{
 				APIDefinition: api,
 				UserType:      model,
-				DefaultPkg:    TargetPackage,
-				AppPkg:        AppPackage,
+				DefaultPkg:    g.target,
+				AppPkg:        g.appPkgPath,
 			}
 			err = utWr.Execute(data)
 			g.genfiles = append(g.genfiles, utFile)
