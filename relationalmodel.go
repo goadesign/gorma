@@ -146,7 +146,7 @@ func (f *RelationalModelDefinition) Project(name, v string) *design.MediaTypeDef
 
 // LowerName returns the model name as a lowercase string.
 func (f *RelationalModelDefinition) LowerName() string {
-	return strings.ToLower(f.ModelName)
+	return codegen.Goify(strings.ToLower(f.ModelName), false)
 }
 
 // IterateBuildSources runs an iterator function once per Model in the Store's model list.
