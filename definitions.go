@@ -32,6 +32,24 @@ type RelationalStoreDefinition struct {
 	NoAutoIDFields   bool
 	NoAutoTimestamps bool
 	NoAutoSoftDelete bool
+	Roles            *RolesDefinition
+}
+
+// RolesDefinition defines a list of roles
+type RolesDefinition struct {
+	dslengine.Definition
+	Parent        *RelationalStoreDefinition
+	DefinitionDSL func()
+	Roles         map[string]*RoleDefinition
+}
+
+// RoleDefinition defines a named group of scopes
+type RoleDefinition struct {
+	dslengine.Definition
+	DefinitionDSL func()
+	Parent        *RolesDefinition
+	Name          string
+	Scopes        []string
 }
 
 // RelationalModelDefinition implements the storage of a domain model into a
@@ -55,6 +73,7 @@ type RelationalModelDefinition struct {
 	Cached           bool
 	CacheDuration    int
 	Roler            bool
+	DefaultRole      string
 	DynamicTableName bool
 	SQLTag           string
 	RelationalFields map[string]*RelationalFieldDefinition
@@ -159,6 +178,10 @@ type StoreIterator func(m *RelationalStoreDefinition) error
 // ModelIterator is a function that iterates over Models in a
 // RelationalStore.
 type ModelIterator func(m *RelationalModelDefinition) error
+
+// RoleIterator is a function that iterates over Roles in a
+// RelationalStore
+type RoleIterator func(m *RoleDefinition) error
 
 // FieldIterator is a function that iterates over Fields
 // in a RelationalModel.

@@ -166,6 +166,71 @@ var _ = Describe("RelationalStore", func() {
 			})
 		})
 
+		Context("with one Role", func() {
+			BeforeEach(func() {
+				name = "mysql"
+				dsl = func() {
+					gdsl.Roles(func() {
+						gdsl.Role("Admin", func() {
+							gdsl.AllowedScope("scope:1")
+							gdsl.AllowedScope("scope:2")
+						})
+					})
+				}
+			})
+
+			It("generates a role", func() {
+				sg := gorma.GormaDesign
+				Ω(len(sg.RelationalStores[name].Roles.Roles)).ShouldNot(BeZero())
+			})
+			It("has scopes", func() {
+				sg := gorma.GormaDesign
+				admin := sg.RelationalStores[name].Roles.Roles["Admin"]
+				Ω(len(admin.Scopes)).Should(Equal(2))
+			})
+		})
+
+		Context("with more than one Role", func() {
+			BeforeEach(func() {
+				name = "mysql"
+				dsl = func() {
+					gdsl.Roles(func() {
+						gdsl.Role("Admin", func() {
+							gdsl.AllowedScope("scope:1")
+							gdsl.AllowedScope("scope:2")
+						})
+						gdsl.Role("User", func() {
+							gdsl.AllowedScope("scope:3")
+							gdsl.AllowedScope("scope:4")
+							gdsl.AllowedScope("scope:5")
+							gdsl.AllowedScope("scope:6")
+						})
+					})
+				}
+			})
+
+			It("generates a role", func() {
+				sg := gorma.GormaDesign
+				Ω(len(sg.RelationalStores[name].Roles.Roles)).ShouldNot(BeZero())
+			})
+			It("has admin scopes", func() {
+				sg := gorma.GormaDesign
+				admin := sg.RelationalStores[name].Roles.Roles["Admin"]
+				Ω(len(admin.Scopes)).Should(Equal(2))
+			})
+			It("has user scopes", func() {
+				sg := gorma.GormaDesign
+				usr := sg.RelationalStores[name].Roles.Roles["User"]
+				Ω(len(usr.Scopes)).Should(Equal(4))
+			})
+			It("contains user scopes", func() {
+				sg := gorma.GormaDesign
+				usr := sg.RelationalStores[name].Roles.Roles["User"]
+				Ω(usr.Scopes).Should(ContainElement("scope:6"))
+			})
+
+		})
+
 	})
 
 })

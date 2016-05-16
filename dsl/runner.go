@@ -70,3 +70,23 @@ func attributeDefinition(failIfNotSD bool) (*design.AttributeDefinition, bool) {
 	}
 	return a, ok
 }
+
+// roleDefinition returns true and current context if it is a RoleDefinition
+// nil and false otherwise.
+func roleDefinition(failIfNotSD bool) (*gorma.RoleDefinition, bool) {
+	a, ok := dslengine.CurrentDefinition().(*gorma.RoleDefinition)
+	if !ok && failIfNotSD {
+		dslengine.IncompatibleDSL()
+	}
+	return a, ok
+}
+
+// rolesDefinition returns true and current context if it is a RolesDefinition
+// nil and false otherwise.
+func rolesDefinition(failIfNotSD bool) (*gorma.RolesDefinition, bool) {
+	a, ok := dslengine.CurrentDefinition().(*gorma.RolesDefinition)
+	if !ok && failIfNotSD {
+		dslengine.IncompatibleDSL()
+	}
+	return a, ok
+}

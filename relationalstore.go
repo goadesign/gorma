@@ -54,3 +54,20 @@ func (sd *RelationalStoreDefinition) IterateModels(it ModelIterator) error {
 	}
 	return nil
 }
+
+// IterateRoles runs an iterator function once per Role in the Store's roles list.
+func (sd *RelationalStoreDefinition) IterateRoles(it RoleIterator) error {
+	names := make([]string, len(sd.Roles.Roles))
+	i := 0
+	for n := range sd.Roles.Roles {
+		names[i] = n
+		i++
+	}
+	sort.Strings(names)
+	for _, n := range names {
+		if err := it(sd.Roles.Roles[n]); err != nil {
+			return err
+		}
+	}
+	return nil
+}

@@ -352,18 +352,31 @@ func Cached(d string) {
 	}
 }
 
-// Roler sets a boolean flag that cause the generation of a
-// Role() function that returns the model's Role value
-// Creates a "Role" field in the table if it doesn't already exist
-// as a string type
-func Roler() {
+// Roler causes this model to satisfy the Roler() interface
+// Usage:
+//     Roler("Admin") // Default role = Admin, field name = "role"
+//     Roler("Admin","user_role") // Default role = Admin, field name = "user_role"
+func Roler(args ...string) {
 	if r, ok := relationalModelDefinition(false); ok {
 		r.Roler = true
-		if _, ok := r.RelationalFields["Role"]; !ok {
+		var fn, defRole string
+		if len(args) == 1 {
+			fn = "Role"
+			defRole = args[0]
+		} else if len(args) == 2 {
+			fn = args[1]
+			defRole = args[0]
+		} else if len(args) > 2 {
+			dslengine.ReportError("Roler requires 1 or 2 arguments.")
+			return
+		}
+		r.DefaultRole = defRole
+		if _, ok := r.RelationalFields[fn]; !ok {
 			field := gorma.NewRelationalFieldDefinition()
-			field.FieldName = "Role"
+			field.FieldName = SanitizeFieldName(fn)
+			field.DatabaseFieldName = SanitizeDBFieldName(fn)
 			field.Datatype = gorma.String
-			r.RelationalFields["Role"] = field
+			r.RelationalFields[fn] = field
 		}
 	}
 }

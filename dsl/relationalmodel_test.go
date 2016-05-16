@@ -251,6 +251,60 @@ var _ = Describe("RelationalModel", func() {
 			})
 		})
 
+		Context("with roler and one parameter", func() {
+
+			BeforeEach(func() {
+				name = "Users"
+				dsl = func() {
+					gdsl.Roler("Admin")
+				}
+			})
+
+			It("Creates a Role field", func() {
+				sg := gorma.GormaDesign
+				rs := sg.RelationalStores[storename]
+				Ω(rs.RelationalModels[name].Roler).Should(Equal(true))
+			})
+
+			It("Sets default role", func() {
+				sg := gorma.GormaDesign
+				rs := sg.RelationalStores[storename]
+				Ω(rs.RelationalModels[name].DefaultRole).Should(Equal("Admin"))
+			})
+			It("correctly names default role", func() {
+				sg := gorma.GormaDesign
+				rs := sg.RelationalStores[storename]
+				Ω(rs.RelationalModels[name].DefaultRole).ShouldNot(Equal("Blue"))
+			})
+		})
+		Context("with roler and two parameters", func() {
+
+			BeforeEach(func() {
+				name = "Users"
+				dsl = func() {
+					gdsl.Roler("UserAdmin", "user_role")
+				}
+			})
+
+			It("Creates a Role field", func() {
+				sg := gorma.GormaDesign
+				rs := sg.RelationalStores[storename]
+				Ω(rs.RelationalModels[name].Roler).Should(Equal(true))
+			})
+
+			It("Sets default role", func() {
+				sg := gorma.GormaDesign
+				rs := sg.RelationalStores[storename]
+				Ω(rs.RelationalModels[name].DefaultRole).Should(Equal("UserAdmin"))
+			})
+			It("correctly names default role field", func() {
+				sg := gorma.GormaDesign
+				rs := sg.RelationalStores[storename]
+				_, ok := rs.RelationalModels[name].RelationalFields["user_role"]
+				Ω(ok).Should(BeTrue())
+			})
+		})
+
 		Context("with dynamic table name", func() {
 
 			BeforeEach(func() {
