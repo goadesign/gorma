@@ -36,6 +36,13 @@ type (
 		*codegen.SourceFile
 		UserHelperTmpl *template.Template
 	}
+
+	// StorageGroupsWriter generate code for a goa application storage groups.
+	// Storage group types are data structures defined in the DSL with "StorageGroup".
+	StorageGroupsWriter struct {
+		*codegen.SourceFile
+		UserHelperTmpl *template.Template
+	}
 )
 
 func fieldAssignmentPayloadToModel(model *RelationalModelDefinition, ut *design.UserTypeDefinition, verpkg, v, mtype, utype string) string {
@@ -362,6 +369,22 @@ func (w *UserTypesWriter) Execute(data *UserTypeTemplateData) error {
 	return w.ExecuteTemplate("types", userTypeT, fm, data)
 }
 
+// NewStorageGroupsWriter returns a contexts code writer.
+// Storage group types contain custom access groups as defined in the DSL with "StorageGroup".
+func NewStorageGroupsWriter(filename string) (*StorageGroupsWriter, error) {
+	file, err := codegen.SourceFileFor(filename)
+	if err != nil {
+		return nil, err
+	}
+	return &StorageGroupsWriter{SourceFile: file}, nil
+}
+
+// Execute writes the code for the context types to the writer.
+func (w *StorageGroupsWriter) Execute(data *StorageGroupDefinition) error {
+	fm := make(map[string]interface{})
+	return w.ExecuteTemplate("types", storageGroupT, fm, data)
+}
+
 // arrayAttribute returns the array element attribute definition.
 func arrayAttribute(a *design.AttributeDefinition) *design.AttributeDefinition {
 	return a.Type.(*design.Array).ElemType
@@ -647,5 +670,32 @@ func (m *{{.Model.ModelName}}DB) One{{goify .Media.TypeName true}}{{if not (eq .
 	view := *native.{{.Model.ModelName}}To{{goify .Media.UserTypeDefinition.TypeName true}}{{if not (eq .ViewName "default")}}{{goify .ViewName true}}{{end}}()
 	return &view, err
 }
+`
+	// storageGroupT generates the code for all Stores within a StorageGroup.
+	// template input: gorma.StorageGroupDefinition
+	storageGroupT = `{{ range $storeName, $store := .RelationalStores}}// {{goify $storeName true}}Storage acts as a general access to the full {{goify $storeName true}} store
+type {{goify $storeName true}}Storage interface { {{ range $modelName, $model := $store.RelationalModels}}
+		{{goify $modelName true}}() {{goify $modelName true}}Storage{{ end }}
+}
+
+// New{{goify $storeName true}}Storage creates a new instance of {{goify $storeName true}}Storage
+func New{{goify $storeName true}}Storage(db gorm.DB) {{goify $storeName true}}Storage {
+	return &SQL{{goify $storeName true}}Storage{ {{ range $modelName, $model := $store.RelationalModels}}
+		{{goify $modelName false}}Storage: New{{goify $modelName true}}DB(db),{{ end }}
+	}
+}
+
+// SQL{{goify $storeName true}}Storage implements the SQL versions of the {{goify $storeName true}}Storage.
+type SQL{{goify $storeName true}}Storage struct { {{ range $modelName, $model := $store.RelationalModels}}
+		{{goify $modelName false}}Storage {{goify $modelName true}}Storage{{ end }}
+}
+
+{{ range $modelName, $model := $store.RelationalModels}}
+// {{goify $modelName true}} returns the {{goify $modelName true}} storage
+func (s *SQL{{goify $storeName true}}Storage) {{goify $modelName true}}() {{goify $modelName true}}Storage {
+	return s.{{goify $modelName false}}Storage
+}{{ end }}
+
+{{ end }}
 `
 )

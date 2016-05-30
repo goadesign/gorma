@@ -64,6 +64,9 @@ func (g *Generator) Generate(api *design.APIDefinition) (_ []string, err error) 
 	if err := g.generateUserHelpers(g.outDir, api); err != nil {
 		return g.genfiles, err
 	}
+	if err := g.generateStorageGroupTypes(g.outDir, api); err != nil {
+		return g.genfiles, err
+	}
 
 	return g.genfiles, nil
 }
@@ -192,5 +195,36 @@ func (g *Generator) generateUserHelpers(outdir string, api *design.APIDefinition
 		})
 		return err
 	})
+	return err
+}
+
+func (g *Generator) generateStorageGroupTypes(outdir string, api *design.APIDefinition) error {
+	filename := "stores.go"
+	sgFile := filepath.Join(outdir, filename)
+	err := os.RemoveAll(sgFile)
+	if err != nil {
+		fmt.Println(err)
+	}
+	sgWr, err := NewStorageGroupsWriter(sgFile)
+	if err != nil {
+		panic(err) // bug
+	}
+	title := fmt.Sprintf("%s: Storage groups", GormaDesign.Name)
+	imports := []*codegen.ImportSpec{
+		codegen.SimpleImport(g.appPkgPath),
+		codegen.SimpleImport("github.com/jinzhu/gorm"),
+	}
+
+	sgWr.WriteHeader(title, g.target, imports)
+	err = sgWr.Execute(GormaDesign)
+	g.genfiles = append(g.genfiles, sgFile)
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+	err = sgWr.FormatCode()
+	if err != nil {
+		fmt.Println(err)
+	}
 	return err
 }
