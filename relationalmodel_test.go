@@ -6,14 +6,21 @@ import (
 
 	"github.com/goadesign/gorma"
 	"github.com/goadesign/gorma/dsl"
+	"github.com/goadesign/goa/design"
 )
 
 func TestModelContext(t *testing.T) {
-	sg := &gorma.RelationalModelDefinition{}
+	sg := &gorma.RelationalModelDefinition{
+		UserTypeDefinition: &design.UserTypeDefinition{
+			AttributeDefinition: &design.AttributeDefinition{},
+		},
+	}
+
+	sg.Type = design.String
 	sg.ModelName = "SG"
 
 	c := sg.Context()
-	exp := fmt.Sprintf("RelationalModel %#v", sg.Name)
+	exp := fmt.Sprintf("RelationalModel %#v", sg.Name())
 	if c != exp {
 		t.Errorf("Expected %s, got %s", exp, c)
 	}
