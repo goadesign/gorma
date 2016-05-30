@@ -11,6 +11,15 @@ import (
 	"github.com/goadesign/gorma"
 )
 
+// DatabaseFieldName allows for customization of the column name
+// by seting the struct tags. This is necessary to create correlate
+// non standard column naming conventions in gorm.
+func DatabaseFieldName(name string) {
+	if f, ok := relationalFieldDefinition(true); ok {
+		f.DatabaseFieldName = name
+	}
+}
+
 // Field is a DSL definition for a field in a Relational Model.
 // Parameter Options:
 //
