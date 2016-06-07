@@ -454,7 +454,9 @@ func (m *{{$ut.ModelName}}DB) TableName() string {
 func {{$ut.ModelName}}FilterBy{{$bt.ModelName}}({{goify (printf "%s%s" $bt.ModelName "ID") false}} int, originaldb *gorm.DB) func(db *gorm.DB) *gorm.DB {
 	if {{goify (printf "%s%s" $bt.ModelName "ID") false}} > 0 {
 		return func(db *gorm.DB) *gorm.DB {
-			return db.Where("{{$bt.LowerName}}_id = ?", {{goify (printf "%s%s" $bt.ModelName "ID") false}})
+			return db.Where("{{ if ne $bt.RelationalFields.ID.DatabaseFieldName "id" }}{{$bt.RelationalFields.ID.DatabaseFieldName}} = ?", {{goify (printf "%s%s" $bt.ModelName "ID") false}})
+			{{ else }}{{$bt.LowerName}}_id = ?", {{goify (printf "%s%s" $bt.ModelName "ID") false}})
+			{{ end }}
 		}
 	}
 	return func(db *gorm.DB) *gorm.DB { return db }
