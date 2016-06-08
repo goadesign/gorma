@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/goadesign/goa/design"
 	"github.com/goadesign/gorma"
 	"github.com/goadesign/gorma/dsl"
-	"github.com/goadesign/goa/design"
 )
 
 func TestModelContext(t *testing.T) {
@@ -42,7 +42,7 @@ func TestModelDSL(t *testing.T) {
 	sg.DefinitionDSL = f
 	c := sg.DSL()
 	if c == nil {
-		t.Errorf("Expected %s, got nil", f)
+		t.Errorf("Expected %v, got nil", f)
 	}
 
 }
