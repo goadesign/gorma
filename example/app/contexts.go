@@ -3,9 +3,8 @@
 //
 // Generated with goagen v0.0.1, command line:
 // $ goagen
-// --out=$(GOPATH)/src/github.com/goadesign/gorma/example
 // --design=github.com/goadesign/gorma/example/design
-// --pkg=app
+// --out=$(GOPATH)/src/github.com/goadesign/gorma/example
 //
 // The content of this file is auto-generated, DO NOT MODIFY
 //************************************************************************//
@@ -74,7 +73,7 @@ func NewOauthAuthContext(ctx context.Context, service *goa.Service) (*OauthAuthC
 
 // OK sends a HTTP response with status code 200.
 func (ctx *OauthAuthContext) OK(r *Authorize) error {
-	ctx.ResponseData.Header().Set("Content-Type", "application/vnd.authorize")
+	ctx.ResponseData.Header().Set("Content-Type", "application/vnd.authorize+json")
 	return ctx.Service.Send(ctx.Context, 200, r)
 }
 
@@ -274,7 +273,7 @@ func (payload *createProposalPayload) Validate() (err error) {
 			err = goa.MergeErrors(err, goa.InvalidLengthError(`raw.title`, *payload.Title, len(*payload.Title), 200, false))
 		}
 	}
-	return err
+	return
 }
 
 // Publicize creates CreateProposalPayload from createProposalPayload
@@ -333,7 +332,7 @@ func (payload *CreateProposalPayload) Validate() (err error) {
 	if len(payload.Title) > 200 {
 		err = goa.MergeErrors(err, goa.InvalidLengthError(`raw.title`, payload.Title, len(payload.Title), 200, false))
 	}
-	return err
+	return
 }
 
 // Created sends a HTTP response with status code 201.
@@ -463,7 +462,7 @@ func NewShowProposalContext(ctx context.Context, service *goa.Service) (*ShowPro
 
 // OK sends a HTTP response with status code 200.
 func (ctx *ShowProposalContext) OK(r *Proposal) error {
-	ctx.ResponseData.Header().Set("Content-Type", "application/vnd.proposal")
+	ctx.ResponseData.Header().Set("Content-Type", "application/vnd.proposal+json")
 	return ctx.Service.Send(ctx.Context, 200, r)
 }
 
@@ -551,7 +550,7 @@ func (payload *updateProposalPayload) Validate() (err error) {
 			err = goa.MergeErrors(err, goa.InvalidLengthError(`raw.title`, *payload.Title, len(*payload.Title), 200, false))
 		}
 	}
-	return err
+	return
 }
 
 // Publicize creates UpdateProposalPayload from updateProposalPayload
@@ -612,7 +611,7 @@ func (payload *UpdateProposalPayload) Validate() (err error) {
 			err = goa.MergeErrors(err, goa.InvalidLengthError(`raw.title`, *payload.Title, len(*payload.Title), 200, false))
 		}
 	}
-	return err
+	return
 }
 
 // NoContent sends a HTTP response with status code 204.
@@ -697,7 +696,7 @@ func (payload *createReviewPayload) Validate() (err error) {
 			err = goa.MergeErrors(err, goa.InvalidRangeError(`raw.rating`, *payload.Rating, 5, false))
 		}
 	}
-	return err
+	return
 }
 
 // Publicize creates CreateReviewPayload from createReviewPayload
@@ -736,7 +735,7 @@ func (payload *CreateReviewPayload) Validate() (err error) {
 	if payload.Rating > 5 {
 		err = goa.MergeErrors(err, goa.InvalidRangeError(`raw.rating`, payload.Rating, 5, false))
 	}
-	return err
+	return
 }
 
 // Created sends a HTTP response with status code 201.
@@ -896,7 +895,7 @@ func NewShowReviewContext(ctx context.Context, service *goa.Service) (*ShowRevie
 
 // OK sends a HTTP response with status code 200.
 func (ctx *ShowReviewContext) OK(r *Review) error {
-	ctx.ResponseData.Header().Set("Content-Type", "application/vnd.review")
+	ctx.ResponseData.Header().Set("Content-Type", "application/vnd.review+json")
 	return ctx.Service.Send(ctx.Context, 200, r)
 }
 
@@ -982,7 +981,7 @@ func (payload *updateReviewPayload) Validate() (err error) {
 			err = goa.MergeErrors(err, goa.InvalidRangeError(`raw.rating`, *payload.Rating, 5, false))
 		}
 	}
-	return err
+	return
 }
 
 // Publicize creates UpdateReviewPayload from updateReviewPayload
@@ -1025,7 +1024,7 @@ func (payload *UpdateReviewPayload) Validate() (err error) {
 			err = goa.MergeErrors(err, goa.InvalidRangeError(`raw.rating`, *payload.Rating, 5, false))
 		}
 	}
-	return err
+	return
 }
 
 // NoContent sends a HTTP response with status code 204.
@@ -1116,7 +1115,7 @@ func (payload *createUserPayload) Validate() (err error) {
 			err = goa.MergeErrors(err, goa.InvalidFormatError(`raw.email`, *payload.Email, goa.FormatEmail, err2))
 		}
 	}
-	return err
+	return
 }
 
 // Publicize creates CreateUserPayload from createUserPayload
@@ -1177,7 +1176,7 @@ func (payload *CreateUserPayload) Validate() (err error) {
 	if err2 := goa.ValidateFormat(goa.FormatEmail, payload.Email); err2 != nil {
 		err = goa.MergeErrors(err, goa.InvalidFormatError(`raw.email`, payload.Email, goa.FormatEmail, err2))
 	}
-	return err
+	return
 }
 
 // Created sends a HTTP response with status code 201.
@@ -1277,7 +1276,7 @@ func NewShowUserContext(ctx context.Context, service *goa.Service) (*ShowUserCon
 
 // OK sends a HTTP response with status code 200.
 func (ctx *ShowUserContext) OK(r *User) error {
-	ctx.ResponseData.Header().Set("Content-Type", "application/vnd.user")
+	ctx.ResponseData.Header().Set("Content-Type", "application/vnd.user+json")
 	return ctx.Service.Send(ctx.Context, 200, r)
 }
 
@@ -1342,7 +1341,7 @@ func (payload *updateUserPayload) Validate() (err error) {
 			err = goa.MergeErrors(err, goa.InvalidFormatError(`raw.email`, *payload.Email, goa.FormatEmail, err2))
 		}
 	}
-	return err
+	return
 }
 
 // Publicize creates UpdateUserPayload from updateUserPayload
@@ -1397,7 +1396,7 @@ func (payload *UpdateUserPayload) Validate() (err error) {
 	if err2 := goa.ValidateFormat(goa.FormatEmail, payload.Email); err2 != nil {
 		err = goa.MergeErrors(err, goa.InvalidFormatError(`raw.email`, payload.Email, goa.FormatEmail, err2))
 	}
-	return err
+	return
 }
 
 // NoContent sends a HTTP response with status code 204.

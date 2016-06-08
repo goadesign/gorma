@@ -3,9 +3,8 @@
 //
 // Generated with goagen v0.0.1, command line:
 // $ goagen
-// --out=$(GOPATH)/src/github.com/goadesign/gorma/example
 // --design=github.com/goadesign/gorma/example/design
-// --pkg=app
+// --out=$(GOPATH)/src/github.com/goadesign/gorma/example
 //
 // The content of this file is auto-generated, DO NOT MODIFY
 //************************************************************************//
@@ -80,27 +79,8 @@ func (mt *Proposal) Validate() (err error) {
 			err = goa.MergeErrors(err, goa.InvalidLengthError(`response.detail`, *mt.Detail, len(*mt.Detail), 2000, false))
 		}
 	}
-	for _, e := range mt.Reviews {
-		if e.Comment != nil {
-			if len(*e.Comment) < 10 {
-				err = goa.MergeErrors(err, goa.InvalidLengthError(`response.reviews[*].comment`, *e.Comment, len(*e.Comment), 10, true))
-			}
-		}
-		if e.Comment != nil {
-			if len(*e.Comment) > 200 {
-				err = goa.MergeErrors(err, goa.InvalidLengthError(`response.reviews[*].comment`, *e.Comment, len(*e.Comment), 200, false))
-			}
-		}
-		if e.Rating != nil {
-			if *e.Rating < 1 {
-				err = goa.MergeErrors(err, goa.InvalidRangeError(`response.reviews[*].rating`, *e.Rating, 1, true))
-			}
-		}
-		if e.Rating != nil {
-			if *e.Rating > 5 {
-				err = goa.MergeErrors(err, goa.InvalidRangeError(`response.reviews[*].rating`, *e.Rating, 5, false))
-			}
-		}
+	if err2 := mt.Reviews.Validate(); err2 != nil {
+		err = goa.MergeErrors(err, err2)
 	}
 	if mt.Title != nil {
 		if len(*mt.Title) < 10 {
@@ -112,7 +92,7 @@ func (mt *Proposal) Validate() (err error) {
 			err = goa.MergeErrors(err, goa.InvalidLengthError(`response.title`, *mt.Title, len(*mt.Title), 200, false))
 		}
 	}
-	return err
+	return
 }
 
 // ProposalLink media type.
@@ -139,7 +119,7 @@ func (mt *ProposalLink) Validate() (err error) {
 			err = goa.MergeErrors(err, goa.InvalidLengthError(`response.title`, *mt.Title, len(*mt.Title), 200, false))
 		}
 	}
-	return err
+	return
 }
 
 // ProposalLinks contains links to related resources of Proposal.
@@ -175,27 +155,8 @@ func (mt ProposalCollection) Validate() (err error) {
 				err = goa.MergeErrors(err, goa.InvalidLengthError(`response[*].detail`, *e.Detail, len(*e.Detail), 2000, false))
 			}
 		}
-		for _, e := range e.Reviews {
-			if e.Comment != nil {
-				if len(*e.Comment) < 10 {
-					err = goa.MergeErrors(err, goa.InvalidLengthError(`response[*].reviews[*].comment`, *e.Comment, len(*e.Comment), 10, true))
-				}
-			}
-			if e.Comment != nil {
-				if len(*e.Comment) > 200 {
-					err = goa.MergeErrors(err, goa.InvalidLengthError(`response[*].reviews[*].comment`, *e.Comment, len(*e.Comment), 200, false))
-				}
-			}
-			if e.Rating != nil {
-				if *e.Rating < 1 {
-					err = goa.MergeErrors(err, goa.InvalidRangeError(`response[*].reviews[*].rating`, *e.Rating, 1, true))
-				}
-			}
-			if e.Rating != nil {
-				if *e.Rating > 5 {
-					err = goa.MergeErrors(err, goa.InvalidRangeError(`response[*].reviews[*].rating`, *e.Rating, 5, false))
-				}
-			}
+		if err2 := e.Reviews.Validate(); err2 != nil {
+			err = goa.MergeErrors(err, err2)
 		}
 		if e.Title != nil {
 			if len(*e.Title) < 10 {
@@ -208,7 +169,7 @@ func (mt ProposalCollection) Validate() (err error) {
 			}
 		}
 	}
-	return err
+	return
 }
 
 // ProposalLinksArray contains links to related resources of ProposalCollection.
@@ -250,7 +211,7 @@ func (mt *Review) Validate() (err error) {
 			err = goa.MergeErrors(err, goa.InvalidRangeError(`response.rating`, *mt.Rating, 5, false))
 		}
 	}
-	return err
+	return
 }
 
 // ReviewLink media type.
@@ -292,7 +253,7 @@ func (mt ReviewCollection) Validate() (err error) {
 			}
 		}
 	}
-	return err
+	return
 }
 
 // ReviewLinkCollection media type is a collection of ReviewLink.
@@ -338,7 +299,7 @@ func (mt *User) Validate() (err error) {
 			err = goa.MergeErrors(err, goa.InvalidFormatError(`response.email`, *mt.Email, goa.FormatEmail, err2))
 		}
 	}
-	return err
+	return
 }
 
 // UserLink media type.
@@ -360,7 +321,7 @@ func (mt *UserLink) Validate() (err error) {
 			err = goa.MergeErrors(err, goa.InvalidFormatError(`response.email`, *mt.Email, goa.FormatEmail, err2))
 		}
 	}
-	return err
+	return
 }
 
 // UserCollection media type is a collection of User.
@@ -382,5 +343,5 @@ func (mt UserCollection) Validate() (err error) {
 			}
 		}
 	}
-	return err
+	return
 }

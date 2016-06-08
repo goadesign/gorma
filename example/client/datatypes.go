@@ -3,18 +3,15 @@
 //
 // Generated with goagen v0.0.1, command line:
 // $ goagen
-// --out=$(GOPATH)/src/github.com/goadesign/gorma/example
 // --design=github.com/goadesign/gorma/example/design
+// --out=$(GOPATH)/src/github.com/goadesign/gorma/example
 //
 // The content of this file is auto-generated, DO NOT MODIFY
 //************************************************************************//
 
 package client
 
-import (
-	"github.com/goadesign/goa"
-	"io"
-)
+import "net/http"
 
 // Token authorization response
 type Authorize struct {
@@ -26,20 +23,20 @@ type Authorize struct {
 	TokenType *string `json:"token_type,omitempty" xml:"token_type,omitempty"`
 }
 
-// DecodeAuthorize decodes the Authorize instance encoded in r.
-func DecodeAuthorize(r io.Reader, decoderFn goa.DecoderFunc) (*Authorize, error) {
+// DecodeAuthorize decodes the Authorize instance encoded in resp body.
+func (c *Client) DecodeAuthorize(resp *http.Response) (*Authorize, error) {
 	var decoded Authorize
-	err := decoderFn(r).Decode(&decoded)
+	err := c.Decoder.Decode(&decoded, resp.Body, resp.Header.Get("Content-Type"))
 	return &decoded, err
 }
 
 // ProposalCollection media type is a collection of Proposal.
 type ProposalCollection []*Proposal
 
-// DecodeProposalCollection decodes the ProposalCollection instance encoded in r.
-func DecodeProposalCollection(r io.Reader, decoderFn goa.DecoderFunc) (ProposalCollection, error) {
+// DecodeProposalCollection decodes the ProposalCollection instance encoded in resp body.
+func (c *Client) DecodeProposalCollection(resp *http.Response) (ProposalCollection, error) {
 	var decoded ProposalCollection
-	err := decoderFn(r).Decode(&decoded)
+	err := c.Decoder.Decode(&decoded, resp.Body, resp.Header.Get("Content-Type"))
 	return decoded, err
 }
 
@@ -59,20 +56,20 @@ type Proposal struct {
 	Title *string `json:"title,omitempty" xml:"title,omitempty"`
 }
 
-// DecodeProposal decodes the Proposal instance encoded in r.
-func DecodeProposal(r io.Reader, decoderFn goa.DecoderFunc) (*Proposal, error) {
+// DecodeProposal decodes the Proposal instance encoded in resp body.
+func (c *Client) DecodeProposal(resp *http.Response) (*Proposal, error) {
 	var decoded Proposal
-	err := decoderFn(r).Decode(&decoded)
+	err := c.Decoder.Decode(&decoded, resp.Body, resp.Header.Get("Content-Type"))
 	return &decoded, err
 }
 
 // ReviewCollection media type is a collection of Review.
 type ReviewCollection []*Review
 
-// DecodeReviewCollection decodes the ReviewCollection instance encoded in r.
-func DecodeReviewCollection(r io.Reader, decoderFn goa.DecoderFunc) (ReviewCollection, error) {
+// DecodeReviewCollection decodes the ReviewCollection instance encoded in resp body.
+func (c *Client) DecodeReviewCollection(resp *http.Response) (ReviewCollection, error) {
 	var decoded ReviewCollection
-	err := decoderFn(r).Decode(&decoded)
+	err := c.Decoder.Decode(&decoded, resp.Body, resp.Header.Get("Content-Type"))
 	return decoded, err
 }
 
@@ -88,20 +85,20 @@ type Review struct {
 	Rating *int `json:"rating,omitempty" xml:"rating,omitempty"`
 }
 
-// DecodeReview decodes the Review instance encoded in r.
-func DecodeReview(r io.Reader, decoderFn goa.DecoderFunc) (*Review, error) {
+// DecodeReview decodes the Review instance encoded in resp body.
+func (c *Client) DecodeReview(resp *http.Response) (*Review, error) {
 	var decoded Review
-	err := decoderFn(r).Decode(&decoded)
+	err := c.Decoder.Decode(&decoded, resp.Body, resp.Header.Get("Content-Type"))
 	return &decoded, err
 }
 
 // UserCollection media type is a collection of User.
 type UserCollection []*User
 
-// DecodeUserCollection decodes the UserCollection instance encoded in r.
-func DecodeUserCollection(r io.Reader, decoderFn goa.DecoderFunc) (UserCollection, error) {
+// DecodeUserCollection decodes the UserCollection instance encoded in resp body.
+func (c *Client) DecodeUserCollection(resp *http.Response) (UserCollection, error) {
 	var decoded UserCollection
-	err := decoderFn(r).Decode(&decoded)
+	err := c.Decoder.Decode(&decoded, resp.Body, resp.Header.Get("Content-Type"))
 	return decoded, err
 }
 
@@ -129,9 +126,9 @@ type User struct {
 	State *string `json:"state,omitempty" xml:"state,omitempty"`
 }
 
-// DecodeUser decodes the User instance encoded in r.
-func DecodeUser(r io.Reader, decoderFn goa.DecoderFunc) (*User, error) {
+// DecodeUser decodes the User instance encoded in resp body.
+func (c *Client) DecodeUser(resp *http.Response) (*User, error) {
 	var decoded User
-	err := decoderFn(r).Decode(&decoded)
+	err := c.Decoder.Decode(&decoded, resp.Body, resp.Header.Get("Content-Type"))
 	return &decoded, err
 }

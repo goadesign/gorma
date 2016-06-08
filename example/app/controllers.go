@@ -3,9 +3,8 @@
 //
 // Generated with goagen v0.0.1, command line:
 // $ goagen
-// --out=$(GOPATH)/src/github.com/goadesign/gorma/example
 // --design=github.com/goadesign/gorma/example/design
-// --pkg=app
+// --out=$(GOPATH)/src/github.com/goadesign/gorma/example
 //
 // The content of this file is auto-generated, DO NOT MODIFY
 //************************************************************************//
@@ -21,16 +20,16 @@ import (
 // initService sets up the service encoders, decoders and mux.
 func initService(service *goa.Service) {
 	// Setup encoders and decoders
-	service.Encoder(goa.NewJSONEncoder, "application/json")
-	service.Encoder(goa.NewGobEncoder, "application/gob", "application/x-gob")
-	service.Encoder(goa.NewXMLEncoder, "application/xml")
-	service.Decoder(goa.NewJSONDecoder, "application/json")
-	service.Decoder(goa.NewGobDecoder, "application/gob", "application/x-gob")
-	service.Decoder(goa.NewXMLDecoder, "application/xml")
+	service.Encoder.Register(goa.NewJSONEncoder, "application/json")
+	service.Encoder.Register(goa.NewGobEncoder, "application/gob", "application/x-gob")
+	service.Encoder.Register(goa.NewXMLEncoder, "application/xml")
+	service.Decoder.Register(goa.NewJSONDecoder, "application/json")
+	service.Decoder.Register(goa.NewGobDecoder, "application/gob", "application/x-gob")
+	service.Decoder.Register(goa.NewXMLDecoder, "application/xml")
 
 	// Setup default encoder and decoder
-	service.Encoder(goa.NewJSONEncoder, "*/*")
-	service.Decoder(goa.NewJSONDecoder, "*/*")
+	service.Encoder.Register(goa.NewJSONEncoder, "*/*")
+	service.Decoder.Register(goa.NewJSONDecoder, "*/*")
 }
 
 // AuthController is the controller interface for the Auth actions.
@@ -74,6 +73,8 @@ func MountAuthController(service *goa.Service, ctrl AuthController) {
 		}
 		if rawPayload := goa.ContextRequest(ctx).Payload; rawPayload != nil {
 			rctx.Payload = rawPayload.(*RefreshAuthPayload)
+		} else {
+			return goa.ErrInvalidEncoding(goa.MissingPayloadError())
 		}
 		return ctrl.Refresh(rctx)
 	}
@@ -87,6 +88,8 @@ func MountAuthController(service *goa.Service, ctrl AuthController) {
 		}
 		if rawPayload := goa.ContextRequest(ctx).Payload; rawPayload != nil {
 			rctx.Payload = rawPayload.(*TokenAuthPayload)
+		} else {
+			return goa.ErrInvalidEncoding(goa.MissingPayloadError())
 		}
 		return ctrl.Token(rctx)
 	}
@@ -136,6 +139,8 @@ func MountProposalController(service *goa.Service, ctrl ProposalController) {
 		}
 		if rawPayload := goa.ContextRequest(ctx).Payload; rawPayload != nil {
 			rctx.Payload = rawPayload.(*CreateProposalPayload)
+		} else {
+			return goa.ErrInvalidEncoding(goa.MissingPayloadError())
 		}
 		return ctrl.Create(rctx)
 	}
@@ -179,6 +184,8 @@ func MountProposalController(service *goa.Service, ctrl ProposalController) {
 		}
 		if rawPayload := goa.ContextRequest(ctx).Payload; rawPayload != nil {
 			rctx.Payload = rawPayload.(*UpdateProposalPayload)
+		} else {
+			return goa.ErrInvalidEncoding(goa.MissingPayloadError())
 		}
 		return ctrl.Update(rctx)
 	}
@@ -234,6 +241,8 @@ func MountReviewController(service *goa.Service, ctrl ReviewController) {
 		}
 		if rawPayload := goa.ContextRequest(ctx).Payload; rawPayload != nil {
 			rctx.Payload = rawPayload.(*CreateReviewPayload)
+		} else {
+			return goa.ErrInvalidEncoding(goa.MissingPayloadError())
 		}
 		return ctrl.Create(rctx)
 	}
@@ -277,6 +286,8 @@ func MountReviewController(service *goa.Service, ctrl ReviewController) {
 		}
 		if rawPayload := goa.ContextRequest(ctx).Payload; rawPayload != nil {
 			rctx.Payload = rawPayload.(*UpdateReviewPayload)
+		} else {
+			return goa.ErrInvalidEncoding(goa.MissingPayloadError())
 		}
 		return ctrl.Update(rctx)
 	}
@@ -354,6 +365,8 @@ func MountUserController(service *goa.Service, ctrl UserController) {
 		}
 		if rawPayload := goa.ContextRequest(ctx).Payload; rawPayload != nil {
 			rctx.Payload = rawPayload.(*CreateUserPayload)
+		} else {
+			return goa.ErrInvalidEncoding(goa.MissingPayloadError())
 		}
 		return ctrl.Create(rctx)
 	}
@@ -397,6 +410,8 @@ func MountUserController(service *goa.Service, ctrl UserController) {
 		}
 		if rawPayload := goa.ContextRequest(ctx).Payload; rawPayload != nil {
 			rctx.Payload = rawPayload.(*UpdateUserPayload)
+		} else {
+			return goa.ErrInvalidEncoding(goa.MissingPayloadError())
 		}
 		return ctrl.Update(rctx)
 	}

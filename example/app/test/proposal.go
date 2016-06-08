@@ -9,6 +9,7 @@ import (
 	"golang.org/x/net/context"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"testing"
 )
 
@@ -21,7 +22,14 @@ func CreateProposalCreated(t *testing.T, ctrl app.ProposalController, userID str
 func CreateProposalCreatedCtx(t *testing.T, ctx context.Context, ctrl app.ProposalController, userID string, payload *app.CreateProposalPayload) {
 	err := payload.Validate()
 	if err != nil {
-		panic(err)
+		e, ok := err.(*goa.Error)
+		if !ok {
+			panic(err) //bug
+		}
+		if e.Status != 201 {
+			t.Errorf("unexpected payload validation error: %+v", e)
+		}
+		return
 	}
 	var logBuf bytes.Buffer
 	var resp interface{}
@@ -32,13 +40,16 @@ func CreateProposalCreatedCtx(t *testing.T, ctx context.Context, ctrl app.Propos
 	if err != nil {
 		panic("invalid test " + err.Error()) // bug
 	}
-	goaCtx := goa.NewContext(goa.WithAction(ctx, "ProposalTest"), rw, req, nil)
-	createCtx, err := app.NewCreateProposalContext(goaCtx, service)
-	createCtx.Payload = payload
+	prms := url.Values{}
+	prms["userID"] = []string{fmt.Sprintf("%v", userID)}
 
+	goaCtx := goa.NewContext(goa.WithAction(ctx, "ProposalTest"), rw, req, prms)
+	createCtx, err := app.NewCreateProposalContext(goaCtx, service)
 	if err != nil {
 		panic("invalid test data " + err.Error()) // bug
 	}
+	createCtx.Payload = payload
+
 	err = ctrl.Create(createCtx)
 	if err != nil {
 		t.Fatalf("controller returned %s, logs:\n%s", err, logBuf.String())
@@ -46,82 +57,6 @@ func CreateProposalCreatedCtx(t *testing.T, ctx context.Context, ctrl app.Propos
 
 	if rw.Code != 201 {
 		t.Errorf("invalid response status code: got %+v, expected 201", rw.Code)
-	}
-
-}
-
-// UpdateProposalNoContent test setup
-func UpdateProposalNoContent(t *testing.T, ctrl app.ProposalController, userID string, proposalID int, payload *app.UpdateProposalPayload) {
-	UpdateProposalNoContentCtx(t, context.Background(), ctrl, userID, proposalID, payload)
-}
-
-// UpdateProposalNoContentCtx test setup
-func UpdateProposalNoContentCtx(t *testing.T, ctx context.Context, ctrl app.ProposalController, userID string, proposalID int, payload *app.UpdateProposalPayload) {
-	err := payload.Validate()
-	if err != nil {
-		panic(err)
-	}
-	var logBuf bytes.Buffer
-	var resp interface{}
-	respSetter := func(r interface{}) { resp = r }
-	service := goatest.Service(&logBuf, respSetter)
-	rw := httptest.NewRecorder()
-	req, err := http.NewRequest("PATCH", fmt.Sprintf("/api/users/%v/proposals/%v", userID, proposalID), nil)
-	if err != nil {
-		panic("invalid test " + err.Error()) // bug
-	}
-	goaCtx := goa.NewContext(goa.WithAction(ctx, "ProposalTest"), rw, req, nil)
-	updateCtx, err := app.NewUpdateProposalContext(goaCtx, service)
-	updateCtx.Payload = payload
-
-	if err != nil {
-		panic("invalid test data " + err.Error()) // bug
-	}
-	err = ctrl.Update(updateCtx)
-	if err != nil {
-		t.Fatalf("controller returned %s, logs:\n%s", err, logBuf.String())
-	}
-
-	if rw.Code != 204 {
-		t.Errorf("invalid response status code: got %+v, expected 204", rw.Code)
-	}
-
-}
-
-// UpdateProposalNotFound test setup
-func UpdateProposalNotFound(t *testing.T, ctrl app.ProposalController, userID string, proposalID int, payload *app.UpdateProposalPayload) {
-	UpdateProposalNotFoundCtx(t, context.Background(), ctrl, userID, proposalID, payload)
-}
-
-// UpdateProposalNotFoundCtx test setup
-func UpdateProposalNotFoundCtx(t *testing.T, ctx context.Context, ctrl app.ProposalController, userID string, proposalID int, payload *app.UpdateProposalPayload) {
-	err := payload.Validate()
-	if err != nil {
-		panic(err)
-	}
-	var logBuf bytes.Buffer
-	var resp interface{}
-	respSetter := func(r interface{}) { resp = r }
-	service := goatest.Service(&logBuf, respSetter)
-	rw := httptest.NewRecorder()
-	req, err := http.NewRequest("PATCH", fmt.Sprintf("/api/users/%v/proposals/%v", userID, proposalID), nil)
-	if err != nil {
-		panic("invalid test " + err.Error()) // bug
-	}
-	goaCtx := goa.NewContext(goa.WithAction(ctx, "ProposalTest"), rw, req, nil)
-	updateCtx, err := app.NewUpdateProposalContext(goaCtx, service)
-	updateCtx.Payload = payload
-
-	if err != nil {
-		panic("invalid test data " + err.Error()) // bug
-	}
-	err = ctrl.Update(updateCtx)
-	if err != nil {
-		t.Fatalf("controller returned %s, logs:\n%s", err, logBuf.String())
-	}
-
-	if rw.Code != 404 {
-		t.Errorf("invalid response status code: got %+v, expected 404", rw.Code)
 	}
 
 }
@@ -142,11 +77,16 @@ func DeleteProposalNoContentCtx(t *testing.T, ctx context.Context, ctrl app.Prop
 	if err != nil {
 		panic("invalid test " + err.Error()) // bug
 	}
-	goaCtx := goa.NewContext(goa.WithAction(ctx, "ProposalTest"), rw, req, nil)
+	prms := url.Values{}
+	prms["userID"] = []string{fmt.Sprintf("%v", userID)}
+	prms["proposalID"] = []string{fmt.Sprintf("%v", proposalID)}
+
+	goaCtx := goa.NewContext(goa.WithAction(ctx, "ProposalTest"), rw, req, prms)
 	deleteCtx, err := app.NewDeleteProposalContext(goaCtx, service)
 	if err != nil {
 		panic("invalid test data " + err.Error()) // bug
 	}
+
 	err = ctrl.Delete(deleteCtx)
 	if err != nil {
 		t.Fatalf("controller returned %s, logs:\n%s", err, logBuf.String())
@@ -174,11 +114,16 @@ func DeleteProposalNotFoundCtx(t *testing.T, ctx context.Context, ctrl app.Propo
 	if err != nil {
 		panic("invalid test " + err.Error()) // bug
 	}
-	goaCtx := goa.NewContext(goa.WithAction(ctx, "ProposalTest"), rw, req, nil)
+	prms := url.Values{}
+	prms["userID"] = []string{fmt.Sprintf("%v", userID)}
+	prms["proposalID"] = []string{fmt.Sprintf("%v", proposalID)}
+
+	goaCtx := goa.NewContext(goa.WithAction(ctx, "ProposalTest"), rw, req, prms)
 	deleteCtx, err := app.NewDeleteProposalContext(goaCtx, service)
 	if err != nil {
 		panic("invalid test data " + err.Error()) // bug
 	}
+
 	err = ctrl.Delete(deleteCtx)
 	if err != nil {
 		t.Fatalf("controller returned %s, logs:\n%s", err, logBuf.String())
@@ -206,11 +151,15 @@ func ListProposalOKCtx(t *testing.T, ctx context.Context, ctrl app.ProposalContr
 	if err != nil {
 		panic("invalid test " + err.Error()) // bug
 	}
-	goaCtx := goa.NewContext(goa.WithAction(ctx, "ProposalTest"), rw, req, nil)
+	prms := url.Values{}
+	prms["userID"] = []string{fmt.Sprintf("%v", userID)}
+
+	goaCtx := goa.NewContext(goa.WithAction(ctx, "ProposalTest"), rw, req, prms)
 	listCtx, err := app.NewListProposalContext(goaCtx, service)
 	if err != nil {
 		panic("invalid test data " + err.Error()) // bug
 	}
+
 	err = ctrl.List(listCtx)
 	if err != nil {
 		t.Fatalf("controller returned %s, logs:\n%s", err, logBuf.String())
@@ -233,6 +182,43 @@ func ListProposalOKCtx(t *testing.T, ctx context.Context, ctrl app.ProposalContr
 
 }
 
+// ShowProposalNotFound test setup
+func ShowProposalNotFound(t *testing.T, ctrl app.ProposalController, userID string, proposalID int) {
+	ShowProposalNotFoundCtx(t, context.Background(), ctrl, userID, proposalID)
+}
+
+// ShowProposalNotFoundCtx test setup
+func ShowProposalNotFoundCtx(t *testing.T, ctx context.Context, ctrl app.ProposalController, userID string, proposalID int) {
+	var logBuf bytes.Buffer
+	var resp interface{}
+	respSetter := func(r interface{}) { resp = r }
+	service := goatest.Service(&logBuf, respSetter)
+	rw := httptest.NewRecorder()
+	req, err := http.NewRequest("GET", fmt.Sprintf("/api/users/%v/proposals/%v", userID, proposalID), nil)
+	if err != nil {
+		panic("invalid test " + err.Error()) // bug
+	}
+	prms := url.Values{}
+	prms["userID"] = []string{fmt.Sprintf("%v", userID)}
+	prms["proposalID"] = []string{fmt.Sprintf("%v", proposalID)}
+
+	goaCtx := goa.NewContext(goa.WithAction(ctx, "ProposalTest"), rw, req, prms)
+	showCtx, err := app.NewShowProposalContext(goaCtx, service)
+	if err != nil {
+		panic("invalid test data " + err.Error()) // bug
+	}
+
+	err = ctrl.Show(showCtx)
+	if err != nil {
+		t.Fatalf("controller returned %s, logs:\n%s", err, logBuf.String())
+	}
+
+	if rw.Code != 404 {
+		t.Errorf("invalid response status code: got %+v, expected 404", rw.Code)
+	}
+
+}
+
 // ShowProposalOK test setup
 func ShowProposalOK(t *testing.T, ctrl app.ProposalController, userID string, proposalID int) *app.Proposal {
 	return ShowProposalOKCtx(t, context.Background(), ctrl, userID, proposalID)
@@ -249,11 +235,16 @@ func ShowProposalOKCtx(t *testing.T, ctx context.Context, ctrl app.ProposalContr
 	if err != nil {
 		panic("invalid test " + err.Error()) // bug
 	}
-	goaCtx := goa.NewContext(goa.WithAction(ctx, "ProposalTest"), rw, req, nil)
+	prms := url.Values{}
+	prms["userID"] = []string{fmt.Sprintf("%v", userID)}
+	prms["proposalID"] = []string{fmt.Sprintf("%v", proposalID)}
+
+	goaCtx := goa.NewContext(goa.WithAction(ctx, "ProposalTest"), rw, req, prms)
 	showCtx, err := app.NewShowProposalContext(goaCtx, service)
 	if err != nil {
 		panic("invalid test data " + err.Error()) // bug
 	}
+
 	err = ctrl.Show(showCtx)
 	if err != nil {
 		t.Fatalf("controller returned %s, logs:\n%s", err, logBuf.String())
@@ -292,11 +283,16 @@ func ShowProposalOKLinkCtx(t *testing.T, ctx context.Context, ctrl app.ProposalC
 	if err != nil {
 		panic("invalid test " + err.Error()) // bug
 	}
-	goaCtx := goa.NewContext(goa.WithAction(ctx, "ProposalTest"), rw, req, nil)
+	prms := url.Values{}
+	prms["userID"] = []string{fmt.Sprintf("%v", userID)}
+	prms["proposalID"] = []string{fmt.Sprintf("%v", proposalID)}
+
+	goaCtx := goa.NewContext(goa.WithAction(ctx, "ProposalTest"), rw, req, prms)
 	showCtx, err := app.NewShowProposalContext(goaCtx, service)
 	if err != nil {
 		panic("invalid test data " + err.Error()) // bug
 	}
+
 	err = ctrl.Show(showCtx)
 	if err != nil {
 		t.Fatalf("controller returned %s, logs:\n%s", err, logBuf.String())
@@ -319,28 +315,94 @@ func ShowProposalOKLinkCtx(t *testing.T, ctx context.Context, ctrl app.ProposalC
 
 }
 
-// ShowProposalNotFound test setup
-func ShowProposalNotFound(t *testing.T, ctrl app.ProposalController, userID string, proposalID int) {
-	ShowProposalNotFoundCtx(t, context.Background(), ctrl, userID, proposalID)
+// UpdateProposalNoContent test setup
+func UpdateProposalNoContent(t *testing.T, ctrl app.ProposalController, userID string, proposalID int, payload *app.UpdateProposalPayload) {
+	UpdateProposalNoContentCtx(t, context.Background(), ctrl, userID, proposalID, payload)
 }
 
-// ShowProposalNotFoundCtx test setup
-func ShowProposalNotFoundCtx(t *testing.T, ctx context.Context, ctrl app.ProposalController, userID string, proposalID int) {
+// UpdateProposalNoContentCtx test setup
+func UpdateProposalNoContentCtx(t *testing.T, ctx context.Context, ctrl app.ProposalController, userID string, proposalID int, payload *app.UpdateProposalPayload) {
+	err := payload.Validate()
+	if err != nil {
+		e, ok := err.(*goa.Error)
+		if !ok {
+			panic(err) //bug
+		}
+		if e.Status != 204 {
+			t.Errorf("unexpected payload validation error: %+v", e)
+		}
+		return
+	}
 	var logBuf bytes.Buffer
 	var resp interface{}
 	respSetter := func(r interface{}) { resp = r }
 	service := goatest.Service(&logBuf, respSetter)
 	rw := httptest.NewRecorder()
-	req, err := http.NewRequest("GET", fmt.Sprintf("/api/users/%v/proposals/%v", userID, proposalID), nil)
+	req, err := http.NewRequest("PATCH", fmt.Sprintf("/api/users/%v/proposals/%v", userID, proposalID), nil)
 	if err != nil {
 		panic("invalid test " + err.Error()) // bug
 	}
-	goaCtx := goa.NewContext(goa.WithAction(ctx, "ProposalTest"), rw, req, nil)
-	showCtx, err := app.NewShowProposalContext(goaCtx, service)
+	prms := url.Values{}
+	prms["userID"] = []string{fmt.Sprintf("%v", userID)}
+	prms["proposalID"] = []string{fmt.Sprintf("%v", proposalID)}
+
+	goaCtx := goa.NewContext(goa.WithAction(ctx, "ProposalTest"), rw, req, prms)
+	updateCtx, err := app.NewUpdateProposalContext(goaCtx, service)
 	if err != nil {
 		panic("invalid test data " + err.Error()) // bug
 	}
-	err = ctrl.Show(showCtx)
+	updateCtx.Payload = payload
+
+	err = ctrl.Update(updateCtx)
+	if err != nil {
+		t.Fatalf("controller returned %s, logs:\n%s", err, logBuf.String())
+	}
+
+	if rw.Code != 204 {
+		t.Errorf("invalid response status code: got %+v, expected 204", rw.Code)
+	}
+
+}
+
+// UpdateProposalNotFound test setup
+func UpdateProposalNotFound(t *testing.T, ctrl app.ProposalController, userID string, proposalID int, payload *app.UpdateProposalPayload) {
+	UpdateProposalNotFoundCtx(t, context.Background(), ctrl, userID, proposalID, payload)
+}
+
+// UpdateProposalNotFoundCtx test setup
+func UpdateProposalNotFoundCtx(t *testing.T, ctx context.Context, ctrl app.ProposalController, userID string, proposalID int, payload *app.UpdateProposalPayload) {
+	err := payload.Validate()
+	if err != nil {
+		e, ok := err.(*goa.Error)
+		if !ok {
+			panic(err) //bug
+		}
+		if e.Status != 404 {
+			t.Errorf("unexpected payload validation error: %+v", e)
+		}
+		return
+	}
+	var logBuf bytes.Buffer
+	var resp interface{}
+	respSetter := func(r interface{}) { resp = r }
+	service := goatest.Service(&logBuf, respSetter)
+	rw := httptest.NewRecorder()
+	req, err := http.NewRequest("PATCH", fmt.Sprintf("/api/users/%v/proposals/%v", userID, proposalID), nil)
+	if err != nil {
+		panic("invalid test " + err.Error()) // bug
+	}
+	prms := url.Values{}
+	prms["userID"] = []string{fmt.Sprintf("%v", userID)}
+	prms["proposalID"] = []string{fmt.Sprintf("%v", proposalID)}
+
+	goaCtx := goa.NewContext(goa.WithAction(ctx, "ProposalTest"), rw, req, prms)
+	updateCtx, err := app.NewUpdateProposalContext(goaCtx, service)
+	if err != nil {
+		panic("invalid test data " + err.Error()) // bug
+	}
+	updateCtx.Payload = payload
+
+	err = ctrl.Update(updateCtx)
 	if err != nil {
 		t.Fatalf("controller returned %s, logs:\n%s", err, logBuf.String())
 	}

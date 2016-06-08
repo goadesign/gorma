@@ -3,8 +3,8 @@
 //
 // Generated with goagen v0.0.1, command line:
 // $ goagen
-// --out=$(GOPATH)/src/github.com/goadesign/gorma/example
 // --design=github.com/goadesign/gorma/example/design
+// --out=$(GOPATH)/src/github.com/goadesign/gorma/example
 //
 // The content of this file is auto-generated, DO NOT MODIFY
 //************************************************************************//
@@ -122,7 +122,7 @@ func (m *UserDB) Add(ctx context.Context, model *User) (*User, error) {
 
 	err := m.Db.Create(model).Error
 	if err != nil {
-		goa.LogError(ctx, "error updating User", "error", err.Error())
+		goa.LogError(ctx, "error adding User", "error", err.Error())
 		return model, err
 	}
 
@@ -135,6 +135,7 @@ func (m *UserDB) Update(ctx context.Context, model *User) error {
 
 	obj, err := m.Get(ctx, model.ID)
 	if err != nil {
+		goa.LogError(ctx, "error updating User", "error", err.Error())
 		return err
 	}
 	err = m.Db.Model(&obj).Updates(model).Error
@@ -151,7 +152,7 @@ func (m *UserDB) Delete(ctx context.Context, id int) error {
 	err := m.Db.Delete(&obj, id).Error
 
 	if err != nil {
-		goa.LogError(ctx, "error retrieving User", "error", err.Error())
+		goa.LogError(ctx, "error deleting User", "error", err.Error())
 		return err
 	}
 

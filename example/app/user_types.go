@@ -3,9 +3,8 @@
 //
 // Generated with goagen v0.0.1, command line:
 // $ goagen
-// --out=$(GOPATH)/src/github.com/goadesign/gorma/example
 // --design=github.com/goadesign/gorma/example/design
-// --pkg=app
+// --out=$(GOPATH)/src/github.com/goadesign/gorma/example
 //
 // The content of this file is auto-generated, DO NOT MODIFY
 //************************************************************************//
@@ -14,7 +13,7 @@ package app
 
 import "github.com/goadesign/goa"
 
-// ProposalPayload user type.
+// proposalPayload user type.
 type proposalPayload struct {
 	Abstract  *string `json:"abstract,omitempty" xml:"abstract,omitempty"`
 	Detail    *string `json:"detail,omitempty" xml:"detail,omitempty"`
@@ -115,10 +114,10 @@ func (ut *ProposalPayload) Validate() (err error) {
 			err = goa.MergeErrors(err, goa.InvalidLengthError(`response.title`, *ut.Title, len(*ut.Title), 200, false))
 		}
 	}
-	return err
+	return
 }
 
-// ReviewPayload user type.
+// reviewPayload user type.
 type reviewPayload struct {
 	Comment *string `json:"comment,omitempty" xml:"comment,omitempty"`
 	Rating  *int    `json:"rating,omitempty" xml:"rating,omitempty"`
@@ -189,10 +188,10 @@ func (ut *ReviewPayload) Validate() (err error) {
 			err = goa.MergeErrors(err, goa.InvalidRangeError(`response.rating`, *ut.Rating, 5, false))
 		}
 	}
-	return err
+	return
 }
 
-// UserPayload user type.
+// userPayload user type.
 type userPayload struct {
 	Bio       *string `json:"bio,omitempty" xml:"bio,omitempty"`
 	City      *string `json:"city,omitempty" xml:"city,omitempty"`
@@ -268,5 +267,5 @@ func (ut *UserPayload) Validate() (err error) {
 			err = goa.MergeErrors(err, goa.InvalidFormatError(`response.email`, *ut.Email, goa.FormatEmail, err2))
 		}
 	}
-	return err
+	return
 }

@@ -1,4 +1,3 @@
-basePath: /api
 consumes:
 - application/json
 - application/xml
@@ -136,46 +135,7 @@ definitions:
         format: int64
         type: integer
       reviews:
-        description: Reviews
-        example:
-        - comment: Suscipit debitis.
-          href: Esse a.
-          id: 8.914908e+18
-          rating: 6.174726e+18
-        - comment: Cumque voluptatum iste qui molestiae.
-          href: Atque dolorem voluptas et.
-          id: 6.2444844e+18
-          rating: 6.572515e+18
-        items:
-          example:
-            comment: Aperiam quo rerum neque beatae consequatur.
-            href: Sed explicabo id eum eos tempora.
-            id: 4.0015508e+18
-            rating: 7.1817807e+18
-          properties:
-            comment:
-              description: Review comments
-              example: on0mcoyx7h
-              maxLength: 200
-              minLength: 10
-              type: string
-            href:
-              description: API href of user
-              example: Adipisci eaque molestias dolorum illo.
-              type: string
-            id:
-              description: ID of user
-              example: 7.300619e+18
-              format: int64
-              type: integer
-            rating:
-              description: Rating of proposal, from 1-5
-              example: 3
-              maximum: 5
-              minimum: 1
-              type: integer
-          type: object
-        type: array
+        $ref: '#/definitions/ReviewCollection'
       title:
         description: Response title
         example: iya6xlve8o
@@ -201,95 +161,7 @@ definitions:
         rating: 8.5741703e+18
       title: Incidunt illo.
     items:
-      example:
-        abstract: Delectus ipsum facere qui vel.
-        detail: Praesentium debitis nostrum aut quia.
-        href: Sed recusandae amet voluptatem omnis necessitatibus sequi.
-        id: 7.8863835e+18
-        reviews:
-        - comment: Cum est delectus sint.
-          href: Reiciendis hic.
-          id: 7.562909e+18
-          rating: 6.6455247e+18
-        - comment: Veniam et dolor.
-          href: Molestias voluptate rerum.
-          id: 5.079042e+18
-          rating: 6.4350243e+18
-        - comment: Tempore accusantium id tempora facilis voluptas.
-          href: Tempora ipsum aperiam nihil voluptatem.
-          id: 7.568579e+18
-          rating: 3.3609094e+18
-        title: Nihil nesciunt voluptatem reprehenderit et qui.
-      properties:
-        abstract:
-          description: Response abstract
-          example: ktb5njwyki
-          maxLength: 500
-          minLength: 50
-          type: string
-        detail:
-          description: Response detail
-          example: 9rjqyyxrev
-          maxLength: 2000
-          minLength: 100
-          type: string
-        href:
-          description: API href of user
-          example: Minus nam enim doloremque blanditiis quo nostrum.
-          type: string
-        id:
-          description: ID of user
-          example: 6.223143e+18
-          format: int64
-          type: integer
-        reviews:
-          description: Reviews
-          example:
-          - comment: Suscipit debitis.
-            href: Esse a.
-            id: 8.914908e+18
-            rating: 6.174726e+18
-          - comment: Cumque voluptatum iste qui molestiae.
-            href: Atque dolorem voluptas et.
-            id: 6.2444844e+18
-            rating: 6.572515e+18
-          items:
-            example:
-              comment: Aperiam quo rerum neque beatae consequatur.
-              href: Sed explicabo id eum eos tempora.
-              id: 4.0015508e+18
-              rating: 7.1817807e+18
-            properties:
-              comment:
-                description: Review comments
-                example: on0mcoyx7h
-                maxLength: 200
-                minLength: 10
-                type: string
-              href:
-                description: API href of user
-                example: Adipisci eaque molestias dolorum illo.
-                type: string
-              id:
-                description: ID of user
-                example: 7.300619e+18
-                format: int64
-                type: integer
-              rating:
-                description: Rating of proposal, from 1-5
-                example: 3
-                maximum: 5
-                minimum: 1
-                type: integer
-            type: object
-          type: array
-        title:
-          description: Response title
-          example: iya6xlve8o
-          maxLength: 200
-          minLength: 10
-          type: string
-      type: object
+      $ref: '#/definitions/Proposal'
     title: 'Mediatype identifier: application/vnd.proposal+json; type=collection'
     type: array
   RefreshAuthPayload:
@@ -343,34 +215,7 @@ definitions:
       id: 6.6587254e+18
       rating: 5.566292e+18
     items:
-      example:
-        comment: Aperiam quo rerum neque beatae consequatur.
-        href: Sed explicabo id eum eos tempora.
-        id: 4.0015508e+18
-        rating: 7.1817807e+18
-      properties:
-        comment:
-          description: Review comments
-          example: on0mcoyx7h
-          maxLength: 200
-          minLength: 10
-          type: string
-        href:
-          description: API href of user
-          example: Adipisci eaque molestias dolorum illo.
-          type: string
-        id:
-          description: ID of user
-          example: 7.300619e+18
-          format: int64
-          type: integer
-        rating:
-          description: Rating of proposal, from 1-5
-          example: 3
-          maximum: 5
-          minimum: 1
-          type: integer
-      type: object
+      $ref: '#/definitions/Review'
     title: 'Mediatype identifier: application/vnd.review+json; type=collection'
     type: array
   TokenAuthPayload:
@@ -520,62 +365,7 @@ definitions:
       role: Aut repudiandae asperiores dolor.
       state: Voluptas aut doloremque fugit omnis debitis.
     items:
-      example:
-        bio: Tempore est est quis autem.
-        city: Accusantium et.
-        country: Possimus dolore aut.
-        email: Suscipit fuga modi aut delectus qui.
-        firstname: Vel saepe vel eum necessitatibus.
-        href: Repellat quos fugit quod dicta dolores iusto.
-        id: 1.2162482e+18
-        lastname: Id iusto minima est omnis mollitia quo.
-        role: Accusantium molestiae culpa.
-        state: Et et totam repellat.
-      properties:
-        bio:
-          description: Biography of user
-          example: wmmy449jxq
-          maxLength: 500
-          type: string
-        city:
-          description: City of residence
-          example: Dolor iure.
-          type: string
-        country:
-          description: Country of residence
-          example: Harum aut placeat cumque.
-          type: string
-        email:
-          description: Email address of user
-          example: bart.bruen@will.net
-          format: email
-          type: string
-        firstname:
-          description: First name of user
-          example: Hic ex ea ut.
-          type: string
-        href:
-          description: API href of user
-          example: Dignissimos rerum repellat aut tempora nihil voluptas.
-          type: string
-        id:
-          description: ID of user
-          example: 8.1248096e+17
-          format: int64
-          type: integer
-        lastname:
-          description: Last name of user
-          example: Dolor dolorum sequi corporis non.
-          type: string
-        role:
-          description: Role of user
-          example: Earum ut eum alias voluptatibus dolorem non.
-          type: string
-        state:
-          description: State of residence
-          example: Praesentium quia enim et eos earum.
-          type: string
-      type: object
+      $ref: '#/definitions/User'
     title: 'Mediatype identifier: application/vnd.user+json; type=collection'
     type: array
 externalDocs:
@@ -603,7 +393,8 @@ paths:
           description: OK
       schemes:
       - http
-  /auth/{provider}:
+      summary: bootstrap
+  /api/auth/{provider}:
     get:
       description: OAUTH2 login endpoint
       operationId: auth#oauth
@@ -619,7 +410,8 @@ paths:
             $ref: '#/definitions/Authorize'
       schemes:
       - http
-  /auth/{provider}/callback:
+      summary: oauth
+  /api/auth/{provider}/callback:
     get:
       description: OAUTH2 callback endpoint
       operationId: auth#callback
@@ -633,7 +425,8 @@ paths:
           description: OK
       schemes:
       - http
-  /auth/refresh:
+      summary: callback
+  /api/auth/refresh:
     post:
       description: Obtain a refreshed access token
       operationId: auth#refresh
@@ -650,7 +443,8 @@ paths:
             $ref: '#/definitions/Authorize'
       schemes:
       - http
-  /auth/token:
+      summary: refresh
+  /api/auth/token:
     post:
       description: Obtain an access token
       operationId: auth#token
@@ -667,7 +461,8 @@ paths:
             $ref: '#/definitions/Authorize'
       schemes:
       - http
-  /users:
+      summary: token
+  /api/users:
     get:
       description: List all users in account
       operationId: user#list
@@ -678,6 +473,7 @@ paths:
             $ref: '#/definitions/UserCollection'
       schemes:
       - http
+      summary: list
     post:
       description: Record new user
       operationId: user#create
@@ -697,7 +493,8 @@ paths:
               type: string
       schemes:
       - http
-  /users/{userID}:
+      summary: create
+  /api/users/{userID}:
     delete:
       operationId: user#delete
       parameters:
@@ -713,6 +510,7 @@ paths:
           description: Not Found
       schemes:
       - http
+      summary: delete
     get:
       description: Retrieve user with given id
       operationId: user#show
@@ -730,6 +528,7 @@ paths:
           description: Not Found
       schemes:
       - http
+      summary: show
     patch:
       operationId: user#update
       parameters:
@@ -749,7 +548,8 @@ paths:
           description: Not Found
       schemes:
       - http
-  /users/{userID}/proposals:
+      summary: update
+  /api/users/{userID}/proposals:
     get:
       description: List all proposals for a user
       operationId: proposal#list
@@ -765,6 +565,7 @@ paths:
             $ref: '#/definitions/ProposalCollection'
       schemes:
       - http
+      summary: list
     post:
       description: Create a new proposal
       operationId: proposal#create
@@ -788,7 +589,8 @@ paths:
               type: string
       schemes:
       - http
-  /users/{userID}/proposals/{proposalID}:
+      summary: create
+  /api/users/{userID}/proposals/{proposalID}:
     delete:
       operationId: proposal#delete
       parameters:
@@ -808,6 +610,7 @@ paths:
           description: Not Found
       schemes:
       - http
+      summary: delete
     get:
       description: Retrieve proposal with given id
       operationId: proposal#show
@@ -829,6 +632,7 @@ paths:
           description: Not Found
       schemes:
       - http
+      summary: show
     patch:
       operationId: proposal#update
       parameters:
@@ -852,7 +656,8 @@ paths:
           description: Not Found
       schemes:
       - http
-  /users/{userID}/proposals/{proposalID}/review:
+      summary: update
+  /api/users/{userID}/proposals/{proposalID}/review:
     get:
       description: List all reviews for a proposal
       operationId: review#list
@@ -872,6 +677,7 @@ paths:
             $ref: '#/definitions/ReviewCollection'
       schemes:
       - http
+      summary: list
     post:
       description: Create a new review
       operationId: review#create
@@ -899,7 +705,8 @@ paths:
               type: string
       schemes:
       - http
-  /users/{userID}/proposals/{proposalID}/review/{reviewID}:
+      summary: create
+  /api/users/{userID}/proposals/{proposalID}/review/{reviewID}:
     delete:
       operationId: review#delete
       parameters:
@@ -923,6 +730,7 @@ paths:
           description: Not Found
       schemes:
       - http
+      summary: delete
     get:
       description: Retrieve review with given id
       operationId: review#show
@@ -948,6 +756,7 @@ paths:
           description: Not Found
       schemes:
       - http
+      summary: show
     patch:
       operationId: review#update
       parameters:
@@ -975,6 +784,7 @@ paths:
           description: Not Found
       schemes:
       - http
+      summary: update
 produces:
 - application/json
 - application/xml

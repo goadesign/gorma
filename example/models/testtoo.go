@@ -3,8 +3,8 @@
 //
 // Generated with goagen v0.0.1, command line:
 // $ goagen
-// --out=$(GOPATH)/src/github.com/goadesign/gorma/example
 // --design=github.com/goadesign/gorma/example/design
+// --out=$(GOPATH)/src/github.com/goadesign/gorma/example
 //
 // The content of this file is auto-generated, DO NOT MODIFY
 //************************************************************************//
@@ -121,7 +121,7 @@ func (m *TestTooDB) Add(ctx context.Context, model *TestToo) (*TestToo, error) {
 
 	err := m.Db.Create(model).Error
 	if err != nil {
-		goa.LogError(ctx, "error updating TestToo", "error", err.Error())
+		goa.LogError(ctx, "error adding TestToo", "error", err.Error())
 		return model, err
 	}
 
@@ -134,6 +134,7 @@ func (m *TestTooDB) Update(ctx context.Context, model *TestToo) error {
 
 	obj, err := m.Get(ctx, model.Idone, model.Idtwo)
 	if err != nil {
+		goa.LogError(ctx, "error updating TestToo", "error", err.Error())
 		return err
 	}
 	err = m.Db.Model(&obj).Updates(model).Error
@@ -149,7 +150,7 @@ func (m *TestTooDB) Delete(ctx context.Context, idone int, idtwo int) error {
 	err := m.Db.Delete(&obj).Where("idone = ? and idtwo = ?", idone, idtwo).Error
 
 	if err != nil {
-		goa.LogError(ctx, "error retrieving TestToo", "error", err.Error())
+		goa.LogError(ctx, "error deleting TestToo", "error", err.Error())
 		return err
 	}
 

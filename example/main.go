@@ -5,10 +5,9 @@ import (
 	"time"
 
 	"github.com/goadesign/goa"
+	"github.com/goadesign/goa/middleware"
 	"github.com/goadesign/gorma/example/app"
 	"github.com/goadesign/gorma/example/models"
-	"github.com/goadesign/gorma/example/swagger"
-	"github.com/goadesign/goa/middleware"
 	"github.com/jinzhu/gorm"
 	_ "github.com/lib/pq"
 	"gopkg.in/inconshreveable/log15.v2"
@@ -61,9 +60,6 @@ func main() {
 	// Mount "review" controller
 	c5 := NewReviewController(service)
 	app.MountReviewController(service, c5)
-
-	// Mount Swagger spec provider controller
-	swagger.MountController(service)
 
 	// Start service, listen on port 8080
 	service.ListenAndServe(":8080")
