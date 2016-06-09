@@ -297,6 +297,7 @@ func ManyToMany(other, tablename string) {
 	if r, ok := relationalModelDefinition(false); ok {
 		field := gorma.NewRelationalFieldDefinition()
 		field.FieldName = inflect.Pluralize(other)
+		field.TableName = tablename
 		field.Many2Many = other
 		field.Datatype = gorma.Many2Many
 		field.Description = "many to many " + r.ModelName + "/" + strings.Title(other)
