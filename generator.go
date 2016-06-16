@@ -103,7 +103,7 @@ func (g *Generator) generateUserTypes(outdir string, api *design.APIDefinition) 
 				codegen.SimpleImport("github.com/jinzhu/gorm"),
 				codegen.SimpleImport("golang.org/x/net/context"),
 				codegen.SimpleImport("golang.org/x/net/context"),
-				codegen.NewImport("uuid", "github.com/satori/go.uuid"),
+				codegen.SimpleImport("github.com/goadesign/goa/uuid"),
 			}
 
 			if model.Cached {
@@ -162,7 +162,7 @@ func (g *Generator) generateUserHelpers(outdir string, api *design.APIDefinition
 				codegen.SimpleImport("github.com/jinzhu/gorm"),
 				codegen.SimpleImport("golang.org/x/net/context"),
 				codegen.SimpleImport("golang.org/x/net/context"),
-				codegen.NewImport("uuid", "github.com/satori/go.uuid"),
+				codegen.SimpleImport("github.com/goadesign/goa/uuid"),
 			}
 
 			if model.Cached {
