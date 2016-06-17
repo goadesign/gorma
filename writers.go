@@ -418,7 +418,7 @@ func (m *{{$ut.ModelName}}DB) DB() interface{} {
 // {{$ut.ModelName}}Storage represents the storage interface.
 type {{$ut.ModelName}}Storage interface {
 	DB() interface{}
-	List(ctx context.Context{{ if $ut.DynamicTableName}}, tableName string{{ end }}) []{{$ut.ModelName}}
+	List(ctx context.Context{{ if $ut.DynamicTableName}}, tableName string{{ end }}) ([]{{$ut.ModelName}}, error)
 	Get(ctx context.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, {{$ut.PKAttributes}}) ({{$ut.ModelName}}, error)
 	Add(ctx context.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, {{$ut.LowerName}} *{{$ut.ModelName}}) (*{{$ut.ModelName}}, error)
 	Update(ctx context.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, {{$ut.LowerName}} *{{$ut.ModelName}}) (error)
@@ -481,17 +481,16 @@ func (m *{{$ut.ModelName}}DB) Get(ctx context.Context{{ if $ut.DynamicTableName}
 }
 
 // List returns an array of {{$ut.ModelName}}
-func (m *{{$ut.ModelName}}DB) List(ctx context.Context{{ if $ut.DynamicTableName}}, tableName string{{ end }}) []{{$ut.ModelName}}{
+func (m *{{$ut.ModelName}}DB) List(ctx context.Context{{ if $ut.DynamicTableName}}, tableName string{{ end }}) ([]{{$ut.ModelName}}, error) {
 	defer goa.MeasureSince([]string{"goa","db","{{goify $ut.ModelName false}}", "list"}, time.Now())
 
 	var objs []{{$ut.ModelName}}
 	err := m.Db.Table({{ if $ut.DynamicTableName }}tableName{{else}}m.TableName(){{ end }}).Find(&objs).Error
 	if err != nil && err !=  gorm.ErrRecordNotFound {
-		goa.LogError(ctx, "error listing {{$ut.ModelName}}", "error", err.Error())
-		return objs
+		return nil, err
 	}
 
-	return objs
+	return objs, nil
 }
 
 // Add creates a new record.  /// Maybe shouldn't return the model, it's a pointer.

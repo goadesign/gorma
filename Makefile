@@ -11,7 +11,7 @@
 #
 DIRS=$(shell go list -f {{.Dir}} ./... | grep -v /example)
 DEPEND=\
-        bitbucket.org/pkg/inflect \
+	bitbucket.org/pkg/inflect \
 	github.com/goadesign/goa.design/tools/mdc \
 	github.com/goadesign/goa.design/tools/godoc2md \
 	github.com/golang/lint/golint \
@@ -19,7 +19,7 @@ DEPEND=\
 	github.com/spf13/hugo \
 	github.com/onsi/ginkgo/ginkgo \
 	github.com/onsi/gomega \
- 	golang.org/x/tools/cmd/goimports \
+	golang.org/x/tools/cmd/goimports \
 
 .PHONY: goagen
 
@@ -50,4 +50,3 @@ lint:
 
 test:
 	@ginkgo -r  --failOnPending  --race -skipPackage vendor
-
