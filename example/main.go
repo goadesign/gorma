@@ -8,9 +8,9 @@ import (
 	"github.com/goadesign/goa/middleware"
 	"github.com/goadesign/gorma/example/app"
 	"github.com/goadesign/gorma/example/models"
+	"github.com/inconshreveable/log15"
 	"github.com/jinzhu/gorm"
 	_ "github.com/lib/pq"
-	"gopkg.in/inconshreveable/log15.v2"
 )
 
 var db *gorm.DB

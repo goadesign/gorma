@@ -1,10 +1,11 @@
 //************************************************************************//
 // API "congo": Application User Types
 //
-// Generated with goagen v0.0.1, command line:
+// Generated with goagen v0.2.dev, command line:
 // $ goagen
 // --design=github.com/goadesign/gorma/example/design
 // --out=$(GOPATH)/src/github.com/goadesign/gorma/example
+// --version=v0.2.dev
 //
 // The content of this file is auto-generated, DO NOT MODIFY
 //************************************************************************//
@@ -15,10 +16,10 @@ import "github.com/goadesign/goa"
 
 // proposalPayload user type.
 type proposalPayload struct {
-	Abstract  *string `json:"abstract,omitempty" xml:"abstract,omitempty"`
-	Detail    *string `json:"detail,omitempty" xml:"detail,omitempty"`
-	Title     *string `json:"title,omitempty" xml:"title,omitempty"`
-	Withdrawn *bool   `json:"withdrawn,omitempty" xml:"withdrawn,omitempty"`
+	Abstract  *string `json:"abstract,omitempty" xml:"abstract,omitempty" form:"abstract,omitempty"`
+	Detail    *string `json:"detail,omitempty" xml:"detail,omitempty" form:"detail,omitempty"`
+	Title     *string `json:"title,omitempty" xml:"title,omitempty" form:"title,omitempty"`
+	Withdrawn *bool   `json:"withdrawn,omitempty" xml:"withdrawn,omitempty" form:"withdrawn,omitempty"`
 }
 
 // Validate validates the proposalPayload type instance.
@@ -76,10 +77,10 @@ func (ut *proposalPayload) Publicize() *ProposalPayload {
 
 // ProposalPayload user type.
 type ProposalPayload struct {
-	Abstract  *string `json:"abstract,omitempty" xml:"abstract,omitempty"`
-	Detail    *string `json:"detail,omitempty" xml:"detail,omitempty"`
-	Title     *string `json:"title,omitempty" xml:"title,omitempty"`
-	Withdrawn *bool   `json:"withdrawn,omitempty" xml:"withdrawn,omitempty"`
+	Abstract  *string `json:"abstract,omitempty" xml:"abstract,omitempty" form:"abstract,omitempty"`
+	Detail    *string `json:"detail,omitempty" xml:"detail,omitempty" form:"detail,omitempty"`
+	Title     *string `json:"title,omitempty" xml:"title,omitempty" form:"title,omitempty"`
+	Withdrawn *bool   `json:"withdrawn,omitempty" xml:"withdrawn,omitempty" form:"withdrawn,omitempty"`
 }
 
 // Validate validates the ProposalPayload type instance.
@@ -119,8 +120,8 @@ func (ut *ProposalPayload) Validate() (err error) {
 
 // reviewPayload user type.
 type reviewPayload struct {
-	Comment *string `json:"comment,omitempty" xml:"comment,omitempty"`
-	Rating  *int    `json:"rating,omitempty" xml:"rating,omitempty"`
+	Comment *string `json:"comment,omitempty" xml:"comment,omitempty" form:"comment,omitempty"`
+	Rating  *int    `json:"rating,omitempty" xml:"rating,omitempty" form:"rating,omitempty"`
 }
 
 // Validate validates the reviewPayload type instance.
@@ -162,8 +163,8 @@ func (ut *reviewPayload) Publicize() *ReviewPayload {
 
 // ReviewPayload user type.
 type ReviewPayload struct {
-	Comment *string `json:"comment,omitempty" xml:"comment,omitempty"`
-	Rating  *int    `json:"rating,omitempty" xml:"rating,omitempty"`
+	Comment *string `json:"comment,omitempty" xml:"comment,omitempty" form:"comment,omitempty"`
+	Rating  *int    `json:"rating,omitempty" xml:"rating,omitempty" form:"rating,omitempty"`
 }
 
 // Validate validates the ReviewPayload type instance.
@@ -193,13 +194,13 @@ func (ut *ReviewPayload) Validate() (err error) {
 
 // userPayload user type.
 type userPayload struct {
-	Bio       *string `json:"bio,omitempty" xml:"bio,omitempty"`
-	City      *string `json:"city,omitempty" xml:"city,omitempty"`
-	Country   *string `json:"country,omitempty" xml:"country,omitempty"`
-	Email     *string `json:"email,omitempty" xml:"email,omitempty"`
-	Firstname *string `json:"firstname,omitempty" xml:"firstname,omitempty"`
-	Lastname  *string `json:"lastname,omitempty" xml:"lastname,omitempty"`
-	State     *string `json:"state,omitempty" xml:"state,omitempty"`
+	Bio       *string `json:"bio,omitempty" xml:"bio,omitempty" form:"bio,omitempty"`
+	City      *string `json:"city,omitempty" xml:"city,omitempty" form:"city,omitempty"`
+	Country   *string `json:"country,omitempty" xml:"country,omitempty" form:"country,omitempty"`
+	Email     *string `json:"email,omitempty" xml:"email,omitempty" form:"email,omitempty"`
+	Firstname *string `json:"firstname,omitempty" xml:"firstname,omitempty" form:"firstname,omitempty"`
+	Lastname  *string `json:"lastname,omitempty" xml:"lastname,omitempty" form:"lastname,omitempty"`
+	State     *string `json:"state,omitempty" xml:"state,omitempty" form:"state,omitempty"`
 }
 
 // Validate validates the userPayload type instance.
@@ -246,13 +247,13 @@ func (ut *userPayload) Publicize() *UserPayload {
 
 // UserPayload user type.
 type UserPayload struct {
-	Bio       *string `json:"bio,omitempty" xml:"bio,omitempty"`
-	City      *string `json:"city,omitempty" xml:"city,omitempty"`
-	Country   *string `json:"country,omitempty" xml:"country,omitempty"`
-	Email     *string `json:"email,omitempty" xml:"email,omitempty"`
-	Firstname *string `json:"firstname,omitempty" xml:"firstname,omitempty"`
-	Lastname  *string `json:"lastname,omitempty" xml:"lastname,omitempty"`
-	State     *string `json:"state,omitempty" xml:"state,omitempty"`
+	Bio       *string `json:"bio,omitempty" xml:"bio,omitempty" form:"bio,omitempty"`
+	City      *string `json:"city,omitempty" xml:"city,omitempty" form:"city,omitempty"`
+	Country   *string `json:"country,omitempty" xml:"country,omitempty" form:"country,omitempty"`
+	Email     *string `json:"email,omitempty" xml:"email,omitempty" form:"email,omitempty"`
+	Firstname *string `json:"firstname,omitempty" xml:"firstname,omitempty" form:"firstname,omitempty"`
+	Lastname  *string `json:"lastname,omitempty" xml:"lastname,omitempty" form:"lastname,omitempty"`
+	State     *string `json:"state,omitempty" xml:"state,omitempty" form:"state,omitempty"`
 }
 
 // Validate validates the UserPayload type instance.

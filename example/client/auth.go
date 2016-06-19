@@ -67,11 +67,11 @@ func (c *Client) NewOauthAuthRequest(ctx context.Context, path string) (*http.Re
 // RefreshAuthPayload is the auth refresh action payload.
 type RefreshAuthPayload struct {
 	// UUID of requesting application
-	Application *string `json:"application,omitempty" xml:"application,omitempty"`
+	Application *string `json:"application,omitempty" xml:"application,omitempty" form:"application,omitempty"`
 	// email
-	Email *string `json:"email,omitempty" xml:"email,omitempty"`
+	Email *string `json:"email,omitempty" xml:"email,omitempty" form:"email,omitempty"`
 	// password
-	Password *string `json:"password,omitempty" xml:"password,omitempty"`
+	Password *string `json:"password,omitempty" xml:"password,omitempty" form:"password,omitempty"`
 }
 
 // RefreshAuthPath computes a request path to the refresh action of auth.
@@ -80,8 +80,8 @@ func RefreshAuthPath() string {
 }
 
 // Obtain a refreshed access token
-func (c *Client) RefreshAuth(ctx context.Context, path string, payload *RefreshAuthPayload) (*http.Response, error) {
-	req, err := c.NewRefreshAuthRequest(ctx, path, payload)
+func (c *Client) RefreshAuth(ctx context.Context, path string, payload *RefreshAuthPayload, contentType string) (*http.Response, error) {
+	req, err := c.NewRefreshAuthRequest(ctx, path, payload, contentType)
 	if err != nil {
 		return nil, err
 	}
@@ -89,9 +89,12 @@ func (c *Client) RefreshAuth(ctx context.Context, path string, payload *RefreshA
 }
 
 // NewRefreshAuthRequest create the request corresponding to the refresh action endpoint of the auth resource.
-func (c *Client) NewRefreshAuthRequest(ctx context.Context, path string, payload *RefreshAuthPayload) (*http.Request, error) {
+func (c *Client) NewRefreshAuthRequest(ctx context.Context, path string, payload *RefreshAuthPayload, contentType string) (*http.Request, error) {
 	var body bytes.Buffer
-	err := c.Encoder.Encode(payload, &body, "*/*") // Use default encoder
+	if contentType == "" {
+		contentType = "*/*" // Use default encoder
+	}
+	err := c.Encoder.Encode(payload, &body, contentType)
 	if err != nil {
 		return nil, fmt.Errorf("failed to encode body: %s", err)
 	}
@@ -104,17 +107,21 @@ func (c *Client) NewRefreshAuthRequest(ctx context.Context, path string, payload
 	if err != nil {
 		return nil, err
 	}
+	header := req.Header
+	if contentType != "*/*" {
+		header.Set("Content-Type", contentType)
+	}
 	return req, nil
 }
 
 // TokenAuthPayload is the auth token action payload.
 type TokenAuthPayload struct {
 	// UUID of requesting application
-	Application *string `json:"application,omitempty" xml:"application,omitempty"`
+	Application *string `json:"application,omitempty" xml:"application,omitempty" form:"application,omitempty"`
 	// email
-	Email *string `json:"email,omitempty" xml:"email,omitempty"`
+	Email *string `json:"email,omitempty" xml:"email,omitempty" form:"email,omitempty"`
 	// password
-	Password *string `json:"password,omitempty" xml:"password,omitempty"`
+	Password *string `json:"password,omitempty" xml:"password,omitempty" form:"password,omitempty"`
 }
 
 // TokenAuthPath computes a request path to the token action of auth.
@@ -123,8 +130,8 @@ func TokenAuthPath() string {
 }
 
 // Obtain an access token
-func (c *Client) TokenAuth(ctx context.Context, path string, payload *TokenAuthPayload) (*http.Response, error) {
-	req, err := c.NewTokenAuthRequest(ctx, path, payload)
+func (c *Client) TokenAuth(ctx context.Context, path string, payload *TokenAuthPayload, contentType string) (*http.Response, error) {
+	req, err := c.NewTokenAuthRequest(ctx, path, payload, contentType)
 	if err != nil {
 		return nil, err
 	}
@@ -132,9 +139,12 @@ func (c *Client) TokenAuth(ctx context.Context, path string, payload *TokenAuthP
 }
 
 // NewTokenAuthRequest create the request corresponding to the token action endpoint of the auth resource.
-func (c *Client) NewTokenAuthRequest(ctx context.Context, path string, payload *TokenAuthPayload) (*http.Request, error) {
+func (c *Client) NewTokenAuthRequest(ctx context.Context, path string, payload *TokenAuthPayload, contentType string) (*http.Request, error) {
 	var body bytes.Buffer
-	err := c.Encoder.Encode(payload, &body, "*/*") // Use default encoder
+	if contentType == "" {
+		contentType = "*/*" // Use default encoder
+	}
+	err := c.Encoder.Encode(payload, &body, contentType)
 	if err != nil {
 		return nil, fmt.Errorf("failed to encode body: %s", err)
 	}
@@ -146,6 +156,10 @@ func (c *Client) NewTokenAuthRequest(ctx context.Context, path string, payload *
 	req, err := http.NewRequest("POST", u.String(), &body)
 	if err != nil {
 		return nil, err
+	}
+	header := req.Header
+	if contentType != "*/*" {
+		header.Set("Content-Type", contentType)
 	}
 	return req, nil
 }

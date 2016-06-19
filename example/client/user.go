@@ -10,13 +10,13 @@ import (
 
 // CreateUserPayload is the user create action payload.
 type CreateUserPayload struct {
-	Bio       *string `json:"bio,omitempty" xml:"bio,omitempty"`
-	City      *string `json:"city,omitempty" xml:"city,omitempty"`
-	Country   *string `json:"country,omitempty" xml:"country,omitempty"`
-	Email     string  `json:"email" xml:"email"`
-	Firstname string  `json:"firstname" xml:"firstname"`
-	Lastname  string  `json:"lastname" xml:"lastname"`
-	State     *string `json:"state,omitempty" xml:"state,omitempty"`
+	Bio       *string `json:"bio,omitempty" xml:"bio,omitempty" form:"bio,omitempty"`
+	City      *string `json:"city,omitempty" xml:"city,omitempty" form:"city,omitempty"`
+	Country   *string `json:"country,omitempty" xml:"country,omitempty" form:"country,omitempty"`
+	Email     string  `json:"email" xml:"email" form:"email"`
+	Firstname string  `json:"firstname" xml:"firstname" form:"firstname"`
+	Lastname  string  `json:"lastname" xml:"lastname" form:"lastname"`
+	State     *string `json:"state,omitempty" xml:"state,omitempty" form:"state,omitempty"`
 }
 
 // CreateUserPath computes a request path to the create action of user.
@@ -25,8 +25,8 @@ func CreateUserPath() string {
 }
 
 // Record new user
-func (c *Client) CreateUser(ctx context.Context, path string, payload *CreateUserPayload) (*http.Response, error) {
-	req, err := c.NewCreateUserRequest(ctx, path, payload)
+func (c *Client) CreateUser(ctx context.Context, path string, payload *CreateUserPayload, contentType string) (*http.Response, error) {
+	req, err := c.NewCreateUserRequest(ctx, path, payload, contentType)
 	if err != nil {
 		return nil, err
 	}
@@ -34,9 +34,12 @@ func (c *Client) CreateUser(ctx context.Context, path string, payload *CreateUse
 }
 
 // NewCreateUserRequest create the request corresponding to the create action endpoint of the user resource.
-func (c *Client) NewCreateUserRequest(ctx context.Context, path string, payload *CreateUserPayload) (*http.Request, error) {
+func (c *Client) NewCreateUserRequest(ctx context.Context, path string, payload *CreateUserPayload, contentType string) (*http.Request, error) {
 	var body bytes.Buffer
-	err := c.Encoder.Encode(payload, &body, "*/*") // Use default encoder
+	if contentType == "" {
+		contentType = "*/*" // Use default encoder
+	}
+	err := c.Encoder.Encode(payload, &body, contentType)
 	if err != nil {
 		return nil, fmt.Errorf("failed to encode body: %s", err)
 	}
@@ -48,6 +51,10 @@ func (c *Client) NewCreateUserRequest(ctx context.Context, path string, payload 
 	req, err := http.NewRequest("POST", u.String(), &body)
 	if err != nil {
 		return nil, err
+	}
+	header := req.Header
+	if contentType != "*/*" {
+		header.Set("Content-Type", contentType)
 	}
 	return req, nil
 }
@@ -138,13 +145,13 @@ func (c *Client) NewShowUserRequest(ctx context.Context, path string) (*http.Req
 
 // UpdateUserPayload is the user update action payload.
 type UpdateUserPayload struct {
-	Bio       *string `json:"bio,omitempty" xml:"bio,omitempty"`
-	City      *string `json:"city,omitempty" xml:"city,omitempty"`
-	Country   *string `json:"country,omitempty" xml:"country,omitempty"`
-	Email     string  `json:"email" xml:"email"`
-	Firstname *string `json:"firstname,omitempty" xml:"firstname,omitempty"`
-	Lastname  *string `json:"lastname,omitempty" xml:"lastname,omitempty"`
-	State     *string `json:"state,omitempty" xml:"state,omitempty"`
+	Bio       *string `json:"bio,omitempty" xml:"bio,omitempty" form:"bio,omitempty"`
+	City      *string `json:"city,omitempty" xml:"city,omitempty" form:"city,omitempty"`
+	Country   *string `json:"country,omitempty" xml:"country,omitempty" form:"country,omitempty"`
+	Email     string  `json:"email" xml:"email" form:"email"`
+	Firstname *string `json:"firstname,omitempty" xml:"firstname,omitempty" form:"firstname,omitempty"`
+	Lastname  *string `json:"lastname,omitempty" xml:"lastname,omitempty" form:"lastname,omitempty"`
+	State     *string `json:"state,omitempty" xml:"state,omitempty" form:"state,omitempty"`
 }
 
 // UpdateUserPath computes a request path to the update action of user.
@@ -153,8 +160,8 @@ func UpdateUserPath(userID int) string {
 }
 
 // UpdateUser makes a request to the update action endpoint of the user resource
-func (c *Client) UpdateUser(ctx context.Context, path string, payload *UpdateUserPayload) (*http.Response, error) {
-	req, err := c.NewUpdateUserRequest(ctx, path, payload)
+func (c *Client) UpdateUser(ctx context.Context, path string, payload *UpdateUserPayload, contentType string) (*http.Response, error) {
+	req, err := c.NewUpdateUserRequest(ctx, path, payload, contentType)
 	if err != nil {
 		return nil, err
 	}
@@ -162,9 +169,12 @@ func (c *Client) UpdateUser(ctx context.Context, path string, payload *UpdateUse
 }
 
 // NewUpdateUserRequest create the request corresponding to the update action endpoint of the user resource.
-func (c *Client) NewUpdateUserRequest(ctx context.Context, path string, payload *UpdateUserPayload) (*http.Request, error) {
+func (c *Client) NewUpdateUserRequest(ctx context.Context, path string, payload *UpdateUserPayload, contentType string) (*http.Request, error) {
 	var body bytes.Buffer
-	err := c.Encoder.Encode(payload, &body, "*/*") // Use default encoder
+	if contentType == "" {
+		contentType = "*/*" // Use default encoder
+	}
+	err := c.Encoder.Encode(payload, &body, contentType)
 	if err != nil {
 		return nil, fmt.Errorf("failed to encode body: %s", err)
 	}
@@ -176,6 +186,10 @@ func (c *Client) NewUpdateUserRequest(ctx context.Context, path string, payload 
 	req, err := http.NewRequest("PATCH", u.String(), &body)
 	if err != nil {
 		return nil, err
+	}
+	header := req.Header
+	if contentType != "*/*" {
+		header.Set("Content-Type", contentType)
 	}
 	return req, nil
 }

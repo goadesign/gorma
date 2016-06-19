@@ -10,10 +10,10 @@ import (
 
 // CreateProposalPayload is the proposal create action payload.
 type CreateProposalPayload struct {
-	Abstract  string `json:"abstract" xml:"abstract"`
-	Detail    string `json:"detail" xml:"detail"`
-	Title     string `json:"title" xml:"title"`
-	Withdrawn *bool  `json:"withdrawn,omitempty" xml:"withdrawn,omitempty"`
+	Abstract  string `json:"abstract" xml:"abstract" form:"abstract"`
+	Detail    string `json:"detail" xml:"detail" form:"detail"`
+	Title     string `json:"title" xml:"title" form:"title"`
+	Withdrawn *bool  `json:"withdrawn,omitempty" xml:"withdrawn,omitempty" form:"withdrawn,omitempty"`
 }
 
 // CreateProposalPath computes a request path to the create action of proposal.
@@ -22,8 +22,8 @@ func CreateProposalPath(userID string) string {
 }
 
 // Create a new proposal
-func (c *Client) CreateProposal(ctx context.Context, path string, payload *CreateProposalPayload) (*http.Response, error) {
-	req, err := c.NewCreateProposalRequest(ctx, path, payload)
+func (c *Client) CreateProposal(ctx context.Context, path string, payload *CreateProposalPayload, contentType string) (*http.Response, error) {
+	req, err := c.NewCreateProposalRequest(ctx, path, payload, contentType)
 	if err != nil {
 		return nil, err
 	}
@@ -31,9 +31,12 @@ func (c *Client) CreateProposal(ctx context.Context, path string, payload *Creat
 }
 
 // NewCreateProposalRequest create the request corresponding to the create action endpoint of the proposal resource.
-func (c *Client) NewCreateProposalRequest(ctx context.Context, path string, payload *CreateProposalPayload) (*http.Request, error) {
+func (c *Client) NewCreateProposalRequest(ctx context.Context, path string, payload *CreateProposalPayload, contentType string) (*http.Request, error) {
 	var body bytes.Buffer
-	err := c.Encoder.Encode(payload, &body, "*/*") // Use default encoder
+	if contentType == "" {
+		contentType = "*/*" // Use default encoder
+	}
+	err := c.Encoder.Encode(payload, &body, contentType)
 	if err != nil {
 		return nil, fmt.Errorf("failed to encode body: %s", err)
 	}
@@ -45,6 +48,10 @@ func (c *Client) NewCreateProposalRequest(ctx context.Context, path string, payl
 	req, err := http.NewRequest("POST", u.String(), &body)
 	if err != nil {
 		return nil, err
+	}
+	header := req.Header
+	if contentType != "*/*" {
+		header.Set("Content-Type", contentType)
 	}
 	return req, nil
 }
@@ -135,10 +142,10 @@ func (c *Client) NewShowProposalRequest(ctx context.Context, path string) (*http
 
 // UpdateProposalPayload is the proposal update action payload.
 type UpdateProposalPayload struct {
-	Abstract  *string `json:"abstract,omitempty" xml:"abstract,omitempty"`
-	Detail    *string `json:"detail,omitempty" xml:"detail,omitempty"`
-	Title     *string `json:"title,omitempty" xml:"title,omitempty"`
-	Withdrawn *bool   `json:"withdrawn,omitempty" xml:"withdrawn,omitempty"`
+	Abstract  *string `json:"abstract,omitempty" xml:"abstract,omitempty" form:"abstract,omitempty"`
+	Detail    *string `json:"detail,omitempty" xml:"detail,omitempty" form:"detail,omitempty"`
+	Title     *string `json:"title,omitempty" xml:"title,omitempty" form:"title,omitempty"`
+	Withdrawn *bool   `json:"withdrawn,omitempty" xml:"withdrawn,omitempty" form:"withdrawn,omitempty"`
 }
 
 // UpdateProposalPath computes a request path to the update action of proposal.
@@ -147,8 +154,8 @@ func UpdateProposalPath(userID string, proposalID int) string {
 }
 
 // UpdateProposal makes a request to the update action endpoint of the proposal resource
-func (c *Client) UpdateProposal(ctx context.Context, path string, payload *UpdateProposalPayload) (*http.Response, error) {
-	req, err := c.NewUpdateProposalRequest(ctx, path, payload)
+func (c *Client) UpdateProposal(ctx context.Context, path string, payload *UpdateProposalPayload, contentType string) (*http.Response, error) {
+	req, err := c.NewUpdateProposalRequest(ctx, path, payload, contentType)
 	if err != nil {
 		return nil, err
 	}
@@ -156,9 +163,12 @@ func (c *Client) UpdateProposal(ctx context.Context, path string, payload *Updat
 }
 
 // NewUpdateProposalRequest create the request corresponding to the update action endpoint of the proposal resource.
-func (c *Client) NewUpdateProposalRequest(ctx context.Context, path string, payload *UpdateProposalPayload) (*http.Request, error) {
+func (c *Client) NewUpdateProposalRequest(ctx context.Context, path string, payload *UpdateProposalPayload, contentType string) (*http.Request, error) {
 	var body bytes.Buffer
-	err := c.Encoder.Encode(payload, &body, "*/*") // Use default encoder
+	if contentType == "" {
+		contentType = "*/*" // Use default encoder
+	}
+	err := c.Encoder.Encode(payload, &body, contentType)
 	if err != nil {
 		return nil, fmt.Errorf("failed to encode body: %s", err)
 	}
@@ -170,6 +180,10 @@ func (c *Client) NewUpdateProposalRequest(ctx context.Context, path string, payl
 	req, err := http.NewRequest("PATCH", u.String(), &body)
 	if err != nil {
 		return nil, err
+	}
+	header := req.Header
+	if contentType != "*/*" {
+		header.Set("Content-Type", contentType)
 	}
 	return req, nil
 }

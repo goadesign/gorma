@@ -28,18 +28,21 @@ type (
 	// RefreshAuthCommand is the command line data structure for the refresh action of auth
 	RefreshAuthCommand struct {
 		Payload     string
+		ContentType string
 		PrettyPrint bool
 	}
 
 	// TokenAuthCommand is the command line data structure for the token action of auth
 	TokenAuthCommand struct {
 		Payload     string
+		ContentType string
 		PrettyPrint bool
 	}
 
 	// CreateProposalCommand is the command line data structure for the create action of proposal
 	CreateProposalCommand struct {
 		Payload     string
+		ContentType string
 		UserID      int
 		PrettyPrint bool
 	}
@@ -68,6 +71,7 @@ type (
 	// UpdateProposalCommand is the command line data structure for the update action of proposal
 	UpdateProposalCommand struct {
 		Payload     string
+		ContentType string
 		ProposalID  int
 		UserID      int
 		PrettyPrint bool
@@ -76,6 +80,7 @@ type (
 	// CreateReviewCommand is the command line data structure for the create action of review
 	CreateReviewCommand struct {
 		Payload     string
+		ContentType string
 		ProposalID  int
 		UserID      int
 		PrettyPrint bool
@@ -108,6 +113,7 @@ type (
 	// UpdateReviewCommand is the command line data structure for the update action of review
 	UpdateReviewCommand struct {
 		Payload     string
+		ContentType string
 		ProposalID  int
 		ReviewID    int
 		UserID      int
@@ -122,6 +128,7 @@ type (
 	// CreateUserCommand is the command line data structure for the create action of user
 	CreateUserCommand struct {
 		Payload     string
+		ContentType string
 		PrettyPrint bool
 	}
 
@@ -146,6 +153,7 @@ type (
 	// UpdateUserCommand is the command line data structure for the update action of user
 	UpdateUserCommand struct {
 		Payload     string
+		ContentType string
 		UserID      int
 		PrettyPrint bool
 	}
@@ -455,7 +463,7 @@ func (cmd *RefreshAuthCommand) Run(c *client.Client, args []string) error {
 	}
 	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
 	ctx := goa.WithLogger(context.Background(), logger)
-	resp, err := c.RefreshAuth(ctx, path, &payload)
+	resp, err := c.RefreshAuth(ctx, path, &payload, cmd.ContentType)
 	if err != nil {
 		goa.LogError(ctx, "failed", "err", err)
 		return err
@@ -467,7 +475,8 @@ func (cmd *RefreshAuthCommand) Run(c *client.Client, args []string) error {
 
 // RegisterFlags registers the command flags with the command line.
 func (cmd *RefreshAuthCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
-	cc.Flags().StringVar(&cmd.Payload, "payload", "", "Request JSON body")
+	cc.Flags().StringVar(&cmd.Payload, "payload", "", "Request body encoded in JSON")
+	cc.Flags().StringVar(&cmd.ContentType, "content", "", "Request content type override, e.g. 'application/x-www-form-urlencoded'")
 }
 
 // Run makes the HTTP request corresponding to the TokenAuthCommand command.
@@ -487,7 +496,7 @@ func (cmd *TokenAuthCommand) Run(c *client.Client, args []string) error {
 	}
 	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
 	ctx := goa.WithLogger(context.Background(), logger)
-	resp, err := c.TokenAuth(ctx, path, &payload)
+	resp, err := c.TokenAuth(ctx, path, &payload, cmd.ContentType)
 	if err != nil {
 		goa.LogError(ctx, "failed", "err", err)
 		return err
@@ -499,7 +508,8 @@ func (cmd *TokenAuthCommand) Run(c *client.Client, args []string) error {
 
 // RegisterFlags registers the command flags with the command line.
 func (cmd *TokenAuthCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
-	cc.Flags().StringVar(&cmd.Payload, "payload", "", "Request JSON body")
+	cc.Flags().StringVar(&cmd.Payload, "payload", "", "Request body encoded in JSON")
+	cc.Flags().StringVar(&cmd.ContentType, "content", "", "Request content type override, e.g. 'application/x-www-form-urlencoded'")
 }
 
 // Run makes the HTTP request corresponding to the CreateProposalCommand command.
@@ -519,7 +529,7 @@ func (cmd *CreateProposalCommand) Run(c *client.Client, args []string) error {
 	}
 	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
 	ctx := goa.WithLogger(context.Background(), logger)
-	resp, err := c.CreateProposal(ctx, path, &payload)
+	resp, err := c.CreateProposal(ctx, path, &payload, cmd.ContentType)
 	if err != nil {
 		goa.LogError(ctx, "failed", "err", err)
 		return err
@@ -531,7 +541,8 @@ func (cmd *CreateProposalCommand) Run(c *client.Client, args []string) error {
 
 // RegisterFlags registers the command flags with the command line.
 func (cmd *CreateProposalCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
-	cc.Flags().StringVar(&cmd.Payload, "payload", "", "Request JSON body")
+	cc.Flags().StringVar(&cmd.Payload, "payload", "", "Request body encoded in JSON")
+	cc.Flags().StringVar(&cmd.ContentType, "content", "", "Request content type override, e.g. 'application/x-www-form-urlencoded'")
 	var userID int
 	cc.Flags().IntVar(&cmd.UserID, "userID", userID, ``)
 }
@@ -635,7 +646,7 @@ func (cmd *UpdateProposalCommand) Run(c *client.Client, args []string) error {
 	}
 	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
 	ctx := goa.WithLogger(context.Background(), logger)
-	resp, err := c.UpdateProposal(ctx, path, &payload)
+	resp, err := c.UpdateProposal(ctx, path, &payload, cmd.ContentType)
 	if err != nil {
 		goa.LogError(ctx, "failed", "err", err)
 		return err
@@ -647,7 +658,8 @@ func (cmd *UpdateProposalCommand) Run(c *client.Client, args []string) error {
 
 // RegisterFlags registers the command flags with the command line.
 func (cmd *UpdateProposalCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
-	cc.Flags().StringVar(&cmd.Payload, "payload", "", "Request JSON body")
+	cc.Flags().StringVar(&cmd.Payload, "payload", "", "Request body encoded in JSON")
+	cc.Flags().StringVar(&cmd.ContentType, "content", "", "Request content type override, e.g. 'application/x-www-form-urlencoded'")
 	var proposalID int
 	cc.Flags().IntVar(&cmd.ProposalID, "proposalID", proposalID, ``)
 	var userID int
@@ -671,7 +683,7 @@ func (cmd *CreateReviewCommand) Run(c *client.Client, args []string) error {
 	}
 	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
 	ctx := goa.WithLogger(context.Background(), logger)
-	resp, err := c.CreateReview(ctx, path, &payload)
+	resp, err := c.CreateReview(ctx, path, &payload, cmd.ContentType)
 	if err != nil {
 		goa.LogError(ctx, "failed", "err", err)
 		return err
@@ -683,7 +695,8 @@ func (cmd *CreateReviewCommand) Run(c *client.Client, args []string) error {
 
 // RegisterFlags registers the command flags with the command line.
 func (cmd *CreateReviewCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
-	cc.Flags().StringVar(&cmd.Payload, "payload", "", "Request JSON body")
+	cc.Flags().StringVar(&cmd.Payload, "payload", "", "Request body encoded in JSON")
+	cc.Flags().StringVar(&cmd.ContentType, "content", "", "Request content type override, e.g. 'application/x-www-form-urlencoded'")
 	var proposalID int
 	cc.Flags().IntVar(&cmd.ProposalID, "proposalID", proposalID, ``)
 	var userID int
@@ -795,7 +808,7 @@ func (cmd *UpdateReviewCommand) Run(c *client.Client, args []string) error {
 	}
 	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
 	ctx := goa.WithLogger(context.Background(), logger)
-	resp, err := c.UpdateReview(ctx, path, &payload)
+	resp, err := c.UpdateReview(ctx, path, &payload, cmd.ContentType)
 	if err != nil {
 		goa.LogError(ctx, "failed", "err", err)
 		return err
@@ -807,7 +820,8 @@ func (cmd *UpdateReviewCommand) Run(c *client.Client, args []string) error {
 
 // RegisterFlags registers the command flags with the command line.
 func (cmd *UpdateReviewCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
-	cc.Flags().StringVar(&cmd.Payload, "payload", "", "Request JSON body")
+	cc.Flags().StringVar(&cmd.Payload, "payload", "", "Request body encoded in JSON")
+	cc.Flags().StringVar(&cmd.ContentType, "content", "", "Request content type override, e.g. 'application/x-www-form-urlencoded'")
 	var proposalID int
 	cc.Flags().IntVar(&cmd.ProposalID, "proposalID", proposalID, ``)
 	var reviewID int
@@ -857,7 +871,7 @@ func (cmd *CreateUserCommand) Run(c *client.Client, args []string) error {
 	}
 	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
 	ctx := goa.WithLogger(context.Background(), logger)
-	resp, err := c.CreateUser(ctx, path, &payload)
+	resp, err := c.CreateUser(ctx, path, &payload, cmd.ContentType)
 	if err != nil {
 		goa.LogError(ctx, "failed", "err", err)
 		return err
@@ -869,7 +883,8 @@ func (cmd *CreateUserCommand) Run(c *client.Client, args []string) error {
 
 // RegisterFlags registers the command flags with the command line.
 func (cmd *CreateUserCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
-	cc.Flags().StringVar(&cmd.Payload, "payload", "", "Request JSON body")
+	cc.Flags().StringVar(&cmd.Payload, "payload", "", "Request body encoded in JSON")
+	cc.Flags().StringVar(&cmd.ContentType, "content", "", "Request content type override, e.g. 'application/x-www-form-urlencoded'")
 }
 
 // Run makes the HTTP request corresponding to the DeleteUserCommand command.
@@ -965,7 +980,7 @@ func (cmd *UpdateUserCommand) Run(c *client.Client, args []string) error {
 	}
 	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
 	ctx := goa.WithLogger(context.Background(), logger)
-	resp, err := c.UpdateUser(ctx, path, &payload)
+	resp, err := c.UpdateUser(ctx, path, &payload, cmd.ContentType)
 	if err != nil {
 		goa.LogError(ctx, "failed", "err", err)
 		return err
@@ -977,7 +992,8 @@ func (cmd *UpdateUserCommand) Run(c *client.Client, args []string) error {
 
 // RegisterFlags registers the command flags with the command line.
 func (cmd *UpdateUserCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
-	cc.Flags().StringVar(&cmd.Payload, "payload", "", "Request JSON body")
+	cc.Flags().StringVar(&cmd.Payload, "payload", "", "Request body encoded in JSON")
+	cc.Flags().StringVar(&cmd.ContentType, "content", "", "Request content type override, e.g. 'application/x-www-form-urlencoded'")
 	var userID int
 	cc.Flags().IntVar(&cmd.UserID, "userID", userID, ``)
 }

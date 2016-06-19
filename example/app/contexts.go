@@ -1,10 +1,11 @@
 //************************************************************************//
 // API "congo": Application Contexts
 //
-// Generated with goagen v0.0.1, command line:
+// Generated with goagen v0.2.dev, command line:
 // $ goagen
 // --design=github.com/goadesign/gorma/example/design
 // --out=$(GOPATH)/src/github.com/goadesign/gorma/example
+// --version=v0.2.dev
 //
 // The content of this file is auto-generated, DO NOT MODIFY
 //************************************************************************//
@@ -98,11 +99,11 @@ func NewRefreshAuthContext(ctx context.Context, service *goa.Service) (*RefreshA
 // refreshAuthPayload is the auth refresh action payload.
 type refreshAuthPayload struct {
 	// UUID of requesting application
-	Application *string `json:"application,omitempty" xml:"application,omitempty"`
+	Application *string `json:"application,omitempty" xml:"application,omitempty" form:"application,omitempty"`
 	// email
-	Email *string `json:"email,omitempty" xml:"email,omitempty"`
+	Email *string `json:"email,omitempty" xml:"email,omitempty" form:"email,omitempty"`
 	// password
-	Password *string `json:"password,omitempty" xml:"password,omitempty"`
+	Password *string `json:"password,omitempty" xml:"password,omitempty" form:"password,omitempty"`
 }
 
 // Publicize creates RefreshAuthPayload from refreshAuthPayload
@@ -123,11 +124,11 @@ func (payload *refreshAuthPayload) Publicize() *RefreshAuthPayload {
 // RefreshAuthPayload is the auth refresh action payload.
 type RefreshAuthPayload struct {
 	// UUID of requesting application
-	Application *string `json:"application,omitempty" xml:"application,omitempty"`
+	Application *string `json:"application,omitempty" xml:"application,omitempty" form:"application,omitempty"`
 	// email
-	Email *string `json:"email,omitempty" xml:"email,omitempty"`
+	Email *string `json:"email,omitempty" xml:"email,omitempty" form:"email,omitempty"`
 	// password
-	Password *string `json:"password,omitempty" xml:"password,omitempty"`
+	Password *string `json:"password,omitempty" xml:"password,omitempty" form:"password,omitempty"`
 }
 
 // Created sends a HTTP response with status code 201.
@@ -157,11 +158,11 @@ func NewTokenAuthContext(ctx context.Context, service *goa.Service) (*TokenAuthC
 // tokenAuthPayload is the auth token action payload.
 type tokenAuthPayload struct {
 	// UUID of requesting application
-	Application *string `json:"application,omitempty" xml:"application,omitempty"`
+	Application *string `json:"application,omitempty" xml:"application,omitempty" form:"application,omitempty"`
 	// email
-	Email *string `json:"email,omitempty" xml:"email,omitempty"`
+	Email *string `json:"email,omitempty" xml:"email,omitempty" form:"email,omitempty"`
 	// password
-	Password *string `json:"password,omitempty" xml:"password,omitempty"`
+	Password *string `json:"password,omitempty" xml:"password,omitempty" form:"password,omitempty"`
 }
 
 // Publicize creates TokenAuthPayload from tokenAuthPayload
@@ -182,11 +183,11 @@ func (payload *tokenAuthPayload) Publicize() *TokenAuthPayload {
 // TokenAuthPayload is the auth token action payload.
 type TokenAuthPayload struct {
 	// UUID of requesting application
-	Application *string `json:"application,omitempty" xml:"application,omitempty"`
+	Application *string `json:"application,omitempty" xml:"application,omitempty" form:"application,omitempty"`
 	// email
-	Email *string `json:"email,omitempty" xml:"email,omitempty"`
+	Email *string `json:"email,omitempty" xml:"email,omitempty" form:"email,omitempty"`
 	// password
-	Password *string `json:"password,omitempty" xml:"password,omitempty"`
+	Password *string `json:"password,omitempty" xml:"password,omitempty" form:"password,omitempty"`
 }
 
 // Created sends a HTTP response with status code 201.
@@ -225,10 +226,10 @@ func NewCreateProposalContext(ctx context.Context, service *goa.Service) (*Creat
 
 // createProposalPayload is the proposal create action payload.
 type createProposalPayload struct {
-	Abstract  *string `json:"abstract,omitempty" xml:"abstract,omitempty"`
-	Detail    *string `json:"detail,omitempty" xml:"detail,omitempty"`
-	Title     *string `json:"title,omitempty" xml:"title,omitempty"`
-	Withdrawn *bool   `json:"withdrawn,omitempty" xml:"withdrawn,omitempty"`
+	Abstract  *string `json:"abstract,omitempty" xml:"abstract,omitempty" form:"abstract,omitempty"`
+	Detail    *string `json:"detail,omitempty" xml:"detail,omitempty" form:"detail,omitempty"`
+	Title     *string `json:"title,omitempty" xml:"title,omitempty" form:"title,omitempty"`
+	Withdrawn *bool   `json:"withdrawn,omitempty" xml:"withdrawn,omitempty" form:"withdrawn,omitempty"`
 }
 
 // Validate runs the validation rules defined in the design.
@@ -296,10 +297,10 @@ func (payload *createProposalPayload) Publicize() *CreateProposalPayload {
 
 // CreateProposalPayload is the proposal create action payload.
 type CreateProposalPayload struct {
-	Abstract  string `json:"abstract" xml:"abstract"`
-	Detail    string `json:"detail" xml:"detail"`
-	Title     string `json:"title" xml:"title"`
-	Withdrawn *bool  `json:"withdrawn,omitempty" xml:"withdrawn,omitempty"`
+	Abstract  string `json:"abstract" xml:"abstract" form:"abstract"`
+	Detail    string `json:"detail" xml:"detail" form:"detail"`
+	Title     string `json:"title" xml:"title" form:"title"`
+	Withdrawn *bool  `json:"withdrawn,omitempty" xml:"withdrawn,omitempty" form:"withdrawn,omitempty"`
 }
 
 // Validate runs the validation rules defined in the design.
@@ -512,10 +513,10 @@ func NewUpdateProposalContext(ctx context.Context, service *goa.Service) (*Updat
 
 // updateProposalPayload is the proposal update action payload.
 type updateProposalPayload struct {
-	Abstract  *string `json:"abstract,omitempty" xml:"abstract,omitempty"`
-	Detail    *string `json:"detail,omitempty" xml:"detail,omitempty"`
-	Title     *string `json:"title,omitempty" xml:"title,omitempty"`
-	Withdrawn *bool   `json:"withdrawn,omitempty" xml:"withdrawn,omitempty"`
+	Abstract  *string `json:"abstract,omitempty" xml:"abstract,omitempty" form:"abstract,omitempty"`
+	Detail    *string `json:"detail,omitempty" xml:"detail,omitempty" form:"detail,omitempty"`
+	Title     *string `json:"title,omitempty" xml:"title,omitempty" form:"title,omitempty"`
+	Withdrawn *bool   `json:"withdrawn,omitempty" xml:"withdrawn,omitempty" form:"withdrawn,omitempty"`
 }
 
 // Validate runs the validation rules defined in the design.
@@ -573,10 +574,10 @@ func (payload *updateProposalPayload) Publicize() *UpdateProposalPayload {
 
 // UpdateProposalPayload is the proposal update action payload.
 type UpdateProposalPayload struct {
-	Abstract  *string `json:"abstract,omitempty" xml:"abstract,omitempty"`
-	Detail    *string `json:"detail,omitempty" xml:"detail,omitempty"`
-	Title     *string `json:"title,omitempty" xml:"title,omitempty"`
-	Withdrawn *bool   `json:"withdrawn,omitempty" xml:"withdrawn,omitempty"`
+	Abstract  *string `json:"abstract,omitempty" xml:"abstract,omitempty" form:"abstract,omitempty"`
+	Detail    *string `json:"detail,omitempty" xml:"detail,omitempty" form:"detail,omitempty"`
+	Title     *string `json:"title,omitempty" xml:"title,omitempty" form:"title,omitempty"`
+	Withdrawn *bool   `json:"withdrawn,omitempty" xml:"withdrawn,omitempty" form:"withdrawn,omitempty"`
 }
 
 // Validate runs the validation rules defined in the design.
@@ -666,8 +667,8 @@ func NewCreateReviewContext(ctx context.Context, service *goa.Service) (*CreateR
 
 // createReviewPayload is the review create action payload.
 type createReviewPayload struct {
-	Comment *string `json:"comment,omitempty" xml:"comment,omitempty"`
-	Rating  *int    `json:"rating,omitempty" xml:"rating,omitempty"`
+	Comment *string `json:"comment,omitempty" xml:"comment,omitempty" form:"comment,omitempty"`
+	Rating  *int    `json:"rating,omitempty" xml:"rating,omitempty" form:"rating,omitempty"`
 }
 
 // Validate runs the validation rules defined in the design.
@@ -713,8 +714,8 @@ func (payload *createReviewPayload) Publicize() *CreateReviewPayload {
 
 // CreateReviewPayload is the review create action payload.
 type CreateReviewPayload struct {
-	Comment *string `json:"comment,omitempty" xml:"comment,omitempty"`
-	Rating  int     `json:"rating" xml:"rating"`
+	Comment *string `json:"comment,omitempty" xml:"comment,omitempty" form:"comment,omitempty"`
+	Rating  int     `json:"rating" xml:"rating" form:"rating"`
 }
 
 // Validate runs the validation rules defined in the design.
@@ -955,8 +956,8 @@ func NewUpdateReviewContext(ctx context.Context, service *goa.Service) (*UpdateR
 
 // updateReviewPayload is the review update action payload.
 type updateReviewPayload struct {
-	Comment *string `json:"comment,omitempty" xml:"comment,omitempty"`
-	Rating  *int    `json:"rating,omitempty" xml:"rating,omitempty"`
+	Comment *string `json:"comment,omitempty" xml:"comment,omitempty" form:"comment,omitempty"`
+	Rating  *int    `json:"rating,omitempty" xml:"rating,omitempty" form:"rating,omitempty"`
 }
 
 // Validate runs the validation rules defined in the design.
@@ -998,8 +999,8 @@ func (payload *updateReviewPayload) Publicize() *UpdateReviewPayload {
 
 // UpdateReviewPayload is the review update action payload.
 type UpdateReviewPayload struct {
-	Comment *string `json:"comment,omitempty" xml:"comment,omitempty"`
-	Rating  *int    `json:"rating,omitempty" xml:"rating,omitempty"`
+	Comment *string `json:"comment,omitempty" xml:"comment,omitempty" form:"comment,omitempty"`
+	Rating  *int    `json:"rating,omitempty" xml:"rating,omitempty" form:"rating,omitempty"`
 }
 
 // Validate runs the validation rules defined in the design.
@@ -1084,13 +1085,13 @@ func NewCreateUserContext(ctx context.Context, service *goa.Service) (*CreateUse
 
 // createUserPayload is the user create action payload.
 type createUserPayload struct {
-	Bio       *string `json:"bio,omitempty" xml:"bio,omitempty"`
-	City      *string `json:"city,omitempty" xml:"city,omitempty"`
-	Country   *string `json:"country,omitempty" xml:"country,omitempty"`
-	Email     *string `json:"email,omitempty" xml:"email,omitempty"`
-	Firstname *string `json:"firstname,omitempty" xml:"firstname,omitempty"`
-	Lastname  *string `json:"lastname,omitempty" xml:"lastname,omitempty"`
-	State     *string `json:"state,omitempty" xml:"state,omitempty"`
+	Bio       *string `json:"bio,omitempty" xml:"bio,omitempty" form:"bio,omitempty"`
+	City      *string `json:"city,omitempty" xml:"city,omitempty" form:"city,omitempty"`
+	Country   *string `json:"country,omitempty" xml:"country,omitempty" form:"country,omitempty"`
+	Email     *string `json:"email,omitempty" xml:"email,omitempty" form:"email,omitempty"`
+	Firstname *string `json:"firstname,omitempty" xml:"firstname,omitempty" form:"firstname,omitempty"`
+	Lastname  *string `json:"lastname,omitempty" xml:"lastname,omitempty" form:"lastname,omitempty"`
+	State     *string `json:"state,omitempty" xml:"state,omitempty" form:"state,omitempty"`
 }
 
 // Validate runs the validation rules defined in the design.
@@ -1147,13 +1148,13 @@ func (payload *createUserPayload) Publicize() *CreateUserPayload {
 
 // CreateUserPayload is the user create action payload.
 type CreateUserPayload struct {
-	Bio       *string `json:"bio,omitempty" xml:"bio,omitempty"`
-	City      *string `json:"city,omitempty" xml:"city,omitempty"`
-	Country   *string `json:"country,omitempty" xml:"country,omitempty"`
-	Email     string  `json:"email" xml:"email"`
-	Firstname string  `json:"firstname" xml:"firstname"`
-	Lastname  string  `json:"lastname" xml:"lastname"`
-	State     *string `json:"state,omitempty" xml:"state,omitempty"`
+	Bio       *string `json:"bio,omitempty" xml:"bio,omitempty" form:"bio,omitempty"`
+	City      *string `json:"city,omitempty" xml:"city,omitempty" form:"city,omitempty"`
+	Country   *string `json:"country,omitempty" xml:"country,omitempty" form:"country,omitempty"`
+	Email     string  `json:"email" xml:"email" form:"email"`
+	Firstname string  `json:"firstname" xml:"firstname" form:"firstname"`
+	Lastname  string  `json:"lastname" xml:"lastname" form:"lastname"`
+	State     *string `json:"state,omitempty" xml:"state,omitempty" form:"state,omitempty"`
 }
 
 // Validate runs the validation rules defined in the design.
@@ -1316,13 +1317,13 @@ func NewUpdateUserContext(ctx context.Context, service *goa.Service) (*UpdateUse
 
 // updateUserPayload is the user update action payload.
 type updateUserPayload struct {
-	Bio       *string `json:"bio,omitempty" xml:"bio,omitempty"`
-	City      *string `json:"city,omitempty" xml:"city,omitempty"`
-	Country   *string `json:"country,omitempty" xml:"country,omitempty"`
-	Email     *string `json:"email,omitempty" xml:"email,omitempty"`
-	Firstname *string `json:"firstname,omitempty" xml:"firstname,omitempty"`
-	Lastname  *string `json:"lastname,omitempty" xml:"lastname,omitempty"`
-	State     *string `json:"state,omitempty" xml:"state,omitempty"`
+	Bio       *string `json:"bio,omitempty" xml:"bio,omitempty" form:"bio,omitempty"`
+	City      *string `json:"city,omitempty" xml:"city,omitempty" form:"city,omitempty"`
+	Country   *string `json:"country,omitempty" xml:"country,omitempty" form:"country,omitempty"`
+	Email     *string `json:"email,omitempty" xml:"email,omitempty" form:"email,omitempty"`
+	Firstname *string `json:"firstname,omitempty" xml:"firstname,omitempty" form:"firstname,omitempty"`
+	Lastname  *string `json:"lastname,omitempty" xml:"lastname,omitempty" form:"lastname,omitempty"`
+	State     *string `json:"state,omitempty" xml:"state,omitempty" form:"state,omitempty"`
 }
 
 // Validate runs the validation rules defined in the design.
@@ -1373,13 +1374,13 @@ func (payload *updateUserPayload) Publicize() *UpdateUserPayload {
 
 // UpdateUserPayload is the user update action payload.
 type UpdateUserPayload struct {
-	Bio       *string `json:"bio,omitempty" xml:"bio,omitempty"`
-	City      *string `json:"city,omitempty" xml:"city,omitempty"`
-	Country   *string `json:"country,omitempty" xml:"country,omitempty"`
-	Email     string  `json:"email" xml:"email"`
-	Firstname *string `json:"firstname,omitempty" xml:"firstname,omitempty"`
-	Lastname  *string `json:"lastname,omitempty" xml:"lastname,omitempty"`
-	State     *string `json:"state,omitempty" xml:"state,omitempty"`
+	Bio       *string `json:"bio,omitempty" xml:"bio,omitempty" form:"bio,omitempty"`
+	City      *string `json:"city,omitempty" xml:"city,omitempty" form:"city,omitempty"`
+	Country   *string `json:"country,omitempty" xml:"country,omitempty" form:"country,omitempty"`
+	Email     string  `json:"email" xml:"email" form:"email"`
+	Firstname *string `json:"firstname,omitempty" xml:"firstname,omitempty" form:"firstname,omitempty"`
+	Lastname  *string `json:"lastname,omitempty" xml:"lastname,omitempty" form:"lastname,omitempty"`
+	State     *string `json:"state,omitempty" xml:"state,omitempty" form:"state,omitempty"`
 }
 
 // Validate runs the validation rules defined in the design.

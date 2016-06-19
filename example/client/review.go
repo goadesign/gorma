@@ -10,8 +10,8 @@ import (
 
 // CreateReviewPayload is the review create action payload.
 type CreateReviewPayload struct {
-	Comment *string `json:"comment,omitempty" xml:"comment,omitempty"`
-	Rating  int     `json:"rating" xml:"rating"`
+	Comment *string `json:"comment,omitempty" xml:"comment,omitempty" form:"comment,omitempty"`
+	Rating  int     `json:"rating" xml:"rating" form:"rating"`
 }
 
 // CreateReviewPath computes a request path to the create action of review.
@@ -20,8 +20,8 @@ func CreateReviewPath(userID string, proposalID string) string {
 }
 
 // Create a new review
-func (c *Client) CreateReview(ctx context.Context, path string, payload *CreateReviewPayload) (*http.Response, error) {
-	req, err := c.NewCreateReviewRequest(ctx, path, payload)
+func (c *Client) CreateReview(ctx context.Context, path string, payload *CreateReviewPayload, contentType string) (*http.Response, error) {
+	req, err := c.NewCreateReviewRequest(ctx, path, payload, contentType)
 	if err != nil {
 		return nil, err
 	}
@@ -29,9 +29,12 @@ func (c *Client) CreateReview(ctx context.Context, path string, payload *CreateR
 }
 
 // NewCreateReviewRequest create the request corresponding to the create action endpoint of the review resource.
-func (c *Client) NewCreateReviewRequest(ctx context.Context, path string, payload *CreateReviewPayload) (*http.Request, error) {
+func (c *Client) NewCreateReviewRequest(ctx context.Context, path string, payload *CreateReviewPayload, contentType string) (*http.Request, error) {
 	var body bytes.Buffer
-	err := c.Encoder.Encode(payload, &body, "*/*") // Use default encoder
+	if contentType == "" {
+		contentType = "*/*" // Use default encoder
+	}
+	err := c.Encoder.Encode(payload, &body, contentType)
 	if err != nil {
 		return nil, fmt.Errorf("failed to encode body: %s", err)
 	}
@@ -43,6 +46,10 @@ func (c *Client) NewCreateReviewRequest(ctx context.Context, path string, payloa
 	req, err := http.NewRequest("POST", u.String(), &body)
 	if err != nil {
 		return nil, err
+	}
+	header := req.Header
+	if contentType != "*/*" {
+		header.Set("Content-Type", contentType)
 	}
 	return req, nil
 }
@@ -133,8 +140,8 @@ func (c *Client) NewShowReviewRequest(ctx context.Context, path string) (*http.R
 
 // UpdateReviewPayload is the review update action payload.
 type UpdateReviewPayload struct {
-	Comment *string `json:"comment,omitempty" xml:"comment,omitempty"`
-	Rating  *int    `json:"rating,omitempty" xml:"rating,omitempty"`
+	Comment *string `json:"comment,omitempty" xml:"comment,omitempty" form:"comment,omitempty"`
+	Rating  *int    `json:"rating,omitempty" xml:"rating,omitempty" form:"rating,omitempty"`
 }
 
 // UpdateReviewPath computes a request path to the update action of review.
@@ -143,8 +150,8 @@ func UpdateReviewPath(userID string, proposalID string, reviewID int) string {
 }
 
 // UpdateReview makes a request to the update action endpoint of the review resource
-func (c *Client) UpdateReview(ctx context.Context, path string, payload *UpdateReviewPayload) (*http.Response, error) {
-	req, err := c.NewUpdateReviewRequest(ctx, path, payload)
+func (c *Client) UpdateReview(ctx context.Context, path string, payload *UpdateReviewPayload, contentType string) (*http.Response, error) {
+	req, err := c.NewUpdateReviewRequest(ctx, path, payload, contentType)
 	if err != nil {
 		return nil, err
 	}
@@ -152,9 +159,12 @@ func (c *Client) UpdateReview(ctx context.Context, path string, payload *UpdateR
 }
 
 // NewUpdateReviewRequest create the request corresponding to the update action endpoint of the review resource.
-func (c *Client) NewUpdateReviewRequest(ctx context.Context, path string, payload *UpdateReviewPayload) (*http.Request, error) {
+func (c *Client) NewUpdateReviewRequest(ctx context.Context, path string, payload *UpdateReviewPayload, contentType string) (*http.Request, error) {
 	var body bytes.Buffer
-	err := c.Encoder.Encode(payload, &body, "*/*") // Use default encoder
+	if contentType == "" {
+		contentType = "*/*" // Use default encoder
+	}
+	err := c.Encoder.Encode(payload, &body, contentType)
 	if err != nil {
 		return nil, fmt.Errorf("failed to encode body: %s", err)
 	}
@@ -166,6 +176,10 @@ func (c *Client) NewUpdateReviewRequest(ctx context.Context, path string, payloa
 	req, err := http.NewRequest("PATCH", u.String(), &body)
 	if err != nil {
 		return nil, err
+	}
+	header := req.Header
+	if contentType != "*/*" {
+		header.Set("Content-Type", contentType)
 	}
 	return req, nil
 }

@@ -23,15 +23,22 @@ type Generator struct {
 
 // Generate is the generator entry point called by the meta generator.
 func Generate() (files []string, err error) {
-	var outDir, target, appPkg string
+	var outDir, target, appPkg, ver string
 
 	set := flag.NewFlagSet("gorma", flag.PanicOnError)
 	set.String("design", "", "")
 	set.StringVar(&outDir, "out", "", "")
+	set.StringVar(&ver, "version", "", "")
 	set.StringVar(&target, "pkg", "models", "")
 	set.StringVar(&appPkg, "app", "app", "")
 	set.Parse(os.Args[2:])
 
+	// First check compatibility
+	if err := codegen.CheckVersion(ver); err != nil {
+		return nil, err
+	}
+
+	// Now proceed
 	appPkgPath, err := codegen.PackagePath(filepath.Join(outDir, appPkg))
 	if err != nil {
 		return nil, fmt.Errorf("invalid app package: %s", err)

@@ -1,10 +1,11 @@
 //************************************************************************//
 // API "congo": Application Media Types
 //
-// Generated with goagen v0.0.1, command line:
+// Generated with goagen v0.2.dev, command line:
 // $ goagen
 // --design=github.com/goadesign/gorma/example/design
 // --out=$(GOPATH)/src/github.com/goadesign/gorma/example
+// --version=v0.2.dev
 //
 // The content of this file is auto-generated, DO NOT MODIFY
 //************************************************************************//
@@ -18,11 +19,11 @@ import "github.com/goadesign/goa"
 // Identifier: application/vnd.authorize+json
 type Authorize struct {
 	// access token
-	AccessToken *string `json:"access_token,omitempty" xml:"access_token,omitempty"`
+	AccessToken *string `json:"access_token,omitempty" xml:"access_token,omitempty" form:"access_token,omitempty"`
 	// Time to expiration in seconds
-	ExpiresIn *int `json:"expires_in,omitempty" xml:"expires_in,omitempty"`
+	ExpiresIn *int `json:"expires_in,omitempty" xml:"expires_in,omitempty" form:"expires_in,omitempty"`
 	// type of token
-	TokenType *string `json:"token_type,omitempty" xml:"token_type,omitempty"`
+	TokenType *string `json:"token_type,omitempty" xml:"token_type,omitempty" form:"token_type,omitempty"`
 }
 
 // Login media type.
@@ -30,11 +31,11 @@ type Authorize struct {
 // Identifier: application/vnd.login+json
 type Login struct {
 	// UUID of requesting application
-	Application *string `json:"application,omitempty" xml:"application,omitempty"`
+	Application *string `json:"application,omitempty" xml:"application,omitempty" form:"application,omitempty"`
 	// email
-	Email *string `json:"email,omitempty" xml:"email,omitempty"`
+	Email *string `json:"email,omitempty" xml:"email,omitempty" form:"email,omitempty"`
 	// password
-	Password *string `json:"password,omitempty" xml:"password,omitempty"`
+	Password *string `json:"password,omitempty" xml:"password,omitempty" form:"password,omitempty"`
 }
 
 // Proposal media type.
@@ -42,19 +43,19 @@ type Login struct {
 // Identifier: application/vnd.proposal+json
 type Proposal struct {
 	// Response abstract
-	Abstract *string `json:"abstract,omitempty" xml:"abstract,omitempty"`
+	Abstract *string `json:"abstract,omitempty" xml:"abstract,omitempty" form:"abstract,omitempty"`
 	// Response detail
-	Detail *string `json:"detail,omitempty" xml:"detail,omitempty"`
+	Detail *string `json:"detail,omitempty" xml:"detail,omitempty" form:"detail,omitempty"`
 	// API href of user
-	Href *string `json:"href,omitempty" xml:"href,omitempty"`
+	Href *string `json:"href,omitempty" xml:"href,omitempty" form:"href,omitempty"`
 	// ID of user
-	ID *int `json:"id,omitempty" xml:"id,omitempty"`
+	ID *int `json:"id,omitempty" xml:"id,omitempty" form:"id,omitempty"`
 	// Links to related resources
-	Links *ProposalLinks `json:"links,omitempty" xml:"links,omitempty"`
+	Links *ProposalLinks `json:"links,omitempty" xml:"links,omitempty" form:"links,omitempty"`
 	// Reviews
-	Reviews ReviewCollection `json:"reviews,omitempty" xml:"reviews,omitempty"`
+	Reviews ReviewCollection `json:"reviews,omitempty" xml:"reviews,omitempty" form:"reviews,omitempty"`
 	// Response title
-	Title *string `json:"title,omitempty" xml:"title,omitempty"`
+	Title *string `json:"title,omitempty" xml:"title,omitempty" form:"title,omitempty"`
 }
 
 // Validate validates the Proposal media type instance.
@@ -100,11 +101,11 @@ func (mt *Proposal) Validate() (err error) {
 // Identifier: application/vnd.proposal+json
 type ProposalLink struct {
 	// API href of user
-	Href *string `json:"href,omitempty" xml:"href,omitempty"`
+	Href *string `json:"href,omitempty" xml:"href,omitempty" form:"href,omitempty"`
 	// ID of user
-	ID *int `json:"id,omitempty" xml:"id,omitempty"`
+	ID *int `json:"id,omitempty" xml:"id,omitempty" form:"id,omitempty"`
 	// Response title
-	Title *string `json:"title,omitempty" xml:"title,omitempty"`
+	Title *string `json:"title,omitempty" xml:"title,omitempty" form:"title,omitempty"`
 }
 
 // Validate validates the ProposalLink media type instance.
@@ -124,7 +125,7 @@ func (mt *ProposalLink) Validate() (err error) {
 
 // ProposalLinks contains links to related resources of Proposal.
 type ProposalLinks struct {
-	Reviews ReviewLinkCollection `json:"reviews,omitempty" xml:"reviews,omitempty"`
+	Reviews ReviewLinkCollection `json:"reviews,omitempty" xml:"reviews,omitempty" form:"reviews,omitempty"`
 }
 
 // ProposalCollection media type is a collection of Proposal.
@@ -180,13 +181,13 @@ type ProposalLinksArray []*ProposalLinks
 // Identifier: application/vnd.review+json
 type Review struct {
 	// Review comments
-	Comment *string `json:"comment,omitempty" xml:"comment,omitempty"`
+	Comment *string `json:"comment,omitempty" xml:"comment,omitempty" form:"comment,omitempty"`
 	// API href of user
-	Href *string `json:"href,omitempty" xml:"href,omitempty"`
+	Href *string `json:"href,omitempty" xml:"href,omitempty" form:"href,omitempty"`
 	// ID of user
-	ID *int `json:"id,omitempty" xml:"id,omitempty"`
+	ID *int `json:"id,omitempty" xml:"id,omitempty" form:"id,omitempty"`
 	// Rating of proposal, from 1-5
-	Rating *int `json:"rating,omitempty" xml:"rating,omitempty"`
+	Rating *int `json:"rating,omitempty" xml:"rating,omitempty" form:"rating,omitempty"`
 }
 
 // Validate validates the Review media type instance.
@@ -219,9 +220,9 @@ func (mt *Review) Validate() (err error) {
 // Identifier: application/vnd.review+json
 type ReviewLink struct {
 	// API href of user
-	Href *string `json:"href,omitempty" xml:"href,omitempty"`
+	Href *string `json:"href,omitempty" xml:"href,omitempty" form:"href,omitempty"`
 	// ID of user
-	ID *int `json:"id,omitempty" xml:"id,omitempty"`
+	ID *int `json:"id,omitempty" xml:"id,omitempty" form:"id,omitempty"`
 }
 
 // ReviewCollection media type is a collection of Review.
@@ -266,25 +267,25 @@ type ReviewLinkCollection []*ReviewLink
 // Identifier: application/vnd.user+json
 type User struct {
 	// Biography of user
-	Bio *string `json:"bio,omitempty" xml:"bio,omitempty"`
+	Bio *string `json:"bio,omitempty" xml:"bio,omitempty" form:"bio,omitempty"`
 	// City of residence
-	City *string `json:"city,omitempty" xml:"city,omitempty"`
+	City *string `json:"city,omitempty" xml:"city,omitempty" form:"city,omitempty"`
 	// Country of residence
-	Country *string `json:"country,omitempty" xml:"country,omitempty"`
+	Country *string `json:"country,omitempty" xml:"country,omitempty" form:"country,omitempty"`
 	// Email address of user
-	Email *string `json:"email,omitempty" xml:"email,omitempty"`
+	Email *string `json:"email,omitempty" xml:"email,omitempty" form:"email,omitempty"`
 	// First name of user
-	Firstname *string `json:"firstname,omitempty" xml:"firstname,omitempty"`
+	Firstname *string `json:"firstname,omitempty" xml:"firstname,omitempty" form:"firstname,omitempty"`
 	// API href of user
-	Href *string `json:"href,omitempty" xml:"href,omitempty"`
+	Href *string `json:"href,omitempty" xml:"href,omitempty" form:"href,omitempty"`
 	// ID of user
-	ID *int `json:"id,omitempty" xml:"id,omitempty"`
+	ID *int `json:"id,omitempty" xml:"id,omitempty" form:"id,omitempty"`
 	// Last name of user
-	Lastname *string `json:"lastname,omitempty" xml:"lastname,omitempty"`
+	Lastname *string `json:"lastname,omitempty" xml:"lastname,omitempty" form:"lastname,omitempty"`
 	// Role of user
-	Role *string `json:"role,omitempty" xml:"role,omitempty"`
+	Role *string `json:"role,omitempty" xml:"role,omitempty" form:"role,omitempty"`
 	// State of residence
-	State *string `json:"state,omitempty" xml:"state,omitempty"`
+	State *string `json:"state,omitempty" xml:"state,omitempty" form:"state,omitempty"`
 }
 
 // Validate validates the User media type instance.
@@ -307,11 +308,11 @@ func (mt *User) Validate() (err error) {
 // Identifier: application/vnd.user+json
 type UserLink struct {
 	// Email address of user
-	Email *string `json:"email,omitempty" xml:"email,omitempty"`
+	Email *string `json:"email,omitempty" xml:"email,omitempty" form:"email,omitempty"`
 	// API href of user
-	Href *string `json:"href,omitempty" xml:"href,omitempty"`
+	Href *string `json:"href,omitempty" xml:"href,omitempty" form:"href,omitempty"`
 	// ID of user
-	ID *int `json:"id,omitempty" xml:"id,omitempty"`
+	ID *int `json:"id,omitempty" xml:"id,omitempty" form:"id,omitempty"`
 }
 
 // Validate validates the UserLink media type instance.

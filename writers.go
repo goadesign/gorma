@@ -105,7 +105,6 @@ func fieldAssignmentModelToType(model *RelationalModelDefinition, ut *design.Vie
 	var fieldAssignments []string
 
 	if !strings.Contains(ut.Name, "link") {
-		fmt.Println(model.ModelName, "LINK ", ut.Name)
 		for ln, lnd := range ut.Parent.Links {
 			ln = codegen.Goify(ln, true)
 			s := inflect.Singularize(ln)

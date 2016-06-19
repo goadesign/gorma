@@ -1,10 +1,11 @@
 //************************************************************************//
 // API "congo": Application Controllers
 //
-// Generated with goagen v0.0.1, command line:
+// Generated with goagen v0.2.dev, command line:
 // $ goagen
 // --design=github.com/goadesign/gorma/example/design
 // --out=$(GOPATH)/src/github.com/goadesign/gorma/example
+// --version=v0.2.dev
 //
 // The content of this file is auto-generated, DO NOT MODIFY
 //************************************************************************//
@@ -47,6 +48,11 @@ func MountAuthController(service *goa.Service, ctrl AuthController) {
 	var h goa.Handler
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
 		rctx, err := NewCallbackAuthContext(ctx, service)
 		if err != nil {
 			return err
@@ -57,6 +63,11 @@ func MountAuthController(service *goa.Service, ctrl AuthController) {
 	service.LogInfo("mount", "ctrl", "Auth", "action", "Callback", "route", "GET /api/auth/:provider/callback")
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
 		rctx, err := NewOauthAuthContext(ctx, service)
 		if err != nil {
 			return err
@@ -67,14 +78,20 @@ func MountAuthController(service *goa.Service, ctrl AuthController) {
 	service.LogInfo("mount", "ctrl", "Auth", "action", "Oauth", "route", "GET /api/auth/:provider")
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
 		rctx, err := NewRefreshAuthContext(ctx, service)
 		if err != nil {
 			return err
 		}
+		// Build the payload
 		if rawPayload := goa.ContextRequest(ctx).Payload; rawPayload != nil {
 			rctx.Payload = rawPayload.(*RefreshAuthPayload)
 		} else {
-			return goa.ErrInvalidEncoding(goa.MissingPayloadError())
+			return goa.MissingPayloadError()
 		}
 		return ctrl.Refresh(rctx)
 	}
@@ -82,14 +99,20 @@ func MountAuthController(service *goa.Service, ctrl AuthController) {
 	service.LogInfo("mount", "ctrl", "Auth", "action", "Refresh", "route", "POST /api/auth/refresh")
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
 		rctx, err := NewTokenAuthContext(ctx, service)
 		if err != nil {
 			return err
 		}
+		// Build the payload
 		if rawPayload := goa.ContextRequest(ctx).Payload; rawPayload != nil {
 			rctx.Payload = rawPayload.(*TokenAuthPayload)
 		} else {
-			return goa.ErrInvalidEncoding(goa.MissingPayloadError())
+			return goa.MissingPayloadError()
 		}
 		return ctrl.Token(rctx)
 	}
@@ -133,14 +156,20 @@ func MountProposalController(service *goa.Service, ctrl ProposalController) {
 	var h goa.Handler
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
 		rctx, err := NewCreateProposalContext(ctx, service)
 		if err != nil {
 			return err
 		}
+		// Build the payload
 		if rawPayload := goa.ContextRequest(ctx).Payload; rawPayload != nil {
 			rctx.Payload = rawPayload.(*CreateProposalPayload)
 		} else {
-			return goa.ErrInvalidEncoding(goa.MissingPayloadError())
+			return goa.MissingPayloadError()
 		}
 		return ctrl.Create(rctx)
 	}
@@ -148,6 +177,11 @@ func MountProposalController(service *goa.Service, ctrl ProposalController) {
 	service.LogInfo("mount", "ctrl", "Proposal", "action", "Create", "route", "POST /api/users/:userID/proposals")
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
 		rctx, err := NewDeleteProposalContext(ctx, service)
 		if err != nil {
 			return err
@@ -158,6 +192,11 @@ func MountProposalController(service *goa.Service, ctrl ProposalController) {
 	service.LogInfo("mount", "ctrl", "Proposal", "action", "Delete", "route", "DELETE /api/users/:userID/proposals/:proposalID")
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
 		rctx, err := NewListProposalContext(ctx, service)
 		if err != nil {
 			return err
@@ -168,6 +207,11 @@ func MountProposalController(service *goa.Service, ctrl ProposalController) {
 	service.LogInfo("mount", "ctrl", "Proposal", "action", "List", "route", "GET /api/users/:userID/proposals")
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
 		rctx, err := NewShowProposalContext(ctx, service)
 		if err != nil {
 			return err
@@ -178,14 +222,20 @@ func MountProposalController(service *goa.Service, ctrl ProposalController) {
 	service.LogInfo("mount", "ctrl", "Proposal", "action", "Show", "route", "GET /api/users/:userID/proposals/:proposalID")
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
 		rctx, err := NewUpdateProposalContext(ctx, service)
 		if err != nil {
 			return err
 		}
+		// Build the payload
 		if rawPayload := goa.ContextRequest(ctx).Payload; rawPayload != nil {
 			rctx.Payload = rawPayload.(*UpdateProposalPayload)
 		} else {
-			return goa.ErrInvalidEncoding(goa.MissingPayloadError())
+			return goa.MissingPayloadError()
 		}
 		return ctrl.Update(rctx)
 	}
@@ -235,14 +285,20 @@ func MountReviewController(service *goa.Service, ctrl ReviewController) {
 	var h goa.Handler
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
 		rctx, err := NewCreateReviewContext(ctx, service)
 		if err != nil {
 			return err
 		}
+		// Build the payload
 		if rawPayload := goa.ContextRequest(ctx).Payload; rawPayload != nil {
 			rctx.Payload = rawPayload.(*CreateReviewPayload)
 		} else {
-			return goa.ErrInvalidEncoding(goa.MissingPayloadError())
+			return goa.MissingPayloadError()
 		}
 		return ctrl.Create(rctx)
 	}
@@ -250,6 +306,11 @@ func MountReviewController(service *goa.Service, ctrl ReviewController) {
 	service.LogInfo("mount", "ctrl", "Review", "action", "Create", "route", "POST /api/users/:userID/proposals/:proposalID/review")
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
 		rctx, err := NewDeleteReviewContext(ctx, service)
 		if err != nil {
 			return err
@@ -260,6 +321,11 @@ func MountReviewController(service *goa.Service, ctrl ReviewController) {
 	service.LogInfo("mount", "ctrl", "Review", "action", "Delete", "route", "DELETE /api/users/:userID/proposals/:proposalID/review/:reviewID")
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
 		rctx, err := NewListReviewContext(ctx, service)
 		if err != nil {
 			return err
@@ -270,6 +336,11 @@ func MountReviewController(service *goa.Service, ctrl ReviewController) {
 	service.LogInfo("mount", "ctrl", "Review", "action", "List", "route", "GET /api/users/:userID/proposals/:proposalID/review")
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
 		rctx, err := NewShowReviewContext(ctx, service)
 		if err != nil {
 			return err
@@ -280,14 +351,20 @@ func MountReviewController(service *goa.Service, ctrl ReviewController) {
 	service.LogInfo("mount", "ctrl", "Review", "action", "Show", "route", "GET /api/users/:userID/proposals/:proposalID/review/:reviewID")
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
 		rctx, err := NewUpdateReviewContext(ctx, service)
 		if err != nil {
 			return err
 		}
+		// Build the payload
 		if rawPayload := goa.ContextRequest(ctx).Payload; rawPayload != nil {
 			rctx.Payload = rawPayload.(*UpdateReviewPayload)
 		} else {
-			return goa.ErrInvalidEncoding(goa.MissingPayloadError())
+			return goa.MissingPayloadError()
 		}
 		return ctrl.Update(rctx)
 	}
@@ -333,6 +410,11 @@ func MountUIController(service *goa.Service, ctrl UIController) {
 	var h goa.Handler
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
 		rctx, err := NewBootstrapUIContext(ctx, service)
 		if err != nil {
 			return err
@@ -359,14 +441,20 @@ func MountUserController(service *goa.Service, ctrl UserController) {
 	var h goa.Handler
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
 		rctx, err := NewCreateUserContext(ctx, service)
 		if err != nil {
 			return err
 		}
+		// Build the payload
 		if rawPayload := goa.ContextRequest(ctx).Payload; rawPayload != nil {
 			rctx.Payload = rawPayload.(*CreateUserPayload)
 		} else {
-			return goa.ErrInvalidEncoding(goa.MissingPayloadError())
+			return goa.MissingPayloadError()
 		}
 		return ctrl.Create(rctx)
 	}
@@ -374,6 +462,11 @@ func MountUserController(service *goa.Service, ctrl UserController) {
 	service.LogInfo("mount", "ctrl", "User", "action", "Create", "route", "POST /api/users")
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
 		rctx, err := NewDeleteUserContext(ctx, service)
 		if err != nil {
 			return err
@@ -384,6 +477,11 @@ func MountUserController(service *goa.Service, ctrl UserController) {
 	service.LogInfo("mount", "ctrl", "User", "action", "Delete", "route", "DELETE /api/users/:userID")
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
 		rctx, err := NewListUserContext(ctx, service)
 		if err != nil {
 			return err
@@ -394,6 +492,11 @@ func MountUserController(service *goa.Service, ctrl UserController) {
 	service.LogInfo("mount", "ctrl", "User", "action", "List", "route", "GET /api/users")
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
 		rctx, err := NewShowUserContext(ctx, service)
 		if err != nil {
 			return err
@@ -404,14 +507,20 @@ func MountUserController(service *goa.Service, ctrl UserController) {
 	service.LogInfo("mount", "ctrl", "User", "action", "Show", "route", "GET /api/users/:userID")
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
 		rctx, err := NewUpdateUserContext(ctx, service)
 		if err != nil {
 			return err
 		}
+		// Build the payload
 		if rawPayload := goa.ContextRequest(ctx).Payload; rawPayload != nil {
 			rctx.Payload = rawPayload.(*UpdateUserPayload)
 		} else {
-			return goa.ErrInvalidEncoding(goa.MissingPayloadError())
+			return goa.MissingPayloadError()
 		}
 		return ctrl.Update(rctx)
 	}
