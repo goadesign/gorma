@@ -72,6 +72,16 @@ func (f *RelationalModelDefinition) PKAttributes() string {
 	return strings.Join(attr, ",")
 }
 
+// PKAttributeNames constructs a field strings
+// useful for calling method parameters.
+func (f *RelationalModelDefinition) PKAttributeNames() string {
+	var attr []string
+	for _, pk := range f.PrimaryKeys {
+		attr = append(attr, fmt.Sprintf("%s", codegen.Goify(pk.DatabaseFieldName, false)))
+	}
+	return strings.Join(attr, ",")
+}
+
 // PKWhere returns an array of strings representing the where clause
 // of a retrieval by primary key(s) -- x = ? and y = ?.
 func (f *RelationalModelDefinition) PKWhere() string {

@@ -395,6 +395,25 @@ func (m {{$ut.ModelName}}) TableName() string {
 return "{{ $ut.Alias}}" {{ else }} return "{{ $ut.TableName }}"
 {{end}}
 }
+
+// {{$ut.ModelName}}Result represents a {{$ut.ModelName}} result passed over a channel
+type {{$ut.ModelName}}Result struct {
+	Data {{$ut.ModelName}}
+	Err error
+}
+
+// {{$ut.ModelName}}ListResult represents a []{{$ut.ModelName}} result passed over a channel
+type {{$ut.ModelName}}ListResult struct {
+	Data []{{$ut.ModelName}}
+	Err error
+}
+
+// {{$ut.ModelName}}Channel used to pass async {{$ut.ModelName}} results from DB
+type {{$ut.ModelName}}Channel chan {{$ut.ModelName}}Result
+
+// {{$ut.ModelName}}ListChannel used to pass async []{{$ut.ModelName}} results from DB
+type {{$ut.ModelName}}ListChannel chan {{$ut.ModelName}}ListResult
+
 // {{$ut.ModelName}}DB is the implementation of the storage interface for
 // {{$ut.ModelName}}.
 type {{$ut.ModelName}}DB struct {
@@ -422,6 +441,12 @@ type {{$ut.ModelName}}Storage interface {
 	Add(ctx context.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, {{$ut.LowerName}} *{{$ut.ModelName}}) (*{{$ut.ModelName}}, error)
 	Update(ctx context.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, {{$ut.LowerName}} *{{$ut.ModelName}}) (error)
 	Delete(ctx context.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, {{ $ut.PKAttributes}}) (error)
+
+	ListAsync(ctx context.Context{{ if $ut.DynamicTableName}}, tableName string{{ end }}) {{$ut.ModelName}}ListChannel
+	GetAsync(ctx context.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, {{$ut.PKAttributes}}) {{$ut.ModelName}}Channel
+	AddAsync(ctx context.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, {{$ut.LowerName}} *{{$ut.ModelName}}) {{$ut.ModelName}}Channel
+	UpdateAsync(ctx context.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, {{$ut.LowerName}} *{{$ut.ModelName}}) {{$ut.ModelName}}Channel
+	DeleteAsync(ctx context.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, {{ $ut.PKAttributes}}) {{$ut.ModelName}}Channel
 {{range $rname, $rmt := $ut.RenderTo}}{{/*
 
 */}}{{range $vname, $view := $rmt.Views}}{{ $mtd := $ut.Project $rname $vname }}
@@ -479,6 +504,23 @@ func (m *{{$ut.ModelName}}DB) Get(ctx context.Context{{ if $ut.DynamicTableName}
 	return native, err
 }
 
+// GetAsync returns a single {{$ut.ModelName}} as a Database Model
+// This is more for use internally, and probably not what you want in  your controllers
+func (m *{{$ut.ModelName}}DB) GetAsync(ctx context.Context{{ if $ut.DynamicTableName}}, tableName string{{ end }}, {{$ut.PKAttributes}}) {{$ut.ModelName}}Channel {
+	channel := make({{$ut.ModelName}}Channel)
+
+	go func() {
+		result := {{$ut.ModelName}}Result{}
+		data, err := m.Get(ctx{{ if $ut.DynamicTableName}}, tableName{{ end }}, {{$ut.PKAttributeNames}})
+		result.Data = data
+		result.Err = err
+		channel <- result
+		close(channel)
+	}()
+	return channel
+}
+
+
 // List returns an array of {{$ut.ModelName}}
 func (m *{{$ut.ModelName}}DB) List(ctx context.Context{{ if $ut.DynamicTableName}}, tableName string{{ end }}) []{{$ut.ModelName}}{
 	defer goa.MeasureSince([]string{"goa","db","{{goify $ut.ModelName false}}", "list"}, time.Now())
@@ -491,6 +533,21 @@ func (m *{{$ut.ModelName}}DB) List(ctx context.Context{{ if $ut.DynamicTableName
 	}
 
 	return objs
+}
+
+// ListAsync returns an array of {{$ut.ModelName}}
+func (m *{{$ut.ModelName}}DB) ListAsync(ctx context.Context{{ if $ut.DynamicTableName}}, tableName string{{ end }}) {{$ut.ModelName}}ListChannel {
+	channel := make({{$ut.ModelName}}ListChannel)
+
+	go func() {
+		result := {{$ut.ModelName}}ListResult{}
+		data := m.List(ctx{{ if $ut.DynamicTableName}}, tableName{{ end }})
+		result.Data = data
+		channel <- result
+		close(channel)
+		return
+	}()
+	return channel
 }
 
 // Add creates a new record.  /// Maybe shouldn't return the model, it's a pointer.
@@ -510,6 +567,21 @@ func (m *{{$ut.ModelName}}DB) Add(ctx context.Context{{ if $ut.DynamicTableName 
 	return model, err
 }
 
+// AddAsync creates a new record.  /// Maybe shouldn't return the model, it's a pointer.
+func (m *{{$ut.ModelName}}DB) AddAsync(ctx context.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, model *{{$ut.ModelName}}) {{$ut.ModelName}}Channel {
+	channel := make({{$ut.ModelName}}Channel)
+
+	go func() {
+		result := {{$ut.ModelName}}Result{}
+		data, err := m.Add(ctx{{ if $ut.DynamicTableName }}, tableName {{ end }}, model)
+		result.Data = *data
+		result.Err = err
+		channel <- result
+		close(channel)
+	}()
+	return channel
+}
+
 // Update modifies a single record.
 func (m *{{$ut.ModelName}}DB) Update(ctx context.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, model *{{$ut.ModelName}}) error {
 	defer goa.MeasureSince([]string{"goa","db","{{goify $ut.ModelName false}}", "update"}, time.Now())
@@ -527,6 +599,20 @@ func (m *{{$ut.ModelName}}DB) Update(ctx context.Context{{ if $ut.DynamicTableNa
 	return err
 }
 
+// UpdateAsync modifies a single record.
+func (m *{{$ut.ModelName}}DB) UpdateAsync(ctx context.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, model *{{$ut.ModelName}}) {{$ut.ModelName}}Channel {
+	channel := make({{$ut.ModelName}}Channel)
+
+	go func() {
+		result := {{$ut.ModelName}}Result{}
+		err := m.Update(ctx{{ if $ut.DynamicTableName }}, tableName{{ end }}, model)
+		result.Err = err
+		channel <- result
+		close(channel)
+	}()
+	return channel
+}
+
 // Delete removes a single record.
 func (m *{{$ut.ModelName}}DB) Delete(ctx context.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, {{$ut.PKAttributes}})  error {
 	defer goa.MeasureSince([]string{"goa","db","{{goify $ut.ModelName false}}", "delete"}, time.Now())
@@ -542,6 +628,21 @@ func (m *{{$ut.ModelName}}DB) Delete(ctx context.Context{{ if $ut.DynamicTableNa
 	}
 	{{ if $ut.Cached }} go m.cache.Delete(strconv.Itoa(id)) {{ end }}
 	return  nil
+}
+
+// DeleteAsync removes a single record.
+func (m *{{$ut.ModelName}}DB) DeleteAsync(ctx context.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, {{$ut.PKAttributes}}) {{$ut.ModelName}}Channel {
+	channel := make({{$ut.ModelName}}Channel)
+
+	go func() {
+		result := {{$ut.ModelName}}Result{}
+		err := m.Delete(ctx{{ if $ut.DynamicTableName }}, tableName{{ end }}, {{$ut.PKAttributeNames}})
+		result.Err = err
+		channel <- result
+		close(channel)
+		return
+	}()
+	return channel
 }
 
 {{ range $bfn, $bf := $ut.BuiltFrom }}
