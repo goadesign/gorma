@@ -398,11 +398,11 @@ return "{{ $ut.Alias}}" {{ else }} return "{{ $ut.TableName }}"
 // {{$ut.ModelName}}DB is the implementation of the storage interface for
 // {{$ut.ModelName}}.
 type {{$ut.ModelName}}DB struct {
-	Db gorm.DB
+	Db *gorm.DB
 	{{ if $ut.Cached }}cache *cache.Cache{{end}}
 }
 // New{{$ut.ModelName}}DB creates a new storage type.
-func New{{$ut.ModelName}}DB(db gorm.DB) *{{$ut.ModelName}}DB {
+func New{{$ut.ModelName}}DB(db *gorm.DB) *{{$ut.ModelName}}DB {
 	{{ if $ut.Cached }}return &{{$ut.ModelName}}DB{
 		Db: db,
 		cache: cache.New(5*time.Minute, 30*time.Second),
