@@ -124,18 +124,27 @@ func goDatatype(f *RelationalFieldDefinition, includePtr bool) string {
 }
 
 func belongsToIDType(f *RelationalFieldDefinition, includePtr bool) string {
+	if f.Parent == nil {
+		return "int"
+	}
 	modelName := strings.Replace(f.FieldName, "ID", "", -1)
 	model := f.Parent.BelongsTo[modelName]
 	return relatedIDType(model, includePtr)
 }
 
 func hasOneIDType(f *RelationalFieldDefinition, includePtr bool) string {
+	if f.Parent == nil {
+		return "int"
+	}
 	modelName := strings.Replace(f.FieldName, "ID", "", -1)
 	model := f.Parent.HasOne[modelName]
 	return relatedIDType(model, includePtr)
 }
 
 func hasManyIDType(f *RelationalFieldDefinition, includePtr bool) string {
+	if f.Parent == nil {
+		return "int"
+	}
 	modelName := strings.Replace(f.FieldName, "ID", "", -1)
 	model := f.Parent.HasMany[modelName]
 	return relatedIDType(model, includePtr)
