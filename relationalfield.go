@@ -104,11 +104,13 @@ func goDatatype(f *RelationalFieldDefinition, includePtr bool) string {
 	case Timestamp, NullableTimestamp:
 		return ptr + "time.Time"
 	case BelongsTo:
-		return ptr + "int"
+		return ptr + belongsToIDType(f, includePtr)
 	case HasMany:
 		return fmt.Sprintf("[]%s", f.HasMany)
-	case HasManyKey, HasOneKey:
-		return ptr + "int"
+	case HasManyKey:
+		return ptr + hasManyIDType(f, includePtr)
+	case HasOneKey:
+		return ptr + hasOneIDType(f, includePtr)
 	case HasOne:
 		return fmt.Sprintf("%s", f.HasOne)
 	default:
@@ -119,6 +121,34 @@ func goDatatype(f *RelationalFieldDefinition, includePtr bool) string {
 	}
 
 	return "UNKNOWN TYPE"
+}
+
+func belongsToIDType(f *RelationalFieldDefinition, includePtr bool) string {
+	modelName := strings.Replace(f.FieldName, "ID", "", -1)
+	model := f.Parent.BelongsTo[modelName]
+	return relatedIDType(model, includePtr)
+}
+
+func hasOneIDType(f *RelationalFieldDefinition, includePtr bool) string {
+	modelName := strings.Replace(f.FieldName, "ID", "", -1)
+	model := f.Parent.HasOne[modelName]
+	return relatedIDType(model, includePtr)
+}
+
+func hasManyIDType(f *RelationalFieldDefinition, includePtr bool) string {
+	modelName := strings.Replace(f.FieldName, "ID", "", -1)
+	model := f.Parent.HasMany[modelName]
+	return relatedIDType(model, includePtr)
+}
+
+func relatedIDType(m *RelationalModelDefinition, includePtr bool) string {
+	if m == nil {
+		return "int"
+	}
+	if len(m.PrimaryKeys) > 1 {
+		panic("Can't determine field Type when using multiple primary keys")
+	}
+	return goDatatype(m.PrimaryKeys[0], includePtr)
 }
 
 func tags(f *RelationalFieldDefinition) string {
