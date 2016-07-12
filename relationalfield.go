@@ -123,6 +123,14 @@ func goDatatype(f *RelationalFieldDefinition, includePtr bool) string {
 	return "UNKNOWN TYPE"
 }
 
+func goDatatypeByModel(m *RelationalModelDefinition, belongsToModelName string) string {
+	f := m.RelationalFields[belongsToModelName+"ID"]
+	if f == nil {
+		return "int"
+	}
+	return belongsToIDType(f, true)
+}
+
 func belongsToIDType(f *RelationalFieldDefinition, includePtr bool) string {
 	if f.Parent == nil {
 		return "int"
