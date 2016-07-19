@@ -35,7 +35,8 @@ docs:
 	@rm -rf goa.design
 
 depend:
-	@go get $(DEPEND)
+	@go get -u $(DEPEND)
+	@go install $(DEPEND)
 
 lint:
 	@for d in $(DIRS) ; do \

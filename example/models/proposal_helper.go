@@ -28,7 +28,7 @@ func (m *ProposalDB) ListProposal(ctx context.Context, userID int) []*app.Propos
 
 	var native []*Proposal
 	var objs []*app.Proposal
-	err := m.Db.Scopes(ProposalFilterByUser(userID, m.Db)).Table(m.TableName()).Preload("Reviews").Find(&native).Error
+	err := m.Db.Scopes(ProposalFilterByUser(userID, m.Db)).Table(m.TableName()).Find(&native).Error
 
 	if err != nil {
 		goa.LogError(ctx, "error listing Proposal", "error", err.Error())
@@ -45,11 +45,6 @@ func (m *ProposalDB) ListProposal(ctx context.Context, userID int) []*app.Propos
 // ProposalToProposal loads a Proposal and builds the default view of media type Proposal.
 func (m *Proposal) ProposalToProposal() *app.Proposal {
 	proposal := &app.Proposal{}
-	tmp1 := make(app.ReviewLinkCollection, len(m.Reviews))
-	for i, elem := range m.Reviews {
-		tmp1[i] = elem.ReviewToReviewLink()
-	}
-	proposal.Links = &app.ProposalLinks{Reviews: tmp1}
 	proposal.Abstract = &m.Abstract
 	proposal.Detail = &m.Detail
 	proposal.ID = &m.ID
@@ -85,7 +80,7 @@ func (m *ProposalDB) ListProposalLink(ctx context.Context, userID int) []*app.Pr
 
 	var native []*Proposal
 	var objs []*app.ProposalLink
-	err := m.Db.Scopes(ProposalFilterByUser(userID, m.Db)).Table(m.TableName()).Preload("Reviews").Find(&native).Error
+	err := m.Db.Scopes(ProposalFilterByUser(userID, m.Db)).Table(m.TableName()).Find(&native).Error
 
 	if err != nil {
 		goa.LogError(ctx, "error listing Proposal", "error", err.Error())
