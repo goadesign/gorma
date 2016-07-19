@@ -45,25 +45,25 @@ func (m Proposal) TableName() string {
 // ProposalDB is the implementation of the storage interface for
 // Proposal.
 type ProposalDB struct {
-	Db gorm.DB
+	Db *gorm.DB
 }
 
 // NewProposalDB creates a new storage type.
-func NewProposalDB(db gorm.DB) *ProposalDB {
+func NewProposalDB(db *gorm.DB) *ProposalDB {
 	return &ProposalDB{Db: db}
 }
 
 // DB returns the underlying database.
 func (m *ProposalDB) DB() interface{} {
-	return &m.Db
+	return m.Db
 }
 
 // ProposalStorage represents the storage interface.
 type ProposalStorage interface {
 	DB() interface{}
-	List(ctx context.Context) []Proposal
-	Get(ctx context.Context, id int) (Proposal, error)
-	Add(ctx context.Context, proposal *Proposal) (*Proposal, error)
+	List(ctx context.Context) ([]*Proposal, error)
+	Get(ctx context.Context, id int) (*Proposal, error)
+	Add(ctx context.Context, proposal *Proposal) error
 	Update(ctx context.Context, proposal *Proposal) error
 	Delete(ctx context.Context, id int) error
 
@@ -102,43 +102,42 @@ func ProposalFilterByUser(userID int, originaldb *gorm.DB) func(db *gorm.DB) *go
 
 // Get returns a single Proposal as a Database Model
 // This is more for use internally, and probably not what you want in  your controllers
-func (m *ProposalDB) Get(ctx context.Context, id int) (Proposal, error) {
+func (m *ProposalDB) Get(ctx context.Context, id int) (*Proposal, error) {
 	defer goa.MeasureSince([]string{"goa", "db", "proposal", "get"}, time.Now())
 
 	var native Proposal
 	err := m.Db.Table(m.TableName()).Where("id = ?", id).Find(&native).Error
 	if err == gorm.ErrRecordNotFound {
-		return Proposal{}, nil
+		return nil, nil
 	}
 
-	return native, err
+	return &native, err
 }
 
 // List returns an array of Proposal
-func (m *ProposalDB) List(ctx context.Context) []Proposal {
+func (m *ProposalDB) List(ctx context.Context) ([]*Proposal, error) {
 	defer goa.MeasureSince([]string{"goa", "db", "proposal", "list"}, time.Now())
 
-	var objs []Proposal
+	var objs []*Proposal
 	err := m.Db.Table(m.TableName()).Find(&objs).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
-		goa.LogError(ctx, "error listing Proposal", "error", err.Error())
-		return objs
+		return nil, err
 	}
 
-	return objs
+	return objs, nil
 }
 
-// Add creates a new record.  /// Maybe shouldn't return the model, it's a pointer.
-func (m *ProposalDB) Add(ctx context.Context, model *Proposal) (*Proposal, error) {
+// Add creates a new record.
+func (m *ProposalDB) Add(ctx context.Context, model *Proposal) error {
 	defer goa.MeasureSince([]string{"goa", "db", "proposal", "add"}, time.Now())
 
 	err := m.Db.Create(model).Error
 	if err != nil {
 		goa.LogError(ctx, "error adding Proposal", "error", err.Error())
-		return model, err
+		return err
 	}
 
-	return model, err
+	return nil
 }
 
 // Update modifies a single record.
@@ -150,7 +149,7 @@ func (m *ProposalDB) Update(ctx context.Context, model *Proposal) error {
 		goa.LogError(ctx, "error updating Proposal", "error", err.Error())
 		return err
 	}
-	err = m.Db.Model(&obj).Updates(model).Error
+	err = m.Db.Model(obj).Updates(model).Error
 
 	return err
 }

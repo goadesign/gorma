@@ -36,25 +36,25 @@ func (m Test) TableName() string {
 // TestDB is the implementation of the storage interface for
 // Test.
 type TestDB struct {
-	Db gorm.DB
+	Db *gorm.DB
 }
 
 // NewTestDB creates a new storage type.
-func NewTestDB(db gorm.DB) *TestDB {
+func NewTestDB(db *gorm.DB) *TestDB {
 	return &TestDB{Db: db}
 }
 
 // DB returns the underlying database.
 func (m *TestDB) DB() interface{} {
-	return &m.Db
+	return m.Db
 }
 
 // TestStorage represents the storage interface.
 type TestStorage interface {
 	DB() interface{}
-	List(ctx context.Context) []Test
-	Get(ctx context.Context) (Test, error)
-	Add(ctx context.Context, test *Test) (*Test, error)
+	List(ctx context.Context) ([]*Test, error)
+	Get(ctx context.Context) (*Test, error)
+	Add(ctx context.Context, test *Test) error
 	Update(ctx context.Context, test *Test) error
 	Delete(ctx context.Context) error
 }
@@ -70,43 +70,42 @@ func (m *TestDB) TableName() string {
 
 // Get returns a single Test as a Database Model
 // This is more for use internally, and probably not what you want in  your controllers
-func (m *TestDB) Get(ctx context.Context) (Test, error) {
+func (m *TestDB) Get(ctx context.Context) (*Test, error) {
 	defer goa.MeasureSince([]string{"goa", "db", "test", "get"}, time.Now())
 
 	var native Test
 	err := m.Db.Table(m.TableName()).Where("").Find(&native).Error
 	if err == gorm.ErrRecordNotFound {
-		return Test{}, nil
+		return nil, nil
 	}
 
-	return native, err
+	return &native, err
 }
 
 // List returns an array of Test
-func (m *TestDB) List(ctx context.Context) []Test {
+func (m *TestDB) List(ctx context.Context) ([]*Test, error) {
 	defer goa.MeasureSince([]string{"goa", "db", "test", "list"}, time.Now())
 
-	var objs []Test
+	var objs []*Test
 	err := m.Db.Table(m.TableName()).Find(&objs).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
-		goa.LogError(ctx, "error listing Test", "error", err.Error())
-		return objs
+		return nil, err
 	}
 
-	return objs
+	return objs, nil
 }
 
-// Add creates a new record.  /// Maybe shouldn't return the model, it's a pointer.
-func (m *TestDB) Add(ctx context.Context, model *Test) (*Test, error) {
+// Add creates a new record.
+func (m *TestDB) Add(ctx context.Context, model *Test) error {
 	defer goa.MeasureSince([]string{"goa", "db", "test", "add"}, time.Now())
 
 	err := m.Db.Create(model).Error
 	if err != nil {
 		goa.LogError(ctx, "error adding Test", "error", err.Error())
-		return model, err
+		return err
 	}
 
-	return model, err
+	return nil
 }
 
 // Update modifies a single record.
@@ -118,7 +117,7 @@ func (m *TestDB) Update(ctx context.Context, model *Test) error {
 		goa.LogError(ctx, "error updating Test", "error", err.Error())
 		return err
 	}
-	err = m.Db.Model(&obj).Updates(model).Error
+	err = m.Db.Model(obj).Updates(model).Error
 
 	return err
 }

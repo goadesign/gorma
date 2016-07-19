@@ -8,6 +8,7 @@ import (
 // This is the api definition used by goa to generate the api
 var _ = API("congo", func() {
 	Title("Congo - Conference Management Made Easy")
+	Version("2.0")
 	Description("Multi-tenant conference management application")
 	// Generate roles and permissions for all Resources/Actions
 	//		Metadata("github.com/bketelsen/gorma#rbac", "All")

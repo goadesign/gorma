@@ -44,25 +44,25 @@ func (m Review) TableName() string {
 // ReviewDB is the implementation of the storage interface for
 // Review.
 type ReviewDB struct {
-	Db gorm.DB
+	Db *gorm.DB
 }
 
 // NewReviewDB creates a new storage type.
-func NewReviewDB(db gorm.DB) *ReviewDB {
+func NewReviewDB(db *gorm.DB) *ReviewDB {
 	return &ReviewDB{Db: db}
 }
 
 // DB returns the underlying database.
 func (m *ReviewDB) DB() interface{} {
-	return &m.Db
+	return m.Db
 }
 
 // ReviewStorage represents the storage interface.
 type ReviewStorage interface {
 	DB() interface{}
-	List(ctx context.Context) []Review
-	Get(ctx context.Context, id int) (Review, error)
-	Add(ctx context.Context, review *Review) (*Review, error)
+	List(ctx context.Context) ([]*Review, error)
+	Get(ctx context.Context, id int) (*Review, error)
+	Add(ctx context.Context, review *Review) error
 	Update(ctx context.Context, review *Review) error
 	Delete(ctx context.Context, id int) error
 
@@ -114,43 +114,42 @@ func ReviewFilterByUser(userID int, originaldb *gorm.DB) func(db *gorm.DB) *gorm
 
 // Get returns a single Review as a Database Model
 // This is more for use internally, and probably not what you want in  your controllers
-func (m *ReviewDB) Get(ctx context.Context, id int) (Review, error) {
+func (m *ReviewDB) Get(ctx context.Context, id int) (*Review, error) {
 	defer goa.MeasureSince([]string{"goa", "db", "review", "get"}, time.Now())
 
 	var native Review
 	err := m.Db.Table(m.TableName()).Where("id = ?", id).Find(&native).Error
 	if err == gorm.ErrRecordNotFound {
-		return Review{}, nil
+		return nil, nil
 	}
 
-	return native, err
+	return &native, err
 }
 
 // List returns an array of Review
-func (m *ReviewDB) List(ctx context.Context) []Review {
+func (m *ReviewDB) List(ctx context.Context) ([]*Review, error) {
 	defer goa.MeasureSince([]string{"goa", "db", "review", "list"}, time.Now())
 
-	var objs []Review
+	var objs []*Review
 	err := m.Db.Table(m.TableName()).Find(&objs).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
-		goa.LogError(ctx, "error listing Review", "error", err.Error())
-		return objs
+		return nil, err
 	}
 
-	return objs
+	return objs, nil
 }
 
-// Add creates a new record.  /// Maybe shouldn't return the model, it's a pointer.
-func (m *ReviewDB) Add(ctx context.Context, model *Review) (*Review, error) {
+// Add creates a new record.
+func (m *ReviewDB) Add(ctx context.Context, model *Review) error {
 	defer goa.MeasureSince([]string{"goa", "db", "review", "add"}, time.Now())
 
 	err := m.Db.Create(model).Error
 	if err != nil {
 		goa.LogError(ctx, "error adding Review", "error", err.Error())
-		return model, err
+		return err
 	}
 
-	return model, err
+	return nil
 }
 
 // Update modifies a single record.
@@ -162,7 +161,7 @@ func (m *ReviewDB) Update(ctx context.Context, model *Review) error {
 		goa.LogError(ctx, "error updating Review", "error", err.Error())
 		return err
 	}
-	err = m.Db.Model(&obj).Updates(model).Error
+	err = m.Db.Model(obj).Updates(model).Error
 
 	return err
 }

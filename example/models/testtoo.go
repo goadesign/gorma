@@ -46,25 +46,25 @@ func (m TestToo) TableName() string {
 // TestTooDB is the implementation of the storage interface for
 // TestToo.
 type TestTooDB struct {
-	Db gorm.DB
+	Db *gorm.DB
 }
 
 // NewTestTooDB creates a new storage type.
-func NewTestTooDB(db gorm.DB) *TestTooDB {
+func NewTestTooDB(db *gorm.DB) *TestTooDB {
 	return &TestTooDB{Db: db}
 }
 
 // DB returns the underlying database.
 func (m *TestTooDB) DB() interface{} {
-	return &m.Db
+	return m.Db
 }
 
 // TestTooStorage represents the storage interface.
 type TestTooStorage interface {
 	DB() interface{}
-	List(ctx context.Context) []TestToo
-	Get(ctx context.Context, idone int, idtwo int) (TestToo, error)
-	Add(ctx context.Context, testtoo *TestToo) (*TestToo, error)
+	List(ctx context.Context) ([]*TestToo, error)
+	Get(ctx context.Context, idone int, idtwo int) (*TestToo, error)
+	Add(ctx context.Context, testtoo *TestToo) error
 	Update(ctx context.Context, testtoo *TestToo) error
 	Delete(ctx context.Context, idone int, idtwo int) error
 
@@ -90,43 +90,42 @@ func (m *TestTooDB) TableName() string {
 
 // Get returns a single TestToo as a Database Model
 // This is more for use internally, and probably not what you want in  your controllers
-func (m *TestTooDB) Get(ctx context.Context, idone int, idtwo int) (TestToo, error) {
+func (m *TestTooDB) Get(ctx context.Context, idone int, idtwo int) (*TestToo, error) {
 	defer goa.MeasureSince([]string{"goa", "db", "testToo", "get"}, time.Now())
 
 	var native TestToo
 	err := m.Db.Table(m.TableName()).Where("idone = ? and idtwo = ?", idone, idtwo).Find(&native).Error
 	if err == gorm.ErrRecordNotFound {
-		return TestToo{}, nil
+		return nil, nil
 	}
 
-	return native, err
+	return &native, err
 }
 
 // List returns an array of TestToo
-func (m *TestTooDB) List(ctx context.Context) []TestToo {
+func (m *TestTooDB) List(ctx context.Context) ([]*TestToo, error) {
 	defer goa.MeasureSince([]string{"goa", "db", "testToo", "list"}, time.Now())
 
-	var objs []TestToo
+	var objs []*TestToo
 	err := m.Db.Table(m.TableName()).Find(&objs).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
-		goa.LogError(ctx, "error listing TestToo", "error", err.Error())
-		return objs
+		return nil, err
 	}
 
-	return objs
+	return objs, nil
 }
 
-// Add creates a new record.  /// Maybe shouldn't return the model, it's a pointer.
-func (m *TestTooDB) Add(ctx context.Context, model *TestToo) (*TestToo, error) {
+// Add creates a new record.
+func (m *TestTooDB) Add(ctx context.Context, model *TestToo) error {
 	defer goa.MeasureSince([]string{"goa", "db", "testToo", "add"}, time.Now())
 
 	err := m.Db.Create(model).Error
 	if err != nil {
 		goa.LogError(ctx, "error adding TestToo", "error", err.Error())
-		return model, err
+		return err
 	}
 
-	return model, err
+	return nil
 }
 
 // Update modifies a single record.
@@ -138,7 +137,7 @@ func (m *TestTooDB) Update(ctx context.Context, model *TestToo) error {
 		goa.LogError(ctx, "error updating TestToo", "error", err.Error())
 		return err
 	}
-	err = m.Db.Model(&obj).Updates(model).Error
+	err = m.Db.Model(obj).Updates(model).Error
 
 	return err
 }
