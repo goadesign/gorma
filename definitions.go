@@ -126,6 +126,7 @@ type RelationalFieldDefinition struct {
 	Parent            *RelationalModelDefinition
 	a                 *design.AttributeDefinition
 	FieldName         string
+	TableName         string
 	Datatype          FieldType
 	SQLTag            string
 	DatabaseFieldName string // gorm:column

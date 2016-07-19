@@ -135,9 +135,7 @@ func tags(f *RelationalFieldDefinition) string {
 		gormtags = append(gormtags, "primary_key")
 	}
 	if f.Many2Many != "" {
-		p := strings.ToLower(f.Parent.ModelName)
-		j := strings.ToLower(f.Many2Many)
-		gormtags = append(gormtags, "many2many:"+p+"_"+j)
+		gormtags = append(gormtags, "many2many:"+f.TableName)
 	}
 
 	var tags []string
