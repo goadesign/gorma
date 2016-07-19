@@ -411,7 +411,7 @@ func New{{$ut.ModelName}}DB(db *gorm.DB) *{{$ut.ModelName}}DB {
 }
 // DB returns the underlying database.
 func (m *{{$ut.ModelName}}DB) DB() interface{} {
-	return &m.Db
+	return m.Db
 }
 
 // {{$ut.ModelName}}Storage represents the storage interface.
@@ -601,7 +601,7 @@ func (m *{{.Model.ModelName}}DB) List{{goify .Media.TypeName true}}{{if not (eq 
 	var native []*{{goify .Model.ModelName true}}
 	var objs []*app.{{goify .Media.TypeName true}}{{if not (eq .ViewName "default")}}{{goify .ViewName true}}{{end}}{{$ctx:= .}}
 	err := m.Db.Scopes({{range $nm, $bt := .Model.BelongsTo}}{{/*
-*/}}{{$ctx.Model.ModelName}}FilterBy{{goify $bt.ModelName true}}({{goify (printf "%s%s" $bt.ModelName "ID") false}}, &m.Db), {{end}}){{/*
+*/}}{{$ctx.Model.ModelName}}FilterBy{{goify $bt.ModelName true}}({{goify (printf "%s%s" $bt.ModelName "ID") false}}, m.Db), {{end}}){{/*
 */}}.Table({{ if .Model.DynamicTableName }}tableName{{else}}m.TableName(){{ end }}).{{ range $ln, $lv := .Media.Links }}Preload("{{goify $ln true}}").{{end}}Find(&native).Error
 {{/* //	err := m.Db.Table({{ if .Model.DynamicTableName }}tableName{{else}}m.TableName(){{ end }}).{{ range $ln, $lv := .Media.Links }}Preload("{{goify $ln true}}").{{end}}Find(&objs).Error */}}
 	if err != nil {
@@ -634,7 +634,7 @@ func (m *{{.Model.ModelName}}DB) One{{goify .Media.TypeName true}}{{if not (eq .
 	defer goa.MeasureSince([]string{"goa","db","{{goify .Media.TypeName false}}", "one{{goify .Media.TypeName false}}{{if not (eq .ViewName "default")}}{{goify .ViewName false}}{{end}}"}, time.Now())
 
 	var native {{.Model.ModelName}}
-	err := m.Db.Scopes({{range $nm, $bt := .Model.BelongsTo}}{{$ctx.Model.ModelName}}FilterBy{{goify $bt.ModelName true}}({{goify (printf "%s%s" $bt.ModelName "ID") false}}, &m.Db), {{end}}).Table({{ if .Model.DynamicTableName }}tableName{{else}}m.TableName(){{ end }}){{range $na, $hm:= .Model.HasMany}}.Preload("{{plural $hm.ModelName}}"){{end}}{{range $nm, $bt := .Model.BelongsTo}}.Preload("{{$bt.ModelName}}"){{end}}.Where("{{.Model.PKWhere}}",{{.Model.PKWhereFields}}).Find(&native).Error
+	err := m.Db.Scopes({{range $nm, $bt := .Model.BelongsTo}}{{$ctx.Model.ModelName}}FilterBy{{goify $bt.ModelName true}}({{goify (printf "%s%s" $bt.ModelName "ID") false}}, m.Db), {{end}}).Table({{ if .Model.DynamicTableName }}tableName{{else}}m.TableName(){{ end }}){{range $na, $hm:= .Model.HasMany}}.Preload("{{plural $hm.ModelName}}"){{end}}{{range $nm, $bt := .Model.BelongsTo}}.Preload("{{$bt.ModelName}}"){{end}}.Where("{{.Model.PKWhere}}",{{.Model.PKWhereFields}}).Find(&native).Error
 
 	if err != nil && err !=  gorm.ErrRecordNotFound {
 		goa.LogError(ctx, "error getting {{.Model.ModelName}}", "error", err.Error())
