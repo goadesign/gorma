@@ -15,7 +15,7 @@ import (
 	"testing"
 )
 
-// CallbackAuthOK Callback runs the method Callback of the given controller with the given parameters.
+// CallbackAuthOK runs the method Callback of the given controller with the given parameters.
 // It returns the response writer so it's possible to inspect the response headers.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
@@ -72,7 +72,7 @@ func CallbackAuthOK(t *testing.T, ctx context.Context, service *goa.Service, ctr
 	return rw
 }
 
-// OauthAuthOK Oauth runs the method Oauth of the given controller with the given parameters.
+// OauthAuthOK runs the method Oauth of the given controller with the given parameters.
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
@@ -137,7 +137,7 @@ func OauthAuthOK(t *testing.T, ctx context.Context, service *goa.Service, ctrl a
 	return rw, mt
 }
 
-// RefreshAuthCreated Refresh runs the method Refresh of the given controller with the given parameters and payload.
+// RefreshAuthCreated runs the method Refresh of the given controller with the given parameters and payload.
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
@@ -202,7 +202,7 @@ func RefreshAuthCreated(t *testing.T, ctx context.Context, service *goa.Service,
 	return rw, mt
 }
 
-// TokenAuthCreated Token runs the method Token of the given controller with the given parameters and payload.
+// TokenAuthCreated runs the method Token of the given controller with the given parameters and payload.
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.

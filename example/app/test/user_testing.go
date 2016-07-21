@@ -15,7 +15,7 @@ import (
 	"testing"
 )
 
-// CreateUserCreated Create runs the method Create of the given controller with the given parameters and payload.
+// CreateUserCreated runs the method Create of the given controller with the given parameters and payload.
 // It returns the response writer so it's possible to inspect the response headers.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
@@ -40,11 +40,11 @@ func CreateUserCreated(t *testing.T, ctx context.Context, service *goa.Service, 
 	// Validate payload
 	err := payload.Validate()
 	if err != nil {
-		e, ok := err.(*goa.Error)
+		e, ok := err.(goa.ServiceError)
 		if !ok {
 			panic(err) // bug
 		}
-		if e.Status != 201 {
+		if e.ResponseStatus() != 201 {
 			t.Errorf("unexpected payload validation error: %+v", e)
 		}
 		return nil
@@ -85,7 +85,7 @@ func CreateUserCreated(t *testing.T, ctx context.Context, service *goa.Service, 
 	return rw
 }
 
-// DeleteUserNoContent Delete runs the method Delete of the given controller with the given parameters.
+// DeleteUserNoContent runs the method Delete of the given controller with the given parameters.
 // It returns the response writer so it's possible to inspect the response headers.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
@@ -142,7 +142,7 @@ func DeleteUserNoContent(t *testing.T, ctx context.Context, service *goa.Service
 	return rw
 }
 
-// DeleteUserNotFound Delete runs the method Delete of the given controller with the given parameters.
+// DeleteUserNotFound runs the method Delete of the given controller with the given parameters.
 // It returns the response writer so it's possible to inspect the response headers.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
@@ -199,7 +199,7 @@ func DeleteUserNotFound(t *testing.T, ctx context.Context, service *goa.Service,
 	return rw
 }
 
-// ListUserOK List runs the method List of the given controller with the given parameters.
+// ListUserOK runs the method List of the given controller with the given parameters.
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
@@ -267,7 +267,7 @@ func ListUserOK(t *testing.T, ctx context.Context, service *goa.Service, ctrl ap
 	return rw, mt
 }
 
-// ShowUserNotFound Show runs the method Show of the given controller with the given parameters.
+// ShowUserNotFound runs the method Show of the given controller with the given parameters.
 // It returns the response writer so it's possible to inspect the response headers.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
@@ -324,7 +324,7 @@ func ShowUserNotFound(t *testing.T, ctx context.Context, service *goa.Service, c
 	return rw
 }
 
-// ShowUserOK Show runs the method Show of the given controller with the given parameters.
+// ShowUserOK runs the method Show of the given controller with the given parameters.
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
@@ -393,7 +393,7 @@ func ShowUserOK(t *testing.T, ctx context.Context, service *goa.Service, ctrl ap
 	return rw, mt
 }
 
-// ShowUserOKLink Show runs the method Show of the given controller with the given parameters.
+// ShowUserOKLink runs the method Show of the given controller with the given parameters.
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
@@ -462,7 +462,7 @@ func ShowUserOKLink(t *testing.T, ctx context.Context, service *goa.Service, ctr
 	return rw, mt
 }
 
-// UpdateUserNoContent Update runs the method Update of the given controller with the given parameters and payload.
+// UpdateUserNoContent runs the method Update of the given controller with the given parameters and payload.
 // It returns the response writer so it's possible to inspect the response headers.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
@@ -487,11 +487,11 @@ func UpdateUserNoContent(t *testing.T, ctx context.Context, service *goa.Service
 	// Validate payload
 	err := payload.Validate()
 	if err != nil {
-		e, ok := err.(*goa.Error)
+		e, ok := err.(goa.ServiceError)
 		if !ok {
 			panic(err) // bug
 		}
-		if e.Status != 204 {
+		if e.ResponseStatus() != 204 {
 			t.Errorf("unexpected payload validation error: %+v", e)
 		}
 		return nil
@@ -533,7 +533,7 @@ func UpdateUserNoContent(t *testing.T, ctx context.Context, service *goa.Service
 	return rw
 }
 
-// UpdateUserNotFound Update runs the method Update of the given controller with the given parameters and payload.
+// UpdateUserNotFound runs the method Update of the given controller with the given parameters and payload.
 // It returns the response writer so it's possible to inspect the response headers.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
@@ -558,11 +558,11 @@ func UpdateUserNotFound(t *testing.T, ctx context.Context, service *goa.Service,
 	// Validate payload
 	err := payload.Validate()
 	if err != nil {
-		e, ok := err.(*goa.Error)
+		e, ok := err.(goa.ServiceError)
 		if !ok {
 			panic(err) // bug
 		}
-		if e.Status != 404 {
+		if e.ResponseStatus() != 404 {
 			t.Errorf("unexpected payload validation error: %+v", e)
 		}
 		return nil

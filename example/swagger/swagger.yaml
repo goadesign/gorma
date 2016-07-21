@@ -7,9 +7,9 @@ definitions:
   Authorize:
     description: Token authorization response (default view)
     example:
-      access_token: Sunt et.
-      expires_in: 2.9899432e+18
-      token_type: Minima error.
+      access_token: Aut aspernatur excepturi.
+      expires_in: 1.4238748e+18
+      token_type: Ab sit eos.
     properties:
       access_token:
         description: access token
@@ -29,17 +29,17 @@ definitions:
   CreateProposalPayload:
     properties:
       abstract:
-        example: 26mzb6pqca
+        example: yh57kdhnj3
         maxLength: 500
         minLength: 50
         type: string
       detail:
-        example: cv1kxva4vw
+        example: zw3is4cm9w
         maxLength: 2000
         minLength: 100
         type: string
       title:
-        example: omleumo5c9
+        example: hbpyzfem3i
         maxLength: 200
         minLength: 10
         type: string
@@ -55,7 +55,7 @@ definitions:
   CreateReviewPayload:
     properties:
       comment:
-        example: mtnbtdfthr
+        example: utkkkhtfd5
         maxLength: 200
         minLength: 10
         type: string
@@ -71,27 +71,27 @@ definitions:
   CreateUserPayload:
     properties:
       bio:
-        example: qo3aze8pv1
+        example: 9om88zfp2p
         maxLength: 500
         type: string
       city:
-        example: Consequatur voluptatem natus error nihil animi esse.
+        example: Voluptate recusandae.
         type: string
       country:
-        example: Saepe veniam occaecati tempore.
+        example: Nesciunt voluptatem reprehenderit et qui.
         type: string
       email:
-        example: william.fisher@cassin.org
+        example: norwood@wuckertmclaughlin.com
         format: email
         type: string
       firstname:
-        example: Doloribus qui non doloribus.
+        example: Itaque praesentium incidunt illo distinctio fugit molestias.
         type: string
       lastname:
-        example: Libero sed ipsum nihil.
+        example: Ex harum quis.
         type: string
       state:
-        example: Ipsum quidem voluptatem perferendis inventore.
+        example: Aut ipsum dolor.
         type: string
     required:
     - firstname
@@ -102,36 +102,44 @@ definitions:
   Proposal:
     description: A response to a CFP (default view)
     example:
-      abstract: Nihil aliquam qui ut nihil.
-      detail: Sit ducimus cupiditate quo molestias.
-      href: Excepturi corporis ullam itaque ex.
-      id: 8.994647e+18
+      abstract: bjyhwcfapl
+      detail: j8o5cidp8b
+      href: Ut magnam odit nemo numquam.
+      id: 9.086259e+18
       reviews:
-      - comment: Qui aspernatur vitae voluptatum saepe.
-        href: Porro officia harum tenetur sint aspernatur nemo.
-        id: 6.598852e+18
-        rating: 8.985207e+18
-      title: Impedit vel.
+      - comment: jwyki09rjq
+        href: Nisi doloremque quo.
+        id: 1.2251374e+18
+        rating: 4
+      - comment: jwyki09rjq
+        href: Nisi doloremque quo.
+        id: 1.2251374e+18
+        rating: 4
+      - comment: jwyki09rjq
+        href: Nisi doloremque quo.
+        id: 1.2251374e+18
+        rating: 4
+      title: 4cj6po174o
     properties:
       abstract:
         description: Response abstract
-        example: ktb5njwyki
+        example: bjyhwcfapl
         maxLength: 500
         minLength: 50
         type: string
       detail:
         description: Response detail
-        example: 9rjqyyxrev
+        example: j8o5cidp8b
         maxLength: 2000
         minLength: 100
         type: string
       href:
         description: API href of user
-        example: Minus nam enim doloremque blanditiis quo nostrum.
+        example: Ut magnam odit nemo numquam.
         type: string
       id:
         description: ID of user
-        example: 6.223143e+18
+        example: 9.086259e+18
         format: int64
         type: integer
       links:
@@ -140,7 +148,7 @@ definitions:
         $ref: '#/definitions/ReviewCollection'
       title:
         description: Response title
-        example: iya6xlve8o
+        example: 4cj6po174o
         maxLength: 200
         minLength: 10
         type: string
@@ -150,20 +158,63 @@ definitions:
     description: ProposalCollection is the media type for an array of Proposal (default
       view)
     example:
-    - abstract: Cumque aut sit.
-      detail: Numquam ex minima.
-      href: Ex distinctio dolorem similique.
-      id: 3.8096618e+18
+    - abstract: bjyhwcfapl
+      detail: j8o5cidp8b
+      href: Ut magnam odit nemo numquam.
+      id: 9.086259e+18
+      links: {}
       reviews:
-      - comment: Numquam quae ut porro.
-        href: Quo dolor.
-        id: 1.149594e+18
-        rating: 9.8992605e+17
-      - comment: Neque iusto commodi.
-        href: Quae incidunt voluptatem dolores tempora esse impedit.
-        id: 4.9986506e+17
-        rating: 8.5741703e+18
-      title: Incidunt illo.
+      - comment: jwyki09rjq
+        href: Nisi doloremque quo.
+        id: 1.2251374e+18
+        rating: 4
+      - comment: jwyki09rjq
+        href: Nisi doloremque quo.
+        id: 1.2251374e+18
+        rating: 4
+      - comment: jwyki09rjq
+        href: Nisi doloremque quo.
+        id: 1.2251374e+18
+        rating: 4
+      title: 4cj6po174o
+    - abstract: bjyhwcfapl
+      detail: j8o5cidp8b
+      href: Ut magnam odit nemo numquam.
+      id: 9.086259e+18
+      links: {}
+      reviews:
+      - comment: jwyki09rjq
+        href: Nisi doloremque quo.
+        id: 1.2251374e+18
+        rating: 4
+      - comment: jwyki09rjq
+        href: Nisi doloremque quo.
+        id: 1.2251374e+18
+        rating: 4
+      - comment: jwyki09rjq
+        href: Nisi doloremque quo.
+        id: 1.2251374e+18
+        rating: 4
+      title: 4cj6po174o
+    - abstract: bjyhwcfapl
+      detail: j8o5cidp8b
+      href: Ut magnam odit nemo numquam.
+      id: 9.086259e+18
+      links: {}
+      reviews:
+      - comment: jwyki09rjq
+        href: Nisi doloremque quo.
+        id: 1.2251374e+18
+        rating: 4
+      - comment: jwyki09rjq
+        href: Nisi doloremque quo.
+        id: 1.2251374e+18
+        rating: 4
+      - comment: jwyki09rjq
+        href: Nisi doloremque quo.
+        id: 1.2251374e+18
+        rating: 4
+      title: 4cj6po174o
     items:
       $ref: '#/definitions/Proposal'
     title: 'Mediatype identifier: application/vnd.proposal+json; type=collection'
@@ -187,30 +238,25 @@ definitions:
     type: object
   Review:
     description: A review is submitted by a reviewer (default view)
-    example:
-      comment: Fugit molestias eos ex harum quis ea.
-      href: Ipsum dolor.
-      id: 7.0860424e+18
-      rating: 5.995526e+18
     properties:
       comment:
         description: Review comments
-        example: on0mcoyx7h
+        example: jwyki09rjq
         maxLength: 200
         minLength: 10
         type: string
       href:
         description: API href of user
-        example: Adipisci eaque molestias dolorum illo.
+        example: Nisi doloremque quo.
         type: string
       id:
         description: ID of user
-        example: 7.300619e+18
+        example: 1.2251374e+18
         format: int64
         type: integer
       rating:
         description: Rating of proposal, from 1-5
-        example: 3
+        example: 4
         maximum: 5
         minimum: 1
         type: integer
@@ -219,11 +265,6 @@ definitions:
   ReviewCollection:
     description: ReviewCollection is the media type for an array of Review (default
       view)
-    example:
-    - comment: Consequatur sit autem vel mollitia et maiores.
-      href: Dolorum ab officia aut.
-      id: 6.6587254e+18
-      rating: 5.566292e+18
     items:
       $ref: '#/definitions/Review'
     title: 'Mediatype identifier: application/vnd.review+json; type=collection'
@@ -296,85 +337,75 @@ definitions:
   User:
     description: A user belonging to a tenant account (default view)
     example:
-      bio: Officiis a at quia.
-      city: Nisi nihil.
-      country: Est perferendis velit et.
-      email: Earum ipsa.
-      firstname: Iste eos qui earum sed nam.
-      href: Minus molestiae necessitatibus totam porro.
-      id: 7.850095e+18
-      lastname: At hic.
-      role: Occaecati enim.
-      state: Incidunt sed aspernatur laudantium suscipit nihil omnis.
+      bio: v5expb61i9
+      city: Tempora corporis aliquam.
+      country: Nulla suscipit.
+      email: ahmad.greenholt@runolfssonsatterfield.biz
+      firstname: Ducimus cupiditate quo molestias dicta excepturi.
+      href: Ullam itaque ex eum hic.
+      id: 6.5258456e+18
+      lastname: Aspernatur vitae voluptatum.
+      role: Odit porro officia harum tenetur.
+      state: Aspernatur nemo inventore placeat.
     properties:
       bio:
         description: Biography of user
-        example: wmmy449jxq
+        example: v5expb61i9
         maxLength: 500
         type: string
       city:
         description: City of residence
-        example: Dolor iure.
+        example: Tempora corporis aliquam.
         type: string
       country:
         description: Country of residence
-        example: Harum aut placeat cumque.
+        example: Nulla suscipit.
         type: string
       email:
         description: Email address of user
-        example: bart.bruen@will.net
+        example: ahmad.greenholt@runolfssonsatterfield.biz
         format: email
         type: string
       firstname:
         description: First name of user
-        example: Hic ex ea ut.
+        example: Ducimus cupiditate quo molestias dicta excepturi.
         type: string
       href:
         description: API href of user
-        example: Dignissimos rerum repellat aut tempora nihil voluptas.
+        example: Ullam itaque ex eum hic.
         type: string
       id:
         description: ID of user
-        example: 8.1248096e+17
+        example: 6.5258456e+18
         format: int64
         type: integer
       lastname:
         description: Last name of user
-        example: Dolor dolorum sequi corporis non.
+        example: Aspernatur vitae voluptatum.
         type: string
       role:
         description: Role of user
-        example: Earum ut eum alias voluptatibus dolorem non.
+        example: Odit porro officia harum tenetur.
         type: string
       state:
         description: State of residence
-        example: Praesentium quia enim et eos earum.
+        example: Aspernatur nemo inventore placeat.
         type: string
     title: 'Mediatype identifier: application/vnd.user+json'
     type: object
   UserCollection:
     description: UserCollection is the media type for an array of User (default view)
     example:
-    - bio: Ipsum quaerat.
-      city: Aut fugit dolor molestiae.
-      country: Pariatur dolores.
-      email: Quas necessitatibus ea vel.
-      firstname: Et inventore sequi.
-      href: Molestias nesciunt aspernatur excepturi.
-      id: 4.627212e+18
-      lastname: Ea temporibus quibusdam vitae.
-      role: Ut a et sit.
-      state: Quos in doloremque illo hic.
-    - bio: Incidunt quis quo.
-      city: Et illo reiciendis quos dolores enim est.
-      country: Dicta eum.
-      email: Vitae enim ipsum.
-      firstname: Perferendis sapiente velit vero fugiat odio est.
-      href: Omnis quia perferendis.
-      id: 5.6807654e+18
-      lastname: Cum hic incidunt aut.
-      role: Aut repudiandae asperiores dolor.
-      state: Voluptas aut doloremque fugit omnis debitis.
+    - bio: v5expb61i9
+      city: Tempora corporis aliquam.
+      country: Nulla suscipit.
+      email: ahmad.greenholt@runolfssonsatterfield.biz
+      firstname: Ducimus cupiditate quo molestias dicta excepturi.
+      href: Ullam itaque ex eum hic.
+      id: 6.5258456e+18
+      lastname: Aspernatur vitae voluptatum.
+      role: Odit porro officia harum tenetur.
+      state: Aspernatur nemo inventore placeat.
     items:
       $ref: '#/definitions/User'
     title: 'Mediatype identifier: application/vnd.user+json; type=collection'
