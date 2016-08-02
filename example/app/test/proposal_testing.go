@@ -15,7 +15,7 @@ import (
 	"testing"
 )
 
-// CreateProposalCreated Create runs the method Create of the given controller with the given parameters and payload.
+// CreateProposalCreated runs the method Create of the given controller with the given parameters and payload.
 // It returns the response writer so it's possible to inspect the response headers.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
@@ -40,11 +40,11 @@ func CreateProposalCreated(t *testing.T, ctx context.Context, service *goa.Servi
 	// Validate payload
 	err := payload.Validate()
 	if err != nil {
-		e, ok := err.(*goa.Error)
+		e, ok := err.(goa.ServiceError)
 		if !ok {
 			panic(err) // bug
 		}
-		if e.Status != 201 {
+		if e.ResponseStatus() != 201 {
 			t.Errorf("unexpected payload validation error: %+v", e)
 		}
 		return nil
@@ -86,7 +86,7 @@ func CreateProposalCreated(t *testing.T, ctx context.Context, service *goa.Servi
 	return rw
 }
 
-// DeleteProposalNoContent Delete runs the method Delete of the given controller with the given parameters.
+// DeleteProposalNoContent runs the method Delete of the given controller with the given parameters.
 // It returns the response writer so it's possible to inspect the response headers.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
@@ -144,7 +144,7 @@ func DeleteProposalNoContent(t *testing.T, ctx context.Context, service *goa.Ser
 	return rw
 }
 
-// DeleteProposalNotFound Delete runs the method Delete of the given controller with the given parameters.
+// DeleteProposalNotFound runs the method Delete of the given controller with the given parameters.
 // It returns the response writer so it's possible to inspect the response headers.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
@@ -202,7 +202,7 @@ func DeleteProposalNotFound(t *testing.T, ctx context.Context, service *goa.Serv
 	return rw
 }
 
-// ListProposalOK List runs the method List of the given controller with the given parameters.
+// ListProposalOK runs the method List of the given controller with the given parameters.
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
@@ -271,7 +271,7 @@ func ListProposalOK(t *testing.T, ctx context.Context, service *goa.Service, ctr
 	return rw, mt
 }
 
-// ShowProposalNotFound Show runs the method Show of the given controller with the given parameters.
+// ShowProposalNotFound runs the method Show of the given controller with the given parameters.
 // It returns the response writer so it's possible to inspect the response headers.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
@@ -329,7 +329,7 @@ func ShowProposalNotFound(t *testing.T, ctx context.Context, service *goa.Servic
 	return rw
 }
 
-// ShowProposalOK Show runs the method Show of the given controller with the given parameters.
+// ShowProposalOK runs the method Show of the given controller with the given parameters.
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
@@ -399,7 +399,7 @@ func ShowProposalOK(t *testing.T, ctx context.Context, service *goa.Service, ctr
 	return rw, mt
 }
 
-// ShowProposalOKLink Show runs the method Show of the given controller with the given parameters.
+// ShowProposalOKLink runs the method Show of the given controller with the given parameters.
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
@@ -469,7 +469,7 @@ func ShowProposalOKLink(t *testing.T, ctx context.Context, service *goa.Service,
 	return rw, mt
 }
 
-// UpdateProposalNoContent Update runs the method Update of the given controller with the given parameters and payload.
+// UpdateProposalNoContent runs the method Update of the given controller with the given parameters and payload.
 // It returns the response writer so it's possible to inspect the response headers.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
@@ -494,11 +494,11 @@ func UpdateProposalNoContent(t *testing.T, ctx context.Context, service *goa.Ser
 	// Validate payload
 	err := payload.Validate()
 	if err != nil {
-		e, ok := err.(*goa.Error)
+		e, ok := err.(goa.ServiceError)
 		if !ok {
 			panic(err) // bug
 		}
-		if e.Status != 204 {
+		if e.ResponseStatus() != 204 {
 			t.Errorf("unexpected payload validation error: %+v", e)
 		}
 		return nil
@@ -541,7 +541,7 @@ func UpdateProposalNoContent(t *testing.T, ctx context.Context, service *goa.Ser
 	return rw
 }
 
-// UpdateProposalNotFound Update runs the method Update of the given controller with the given parameters and payload.
+// UpdateProposalNotFound runs the method Update of the given controller with the given parameters and payload.
 // It returns the response writer so it's possible to inspect the response headers.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
@@ -566,11 +566,11 @@ func UpdateProposalNotFound(t *testing.T, ctx context.Context, service *goa.Serv
 	// Validate payload
 	err := payload.Validate()
 	if err != nil {
-		e, ok := err.(*goa.Error)
+		e, ok := err.(goa.ServiceError)
 		if !ok {
 			panic(err) // bug
 		}
-		if e.Status != 404 {
+		if e.ResponseStatus() != 404 {
 			t.Errorf("unexpected payload validation error: %+v", e)
 		}
 		return nil

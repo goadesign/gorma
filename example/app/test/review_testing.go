@@ -15,7 +15,7 @@ import (
 	"testing"
 )
 
-// CreateReviewCreated Create runs the method Create of the given controller with the given parameters and payload.
+// CreateReviewCreated runs the method Create of the given controller with the given parameters and payload.
 // It returns the response writer so it's possible to inspect the response headers.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
@@ -40,11 +40,11 @@ func CreateReviewCreated(t *testing.T, ctx context.Context, service *goa.Service
 	// Validate payload
 	err := payload.Validate()
 	if err != nil {
-		e, ok := err.(*goa.Error)
+		e, ok := err.(goa.ServiceError)
 		if !ok {
 			panic(err) // bug
 		}
-		if e.Status != 201 {
+		if e.ResponseStatus() != 201 {
 			t.Errorf("unexpected payload validation error: %+v", e)
 		}
 		return nil
@@ -87,7 +87,7 @@ func CreateReviewCreated(t *testing.T, ctx context.Context, service *goa.Service
 	return rw
 }
 
-// DeleteReviewNoContent Delete runs the method Delete of the given controller with the given parameters.
+// DeleteReviewNoContent runs the method Delete of the given controller with the given parameters.
 // It returns the response writer so it's possible to inspect the response headers.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
@@ -146,7 +146,7 @@ func DeleteReviewNoContent(t *testing.T, ctx context.Context, service *goa.Servi
 	return rw
 }
 
-// DeleteReviewNotFound Delete runs the method Delete of the given controller with the given parameters.
+// DeleteReviewNotFound runs the method Delete of the given controller with the given parameters.
 // It returns the response writer so it's possible to inspect the response headers.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
@@ -205,7 +205,7 @@ func DeleteReviewNotFound(t *testing.T, ctx context.Context, service *goa.Servic
 	return rw
 }
 
-// ListReviewOK List runs the method List of the given controller with the given parameters.
+// ListReviewOK runs the method List of the given controller with the given parameters.
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
@@ -275,7 +275,7 @@ func ListReviewOK(t *testing.T, ctx context.Context, service *goa.Service, ctrl 
 	return rw, mt
 }
 
-// ListReviewOKLink List runs the method List of the given controller with the given parameters.
+// ListReviewOKLink runs the method List of the given controller with the given parameters.
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
@@ -341,7 +341,7 @@ func ListReviewOKLink(t *testing.T, ctx context.Context, service *goa.Service, c
 	return rw, mt
 }
 
-// ShowReviewNotFound Show runs the method Show of the given controller with the given parameters.
+// ShowReviewNotFound runs the method Show of the given controller with the given parameters.
 // It returns the response writer so it's possible to inspect the response headers.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
@@ -400,7 +400,7 @@ func ShowReviewNotFound(t *testing.T, ctx context.Context, service *goa.Service,
 	return rw
 }
 
-// ShowReviewOK Show runs the method Show of the given controller with the given parameters.
+// ShowReviewOK runs the method Show of the given controller with the given parameters.
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
@@ -471,7 +471,7 @@ func ShowReviewOK(t *testing.T, ctx context.Context, service *goa.Service, ctrl 
 	return rw, mt
 }
 
-// ShowReviewOKLink Show runs the method Show of the given controller with the given parameters.
+// ShowReviewOKLink runs the method Show of the given controller with the given parameters.
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
@@ -538,7 +538,7 @@ func ShowReviewOKLink(t *testing.T, ctx context.Context, service *goa.Service, c
 	return rw, mt
 }
 
-// UpdateReviewNoContent Update runs the method Update of the given controller with the given parameters and payload.
+// UpdateReviewNoContent runs the method Update of the given controller with the given parameters and payload.
 // It returns the response writer so it's possible to inspect the response headers.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
@@ -563,11 +563,11 @@ func UpdateReviewNoContent(t *testing.T, ctx context.Context, service *goa.Servi
 	// Validate payload
 	err := payload.Validate()
 	if err != nil {
-		e, ok := err.(*goa.Error)
+		e, ok := err.(goa.ServiceError)
 		if !ok {
 			panic(err) // bug
 		}
-		if e.Status != 204 {
+		if e.ResponseStatus() != 204 {
 			t.Errorf("unexpected payload validation error: %+v", e)
 		}
 		return nil
@@ -611,7 +611,7 @@ func UpdateReviewNoContent(t *testing.T, ctx context.Context, service *goa.Servi
 	return rw
 }
 
-// UpdateReviewNotFound Update runs the method Update of the given controller with the given parameters and payload.
+// UpdateReviewNotFound runs the method Update of the given controller with the given parameters and payload.
 // It returns the response writer so it's possible to inspect the response headers.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
@@ -636,11 +636,11 @@ func UpdateReviewNotFound(t *testing.T, ctx context.Context, service *goa.Servic
 	// Validate payload
 	err := payload.Validate()
 	if err != nil {
-		e, ok := err.(*goa.Error)
+		e, ok := err.(goa.ServiceError)
 		if !ok {
 			panic(err) // bug
 		}
-		if e.Status != 404 {
+		if e.ResponseStatus() != 404 {
 			t.Errorf("unexpected payload validation error: %+v", e)
 		}
 		return nil

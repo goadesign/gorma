@@ -15,7 +15,7 @@ import (
 	"testing"
 )
 
-// BootstrapUIOK Bootstrap runs the method Bootstrap of the given controller with the given parameters.
+// BootstrapUIOK runs the method Bootstrap of the given controller with the given parameters.
 // It returns the response writer so it's possible to inspect the response headers.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
