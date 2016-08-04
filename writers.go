@@ -471,7 +471,7 @@ func (m *{{$ut.ModelName}}DB) Get(ctx context.Context{{ if $ut.DynamicTableName}
 	var native {{$ut.ModelName}}
 	err := m.Db.Table({{ if $ut.DynamicTableName }}tableName{{else}}m.TableName(){{ end }}).Where("{{$ut.PKWhere}}",{{$ut.PKWhereFields}} ).Find(&native).Error
 	if err ==  gorm.ErrRecordNotFound {
-		return nil, nil
+		return nil, err
 	}
 	{{ if $ut.Cached }}go m.cache.Set(strconv.Itoa(native.ID), &native, cache.DefaultExpiration)
 	{{end}}
