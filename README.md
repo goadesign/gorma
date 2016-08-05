@@ -39,15 +39,19 @@ Write a storage definition using DSL from the `dsl` package.  Example:
 				BuildsFrom(func() {
 					Payload("myresource","actionname")  // e.g. "bottle", "create" resource definition
 				})
+
 				RendersTo(Bottle)						// a Media Type definition
 				Description("This is the bottle model")
-				Field("ID", gorma.Integer, func() {    //  redundant
+
+				Field("ID", gorma.Integer, func() {    // Required for CRUD getters to take a PK argument!
 					PrimaryKey()
 					Description("This is the ID PK field")
 				})
+
 				Field("Vintage", gorma.Integer, func() {
 					SQLTag("index")						// Add an index
 				})
+
 				Field("CreatedAt", gorma.Timestamp)
 				Field("UpdatedAt", gorma.Timestamp)			 // Shown for demonstration
 				Field("DeletedAt", gorma.NullableTimestamp)  // These are added by default
