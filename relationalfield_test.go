@@ -55,6 +55,7 @@ func TestFieldDefinitions(t *testing.T) {
 	}{
 		{"id", gorma.Integer, "description", false, "", "", "", "", "ID\tint  // description\n"},
 		{"id", gorma.UUID, "description", false, "", "", "", "", "ID\tuuid.UUID  // description\n"},
+		{"id", gorma.BigInteger, "description", false, "", "", "", "", "ID\tint64  // description\n"},
 		{"name", gorma.String, "name", true, "", "", "", "", "Name\t*string  // name\n"},
 		{"user", gorma.HasOne, "has one", false, "", "", "User", "", "User\tUser  // has one\n"},
 		{"user_id", gorma.BelongsTo, "belongs to", false, "", "", "", "", "UserID\tint  // belongs to\n"},
