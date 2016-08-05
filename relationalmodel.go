@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"sort"
 	"strings"
+	"unicode"
 
 	"bitbucket.org/pkg/inflect"
 
@@ -147,6 +148,22 @@ func (f *RelationalModelDefinition) Project(name, v string) *design.MediaTypeDef
 // LowerName returns the model name as a lowercase string.
 func (f *RelationalModelDefinition) LowerName() string {
 	return codegen.Goify(strings.ToLower(f.ModelName), false)
+}
+
+// Underscore returns the model name as a lowercase string in snake case.
+func (f *RelationalModelDefinition) Underscore() string {
+	runes := []rune(f.ModelName)
+	length := len(runes)
+
+	var out []rune
+	for i := 0; i < length; i++ {
+		if i > 0 && unicode.IsUpper(runes[i]) && ((i+1 < length && unicode.IsLower(runes[i+1])) || unicode.IsLower(runes[i-1])) {
+			out = append(out, '_')
+		}
+		out = append(out, unicode.ToLower(runes[i]))
+	}
+
+	return string(out)
 }
 
 // IterateBuildSources runs an iterator function once per Model in the Store's model list.
