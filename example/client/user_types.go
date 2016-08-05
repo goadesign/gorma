@@ -10,7 +10,7 @@
 // The content of this file is auto-generated, DO NOT MODIFY
 //************************************************************************//
 
-package app
+package client
 
 import "github.com/goadesign/goa"
 

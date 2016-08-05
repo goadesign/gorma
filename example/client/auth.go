@@ -67,11 +67,11 @@ func (c *Client) NewOauthAuthRequest(ctx context.Context, path string) (*http.Re
 // RefreshAuthPayload is the auth refresh action payload.
 type RefreshAuthPayload struct {
 	// UUID of requesting application
-	Application *string `json:"application,omitempty" xml:"application,omitempty" form:"application,omitempty"`
+	Application *string `form:"application,omitempty" json:"application,omitempty" xml:"application,omitempty"`
 	// email
-	Email *string `json:"email,omitempty" xml:"email,omitempty" form:"email,omitempty"`
+	Email *string `form:"email,omitempty" json:"email,omitempty" xml:"email,omitempty"`
 	// password
-	Password *string `json:"password,omitempty" xml:"password,omitempty" form:"password,omitempty"`
+	Password *string `form:"password,omitempty" json:"password,omitempty" xml:"password,omitempty"`
 }
 
 // RefreshAuthPath computes a request path to the refresh action of auth.
@@ -117,11 +117,11 @@ func (c *Client) NewRefreshAuthRequest(ctx context.Context, path string, payload
 // TokenAuthPayload is the auth token action payload.
 type TokenAuthPayload struct {
 	// UUID of requesting application
-	Application *string `json:"application,omitempty" xml:"application,omitempty" form:"application,omitempty"`
+	Application *string `form:"application,omitempty" json:"application,omitempty" xml:"application,omitempty"`
 	// email
-	Email *string `json:"email,omitempty" xml:"email,omitempty" form:"email,omitempty"`
+	Email *string `form:"email,omitempty" json:"email,omitempty" xml:"email,omitempty"`
 	// password
-	Password *string `json:"password,omitempty" xml:"password,omitempty" form:"password,omitempty"`
+	Password *string `form:"password,omitempty" json:"password,omitempty" xml:"password,omitempty"`
 }
 
 // TokenAuthPath computes a request path to the token action of auth.

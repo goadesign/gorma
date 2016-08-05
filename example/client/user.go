@@ -10,13 +10,13 @@ import (
 
 // CreateUserPayload is the user create action payload.
 type CreateUserPayload struct {
-	Bio       *string `json:"bio,omitempty" xml:"bio,omitempty" form:"bio,omitempty"`
-	City      *string `json:"city,omitempty" xml:"city,omitempty" form:"city,omitempty"`
-	Country   *string `json:"country,omitempty" xml:"country,omitempty" form:"country,omitempty"`
-	Email     string  `json:"email" xml:"email" form:"email"`
-	Firstname string  `json:"firstname" xml:"firstname" form:"firstname"`
-	Lastname  string  `json:"lastname" xml:"lastname" form:"lastname"`
-	State     *string `json:"state,omitempty" xml:"state,omitempty" form:"state,omitempty"`
+	Bio       *string `form:"bio,omitempty" json:"bio,omitempty" xml:"bio,omitempty"`
+	City      *string `form:"city,omitempty" json:"city,omitempty" xml:"city,omitempty"`
+	Country   *string `form:"country,omitempty" json:"country,omitempty" xml:"country,omitempty"`
+	Email     string  `form:"email" json:"email" xml:"email"`
+	Firstname string  `form:"firstname" json:"firstname" xml:"firstname"`
+	Lastname  string  `form:"lastname" json:"lastname" xml:"lastname"`
+	State     *string `form:"state,omitempty" json:"state,omitempty" xml:"state,omitempty"`
 }
 
 // CreateUserPath computes a request path to the create action of user.
@@ -145,13 +145,13 @@ func (c *Client) NewShowUserRequest(ctx context.Context, path string) (*http.Req
 
 // UpdateUserPayload is the user update action payload.
 type UpdateUserPayload struct {
-	Bio       *string `json:"bio,omitempty" xml:"bio,omitempty" form:"bio,omitempty"`
-	City      *string `json:"city,omitempty" xml:"city,omitempty" form:"city,omitempty"`
-	Country   *string `json:"country,omitempty" xml:"country,omitempty" form:"country,omitempty"`
-	Email     string  `json:"email" xml:"email" form:"email"`
-	Firstname *string `json:"firstname,omitempty" xml:"firstname,omitempty" form:"firstname,omitempty"`
-	Lastname  *string `json:"lastname,omitempty" xml:"lastname,omitempty" form:"lastname,omitempty"`
-	State     *string `json:"state,omitempty" xml:"state,omitempty" form:"state,omitempty"`
+	Bio       *string `form:"bio,omitempty" json:"bio,omitempty" xml:"bio,omitempty"`
+	City      *string `form:"city,omitempty" json:"city,omitempty" xml:"city,omitempty"`
+	Country   *string `form:"country,omitempty" json:"country,omitempty" xml:"country,omitempty"`
+	Email     string  `form:"email" json:"email" xml:"email"`
+	Firstname *string `form:"firstname,omitempty" json:"firstname,omitempty" xml:"firstname,omitempty"`
+	Lastname  *string `form:"lastname,omitempty" json:"lastname,omitempty" xml:"lastname,omitempty"`
+	State     *string `form:"state,omitempty" json:"state,omitempty" xml:"state,omitempty"`
 }
 
 // UpdateUserPath computes a request path to the update action of user.

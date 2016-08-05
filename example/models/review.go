@@ -1,11 +1,11 @@
 //************************************************************************//
 // API "congo": Models
 //
-// Generated with goagen v0.2.dev, command line:
+// Generated with goagen v1.0.0, command line:
 // $ goagen
 // --design=github.com/goadesign/gorma/example/design
 // --out=$(GOPATH)/src/github.com/goadesign/gorma/example
-// --version=v0.2.dev
+// --version=v1.0.0
 //
 // The content of this file is auto-generated, DO NOT MODIFY
 //************************************************************************//
@@ -74,7 +74,7 @@ type ReviewStorage interface {
 
 	UpdateFromCreateReviewPayload(ctx context.Context, payload *app.CreateReviewPayload, id int) error
 
-	UpdateFromUpdateReviewPayload(ctx context.Context, payload *app.UpdateReviewPayload, id int) error
+	UpdateFromReviewPayload(ctx context.Context, payload *app.ReviewPayload, id int) error
 }
 
 // TableName overrides the table name settings in Gorm to force a specific table name
@@ -213,9 +213,9 @@ func (m *ReviewDB) UpdateFromCreateReviewPayload(ctx context.Context, payload *a
 	return err
 }
 
-// ReviewFromUpdateReviewPayload Converts source UpdateReviewPayload to target Review model
+// ReviewFromReviewPayload Converts source ReviewPayload to target Review model
 // only copying the non-nil fields from the source.
-func ReviewFromUpdateReviewPayload(payload *app.UpdateReviewPayload) *Review {
+func ReviewFromReviewPayload(payload *app.ReviewPayload) *Review {
 	review := &Review{}
 	if payload.Comment != nil {
 		review.Comment = payload.Comment
@@ -227,9 +227,9 @@ func ReviewFromUpdateReviewPayload(payload *app.UpdateReviewPayload) *Review {
 	return review
 }
 
-// UpdateFromUpdateReviewPayload applies non-nil changes from UpdateReviewPayload to the model and saves it
-func (m *ReviewDB) UpdateFromUpdateReviewPayload(ctx context.Context, payload *app.UpdateReviewPayload, id int) error {
-	defer goa.MeasureSince([]string{"goa", "db", "review", "updatefromupdateReviewPayload"}, time.Now())
+// UpdateFromReviewPayload applies non-nil changes from ReviewPayload to the model and saves it
+func (m *ReviewDB) UpdateFromReviewPayload(ctx context.Context, payload *app.ReviewPayload, id int) error {
+	defer goa.MeasureSince([]string{"goa", "db", "review", "updatefromreviewPayload"}, time.Now())
 
 	var obj Review
 	err := m.Db.Table(m.TableName()).Where("id = ?", id).Find(&obj).Error

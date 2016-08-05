@@ -10,12 +10,12 @@ import (
 
 // CreateReviewPayload is the review create action payload.
 type CreateReviewPayload struct {
-	Comment *string `json:"comment,omitempty" xml:"comment,omitempty" form:"comment,omitempty"`
-	Rating  int     `json:"rating" xml:"rating" form:"rating"`
+	Comment *string `form:"comment,omitempty" json:"comment,omitempty" xml:"comment,omitempty"`
+	Rating  int     `form:"rating" json:"rating" xml:"rating"`
 }
 
 // CreateReviewPath computes a request path to the create action of review.
-func CreateReviewPath(userID string, proposalID string) string {
+func CreateReviewPath(userID int, proposalID int) string {
 	return fmt.Sprintf("/api/users/%v/proposals/%v/review", userID, proposalID)
 }
 
@@ -55,7 +55,7 @@ func (c *Client) NewCreateReviewRequest(ctx context.Context, path string, payloa
 }
 
 // DeleteReviewPath computes a request path to the delete action of review.
-func DeleteReviewPath(userID string, proposalID string, reviewID int) string {
+func DeleteReviewPath(userID int, proposalID int, reviewID int) string {
 	return fmt.Sprintf("/api/users/%v/proposals/%v/review/%v", userID, proposalID, reviewID)
 }
 
@@ -83,7 +83,7 @@ func (c *Client) NewDeleteReviewRequest(ctx context.Context, path string) (*http
 }
 
 // ListReviewPath computes a request path to the list action of review.
-func ListReviewPath(userID string, proposalID string) string {
+func ListReviewPath(userID int, proposalID int) string {
 	return fmt.Sprintf("/api/users/%v/proposals/%v/review", userID, proposalID)
 }
 
@@ -111,7 +111,7 @@ func (c *Client) NewListReviewRequest(ctx context.Context, path string) (*http.R
 }
 
 // ShowReviewPath computes a request path to the show action of review.
-func ShowReviewPath(userID string, proposalID string, reviewID int) string {
+func ShowReviewPath(userID int, proposalID int, reviewID int) string {
 	return fmt.Sprintf("/api/users/%v/proposals/%v/review/%v", userID, proposalID, reviewID)
 }
 
@@ -138,19 +138,13 @@ func (c *Client) NewShowReviewRequest(ctx context.Context, path string) (*http.R
 	return req, nil
 }
 
-// UpdateReviewPayload is the review update action payload.
-type UpdateReviewPayload struct {
-	Comment *string `json:"comment,omitempty" xml:"comment,omitempty" form:"comment,omitempty"`
-	Rating  *int    `json:"rating,omitempty" xml:"rating,omitempty" form:"rating,omitempty"`
-}
-
 // UpdateReviewPath computes a request path to the update action of review.
-func UpdateReviewPath(userID string, proposalID string, reviewID int) string {
+func UpdateReviewPath(userID int, proposalID int, reviewID int) string {
 	return fmt.Sprintf("/api/users/%v/proposals/%v/review/%v", userID, proposalID, reviewID)
 }
 
 // UpdateReview makes a request to the update action endpoint of the review resource
-func (c *Client) UpdateReview(ctx context.Context, path string, payload *UpdateReviewPayload, contentType string) (*http.Response, error) {
+func (c *Client) UpdateReview(ctx context.Context, path string, payload *ReviewPayload, contentType string) (*http.Response, error) {
 	req, err := c.NewUpdateReviewRequest(ctx, path, payload, contentType)
 	if err != nil {
 		return nil, err
@@ -159,7 +153,7 @@ func (c *Client) UpdateReview(ctx context.Context, path string, payload *UpdateR
 }
 
 // NewUpdateReviewRequest create the request corresponding to the update action endpoint of the review resource.
-func (c *Client) NewUpdateReviewRequest(ctx context.Context, path string, payload *UpdateReviewPayload, contentType string) (*http.Request, error) {
+func (c *Client) NewUpdateReviewRequest(ctx context.Context, path string, payload *ReviewPayload, contentType string) (*http.Request, error) {
 	var body bytes.Buffer
 	if contentType == "" {
 		contentType = "*/*" // Use default encoder

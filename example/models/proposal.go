@@ -1,11 +1,11 @@
 //************************************************************************//
 // API "congo": Models
 //
-// Generated with goagen v0.2.dev, command line:
+// Generated with goagen v1.0.0, command line:
 // $ goagen
 // --design=github.com/goadesign/gorma/example/design
 // --out=$(GOPATH)/src/github.com/goadesign/gorma/example
-// --version=v0.2.dev
+// --version=v1.0.0
 //
 // The content of this file is auto-generated, DO NOT MODIFY
 //************************************************************************//
@@ -75,7 +75,7 @@ type ProposalStorage interface {
 
 	UpdateFromCreateProposalPayload(ctx context.Context, payload *app.CreateProposalPayload, id int) error
 
-	UpdateFromUpdateProposalPayload(ctx context.Context, payload *app.UpdateProposalPayload, id int) error
+	UpdateFromProposalPayload(ctx context.Context, payload *app.ProposalPayload, id int) error
 }
 
 // TableName overrides the table name settings in Gorm to force a specific table name
@@ -205,9 +205,9 @@ func (m *ProposalDB) UpdateFromCreateProposalPayload(ctx context.Context, payloa
 	return err
 }
 
-// ProposalFromUpdateProposalPayload Converts source UpdateProposalPayload to target Proposal model
+// ProposalFromProposalPayload Converts source ProposalPayload to target Proposal model
 // only copying the non-nil fields from the source.
-func ProposalFromUpdateProposalPayload(payload *app.UpdateProposalPayload) *Proposal {
+func ProposalFromProposalPayload(payload *app.ProposalPayload) *Proposal {
 	proposal := &Proposal{}
 	if payload.Abstract != nil {
 		proposal.Abstract = *payload.Abstract
@@ -225,9 +225,9 @@ func ProposalFromUpdateProposalPayload(payload *app.UpdateProposalPayload) *Prop
 	return proposal
 }
 
-// UpdateFromUpdateProposalPayload applies non-nil changes from UpdateProposalPayload to the model and saves it
-func (m *ProposalDB) UpdateFromUpdateProposalPayload(ctx context.Context, payload *app.UpdateProposalPayload, id int) error {
-	defer goa.MeasureSince([]string{"goa", "db", "proposal", "updatefromupdateProposalPayload"}, time.Now())
+// UpdateFromProposalPayload applies non-nil changes from ProposalPayload to the model and saves it
+func (m *ProposalDB) UpdateFromProposalPayload(ctx context.Context, payload *app.ProposalPayload, id int) error {
+	defer goa.MeasureSince([]string{"goa", "db", "proposal", "updatefromproposalPayload"}, time.Now())
 
 	var obj Proposal
 	err := m.Db.Table(m.TableName()).Where("id = ?", id).Find(&obj).Error

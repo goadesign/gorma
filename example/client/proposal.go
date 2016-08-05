@@ -10,14 +10,14 @@ import (
 
 // CreateProposalPayload is the proposal create action payload.
 type CreateProposalPayload struct {
-	Abstract  string `json:"abstract" xml:"abstract" form:"abstract"`
-	Detail    string `json:"detail" xml:"detail" form:"detail"`
-	Title     string `json:"title" xml:"title" form:"title"`
-	Withdrawn *bool  `json:"withdrawn,omitempty" xml:"withdrawn,omitempty" form:"withdrawn,omitempty"`
+	Abstract  string `form:"abstract" json:"abstract" xml:"abstract"`
+	Detail    string `form:"detail" json:"detail" xml:"detail"`
+	Title     string `form:"title" json:"title" xml:"title"`
+	Withdrawn *bool  `form:"withdrawn,omitempty" json:"withdrawn,omitempty" xml:"withdrawn,omitempty"`
 }
 
 // CreateProposalPath computes a request path to the create action of proposal.
-func CreateProposalPath(userID string) string {
+func CreateProposalPath(userID int) string {
 	return fmt.Sprintf("/api/users/%v/proposals", userID)
 }
 
@@ -57,7 +57,7 @@ func (c *Client) NewCreateProposalRequest(ctx context.Context, path string, payl
 }
 
 // DeleteProposalPath computes a request path to the delete action of proposal.
-func DeleteProposalPath(userID string, proposalID int) string {
+func DeleteProposalPath(userID int, proposalID int) string {
 	return fmt.Sprintf("/api/users/%v/proposals/%v", userID, proposalID)
 }
 
@@ -85,7 +85,7 @@ func (c *Client) NewDeleteProposalRequest(ctx context.Context, path string) (*ht
 }
 
 // ListProposalPath computes a request path to the list action of proposal.
-func ListProposalPath(userID string) string {
+func ListProposalPath(userID int) string {
 	return fmt.Sprintf("/api/users/%v/proposals", userID)
 }
 
@@ -113,7 +113,7 @@ func (c *Client) NewListProposalRequest(ctx context.Context, path string) (*http
 }
 
 // ShowProposalPath computes a request path to the show action of proposal.
-func ShowProposalPath(userID string, proposalID int) string {
+func ShowProposalPath(userID int, proposalID int) string {
 	return fmt.Sprintf("/api/users/%v/proposals/%v", userID, proposalID)
 }
 
@@ -140,21 +140,13 @@ func (c *Client) NewShowProposalRequest(ctx context.Context, path string) (*http
 	return req, nil
 }
 
-// UpdateProposalPayload is the proposal update action payload.
-type UpdateProposalPayload struct {
-	Abstract  *string `json:"abstract,omitempty" xml:"abstract,omitempty" form:"abstract,omitempty"`
-	Detail    *string `json:"detail,omitempty" xml:"detail,omitempty" form:"detail,omitempty"`
-	Title     *string `json:"title,omitempty" xml:"title,omitempty" form:"title,omitempty"`
-	Withdrawn *bool   `json:"withdrawn,omitempty" xml:"withdrawn,omitempty" form:"withdrawn,omitempty"`
-}
-
 // UpdateProposalPath computes a request path to the update action of proposal.
-func UpdateProposalPath(userID string, proposalID int) string {
+func UpdateProposalPath(userID int, proposalID int) string {
 	return fmt.Sprintf("/api/users/%v/proposals/%v", userID, proposalID)
 }
 
 // UpdateProposal makes a request to the update action endpoint of the proposal resource
-func (c *Client) UpdateProposal(ctx context.Context, path string, payload *UpdateProposalPayload, contentType string) (*http.Response, error) {
+func (c *Client) UpdateProposal(ctx context.Context, path string, payload *ProposalPayload, contentType string) (*http.Response, error) {
 	req, err := c.NewUpdateProposalRequest(ctx, path, payload, contentType)
 	if err != nil {
 		return nil, err
@@ -163,7 +155,7 @@ func (c *Client) UpdateProposal(ctx context.Context, path string, payload *Updat
 }
 
 // NewUpdateProposalRequest create the request corresponding to the update action endpoint of the proposal resource.
-func (c *Client) NewUpdateProposalRequest(ctx context.Context, path string, payload *UpdateProposalPayload, contentType string) (*http.Request, error) {
+func (c *Client) NewUpdateProposalRequest(ctx context.Context, path string, payload *ProposalPayload, contentType string) (*http.Request, error) {
 	var body bytes.Buffer
 	if contentType == "" {
 		contentType = "*/*" // Use default encoder

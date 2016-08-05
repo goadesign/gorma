@@ -27,19 +27,24 @@ definitions:
     title: 'Mediatype identifier: application/vnd.authorize+json'
     type: object
   CreateProposalPayload:
+    example:
+      abstract: 7kdhnj3lzw
+      detail: is4cm9wkhb
+      title: yzfem3il5u
+      withdrawn: false
     properties:
       abstract:
-        example: yh57kdhnj3
+        example: 7kdhnj3lzw
         maxLength: 500
         minLength: 50
         type: string
       detail:
-        example: zw3is4cm9w
+        example: is4cm9wkhb
         maxLength: 2000
         minLength: 100
         type: string
       title:
-        example: hbpyzfem3i
+        example: yzfem3il5u
         maxLength: 200
         minLength: 10
         type: string
@@ -53,14 +58,17 @@ definitions:
     title: CreateProposalPayload
     type: object
   CreateReviewPayload:
+    example:
+      comment: kkhtfd5zp9
+      rating: 1
     properties:
       comment:
-        example: utkkkhtfd5
+        example: kkhtfd5zp9
         maxLength: 200
         minLength: 10
         type: string
       rating:
-        example: 4
+        example: 1
         maximum: 5
         minimum: 1
         type: integer
@@ -69,29 +77,37 @@ definitions:
     title: CreateReviewPayload
     type: object
   CreateUserPayload:
+    example:
+      bio: 88zfp2pwak
+      city: Nesciunt voluptatem reprehenderit et qui.
+      country: Libero cumque aut sit et numquam.
+      email: abelardo@millsreinger.name
+      firstname: Aut ipsum dolor.
+      lastname: Voluptatum aut sapiente consequatur sit autem vel.
+      state: Et maiores quia dolorum ab officia.
     properties:
       bio:
-        example: 9om88zfp2p
+        example: 88zfp2pwak
         maxLength: 500
         type: string
       city:
-        example: Voluptate recusandae.
-        type: string
-      country:
         example: Nesciunt voluptatem reprehenderit et qui.
         type: string
+      country:
+        example: Libero cumque aut sit et numquam.
+        type: string
       email:
-        example: norwood@wuckertmclaughlin.com
+        example: abelardo@millsreinger.name
         format: email
         type: string
       firstname:
-        example: Itaque praesentium incidunt illo distinctio fugit molestias.
+        example: Aut ipsum dolor.
         type: string
       lastname:
-        example: Ex harum quis.
+        example: Voluptatum aut sapiente consequatur sit autem vel.
         type: string
       state:
-        example: Aut ipsum dolor.
+        example: Et maiores quia dolorum ab officia.
         type: string
     required:
     - firstname
@@ -162,7 +178,6 @@ definitions:
       detail: j8o5cidp8b
       href: Ut magnam odit nemo numquam.
       id: 9.086259e+18
-      links: {}
       reviews:
       - comment: jwyki09rjq
         href: Nisi doloremque quo.
@@ -181,7 +196,6 @@ definitions:
       detail: j8o5cidp8b
       href: Ut magnam odit nemo numquam.
       id: 9.086259e+18
-      links: {}
       reviews:
       - comment: jwyki09rjq
         href: Nisi doloremque quo.
@@ -200,7 +214,6 @@ definitions:
       detail: j8o5cidp8b
       href: Ut magnam odit nemo numquam.
       id: 9.086259e+18
-      links: {}
       reviews:
       - comment: jwyki09rjq
         href: Nisi doloremque quo.
@@ -223,16 +236,50 @@ definitions:
     description: ProposalLinks contains links to related resources of Proposal.
     title: ProposalLinks
     type: object
+  ProposalPayload:
+    example:
+      abstract: 7kdhnj3lzw
+      detail: is4cm9wkhb
+      title: yzfem3il5u
+      withdrawn: false
+    properties:
+      abstract:
+        example: 7kdhnj3lzw
+        maxLength: 500
+        minLength: 50
+        type: string
+      detail:
+        example: is4cm9wkhb
+        maxLength: 2000
+        minLength: 100
+        type: string
+      title:
+        example: yzfem3il5u
+        maxLength: 200
+        minLength: 10
+        type: string
+      withdrawn:
+        example: false
+        type: boolean
+    title: ProposalPayload
+    type: object
   RefreshAuthPayload:
+    example:
+      application: Sunt et.
+      email: Culpa minima error dolores dolorem tempora.
+      password: Voluptas ratione ab doloremque.
     properties:
       application:
         description: UUID of requesting application
+        example: Sunt et.
         type: string
       email:
         description: email
+        example: Culpa minima error dolores dolorem tempora.
         type: string
       password:
         description: password
+        example: Voluptas ratione ab doloremque.
         type: string
     title: RefreshAuthPayload
     type: object
@@ -269,66 +316,75 @@ definitions:
       $ref: '#/definitions/Review'
     title: 'Mediatype identifier: application/vnd.review+json; type=collection'
     type: array
-  TokenAuthPayload:
-    properties:
-      application:
-        description: UUID of requesting application
-        type: string
-      email:
-        description: email
-        type: string
-      password:
-        description: password
-        type: string
-    title: TokenAuthPayload
-    type: object
-  UpdateProposalPayload:
-    properties:
-      abstract:
-        maxLength: 500
-        minLength: 50
-        type: string
-      detail:
-        maxLength: 2000
-        minLength: 100
-        type: string
-      title:
-        maxLength: 200
-        minLength: 10
-        type: string
-      withdrawn:
-        type: boolean
-    title: UpdateProposalPayload
-    type: object
-  UpdateReviewPayload:
+  ReviewPayload:
+    example:
+      comment: kkhtfd5zp9
+      rating: 1
     properties:
       comment:
+        example: kkhtfd5zp9
         maxLength: 200
         minLength: 10
         type: string
       rating:
+        example: 1
         maximum: 5
         minimum: 1
         type: integer
-    title: UpdateReviewPayload
+    title: ReviewPayload
+    type: object
+  TokenAuthPayload:
+    example:
+      application: Sunt et.
+      email: Culpa minima error dolores dolorem tempora.
+      password: Voluptas ratione ab doloremque.
+    properties:
+      application:
+        description: UUID of requesting application
+        example: Sunt et.
+        type: string
+      email:
+        description: email
+        example: Culpa minima error dolores dolorem tempora.
+        type: string
+      password:
+        description: password
+        example: Voluptas ratione ab doloremque.
+        type: string
+    title: TokenAuthPayload
     type: object
   UpdateUserPayload:
+    example:
+      bio: 88zfp2pwak
+      city: Nesciunt voluptatem reprehenderit et qui.
+      country: Libero cumque aut sit et numquam.
+      email: abelardo@millsreinger.name
+      firstname: Aut ipsum dolor.
+      lastname: Voluptatum aut sapiente consequatur sit autem vel.
+      state: Et maiores quia dolorum ab officia.
     properties:
       bio:
+        example: 88zfp2pwak
         maxLength: 500
         type: string
       city:
+        example: Nesciunt voluptatem reprehenderit et qui.
         type: string
       country:
+        example: Libero cumque aut sit et numquam.
         type: string
       email:
+        example: abelardo@millsreinger.name
         format: email
         type: string
       firstname:
+        example: Aut ipsum dolor.
         type: string
       lastname:
+        example: Voluptatum aut sapiente consequatur sit autem vel.
         type: string
       state:
+        example: Et maiores quia dolorum ab officia.
         type: string
     required:
     - email
@@ -341,12 +397,12 @@ definitions:
       city: Tempora corporis aliquam.
       country: Nulla suscipit.
       email: ahmad.greenholt@runolfssonsatterfield.biz
-      firstname: Ducimus cupiditate quo molestias dicta excepturi.
-      href: Ullam itaque ex eum hic.
-      id: 6.5258456e+18
-      lastname: Aspernatur vitae voluptatum.
-      role: Odit porro officia harum tenetur.
-      state: Aspernatur nemo inventore placeat.
+      firstname: Dicta excepturi corporis ullam itaque.
+      href: Eum hic accusamus qui aspernatur vitae.
+      id: 4.82424e+18
+      lastname: Odit porro officia harum tenetur.
+      role: Aspernatur nemo inventore placeat.
+      state: Impedit vel.
     properties:
       bio:
         description: Biography of user
@@ -368,28 +424,28 @@ definitions:
         type: string
       firstname:
         description: First name of user
-        example: Ducimus cupiditate quo molestias dicta excepturi.
+        example: Dicta excepturi corporis ullam itaque.
         type: string
       href:
         description: API href of user
-        example: Ullam itaque ex eum hic.
+        example: Eum hic accusamus qui aspernatur vitae.
         type: string
       id:
         description: ID of user
-        example: 6.5258456e+18
+        example: 4.82424e+18
         format: int64
         type: integer
       lastname:
         description: Last name of user
-        example: Aspernatur vitae voluptatum.
+        example: Odit porro officia harum tenetur.
         type: string
       role:
         description: Role of user
-        example: Odit porro officia harum tenetur.
+        example: Aspernatur nemo inventore placeat.
         type: string
       state:
         description: State of residence
-        example: Aspernatur nemo inventore placeat.
+        example: Impedit vel.
         type: string
     title: 'Mediatype identifier: application/vnd.user+json'
     type: object
@@ -400,12 +456,32 @@ definitions:
       city: Tempora corporis aliquam.
       country: Nulla suscipit.
       email: ahmad.greenholt@runolfssonsatterfield.biz
-      firstname: Ducimus cupiditate quo molestias dicta excepturi.
-      href: Ullam itaque ex eum hic.
-      id: 6.5258456e+18
-      lastname: Aspernatur vitae voluptatum.
-      role: Odit porro officia harum tenetur.
-      state: Aspernatur nemo inventore placeat.
+      firstname: Dicta excepturi corporis ullam itaque.
+      href: Eum hic accusamus qui aspernatur vitae.
+      id: 4.82424e+18
+      lastname: Odit porro officia harum tenetur.
+      role: Aspernatur nemo inventore placeat.
+      state: Impedit vel.
+    - bio: v5expb61i9
+      city: Tempora corporis aliquam.
+      country: Nulla suscipit.
+      email: ahmad.greenholt@runolfssonsatterfield.biz
+      firstname: Dicta excepturi corporis ullam itaque.
+      href: Eum hic accusamus qui aspernatur vitae.
+      id: 4.82424e+18
+      lastname: Odit porro officia harum tenetur.
+      role: Aspernatur nemo inventore placeat.
+      state: Impedit vel.
+    - bio: v5expb61i9
+      city: Tempora corporis aliquam.
+      country: Nulla suscipit.
+      email: ahmad.greenholt@runolfssonsatterfield.biz
+      firstname: Dicta excepturi corporis ullam itaque.
+      href: Eum hic accusamus qui aspernatur vitae.
+      id: 4.82424e+18
+      lastname: Odit porro officia harum tenetur.
+      role: Aspernatur nemo inventore placeat.
+      state: Impedit vel.
     items:
       $ref: '#/definitions/User'
     title: 'Mediatype identifier: application/vnd.user+json; type=collection'
@@ -718,7 +794,7 @@ paths:
         name: payload
         required: true
         schema:
-          $ref: '#/definitions/UpdateProposalPayload'
+          $ref: '#/definitions/ProposalPayload'
       responses:
         "204":
           description: No Content
@@ -856,7 +932,7 @@ paths:
         name: payload
         required: true
         schema:
-          $ref: '#/definitions/UpdateReviewPayload'
+          $ref: '#/definitions/ReviewPayload'
       responses:
         "204":
           description: No Content

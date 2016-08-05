@@ -19,7 +19,7 @@ import (
 // It returns the response writer so it's possible to inspect the response headers.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func CreateReviewCreated(t *testing.T, ctx context.Context, service *goa.Service, ctrl app.ReviewController, userID string, proposalID string, payload *app.CreateReviewPayload) http.ResponseWriter {
+func CreateReviewCreated(t *testing.T, ctx context.Context, service *goa.Service, ctrl app.ReviewController, userID int, proposalID int, payload *app.CreateReviewPayload) http.ResponseWriter {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -91,7 +91,7 @@ func CreateReviewCreated(t *testing.T, ctx context.Context, service *goa.Service
 // It returns the response writer so it's possible to inspect the response headers.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func DeleteReviewNoContent(t *testing.T, ctx context.Context, service *goa.Service, ctrl app.ReviewController, userID string, proposalID string, reviewID int) http.ResponseWriter {
+func DeleteReviewNoContent(t *testing.T, ctx context.Context, service *goa.Service, ctrl app.ReviewController, userID int, proposalID int, reviewID int) http.ResponseWriter {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -150,7 +150,7 @@ func DeleteReviewNoContent(t *testing.T, ctx context.Context, service *goa.Servi
 // It returns the response writer so it's possible to inspect the response headers.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func DeleteReviewNotFound(t *testing.T, ctx context.Context, service *goa.Service, ctrl app.ReviewController, userID string, proposalID string, reviewID int) http.ResponseWriter {
+func DeleteReviewNotFound(t *testing.T, ctx context.Context, service *goa.Service, ctrl app.ReviewController, userID int, proposalID int, reviewID int) http.ResponseWriter {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -209,7 +209,7 @@ func DeleteReviewNotFound(t *testing.T, ctx context.Context, service *goa.Servic
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func ListReviewOK(t *testing.T, ctx context.Context, service *goa.Service, ctrl app.ReviewController, userID string, proposalID string) (http.ResponseWriter, app.ReviewCollection) {
+func ListReviewOK(t *testing.T, ctx context.Context, service *goa.Service, ctrl app.ReviewController, userID int, proposalID int) (http.ResponseWriter, app.ReviewCollection) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -279,7 +279,7 @@ func ListReviewOK(t *testing.T, ctx context.Context, service *goa.Service, ctrl 
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func ListReviewOKLink(t *testing.T, ctx context.Context, service *goa.Service, ctrl app.ReviewController, userID string, proposalID string) (http.ResponseWriter, app.ReviewLinkCollection) {
+func ListReviewOKLink(t *testing.T, ctx context.Context, service *goa.Service, ctrl app.ReviewController, userID int, proposalID int) (http.ResponseWriter, app.ReviewLinkCollection) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -345,7 +345,7 @@ func ListReviewOKLink(t *testing.T, ctx context.Context, service *goa.Service, c
 // It returns the response writer so it's possible to inspect the response headers.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func ShowReviewNotFound(t *testing.T, ctx context.Context, service *goa.Service, ctrl app.ReviewController, userID string, proposalID string, reviewID int) http.ResponseWriter {
+func ShowReviewNotFound(t *testing.T, ctx context.Context, service *goa.Service, ctrl app.ReviewController, userID int, proposalID int, reviewID int) http.ResponseWriter {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -404,7 +404,7 @@ func ShowReviewNotFound(t *testing.T, ctx context.Context, service *goa.Service,
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func ShowReviewOK(t *testing.T, ctx context.Context, service *goa.Service, ctrl app.ReviewController, userID string, proposalID string, reviewID int) (http.ResponseWriter, *app.Review) {
+func ShowReviewOK(t *testing.T, ctx context.Context, service *goa.Service, ctrl app.ReviewController, userID int, proposalID int, reviewID int) (http.ResponseWriter, *app.Review) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -475,7 +475,7 @@ func ShowReviewOK(t *testing.T, ctx context.Context, service *goa.Service, ctrl 
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func ShowReviewOKLink(t *testing.T, ctx context.Context, service *goa.Service, ctrl app.ReviewController, userID string, proposalID string, reviewID int) (http.ResponseWriter, *app.ReviewLink) {
+func ShowReviewOKLink(t *testing.T, ctx context.Context, service *goa.Service, ctrl app.ReviewController, userID int, proposalID int, reviewID int) (http.ResponseWriter, *app.ReviewLink) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -542,7 +542,7 @@ func ShowReviewOKLink(t *testing.T, ctx context.Context, service *goa.Service, c
 // It returns the response writer so it's possible to inspect the response headers.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func UpdateReviewNoContent(t *testing.T, ctx context.Context, service *goa.Service, ctrl app.ReviewController, userID string, proposalID string, reviewID int, payload *app.UpdateReviewPayload) http.ResponseWriter {
+func UpdateReviewNoContent(t *testing.T, ctx context.Context, service *goa.Service, ctrl app.ReviewController, userID int, proposalID int, reviewID int, payload *app.ReviewPayload) http.ResponseWriter {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -615,7 +615,7 @@ func UpdateReviewNoContent(t *testing.T, ctx context.Context, service *goa.Servi
 // It returns the response writer so it's possible to inspect the response headers.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func UpdateReviewNotFound(t *testing.T, ctx context.Context, service *goa.Service, ctrl app.ReviewController, userID string, proposalID string, reviewID int, payload *app.UpdateReviewPayload) http.ResponseWriter {
+func UpdateReviewNotFound(t *testing.T, ctx context.Context, service *goa.Service, ctrl app.ReviewController, userID int, proposalID int, reviewID int, payload *app.ReviewPayload) http.ResponseWriter {
 	// Setup service
 	var (
 		logBuf bytes.Buffer

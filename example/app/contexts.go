@@ -1,11 +1,11 @@
 //************************************************************************//
 // API "congo": Application Contexts
 //
-// Generated with goagen v0.2.dev, command line:
+// Generated with goagen v1.0.0, command line:
 // $ goagen
 // --design=github.com/goadesign/gorma/example/design
 // --out=$(GOPATH)/src/github.com/goadesign/gorma/example
-// --version=v0.2.dev
+// --version=v1.0.0
 //
 // The content of this file is auto-generated, DO NOT MODIFY
 //************************************************************************//
@@ -102,11 +102,11 @@ func NewRefreshAuthContext(ctx context.Context, service *goa.Service) (*RefreshA
 // refreshAuthPayload is the auth refresh action payload.
 type refreshAuthPayload struct {
 	// UUID of requesting application
-	Application *string `json:"application,omitempty" xml:"application,omitempty" form:"application,omitempty"`
+	Application *string `form:"application,omitempty" json:"application,omitempty" xml:"application,omitempty"`
 	// email
-	Email *string `json:"email,omitempty" xml:"email,omitempty" form:"email,omitempty"`
+	Email *string `form:"email,omitempty" json:"email,omitempty" xml:"email,omitempty"`
 	// password
-	Password *string `json:"password,omitempty" xml:"password,omitempty" form:"password,omitempty"`
+	Password *string `form:"password,omitempty" json:"password,omitempty" xml:"password,omitempty"`
 }
 
 // Publicize creates RefreshAuthPayload from refreshAuthPayload
@@ -127,11 +127,11 @@ func (payload *refreshAuthPayload) Publicize() *RefreshAuthPayload {
 // RefreshAuthPayload is the auth refresh action payload.
 type RefreshAuthPayload struct {
 	// UUID of requesting application
-	Application *string `json:"application,omitempty" xml:"application,omitempty" form:"application,omitempty"`
+	Application *string `form:"application,omitempty" json:"application,omitempty" xml:"application,omitempty"`
 	// email
-	Email *string `json:"email,omitempty" xml:"email,omitempty" form:"email,omitempty"`
+	Email *string `form:"email,omitempty" json:"email,omitempty" xml:"email,omitempty"`
 	// password
-	Password *string `json:"password,omitempty" xml:"password,omitempty" form:"password,omitempty"`
+	Password *string `form:"password,omitempty" json:"password,omitempty" xml:"password,omitempty"`
 }
 
 // Created sends a HTTP response with status code 201.
@@ -162,11 +162,11 @@ func NewTokenAuthContext(ctx context.Context, service *goa.Service) (*TokenAuthC
 // tokenAuthPayload is the auth token action payload.
 type tokenAuthPayload struct {
 	// UUID of requesting application
-	Application *string `json:"application,omitempty" xml:"application,omitempty" form:"application,omitempty"`
+	Application *string `form:"application,omitempty" json:"application,omitempty" xml:"application,omitempty"`
 	// email
-	Email *string `json:"email,omitempty" xml:"email,omitempty" form:"email,omitempty"`
+	Email *string `form:"email,omitempty" json:"email,omitempty" xml:"email,omitempty"`
 	// password
-	Password *string `json:"password,omitempty" xml:"password,omitempty" form:"password,omitempty"`
+	Password *string `form:"password,omitempty" json:"password,omitempty" xml:"password,omitempty"`
 }
 
 // Publicize creates TokenAuthPayload from tokenAuthPayload
@@ -187,11 +187,11 @@ func (payload *tokenAuthPayload) Publicize() *TokenAuthPayload {
 // TokenAuthPayload is the auth token action payload.
 type TokenAuthPayload struct {
 	// UUID of requesting application
-	Application *string `json:"application,omitempty" xml:"application,omitempty" form:"application,omitempty"`
+	Application *string `form:"application,omitempty" json:"application,omitempty" xml:"application,omitempty"`
 	// email
-	Email *string `json:"email,omitempty" xml:"email,omitempty" form:"email,omitempty"`
+	Email *string `form:"email,omitempty" json:"email,omitempty" xml:"email,omitempty"`
 	// password
-	Password *string `json:"password,omitempty" xml:"password,omitempty" form:"password,omitempty"`
+	Password *string `form:"password,omitempty" json:"password,omitempty" xml:"password,omitempty"`
 }
 
 // Created sends a HTTP response with status code 201.
@@ -231,10 +231,10 @@ func NewCreateProposalContext(ctx context.Context, service *goa.Service) (*Creat
 
 // createProposalPayload is the proposal create action payload.
 type createProposalPayload struct {
-	Abstract  *string `json:"abstract,omitempty" xml:"abstract,omitempty" form:"abstract,omitempty"`
-	Detail    *string `json:"detail,omitempty" xml:"detail,omitempty" form:"detail,omitempty"`
-	Title     *string `json:"title,omitempty" xml:"title,omitempty" form:"title,omitempty"`
-	Withdrawn *bool   `json:"withdrawn,omitempty" xml:"withdrawn,omitempty" form:"withdrawn,omitempty"`
+	Abstract  *string `form:"abstract,omitempty" json:"abstract,omitempty" xml:"abstract,omitempty"`
+	Detail    *string `form:"detail,omitempty" json:"detail,omitempty" xml:"detail,omitempty"`
+	Title     *string `form:"title,omitempty" json:"title,omitempty" xml:"title,omitempty"`
+	Withdrawn *bool   `form:"withdrawn,omitempty" json:"withdrawn,omitempty" xml:"withdrawn,omitempty"`
 }
 
 // Validate runs the validation rules defined in the design.
@@ -302,10 +302,10 @@ func (payload *createProposalPayload) Publicize() *CreateProposalPayload {
 
 // CreateProposalPayload is the proposal create action payload.
 type CreateProposalPayload struct {
-	Abstract  string `json:"abstract" xml:"abstract" form:"abstract"`
-	Detail    string `json:"detail" xml:"detail" form:"detail"`
-	Title     string `json:"title" xml:"title" form:"title"`
-	Withdrawn *bool  `json:"withdrawn,omitempty" xml:"withdrawn,omitempty" form:"withdrawn,omitempty"`
+	Abstract  string `form:"abstract" json:"abstract" xml:"abstract"`
+	Detail    string `form:"detail" json:"detail" xml:"detail"`
+	Title     string `form:"title" json:"title" xml:"title"`
+	Withdrawn *bool  `form:"withdrawn,omitempty" json:"withdrawn,omitempty" xml:"withdrawn,omitempty"`
 }
 
 // Validate runs the validation rules defined in the design.
@@ -475,6 +475,12 @@ func (ctx *ShowProposalContext) OK(r *Proposal) error {
 	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
 }
 
+// OKLink sends a HTTP response with status code 200.
+func (ctx *ShowProposalContext) OKLink(r *ProposalLink) error {
+	ctx.ResponseData.Header().Set("Content-Type", "application/vnd.proposal+json")
+	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
+}
+
 // NotFound sends a HTTP response with status code 404.
 func (ctx *ShowProposalContext) NotFound() error {
 	ctx.ResponseData.WriteHeader(404)
@@ -488,7 +494,7 @@ type UpdateProposalContext struct {
 	*goa.RequestData
 	ProposalID int
 	UserID     int
-	Payload    *UpdateProposalPayload
+	Payload    *ProposalPayload
 }
 
 // NewUpdateProposalContext parses the incoming request URL and body, performs validations and creates the
@@ -518,110 +524,6 @@ func NewUpdateProposalContext(ctx context.Context, service *goa.Service) (*Updat
 		}
 	}
 	return &rctx, err
-}
-
-// updateProposalPayload is the proposal update action payload.
-type updateProposalPayload struct {
-	Abstract  *string `json:"abstract,omitempty" xml:"abstract,omitempty" form:"abstract,omitempty"`
-	Detail    *string `json:"detail,omitempty" xml:"detail,omitempty" form:"detail,omitempty"`
-	Title     *string `json:"title,omitempty" xml:"title,omitempty" form:"title,omitempty"`
-	Withdrawn *bool   `json:"withdrawn,omitempty" xml:"withdrawn,omitempty" form:"withdrawn,omitempty"`
-}
-
-// Validate runs the validation rules defined in the design.
-func (payload *updateProposalPayload) Validate() (err error) {
-	if payload.Abstract != nil {
-		if len(*payload.Abstract) < 50 {
-			err = goa.MergeErrors(err, goa.InvalidLengthError(`raw.abstract`, *payload.Abstract, len(*payload.Abstract), 50, true))
-		}
-	}
-	if payload.Abstract != nil {
-		if len(*payload.Abstract) > 500 {
-			err = goa.MergeErrors(err, goa.InvalidLengthError(`raw.abstract`, *payload.Abstract, len(*payload.Abstract), 500, false))
-		}
-	}
-	if payload.Detail != nil {
-		if len(*payload.Detail) < 100 {
-			err = goa.MergeErrors(err, goa.InvalidLengthError(`raw.detail`, *payload.Detail, len(*payload.Detail), 100, true))
-		}
-	}
-	if payload.Detail != nil {
-		if len(*payload.Detail) > 2000 {
-			err = goa.MergeErrors(err, goa.InvalidLengthError(`raw.detail`, *payload.Detail, len(*payload.Detail), 2000, false))
-		}
-	}
-	if payload.Title != nil {
-		if len(*payload.Title) < 10 {
-			err = goa.MergeErrors(err, goa.InvalidLengthError(`raw.title`, *payload.Title, len(*payload.Title), 10, true))
-		}
-	}
-	if payload.Title != nil {
-		if len(*payload.Title) > 200 {
-			err = goa.MergeErrors(err, goa.InvalidLengthError(`raw.title`, *payload.Title, len(*payload.Title), 200, false))
-		}
-	}
-	return
-}
-
-// Publicize creates UpdateProposalPayload from updateProposalPayload
-func (payload *updateProposalPayload) Publicize() *UpdateProposalPayload {
-	var pub UpdateProposalPayload
-	if payload.Abstract != nil {
-		pub.Abstract = payload.Abstract
-	}
-	if payload.Detail != nil {
-		pub.Detail = payload.Detail
-	}
-	if payload.Title != nil {
-		pub.Title = payload.Title
-	}
-	if payload.Withdrawn != nil {
-		pub.Withdrawn = payload.Withdrawn
-	}
-	return &pub
-}
-
-// UpdateProposalPayload is the proposal update action payload.
-type UpdateProposalPayload struct {
-	Abstract  *string `json:"abstract,omitempty" xml:"abstract,omitempty" form:"abstract,omitempty"`
-	Detail    *string `json:"detail,omitempty" xml:"detail,omitempty" form:"detail,omitempty"`
-	Title     *string `json:"title,omitempty" xml:"title,omitempty" form:"title,omitempty"`
-	Withdrawn *bool   `json:"withdrawn,omitempty" xml:"withdrawn,omitempty" form:"withdrawn,omitempty"`
-}
-
-// Validate runs the validation rules defined in the design.
-func (payload *UpdateProposalPayload) Validate() (err error) {
-	if payload.Abstract != nil {
-		if len(*payload.Abstract) < 50 {
-			err = goa.MergeErrors(err, goa.InvalidLengthError(`raw.abstract`, *payload.Abstract, len(*payload.Abstract), 50, true))
-		}
-	}
-	if payload.Abstract != nil {
-		if len(*payload.Abstract) > 500 {
-			err = goa.MergeErrors(err, goa.InvalidLengthError(`raw.abstract`, *payload.Abstract, len(*payload.Abstract), 500, false))
-		}
-	}
-	if payload.Detail != nil {
-		if len(*payload.Detail) < 100 {
-			err = goa.MergeErrors(err, goa.InvalidLengthError(`raw.detail`, *payload.Detail, len(*payload.Detail), 100, true))
-		}
-	}
-	if payload.Detail != nil {
-		if len(*payload.Detail) > 2000 {
-			err = goa.MergeErrors(err, goa.InvalidLengthError(`raw.detail`, *payload.Detail, len(*payload.Detail), 2000, false))
-		}
-	}
-	if payload.Title != nil {
-		if len(*payload.Title) < 10 {
-			err = goa.MergeErrors(err, goa.InvalidLengthError(`raw.title`, *payload.Title, len(*payload.Title), 10, true))
-		}
-	}
-	if payload.Title != nil {
-		if len(*payload.Title) > 200 {
-			err = goa.MergeErrors(err, goa.InvalidLengthError(`raw.title`, *payload.Title, len(*payload.Title), 200, false))
-		}
-	}
-	return
 }
 
 // NoContent sends a HTTP response with status code 204.
@@ -677,8 +579,8 @@ func NewCreateReviewContext(ctx context.Context, service *goa.Service) (*CreateR
 
 // createReviewPayload is the review create action payload.
 type createReviewPayload struct {
-	Comment *string `json:"comment,omitempty" xml:"comment,omitempty" form:"comment,omitempty"`
-	Rating  *int    `json:"rating,omitempty" xml:"rating,omitempty" form:"rating,omitempty"`
+	Comment *string `form:"comment,omitempty" json:"comment,omitempty" xml:"comment,omitempty"`
+	Rating  *int    `form:"rating,omitempty" json:"rating,omitempty" xml:"rating,omitempty"`
 }
 
 // Validate runs the validation rules defined in the design.
@@ -724,8 +626,8 @@ func (payload *createReviewPayload) Publicize() *CreateReviewPayload {
 
 // CreateReviewPayload is the review create action payload.
 type CreateReviewPayload struct {
-	Comment *string `json:"comment,omitempty" xml:"comment,omitempty" form:"comment,omitempty"`
-	Rating  int     `json:"rating" xml:"rating" form:"rating"`
+	Comment *string `form:"comment,omitempty" json:"comment,omitempty" xml:"comment,omitempty"`
+	Rating  int     `form:"rating" json:"rating" xml:"rating"`
 }
 
 // Validate runs the validation rules defined in the design.
@@ -859,6 +761,12 @@ func (ctx *ListReviewContext) OK(r ReviewCollection) error {
 	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
 }
 
+// OKLink sends a HTTP response with status code 200.
+func (ctx *ListReviewContext) OKLink(r ReviewLinkCollection) error {
+	ctx.ResponseData.Header().Set("Content-Type", "application/vnd.review+json; type=collection")
+	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
+}
+
 // ShowReviewContext provides the review show action context.
 type ShowReviewContext struct {
 	context.Context
@@ -913,6 +821,12 @@ func (ctx *ShowReviewContext) OK(r *Review) error {
 	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
 }
 
+// OKLink sends a HTTP response with status code 200.
+func (ctx *ShowReviewContext) OKLink(r *ReviewLink) error {
+	ctx.ResponseData.Header().Set("Content-Type", "application/vnd.review+json")
+	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
+}
+
 // NotFound sends a HTTP response with status code 404.
 func (ctx *ShowReviewContext) NotFound() error {
 	ctx.ResponseData.WriteHeader(404)
@@ -927,7 +841,7 @@ type UpdateReviewContext struct {
 	ProposalID int
 	ReviewID   int
 	UserID     int
-	Payload    *UpdateReviewPayload
+	Payload    *ReviewPayload
 }
 
 // NewUpdateReviewContext parses the incoming request URL and body, performs validations and creates the
@@ -966,80 +880,6 @@ func NewUpdateReviewContext(ctx context.Context, service *goa.Service) (*UpdateR
 		}
 	}
 	return &rctx, err
-}
-
-// updateReviewPayload is the review update action payload.
-type updateReviewPayload struct {
-	Comment *string `json:"comment,omitempty" xml:"comment,omitempty" form:"comment,omitempty"`
-	Rating  *int    `json:"rating,omitempty" xml:"rating,omitempty" form:"rating,omitempty"`
-}
-
-// Validate runs the validation rules defined in the design.
-func (payload *updateReviewPayload) Validate() (err error) {
-	if payload.Comment != nil {
-		if len(*payload.Comment) < 10 {
-			err = goa.MergeErrors(err, goa.InvalidLengthError(`raw.comment`, *payload.Comment, len(*payload.Comment), 10, true))
-		}
-	}
-	if payload.Comment != nil {
-		if len(*payload.Comment) > 200 {
-			err = goa.MergeErrors(err, goa.InvalidLengthError(`raw.comment`, *payload.Comment, len(*payload.Comment), 200, false))
-		}
-	}
-	if payload.Rating != nil {
-		if *payload.Rating < 1 {
-			err = goa.MergeErrors(err, goa.InvalidRangeError(`raw.rating`, *payload.Rating, 1, true))
-		}
-	}
-	if payload.Rating != nil {
-		if *payload.Rating > 5 {
-			err = goa.MergeErrors(err, goa.InvalidRangeError(`raw.rating`, *payload.Rating, 5, false))
-		}
-	}
-	return
-}
-
-// Publicize creates UpdateReviewPayload from updateReviewPayload
-func (payload *updateReviewPayload) Publicize() *UpdateReviewPayload {
-	var pub UpdateReviewPayload
-	if payload.Comment != nil {
-		pub.Comment = payload.Comment
-	}
-	if payload.Rating != nil {
-		pub.Rating = payload.Rating
-	}
-	return &pub
-}
-
-// UpdateReviewPayload is the review update action payload.
-type UpdateReviewPayload struct {
-	Comment *string `json:"comment,omitempty" xml:"comment,omitempty" form:"comment,omitempty"`
-	Rating  *int    `json:"rating,omitempty" xml:"rating,omitempty" form:"rating,omitempty"`
-}
-
-// Validate runs the validation rules defined in the design.
-func (payload *UpdateReviewPayload) Validate() (err error) {
-	if payload.Comment != nil {
-		if len(*payload.Comment) < 10 {
-			err = goa.MergeErrors(err, goa.InvalidLengthError(`raw.comment`, *payload.Comment, len(*payload.Comment), 10, true))
-		}
-	}
-	if payload.Comment != nil {
-		if len(*payload.Comment) > 200 {
-			err = goa.MergeErrors(err, goa.InvalidLengthError(`raw.comment`, *payload.Comment, len(*payload.Comment), 200, false))
-		}
-	}
-	if payload.Rating != nil {
-		if *payload.Rating < 1 {
-			err = goa.MergeErrors(err, goa.InvalidRangeError(`raw.rating`, *payload.Rating, 1, true))
-		}
-	}
-	if payload.Rating != nil {
-		if *payload.Rating > 5 {
-			err = goa.MergeErrors(err, goa.InvalidRangeError(`raw.rating`, *payload.Rating, 5, false))
-		}
-	}
-	return
 }
 
 // NoContent sends a HTTP response with status code 204.
@@ -1101,13 +941,13 @@ func NewCreateUserContext(ctx context.Context, service *goa.Service) (*CreateUse
 
 // createUserPayload is the user create action payload.
 type createUserPayload struct {
-	Bio       *string `json:"bio,omitempty" xml:"bio,omitempty" form:"bio,omitempty"`
-	City      *string `json:"city,omitempty" xml:"city,omitempty" form:"city,omitempty"`
-	Country   *string `json:"country,omitempty" xml:"country,omitempty" form:"country,omitempty"`
-	Email     *string `json:"email,omitempty" xml:"email,omitempty" form:"email,omitempty"`
-	Firstname *string `json:"firstname,omitempty" xml:"firstname,omitempty" form:"firstname,omitempty"`
-	Lastname  *string `json:"lastname,omitempty" xml:"lastname,omitempty" form:"lastname,omitempty"`
-	State     *string `json:"state,omitempty" xml:"state,omitempty" form:"state,omitempty"`
+	Bio       *string `form:"bio,omitempty" json:"bio,omitempty" xml:"bio,omitempty"`
+	City      *string `form:"city,omitempty" json:"city,omitempty" xml:"city,omitempty"`
+	Country   *string `form:"country,omitempty" json:"country,omitempty" xml:"country,omitempty"`
+	Email     *string `form:"email,omitempty" json:"email,omitempty" xml:"email,omitempty"`
+	Firstname *string `form:"firstname,omitempty" json:"firstname,omitempty" xml:"firstname,omitempty"`
+	Lastname  *string `form:"lastname,omitempty" json:"lastname,omitempty" xml:"lastname,omitempty"`
+	State     *string `form:"state,omitempty" json:"state,omitempty" xml:"state,omitempty"`
 }
 
 // Validate runs the validation rules defined in the design.
@@ -1164,13 +1004,13 @@ func (payload *createUserPayload) Publicize() *CreateUserPayload {
 
 // CreateUserPayload is the user create action payload.
 type CreateUserPayload struct {
-	Bio       *string `json:"bio,omitempty" xml:"bio,omitempty" form:"bio,omitempty"`
-	City      *string `json:"city,omitempty" xml:"city,omitempty" form:"city,omitempty"`
-	Country   *string `json:"country,omitempty" xml:"country,omitempty" form:"country,omitempty"`
-	Email     string  `json:"email" xml:"email" form:"email"`
-	Firstname string  `json:"firstname" xml:"firstname" form:"firstname"`
-	Lastname  string  `json:"lastname" xml:"lastname" form:"lastname"`
-	State     *string `json:"state,omitempty" xml:"state,omitempty" form:"state,omitempty"`
+	Bio       *string `form:"bio,omitempty" json:"bio,omitempty" xml:"bio,omitempty"`
+	City      *string `form:"city,omitempty" json:"city,omitempty" xml:"city,omitempty"`
+	Country   *string `form:"country,omitempty" json:"country,omitempty" xml:"country,omitempty"`
+	Email     string  `form:"email" json:"email" xml:"email"`
+	Firstname string  `form:"firstname" json:"firstname" xml:"firstname"`
+	Lastname  string  `form:"lastname" json:"lastname" xml:"lastname"`
+	State     *string `form:"state,omitempty" json:"state,omitempty" xml:"state,omitempty"`
 }
 
 // Validate runs the validation rules defined in the design.
@@ -1300,6 +1140,12 @@ func (ctx *ShowUserContext) OK(r *User) error {
 	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
 }
 
+// OKLink sends a HTTP response with status code 200.
+func (ctx *ShowUserContext) OKLink(r *UserLink) error {
+	ctx.ResponseData.Header().Set("Content-Type", "application/vnd.user+json")
+	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
+}
+
 // NotFound sends a HTTP response with status code 404.
 func (ctx *ShowUserContext) NotFound() error {
 	ctx.ResponseData.WriteHeader(404)
@@ -1337,13 +1183,13 @@ func NewUpdateUserContext(ctx context.Context, service *goa.Service) (*UpdateUse
 
 // updateUserPayload is the user update action payload.
 type updateUserPayload struct {
-	Bio       *string `json:"bio,omitempty" xml:"bio,omitempty" form:"bio,omitempty"`
-	City      *string `json:"city,omitempty" xml:"city,omitempty" form:"city,omitempty"`
-	Country   *string `json:"country,omitempty" xml:"country,omitempty" form:"country,omitempty"`
-	Email     *string `json:"email,omitempty" xml:"email,omitempty" form:"email,omitempty"`
-	Firstname *string `json:"firstname,omitempty" xml:"firstname,omitempty" form:"firstname,omitempty"`
-	Lastname  *string `json:"lastname,omitempty" xml:"lastname,omitempty" form:"lastname,omitempty"`
-	State     *string `json:"state,omitempty" xml:"state,omitempty" form:"state,omitempty"`
+	Bio       *string `form:"bio,omitempty" json:"bio,omitempty" xml:"bio,omitempty"`
+	City      *string `form:"city,omitempty" json:"city,omitempty" xml:"city,omitempty"`
+	Country   *string `form:"country,omitempty" json:"country,omitempty" xml:"country,omitempty"`
+	Email     *string `form:"email,omitempty" json:"email,omitempty" xml:"email,omitempty"`
+	Firstname *string `form:"firstname,omitempty" json:"firstname,omitempty" xml:"firstname,omitempty"`
+	Lastname  *string `form:"lastname,omitempty" json:"lastname,omitempty" xml:"lastname,omitempty"`
+	State     *string `form:"state,omitempty" json:"state,omitempty" xml:"state,omitempty"`
 }
 
 // Validate runs the validation rules defined in the design.
@@ -1394,13 +1240,13 @@ func (payload *updateUserPayload) Publicize() *UpdateUserPayload {
 
 // UpdateUserPayload is the user update action payload.
 type UpdateUserPayload struct {
-	Bio       *string `json:"bio,omitempty" xml:"bio,omitempty" form:"bio,omitempty"`
-	City      *string `json:"city,omitempty" xml:"city,omitempty" form:"city,omitempty"`
-	Country   *string `json:"country,omitempty" xml:"country,omitempty" form:"country,omitempty"`
-	Email     string  `json:"email" xml:"email" form:"email"`
-	Firstname *string `json:"firstname,omitempty" xml:"firstname,omitempty" form:"firstname,omitempty"`
-	Lastname  *string `json:"lastname,omitempty" xml:"lastname,omitempty" form:"lastname,omitempty"`
-	State     *string `json:"state,omitempty" xml:"state,omitempty" form:"state,omitempty"`
+	Bio       *string `form:"bio,omitempty" json:"bio,omitempty" xml:"bio,omitempty"`
+	City      *string `form:"city,omitempty" json:"city,omitempty" xml:"city,omitempty"`
+	Country   *string `form:"country,omitempty" json:"country,omitempty" xml:"country,omitempty"`
+	Email     string  `form:"email" json:"email" xml:"email"`
+	Firstname *string `form:"firstname,omitempty" json:"firstname,omitempty" xml:"firstname,omitempty"`
+	Lastname  *string `form:"lastname,omitempty" json:"lastname,omitempty" xml:"lastname,omitempty"`
+	State     *string `form:"state,omitempty" json:"state,omitempty" xml:"state,omitempty"`
 }
 
 // Validate runs the validation rules defined in the design.

@@ -1,11 +1,11 @@
 //************************************************************************//
 // API "congo": Application Controllers
 //
-// Generated with goagen v0.2.dev, command line:
+// Generated with goagen v1.0.0, command line:
 // $ goagen
 // --design=github.com/goadesign/gorma/example/design
 // --out=$(GOPATH)/src/github.com/goadesign/gorma/example
-// --version=v0.2.dev
+// --version=v1.0.0
 //
 // The content of this file is auto-generated, DO NOT MODIFY
 //************************************************************************//
@@ -233,7 +233,7 @@ func MountProposalController(service *goa.Service, ctrl ProposalController) {
 		}
 		// Build the payload
 		if rawPayload := goa.ContextRequest(ctx).Payload; rawPayload != nil {
-			rctx.Payload = rawPayload.(*UpdateProposalPayload)
+			rctx.Payload = rawPayload.(*ProposalPayload)
 		} else {
 			return goa.MissingPayloadError()
 		}
@@ -258,7 +258,7 @@ func unmarshalCreateProposalPayload(ctx context.Context, service *goa.Service, r
 
 // unmarshalUpdateProposalPayload unmarshals the request body into the context request data Payload field.
 func unmarshalUpdateProposalPayload(ctx context.Context, service *goa.Service, req *http.Request) error {
-	payload := &updateProposalPayload{}
+	payload := &proposalPayload{}
 	if err := service.DecodeRequest(req, payload); err != nil {
 		return err
 	}
@@ -362,7 +362,7 @@ func MountReviewController(service *goa.Service, ctrl ReviewController) {
 		}
 		// Build the payload
 		if rawPayload := goa.ContextRequest(ctx).Payload; rawPayload != nil {
-			rctx.Payload = rawPayload.(*UpdateReviewPayload)
+			rctx.Payload = rawPayload.(*ReviewPayload)
 		} else {
 			return goa.MissingPayloadError()
 		}
@@ -387,7 +387,7 @@ func unmarshalCreateReviewPayload(ctx context.Context, service *goa.Service, req
 
 // unmarshalUpdateReviewPayload unmarshals the request body into the context request data Payload field.
 func unmarshalUpdateReviewPayload(ctx context.Context, service *goa.Service, req *http.Request) error {
-	payload := &updateReviewPayload{}
+	payload := &reviewPayload{}
 	if err := service.DecodeRequest(req, payload); err != nil {
 		return err
 	}

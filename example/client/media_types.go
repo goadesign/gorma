@@ -10,9 +10,12 @@
 // The content of this file is auto-generated, DO NOT MODIFY
 //************************************************************************//
 
-package app
+package client
 
-import "github.com/goadesign/goa"
+import (
+	"github.com/goadesign/goa"
+	"net/http"
+)
 
 // Token authorization response (default view)
 //
@@ -26,6 +29,13 @@ type Authorize struct {
 	TokenType *string `form:"token_type,omitempty" json:"token_type,omitempty" xml:"token_type,omitempty"`
 }
 
+// DecodeAuthorize decodes the Authorize instance encoded in resp body.
+func (c *Client) DecodeAuthorize(resp *http.Response) (*Authorize, error) {
+	var decoded Authorize
+	err := c.Decoder.Decode(&decoded, resp.Body, resp.Header.Get("Content-Type"))
+	return &decoded, err
+}
+
 // Login media type (default view)
 //
 // Identifier: application/vnd.login+json
@@ -36,6 +46,13 @@ type Login struct {
 	Email *string `form:"email,omitempty" json:"email,omitempty" xml:"email,omitempty"`
 	// password
 	Password *string `form:"password,omitempty" json:"password,omitempty" xml:"password,omitempty"`
+}
+
+// DecodeLogin decodes the Login instance encoded in resp body.
+func (c *Client) DecodeLogin(resp *http.Response) (*Login, error) {
+	var decoded Login
+	err := c.Decoder.Decode(&decoded, resp.Body, resp.Header.Get("Content-Type"))
+	return &decoded, err
 }
 
 // A response to a CFP (default view)
@@ -127,6 +144,20 @@ func (mt *ProposalLink) Validate() (err error) {
 type ProposalLinks struct {
 }
 
+// DecodeProposal decodes the Proposal instance encoded in resp body.
+func (c *Client) DecodeProposal(resp *http.Response) (*Proposal, error) {
+	var decoded Proposal
+	err := c.Decoder.Decode(&decoded, resp.Body, resp.Header.Get("Content-Type"))
+	return &decoded, err
+}
+
+// DecodeProposalLink decodes the ProposalLink instance encoded in resp body.
+func (c *Client) DecodeProposalLink(resp *http.Response) (*ProposalLink, error) {
+	var decoded ProposalLink
+	err := c.Decoder.Decode(&decoded, resp.Body, resp.Header.Get("Content-Type"))
+	return &decoded, err
+}
+
 // ProposalCollection is the media type for an array of Proposal (default view)
 //
 // Identifier: application/vnd.proposal+json; type=collection
@@ -174,6 +205,13 @@ func (mt ProposalCollection) Validate() (err error) {
 
 // ProposalLinksArray contains links to related resources of ProposalCollection.
 type ProposalLinksArray []*ProposalLinks
+
+// DecodeProposalCollection decodes the ProposalCollection instance encoded in resp body.
+func (c *Client) DecodeProposalCollection(resp *http.Response) (ProposalCollection, error) {
+	var decoded ProposalCollection
+	err := c.Decoder.Decode(&decoded, resp.Body, resp.Header.Get("Content-Type"))
+	return decoded, err
+}
 
 // A review is submitted by a reviewer (default view)
 //
@@ -224,6 +262,20 @@ type ReviewLink struct {
 	ID *int `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
 }
 
+// DecodeReview decodes the Review instance encoded in resp body.
+func (c *Client) DecodeReview(resp *http.Response) (*Review, error) {
+	var decoded Review
+	err := c.Decoder.Decode(&decoded, resp.Body, resp.Header.Get("Content-Type"))
+	return &decoded, err
+}
+
+// DecodeReviewLink decodes the ReviewLink instance encoded in resp body.
+func (c *Client) DecodeReviewLink(resp *http.Response) (*ReviewLink, error) {
+	var decoded ReviewLink
+	err := c.Decoder.Decode(&decoded, resp.Body, resp.Header.Get("Content-Type"))
+	return &decoded, err
+}
+
 // ReviewCollection is the media type for an array of Review (default view)
 //
 // Identifier: application/vnd.review+json; type=collection
@@ -260,6 +312,20 @@ func (mt ReviewCollection) Validate() (err error) {
 //
 // Identifier: application/vnd.review+json; type=collection
 type ReviewLinkCollection []*ReviewLink
+
+// DecodeReviewCollection decodes the ReviewCollection instance encoded in resp body.
+func (c *Client) DecodeReviewCollection(resp *http.Response) (ReviewCollection, error) {
+	var decoded ReviewCollection
+	err := c.Decoder.Decode(&decoded, resp.Body, resp.Header.Get("Content-Type"))
+	return decoded, err
+}
+
+// DecodeReviewLinkCollection decodes the ReviewLinkCollection instance encoded in resp body.
+func (c *Client) DecodeReviewLinkCollection(resp *http.Response) (ReviewLinkCollection, error) {
+	var decoded ReviewLinkCollection
+	err := c.Decoder.Decode(&decoded, resp.Body, resp.Header.Get("Content-Type"))
+	return decoded, err
+}
 
 // A user belonging to a tenant account (default view)
 //
@@ -324,6 +390,20 @@ func (mt *UserLink) Validate() (err error) {
 	return
 }
 
+// DecodeUser decodes the User instance encoded in resp body.
+func (c *Client) DecodeUser(resp *http.Response) (*User, error) {
+	var decoded User
+	err := c.Decoder.Decode(&decoded, resp.Body, resp.Header.Get("Content-Type"))
+	return &decoded, err
+}
+
+// DecodeUserLink decodes the UserLink instance encoded in resp body.
+func (c *Client) DecodeUserLink(resp *http.Response) (*UserLink, error) {
+	var decoded UserLink
+	err := c.Decoder.Decode(&decoded, resp.Body, resp.Header.Get("Content-Type"))
+	return &decoded, err
+}
+
 // UserCollection is the media type for an array of User (default view)
 //
 // Identifier: application/vnd.user+json; type=collection
@@ -344,4 +424,11 @@ func (mt UserCollection) Validate() (err error) {
 		}
 	}
 	return
+}
+
+// DecodeUserCollection decodes the UserCollection instance encoded in resp body.
+func (c *Client) DecodeUserCollection(resp *http.Response) (UserCollection, error) {
+	var decoded UserCollection
+	err := c.Decoder.Decode(&decoded, resp.Body, resp.Header.Get("Content-Type"))
+	return decoded, err
 }

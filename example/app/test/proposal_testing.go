@@ -19,7 +19,7 @@ import (
 // It returns the response writer so it's possible to inspect the response headers.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func CreateProposalCreated(t *testing.T, ctx context.Context, service *goa.Service, ctrl app.ProposalController, userID string, payload *app.CreateProposalPayload) http.ResponseWriter {
+func CreateProposalCreated(t *testing.T, ctx context.Context, service *goa.Service, ctrl app.ProposalController, userID int, payload *app.CreateProposalPayload) http.ResponseWriter {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -90,7 +90,7 @@ func CreateProposalCreated(t *testing.T, ctx context.Context, service *goa.Servi
 // It returns the response writer so it's possible to inspect the response headers.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func DeleteProposalNoContent(t *testing.T, ctx context.Context, service *goa.Service, ctrl app.ProposalController, userID string, proposalID int) http.ResponseWriter {
+func DeleteProposalNoContent(t *testing.T, ctx context.Context, service *goa.Service, ctrl app.ProposalController, userID int, proposalID int) http.ResponseWriter {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -148,7 +148,7 @@ func DeleteProposalNoContent(t *testing.T, ctx context.Context, service *goa.Ser
 // It returns the response writer so it's possible to inspect the response headers.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func DeleteProposalNotFound(t *testing.T, ctx context.Context, service *goa.Service, ctrl app.ProposalController, userID string, proposalID int) http.ResponseWriter {
+func DeleteProposalNotFound(t *testing.T, ctx context.Context, service *goa.Service, ctrl app.ProposalController, userID int, proposalID int) http.ResponseWriter {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -206,7 +206,7 @@ func DeleteProposalNotFound(t *testing.T, ctx context.Context, service *goa.Serv
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func ListProposalOK(t *testing.T, ctx context.Context, service *goa.Service, ctrl app.ProposalController, userID string) (http.ResponseWriter, app.ProposalCollection) {
+func ListProposalOK(t *testing.T, ctx context.Context, service *goa.Service, ctrl app.ProposalController, userID int) (http.ResponseWriter, app.ProposalCollection) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -275,7 +275,7 @@ func ListProposalOK(t *testing.T, ctx context.Context, service *goa.Service, ctr
 // It returns the response writer so it's possible to inspect the response headers.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func ShowProposalNotFound(t *testing.T, ctx context.Context, service *goa.Service, ctrl app.ProposalController, userID string, proposalID int) http.ResponseWriter {
+func ShowProposalNotFound(t *testing.T, ctx context.Context, service *goa.Service, ctrl app.ProposalController, userID int, proposalID int) http.ResponseWriter {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -333,7 +333,7 @@ func ShowProposalNotFound(t *testing.T, ctx context.Context, service *goa.Servic
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func ShowProposalOK(t *testing.T, ctx context.Context, service *goa.Service, ctrl app.ProposalController, userID string, proposalID int) (http.ResponseWriter, *app.Proposal) {
+func ShowProposalOK(t *testing.T, ctx context.Context, service *goa.Service, ctrl app.ProposalController, userID int, proposalID int) (http.ResponseWriter, *app.Proposal) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -403,7 +403,7 @@ func ShowProposalOK(t *testing.T, ctx context.Context, service *goa.Service, ctr
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func ShowProposalOKLink(t *testing.T, ctx context.Context, service *goa.Service, ctrl app.ProposalController, userID string, proposalID int) (http.ResponseWriter, *app.ProposalLink) {
+func ShowProposalOKLink(t *testing.T, ctx context.Context, service *goa.Service, ctrl app.ProposalController, userID int, proposalID int) (http.ResponseWriter, *app.ProposalLink) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -473,7 +473,7 @@ func ShowProposalOKLink(t *testing.T, ctx context.Context, service *goa.Service,
 // It returns the response writer so it's possible to inspect the response headers.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func UpdateProposalNoContent(t *testing.T, ctx context.Context, service *goa.Service, ctrl app.ProposalController, userID string, proposalID int, payload *app.UpdateProposalPayload) http.ResponseWriter {
+func UpdateProposalNoContent(t *testing.T, ctx context.Context, service *goa.Service, ctrl app.ProposalController, userID int, proposalID int, payload *app.ProposalPayload) http.ResponseWriter {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -545,7 +545,7 @@ func UpdateProposalNoContent(t *testing.T, ctx context.Context, service *goa.Ser
 // It returns the response writer so it's possible to inspect the response headers.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func UpdateProposalNotFound(t *testing.T, ctx context.Context, service *goa.Service, ctrl app.ProposalController, userID string, proposalID int, payload *app.UpdateProposalPayload) http.ResponseWriter {
+func UpdateProposalNotFound(t *testing.T, ctx context.Context, service *goa.Service, ctrl app.ProposalController, userID int, proposalID int, payload *app.ProposalPayload) http.ResponseWriter {
 	// Setup service
 	var (
 		logBuf bytes.Buffer

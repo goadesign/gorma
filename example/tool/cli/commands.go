@@ -5,12 +5,15 @@ import (
 	"fmt"
 	"github.com/goadesign/goa"
 	goaclient "github.com/goadesign/goa/client"
+	uuid "github.com/goadesign/goa/uuid"
 	"github.com/goadesign/gorma/example/client"
 	"github.com/spf13/cobra"
 	"golang.org/x/net/context"
 	"log"
 	"os"
+	"strconv"
 	"strings"
+	"time"
 )
 
 type (
@@ -199,7 +202,17 @@ func RegisterCommands(app *cobra.Command, c *client.Client) {
 	sub = &cobra.Command{
 		Use:   `proposal ["/api/users/USERID/proposals"]`,
 		Short: ``,
-		RunE:  func(cmd *cobra.Command, args []string) error { return tmp3.Run(c, args) },
+		Long: `
+
+Payload example:
+
+{
+   "abstract": "7kdhnj3lzw",
+   "detail": "is4cm9wkhb",
+   "title": "yzfem3il5u",
+   "withdrawn": false
+}`,
+		RunE: func(cmd *cobra.Command, args []string) error { return tmp3.Run(c, args) },
 	}
 	tmp3.RegisterFlags(sub, c)
 	sub.PersistentFlags().BoolVar(&tmp3.PrettyPrint, "pp", false, "Pretty print response body")
@@ -208,7 +221,15 @@ func RegisterCommands(app *cobra.Command, c *client.Client) {
 	sub = &cobra.Command{
 		Use:   `review ["/api/users/USERID/proposals/PROPOSALID/review"]`,
 		Short: ``,
-		RunE:  func(cmd *cobra.Command, args []string) error { return tmp4.Run(c, args) },
+		Long: `
+
+Payload example:
+
+{
+   "comment": "kkhtfd5zp9",
+   "rating": 1
+}`,
+		RunE: func(cmd *cobra.Command, args []string) error { return tmp4.Run(c, args) },
 	}
 	tmp4.RegisterFlags(sub, c)
 	sub.PersistentFlags().BoolVar(&tmp4.PrettyPrint, "pp", false, "Pretty print response body")
@@ -217,7 +238,20 @@ func RegisterCommands(app *cobra.Command, c *client.Client) {
 	sub = &cobra.Command{
 		Use:   `user ["/api/users"]`,
 		Short: ``,
-		RunE:  func(cmd *cobra.Command, args []string) error { return tmp5.Run(c, args) },
+		Long: `
+
+Payload example:
+
+{
+   "bio": "88zfp2pwak",
+   "city": "Nesciunt voluptatem reprehenderit et qui.",
+   "country": "Libero cumque aut sit et numquam.",
+   "email": "abelardo@millsreinger.name",
+   "firstname": "Aut ipsum dolor.",
+   "lastname": "Voluptatum aut sapiente consequatur sit autem vel.",
+   "state": "Et maiores quia dolorum ab officia."
+}`,
+		RunE: func(cmd *cobra.Command, args []string) error { return tmp5.Run(c, args) },
 	}
 	tmp5.RegisterFlags(sub, c)
 	sub.PersistentFlags().BoolVar(&tmp5.PrettyPrint, "pp", false, "Pretty print response body")
@@ -309,7 +343,16 @@ func RegisterCommands(app *cobra.Command, c *client.Client) {
 	sub = &cobra.Command{
 		Use:   `auth ["/api/auth/refresh"]`,
 		Short: ``,
-		RunE:  func(cmd *cobra.Command, args []string) error { return tmp13.Run(c, args) },
+		Long: `
+
+Payload example:
+
+{
+   "application": "Sunt et.",
+   "email": "Culpa minima error dolores dolorem tempora.",
+   "password": "Voluptas ratione ab doloremque."
+}`,
+		RunE: func(cmd *cobra.Command, args []string) error { return tmp13.Run(c, args) },
 	}
 	tmp13.RegisterFlags(sub, c)
 	sub.PersistentFlags().BoolVar(&tmp13.PrettyPrint, "pp", false, "Pretty print response body")
@@ -355,7 +398,16 @@ func RegisterCommands(app *cobra.Command, c *client.Client) {
 	sub = &cobra.Command{
 		Use:   `auth ["/api/auth/token"]`,
 		Short: ``,
-		RunE:  func(cmd *cobra.Command, args []string) error { return tmp17.Run(c, args) },
+		Long: `
+
+Payload example:
+
+{
+   "application": "Sunt et.",
+   "email": "Culpa minima error dolores dolorem tempora.",
+   "password": "Voluptas ratione ab doloremque."
+}`,
+		RunE: func(cmd *cobra.Command, args []string) error { return tmp17.Run(c, args) },
 	}
 	tmp17.RegisterFlags(sub, c)
 	sub.PersistentFlags().BoolVar(&tmp17.PrettyPrint, "pp", false, "Pretty print response body")
@@ -369,7 +421,17 @@ func RegisterCommands(app *cobra.Command, c *client.Client) {
 	sub = &cobra.Command{
 		Use:   `proposal ["/api/users/USERID/proposals/PROPOSALID"]`,
 		Short: ``,
-		RunE:  func(cmd *cobra.Command, args []string) error { return tmp18.Run(c, args) },
+		Long: `
+
+Payload example:
+
+{
+   "abstract": "7kdhnj3lzw",
+   "detail": "is4cm9wkhb",
+   "title": "yzfem3il5u",
+   "withdrawn": false
+}`,
+		RunE: func(cmd *cobra.Command, args []string) error { return tmp18.Run(c, args) },
 	}
 	tmp18.RegisterFlags(sub, c)
 	sub.PersistentFlags().BoolVar(&tmp18.PrettyPrint, "pp", false, "Pretty print response body")
@@ -378,7 +440,15 @@ func RegisterCommands(app *cobra.Command, c *client.Client) {
 	sub = &cobra.Command{
 		Use:   `review ["/api/users/USERID/proposals/PROPOSALID/review/REVIEWID"]`,
 		Short: ``,
-		RunE:  func(cmd *cobra.Command, args []string) error { return tmp19.Run(c, args) },
+		Long: `
+
+Payload example:
+
+{
+   "comment": "kkhtfd5zp9",
+   "rating": 1
+}`,
+		RunE: func(cmd *cobra.Command, args []string) error { return tmp19.Run(c, args) },
 	}
 	tmp19.RegisterFlags(sub, c)
 	sub.PersistentFlags().BoolVar(&tmp19.PrettyPrint, "pp", false, "Pretty print response body")
@@ -387,7 +457,20 @@ func RegisterCommands(app *cobra.Command, c *client.Client) {
 	sub = &cobra.Command{
 		Use:   `user ["/api/users/USERID"]`,
 		Short: ``,
-		RunE:  func(cmd *cobra.Command, args []string) error { return tmp20.Run(c, args) },
+		Long: `
+
+Payload example:
+
+{
+   "bio": "88zfp2pwak",
+   "city": "Nesciunt voluptatem reprehenderit et qui.",
+   "country": "Libero cumque aut sit et numquam.",
+   "email": "abelardo@millsreinger.name",
+   "firstname": "Aut ipsum dolor.",
+   "lastname": "Voluptatum aut sapiente consequatur sit autem vel.",
+   "state": "Et maiores quia dolorum ab officia."
+}`,
+		RunE: func(cmd *cobra.Command, args []string) error { return tmp20.Run(c, args) },
 	}
 	tmp20.RegisterFlags(sub, c)
 	sub.PersistentFlags().BoolVar(&tmp20.PrettyPrint, "pp", false, "Pretty print response body")
@@ -430,6 +513,122 @@ func hasFlag(name string) bool {
 		}
 	}
 	return false
+}
+
+func jsonVal(val string) (*interface{}, error) {
+	var t interface{}
+	err := json.Unmarshal([]byte(val), &t)
+	if err != nil {
+		return nil, err
+	}
+	return &t, nil
+}
+
+func jsonArray(ins []string) ([]interface{}, error) {
+	if ins == nil {
+		return nil, nil
+	}
+	var vals []interface{}
+	for _, id := range ins {
+		val, err := jsonVal(id)
+		if err != nil {
+			return nil, err
+		}
+		vals = append(vals, val)
+	}
+	return vals, nil
+}
+
+func timeVal(val string) (*time.Time, error) {
+	t, err := time.Parse("RFC3339", val)
+	if err != nil {
+		return nil, err
+	}
+	return &t, nil
+}
+
+func timeArray(ins []string) ([]time.Time, error) {
+	if ins == nil {
+		return nil, nil
+	}
+	var vals []time.Time
+	for _, id := range ins {
+		val, err := timeVal(id)
+		if err != nil {
+			return nil, err
+		}
+		vals = append(vals, *val)
+	}
+	return vals, nil
+}
+
+func uuidVal(val string) (*uuid.UUID, error) {
+	t, err := uuid.FromString(val)
+	if err != nil {
+		return nil, err
+	}
+	return &t, nil
+}
+
+func uuidArray(ins []string) ([]uuid.UUID, error) {
+	if ins == nil {
+		return nil, nil
+	}
+	var vals []uuid.UUID
+	for _, id := range ins {
+		val, err := uuidVal(id)
+		if err != nil {
+			return nil, err
+		}
+		vals = append(vals, *val)
+	}
+	return vals, nil
+}
+
+func float64Val(val string) (*float64, error) {
+	t, err := strconv.ParseFloat(val, 64)
+	if err != nil {
+		return nil, err
+	}
+	return &t, nil
+}
+
+func float64Array(ins []string) ([]float64, error) {
+	if ins == nil {
+		return nil, nil
+	}
+	var vals []float64
+	for _, id := range ins {
+		val, err := float64Val(id)
+		if err != nil {
+			return nil, err
+		}
+		vals = append(vals, *val)
+	}
+	return vals, nil
+}
+
+func boolVal(val string) (*bool, error) {
+	t, err := strconv.ParseBool(val)
+	if err != nil {
+		return nil, err
+	}
+	return &t, nil
+}
+
+func boolArray(ins []string) ([]bool, error) {
+	if ins == nil {
+		return nil, nil
+	}
+	var vals []bool
+	for _, id := range ins {
+		val, err := boolVal(id)
+		if err != nil {
+			return nil, err
+		}
+		vals = append(vals, *val)
+	}
+	return vals, nil
 }
 
 // Run makes the HTTP request corresponding to the CallbackAuthCommand command.
@@ -675,7 +874,7 @@ func (cmd *UpdateProposalCommand) Run(c *client.Client, args []string) error {
 	} else {
 		path = fmt.Sprintf("/api/users/%v/proposals/%v", cmd.ProposalID, cmd.UserID)
 	}
-	var payload client.UpdateProposalPayload
+	var payload client.ProposalPayload
 	if cmd.Payload != "" {
 		err := json.Unmarshal([]byte(cmd.Payload), &payload)
 		if err != nil {
@@ -837,7 +1036,7 @@ func (cmd *UpdateReviewCommand) Run(c *client.Client, args []string) error {
 	} else {
 		path = fmt.Sprintf("/api/users/%v/proposals/%v/review/%v", cmd.ProposalID, cmd.ReviewID, cmd.UserID)
 	}
-	var payload client.UpdateReviewPayload
+	var payload client.ReviewPayload
 	if cmd.Payload != "" {
 		err := json.Unmarshal([]byte(cmd.Payload), &payload)
 		if err != nil {
