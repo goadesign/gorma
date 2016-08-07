@@ -146,19 +146,6 @@ func fieldAssignmentModelToType(model *RelationalModelDefinition, ut *design.Vie
 		if field.Datatype == "" {
 			continue
 		}
-		// Set the relational field
-		// if the view has one of them
-		if field.Datatype == BelongsTo {
-			fn := strings.Replace(field.FieldName, "ID", "", -1)
-			_, ok := obj[codegen.Goify(fn, false)]
-			if ok {
-				fa := fmt.Sprintf("tmp%d := &%s.%s", tmp, mtype, codegen.Goify(fn, true))
-				fieldAssignments = append(fieldAssignments, fa)
-				fa = fmt.Sprintf("%s.%s = tmp%d.%sTo%s()", utype, codegen.Goify(fn, true), tmp, codegen.Goify(fn, true), codegen.Goify(fn, true))
-				fieldAssignments = append(fieldAssignments, fa)
-				tmp++
-			}
-		}
 
 		for key := range obj {
 			gfield := obj[key]
@@ -200,6 +187,23 @@ func fieldAssignmentModelToType(model *RelationalModelDefinition, ut *design.Vie
 				} else {
 					fa := fmt.Sprintf("\t%s.%s = %s%s.%s", utype, codegen.Goify(key, true), prefix, v, codegen.Goify(fname, true))
 					fieldAssignments = append(fieldAssignments, fa)
+				}
+			} else {
+				fn := codegen.Goify(strings.Replace(field.FieldName, "ID", "", -1), false)
+				if fn == key {
+					gfield, ok := obj[fn]
+					if ok {
+						fa := fmt.Sprintf("tmp%d := &%s.%s", tmp, mtype, codegen.Goify(fn, true))
+						fieldAssignments = append(fieldAssignments, fa)
+						var view string
+						if gfield.View != "" {
+							view = gfield.View
+						}
+						fa = fmt.Sprintf("%s.%s = tmp%d.%sTo%s%s() // %s", utype, codegen.Goify(fn, true), tmp, codegen.Goify(fn, true), codegen.Goify(fn, true), codegen.Goify(view, true))
+
+						fieldAssignments = append(fieldAssignments, fa)
+						tmp++
+					}
 				}
 			}
 		}
