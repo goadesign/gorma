@@ -177,9 +177,12 @@ func fieldAssignmentModelToType(model *RelationalModelDefinition, ut *design.Vie
 				/// test to see if it's a go object here and add the appending stuff
 
 				if gfield.Type.IsObject() || gfield.Type.IsArray() {
-					ifa := fmt.Sprintf("for _,k := range %s.%s {", v, codegen.Goify(fname, true))
+					tmp += 1
+					ifa := fmt.Sprintf("for i%d := range %s.%s {", tmp, v, codegen.Goify(fname, true))
 					fieldAssignments = append(fieldAssignments, ifa)
-					ifb := fmt.Sprintf("%s.%s = append(%s.%s, k.%sTo%s())", utype, codegen.Goify(key, true), utype, codegen.Goify(key, true), inflect.Singularize(codegen.Goify(key, true)), inflect.Singularize(codegen.Goify(key, true)))
+					ifd := fmt.Sprintf("tmp%d := &%s.%s[i%d]", tmp, v, codegen.Goify(fname, true), tmp)
+					fieldAssignments = append(fieldAssignments, ifd)
+					ifb := fmt.Sprintf("%s.%s = append(%s.%s, tmp%d.%sTo%s())", utype, codegen.Goify(key, true), utype, codegen.Goify(key, true), tmp, inflect.Singularize(codegen.Goify(key, true)), inflect.Singularize(codegen.Goify(key, true)))
 					fieldAssignments = append(fieldAssignments, ifb)
 					ifc := fmt.Sprintf("}")
 					fieldAssignments = append(fieldAssignments, ifc)
