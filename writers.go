@@ -427,7 +427,7 @@ type {{$ut.ModelName}}Storage interface {
 	List(ctx context.Context{{ if $ut.DynamicTableName}}, tableName string{{ end }}) ([]*{{$ut.ModelName}}, error)
 	Get(ctx context.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, {{$ut.PKAttributes}}) (*{{$ut.ModelName}}, error)
 	Add(ctx context.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, {{$ut.LowerName}} *{{$ut.ModelName}}) (error)
-	Update(ctx context.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, {{$ut.LowerName}} *{{$ut.ModelName}}) (error)
+	Update(ctx context.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, {{$ut.PKAttributes}}, update map[string]interface{}) (error)
 	Delete(ctx context.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, {{ $ut.PKAttributes}}) (error)
 {{range $rname, $rmt := $ut.RenderTo}}{{/*
 
@@ -516,15 +516,15 @@ func (m *{{$ut.ModelName}}DB) Add(ctx context.Context{{ if $ut.DynamicTableName 
 }
 
 // Update modifies a single record.
-func (m *{{$ut.ModelName}}DB) Update(ctx context.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, model *{{$ut.ModelName}}) error {
+func (m *{{$ut.ModelName}}DB) Update(ctx context.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, {{$ut.PKAttributes}}, update map[string]interface{}) error {
 	defer goa.MeasureSince([]string{"goa","db","{{goify $ut.ModelName false}}", "update"}, time.Now())
 
-	obj, err := m.Get(ctx{{ if $ut.DynamicTableName }}, tableName{{ end }}, {{$ut.PKUpdateFields "model"}})
+	obj, err := m.Get(ctx{{ if $ut.DynamicTableName }}, tableName{{ end }}, {{$ut.PKNames}})
 	if err != nil {
 		goa.LogError(ctx, "error updating {{$ut.ModelName}}", "error", err.Error())
 		return  err
 	}
-	err = m.Db{{ if $ut.DynamicTableName }}.Table(tableName){{ end }}.Model(obj).Updates(model).Error
+	err = m.Db{{ if $ut.DynamicTableName }}.Table(tableName){{ end }}.Model(obj).Updates(update).Error
 	{{ if $ut.Cached }}go func(){
 		m.cache.Set(strconv.Itoa(model.ID), obj, cache.DefaultExpiration)
 	}()
