@@ -72,7 +72,6 @@ func (f *RelationalModelDefinition) PKNames() string {
 	return strings.Join(attr, ",")
 }
 
-// PKWhere returns an array of strings representing the where clause
 // PKAttributes constructs a pair of field + definition strings
 // useful for method parameters.
 func (f *RelationalModelDefinition) PKAttributes() string {
