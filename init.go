@@ -11,6 +11,8 @@ const (
 	MySQL RelationalStorageType = "mysql"
 	// Postgres is the StorageType for Postgres
 	Postgres RelationalStorageType = "postgres"
+	// SQLite3 is the StorageType for SQLite3 databases
+	SQLite3 RelationalStorageType = "sqlite3"
 	// None is For tests
 	None RelationalStorageType = ""
 	// Boolean is a bool field type
