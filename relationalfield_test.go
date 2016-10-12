@@ -78,3 +78,37 @@ func TestFieldDefinitions(t *testing.T) {
 	}
 
 }
+
+func TestTags(t *testing.T) {
+
+	var tagtests = []struct {
+		name         string
+		dbcolumnname string
+		datatype     gorma.FieldType
+		primaryKey   bool
+		many2many    string
+		tableName    string
+		expected     string
+	}{
+		{"ID", "", gorma.Integer, true, "", "", "`gorm:\"primary_key\"`"},
+		{"ID", "test_id", gorma.Integer, true, "", "", "`gorm:\"column:test_id;primary_key\"`"},
+		{"ID", "", gorma.Integer, false, "", "", ""},
+		{"TestID", "test_id", gorma.Integer, true, "", "", "`gorm:\"primary_key\"`"},
+		{"TestID", "", gorma.Integer, false, "many2many", "tests_resultstest", "`gorm:\"many2many:tests_resultstest\"`"},
+	}
+	for _, tt := range tagtests {
+		f := &gorma.RelationalFieldDefinition{}
+		f.FieldName = dsl.SanitizeFieldName(tt.name)
+		f.DatabaseFieldName = tt.dbcolumnname
+		f.Datatype = tt.datatype
+		f.PrimaryKey = tt.primaryKey
+		f.Many2Many = tt.many2many
+		f.TableName = tt.tableName
+		def := f.Tags()
+
+		if def != tt.expected {
+			t.Errorf("expected %s,got %s", tt.expected, def)
+		}
+	}
+
+}
