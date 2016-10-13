@@ -93,7 +93,7 @@ func TestTags(t *testing.T) {
 		{"ID", "", gorma.Integer, true, "", "", "`gorm:\"primary_key\"`"},
 		{"ID", "test_id", gorma.Integer, true, "", "", "`gorm:\"column:test_id;primary_key\"`"},
 		{"ID", "", gorma.Integer, false, "", "", ""},
-		{"TestID", "test_id", gorma.Integer, true, "", "", "`gorm:\"primary_key\"`"},
+		{"TestID", "test_id", gorma.Integer, true, "", "", "`gorm:\"column:test_id;primary_key\"`"},
 		{"TestID", "", gorma.Integer, false, "many2many", "tests_resultstest", "`gorm:\"many2many:tests_resultstest\"`"},
 	}
 	for _, tt := range tagtests {
