@@ -62,7 +62,7 @@ Write a storage definition using DSL from the `dsl` package.  Example:
 
 ```
 
-See the `dsl` GoDoc for all the details and options.
+See the [`dsl` GoDoc](https://godoc.org/github.com/goadesign/gorma/dsl) for all the details and options.
 
 From the root of your application, issue the `goagen` command as follows:
 
