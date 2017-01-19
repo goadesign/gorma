@@ -334,6 +334,7 @@ func (w *UserHelperWriter) Execute(data *UserTypeTemplateData) error {
 	fm["viewFields"] = viewFields
 	fm["viewFieldNames"] = viewFieldNames
 	fm["goDatatype"] = goDatatype
+	fm["goDatatypeByModel"] = goDatatypeByModel
 	fm["plural"] = inflect.Pluralize
 	fm["gtt"] = codegen.GoTypeTransform
 	fm["gttn"] = codegen.GoTypeTransformName
@@ -459,7 +460,14 @@ func (m *{{$ut.ModelName}}DB) TableName() string {
 
 // {{$ut.ModelName}}FilterBy{{$bt.ModelName}} is a gorm filter for a Belongs To relationship.
 func {{$ut.ModelName}}FilterBy{{$bt.ModelName}}({{goify (printf "%s%s" $bt.ModelName "ID") false}} {{ goDatatypeByModel $ut $bt.ModelName }}, originaldb *gorm.DB) func(db *gorm.DB) *gorm.DB {
+
+{{ range $l, $pk := $ut.PrimaryKeys }}
+	{{ if eq $pk.Datatype "uuid" }}
+	if {{goify (printf "%s%s" $bt.ModelName "ID") false}}.String() != "" {
+{{ else }}
 	if {{goify (printf "%s%s" $bt.ModelName "ID") false}} > 0 {
+{{ end }}
+{{ end }}
 		return func(db *gorm.DB) *gorm.DB {
 			return db.Where("{{if $bt.RelationalFields.ID.DatabaseFieldName}}{{ if ne $bt.RelationalFields.ID.DatabaseFieldName "id" }}{{$bt.RelationalFields.ID.DatabaseFieldName}} = ?", {{goify (printf "%s%s" $bt.ModelName "ID") false}}){{else}}{{$bt.Underscore}}_id = ?", {{goify (printf "%s%s" $bt.ModelName "ID") false}}){{end}}
 			{{ else }}{{$bt.Underscore}}_id = ?", {{goify (printf "%s%s" $bt.ModelName "ID") false}}){{ end }}
@@ -602,7 +610,7 @@ func (m {{$ut.ModelName}}) GetRole() string {
 // List{{goify .Media.TypeName true}}{{if not (eq .ViewName "default")}}{{goify .ViewName true}}{{end}} returns an array of view: {{.ViewName}}.
 func (m *{{.Model.ModelName}}DB) List{{goify .Media.TypeName true}}{{if not (eq .ViewName "default")}}{{goify .ViewName true}}{{end}}{{/*
 */}} (ctx context.Context{{ if .Model.DynamicTableName}}, tableName string{{ end }}{{/*
-*/}} {{range $nm, $bt := .Model.BelongsTo}},{{goify (printf "%s%s" $bt.ModelName "ID") false}} int{{end}}){{/*
+*/}} {{$mod:=.Model}}{{range $nm, $bt := .Model.BelongsTo}},{{goify (printf "%s%s" $bt.ModelName "ID") false}} {{ goDatatypeByModel $mod $bt.ModelName }}{{end}}){{/*
 */}} []*app.{{goify .Media.TypeName true}}{{if not (eq .ViewName "default")}}{{goify .ViewName true}}{{end}}{
 	defer goa.MeasureSince([]string{"goa","db","{{goify .Media.TypeName false}}", "list{{goify .Media.TypeName false}}{{if eq .ViewName "default"}}{{else}}{{goify .ViewName false}}{{end}}"}, time.Now())
 
@@ -637,7 +645,7 @@ func (m *{{.Model.ModelName}}) {{$.Model.ModelName}}To{{goify .Media.UserTypeDef
 // One{{goify .Media.TypeName true}}{{if not (eq .ViewName "default")}}{{goify .ViewName true}}{{end}} loads a {{.Model.ModelName}} and builds the {{.ViewName}} view of media type {{.Media.TypeName}}.
 func (m *{{.Model.ModelName}}DB) One{{goify .Media.TypeName true}}{{if not (eq .ViewName "default")}}{{goify .ViewName true}}{{end}}{{/*
 */}} (ctx context.Context{{ if .Model.DynamicTableName}}, tableName string{{ end }},{{.Model.PKAttributes}}{{/*
-*/}}{{range $nm, $bt := .Model.BelongsTo}},{{goify (printf "%s%s" $bt.ModelName "ID") false}} int{{end}}){{/*
+*/}}{{$mod:=.Model}}{{range $nm, $bt := .Model.BelongsTo}},{{goify (printf "%s%s" $bt.ModelName "ID") false}} {{ goDatatypeByModel $mod $bt.ModelName }}{{end}}){{/*
 */}} (*app.{{goify .Media.TypeName true}}{{if not (eq .ViewName "default")}}{{goify .ViewName true}}{{end}}, error){
 	defer goa.MeasureSince([]string{"goa","db","{{goify .Media.TypeName false}}", "one{{goify .Media.TypeName false}}{{if not (eq .ViewName "default")}}{{goify .ViewName false}}{{end}}"}, time.Now())
 
