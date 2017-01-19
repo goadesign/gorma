@@ -362,6 +362,7 @@ func (w *UserTypesWriter) Execute(data *UserTypeTemplateData) error {
 	fm["viewFields"] = viewFields
 	fm["viewFieldNames"] = viewFieldNames
 	fm["goDatatype"] = goDatatype
+	fm["goDatatypeByModel"] = goDatatypeByModel
 	fm["plural"] = inflect.Pluralize
 	fm["gtt"] = codegen.GoTypeTransform
 	fm["gttn"] = codegen.GoTypeTransformName
@@ -457,7 +458,7 @@ func (m *{{$ut.ModelName}}DB) TableName() string {
 // Belongs To Relationships
 
 // {{$ut.ModelName}}FilterBy{{$bt.ModelName}} is a gorm filter for a Belongs To relationship.
-func {{$ut.ModelName}}FilterBy{{$bt.ModelName}}({{goify (printf "%s%s" $bt.ModelName "ID") false}} int, originaldb *gorm.DB) func(db *gorm.DB) *gorm.DB {
+func {{$ut.ModelName}}FilterBy{{$bt.ModelName}}({{goify (printf "%s%s" $bt.ModelName "ID") false}} {{ goDatatypeByModel $ut $bt.ModelName }}, originaldb *gorm.DB) func(db *gorm.DB) *gorm.DB {
 	if {{goify (printf "%s%s" $bt.ModelName "ID") false}} > 0 {
 		return func(db *gorm.DB) *gorm.DB {
 			return db.Where("{{if $bt.RelationalFields.ID.DatabaseFieldName}}{{ if ne $bt.RelationalFields.ID.DatabaseFieldName "id" }}{{$bt.RelationalFields.ID.DatabaseFieldName}} = ?", {{goify (printf "%s%s" $bt.ModelName "ID") false}}){{else}}{{$bt.Underscore}}_id = ?", {{goify (printf "%s%s" $bt.ModelName "ID") false}}){{end}}
