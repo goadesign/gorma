@@ -253,7 +253,7 @@ func (f *RelationalModelDefinition) PopulateFromModeledType() {
 				case design.IntegerKind:
 					rf.Datatype = Integer
 				case design.NumberKind:
-					rf.Datatype = Decimal
+					rf.Datatype = BigDecimal
 				case design.StringKind:
 					rf.Datatype = String
 				case design.DateTimeKind:
@@ -285,7 +285,7 @@ func (f *RelationalModelDefinition) PopulateFromModeledType() {
 			case design.IntegerKind:
 				rf.Datatype = Integer
 			case design.NumberKind:
-				rf.Datatype = Decimal
+				rf.Datatype = BigDecimal
 			case design.StringKind:
 				rf.Datatype = String
 			case design.DateTimeKind:
