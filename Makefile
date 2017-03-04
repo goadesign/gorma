@@ -26,13 +26,10 @@ DEPEND=\
 all: depend lint test
 
 docs:
-	@git clone https://github.com/goadesign/goa.design
-	@rm -rf goa.design/content/reference goa.design/public
-	@mdc --exclude goa.design --exclude example github.com/goadesign/gorma goa.design/content/reference
-	@cd goa.design && hugo
+	@cd /tmp && git clone https://github.com/goadesign/goa.design && cd goa.design && rm -rf content/reference public && make docs && hugo
 	@rm -rf public
-	@mv goa.design/public public
-	@rm -rf goa.design
+	@mv /tmp/goa.design/public public
+	@rm -rf /tmp/goa.design
 
 depend:
 	@go get -u $(DEPEND)
