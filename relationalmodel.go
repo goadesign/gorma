@@ -63,6 +63,15 @@ func (f RelationalModelDefinition) Children() []dslengine.Definition {
 	return stores
 }
 
+// PKNames constructs field  strings useful for method parameters.
+func (f *RelationalModelDefinition) PKNames() string {
+	var attr []string
+	for _, pk := range f.PrimaryKeys {
+		attr = append(attr, fmt.Sprintf("%s", codegen.Goify(pk.DatabaseFieldName, false)))
+	}
+	return strings.Join(attr, ",")
+}
+
 // PKAttributes constructs a pair of field + definition strings
 // useful for method parameters.
 func (f *RelationalModelDefinition) PKAttributes() string {
