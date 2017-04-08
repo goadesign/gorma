@@ -38,6 +38,11 @@ var _ = Describe("RelationalField", func() {
 			//gdsl.BuildsFrom(RandomPayload)
 			gdsl.Field(name, ft, dsl)
 			gdsl.Field("id", gorma.Integer, dsl) // use lowercase "id" to test sanitizer
+			gdsl.Field("API", gorma.String)
+			gdsl.Field("url", gorma.String)
+			gdsl.Field("APIType", gorma.String)
+			gdsl.Field("xml_type", gorma.String)
+			gdsl.Field("", gorma.String)
 			gdsl.Field("MiddleName", gorma.String)
 			gdsl.Field("CreatedAt", gorma.Timestamp)
 			gdsl.Field("UpdatedAt", gorma.Timestamp)
@@ -117,6 +122,12 @@ var _ = Describe("RelationalField", func() {
 				rs := sg.RelationalStores[storename]
 				rm := rs.RelationalModels[modelname]
 				Ω(rm.RelationalFields["ID"].FieldName).Should(Equal("ID"))
+				Ω(rm.RelationalFields["API"].FieldName).Should(Equal("API"))
+				Ω(rm.RelationalFields["URL"].FieldName).Should(Equal("URL"))
+				Ω(rm.RelationalFields["APIType"].FieldName).Should(Equal("APIType"))
+				Ω(rm.RelationalFields["XMLType"].FieldName).Should(Equal("XMLType"))
+				Ω(rm.RelationalFields[""].FieldName).Should(Equal(""))
+				Ω(rm.RelationalFields["ID"].FieldName).Should(Equal("ID"))
 			})
 			It("sets the field type", func() {
 				sg := gorma.GormaDesign
@@ -151,7 +162,7 @@ var _ = Describe("RelationalField", func() {
 				rs := sg.RelationalStores[storename]
 				rm := rs.RelationalModels[modelname]
 				length := len(rm.RelationalFields)
-				Ω(length).Should(Equal(6))
+				Ω(length).Should(Equal(11))
 			})
 		})
 

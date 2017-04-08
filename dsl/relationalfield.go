@@ -1,9 +1,9 @@
 package dsl
 
 import (
+	"bytes"
 	"strings"
-
-	"bitbucket.org/pkg/inflect"
+	"unicode"
 
 	"github.com/goadesign/goa/design"
 	"github.com/goadesign/goa/dslengine"
@@ -142,7 +142,8 @@ func SanitizeFieldName(name string) string {
 
 // SanitizeDBFieldName is exported for testing purposes
 func SanitizeDBFieldName(name string) string {
-	name = inflect.Underscore(name)
+	name = goifyToCamelCase(name)
+	name = codegen.SnakeCase(name)
 	if strings.HasSuffix(name, "_i_d") {
 		name = strings.TrimSuffix(name, "_i_d")
 		name = name + "_id"
@@ -189,4 +190,28 @@ func parseFieldArgs(args ...interface{}) (gorma.FieldType, func()) {
 	}
 
 	return fieldType, dslp
+}
+
+// goifyToCamelCase converts the output of Goify to CamelCase, for example: "APIFoo" to "ApiFoo"
+func goifyToCamelCase(val string) string {
+	if len(val) == 0 {
+		return ""
+	}
+	var b bytes.Buffer
+	var prev rune
+	for i, v := range val {
+		if unicode.IsUpper(v) && unicode.IsUpper(prev) {
+			b.WriteRune(unicode.ToLower(v))
+		} else {
+			if unicode.IsUpper(prev) {
+				if i != 0 {
+					b.Truncate(i - 1)
+					b.WriteRune(unicode.ToUpper(prev))
+				}
+			}
+			b.WriteRune(v)
+		}
+		prev = v
+	}
+	return b.String()
 }
