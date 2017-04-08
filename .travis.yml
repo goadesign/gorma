@@ -14,7 +14,7 @@ install:
 script:
 - export PATH=${PATH}:${HOME}/bin
 - make
-- make docs
+- if [ "$TRAVIS_GO_VERSION" = "1.7.1" ]; then make docs; fi
 notifications:
   slack:
     secure: bMYXaoSEGoNdqR0t1VnMAv/4V9PSOhEWyekdJM7p9WmKjJi2yKy0k77uRmwf+5Mrz5GLs3CkZnDha/8cSFld3KEN9SC6QYmIBF/1Pd/5mKHFQOI81i7sTlhrdMv897+6sofEtbBNq1jffhVGVttbMrMWwCTNZu0NrCGBVsDmb44=
