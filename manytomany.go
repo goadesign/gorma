@@ -3,19 +3,19 @@ package gorma
 import (
 	"strings"
 
-	"bitbucket.org/pkg/inflect"
+	"github.com/jinzhu/inflection"
 )
 
 // LeftNamePlural returns the pluralized version of
 // the "owner" of the m2m relationship.
 func (m *ManyToManyDefinition) LeftNamePlural() string {
-	return inflect.Pluralize(m.Left.ModelName)
+	return inflection.Plural(m.Left.ModelName)
 }
 
 // RightNamePlural returns the pluralized version
 // of the "child" of the m2m relationship.
 func (m *ManyToManyDefinition) RightNamePlural() string {
-	return inflect.Pluralize(m.Right.ModelName)
+	return inflection.Plural(m.Right.ModelName)
 }
 
 // LeftName returns the name of the "owner" of the

@@ -205,3 +205,19 @@ func TestPKUpdateFieldsMultiple(t *testing.T) {
 	}
 
 }
+
+func TestTableName(t *testing.T) {
+	sg := &gorma.RelationalModelDefinition{}
+	sg.ModelName = "status"
+	if sg.TableName() != "statuses" {
+		t.Errorf("Expected %s, got %s", "statuses", sg.TableName())
+	}
+	sg.ModelName = "study"
+	if sg.TableName() != "studies" {
+		t.Errorf("Expected %s, got %s", "studies", sg.TableName())
+	}
+	sg.ModelName = "user"
+	if sg.TableName() != "users" {
+		t.Errorf("Expected %s, got %s", "users", sg.TableName())
+	}
+}

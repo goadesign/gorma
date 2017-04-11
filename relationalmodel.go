@@ -11,6 +11,7 @@ import (
 	"github.com/goadesign/goa/design"
 	"github.com/goadesign/goa/dslengine"
 	"github.com/goadesign/goa/goagen/codegen"
+	"github.com/jinzhu/inflection"
 )
 
 // NewRelationalModelDefinition returns an initialized
@@ -51,7 +52,7 @@ func (f *RelationalModelDefinition) DSL() func() {
 
 // TableName returns the TableName of the struct.
 func (f RelationalModelDefinition) TableName() string {
-	return inflect.Underscore(inflect.Pluralize(f.ModelName))
+	return inflect.Underscore(inflection.Plural(f.ModelName))
 }
 
 // Children returns a slice of this objects children.
