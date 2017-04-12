@@ -105,10 +105,10 @@ func (g *Generator) generateUserTypes(outdir string, api *design.APIDefinition) 
 			title := fmt.Sprintf("%s: Models", api.Context())
 			imports := []*codegen.ImportSpec{
 				codegen.SimpleImport(g.appPkgPath),
+				codegen.SimpleImport("context"),
 				codegen.SimpleImport("time"),
 				codegen.SimpleImport("github.com/goadesign/goa"),
 				codegen.SimpleImport("github.com/jinzhu/gorm"),
-				codegen.SimpleImport("golang.org/x/net/context"),
 				codegen.NewImport("uuid", "github.com/satori/go.uuid"),
 			}
 
@@ -163,10 +163,10 @@ func (g *Generator) generateUserHelpers(outdir string, api *design.APIDefinition
 			title := fmt.Sprintf("%s: Model Helpers", api.Context())
 			imports := []*codegen.ImportSpec{
 				codegen.SimpleImport(g.appPkgPath),
+				codegen.SimpleImport("context"),
 				codegen.SimpleImport("time"),
 				codegen.SimpleImport("github.com/goadesign/goa"),
 				codegen.SimpleImport("github.com/jinzhu/gorm"),
-				codegen.SimpleImport("golang.org/x/net/context"),
 				codegen.NewImport("uuid", "github.com/satori/go.uuid"),
 			}
 
