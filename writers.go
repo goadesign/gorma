@@ -10,6 +10,7 @@ import (
 
 	"github.com/goadesign/goa/design"
 	"github.com/goadesign/goa/goagen/codegen"
+	"github.com/jinzhu/inflection"
 	"github.com/kr/pretty"
 )
 
@@ -340,7 +341,7 @@ func (w *UserHelperWriter) Execute(data *UserTypeTemplateData) error {
 	fm["viewFieldNames"] = viewFieldNames
 	fm["goDatatype"] = goDatatype
 	fm["goDatatypeByModel"] = goDatatypeByModel
-	fm["plural"] = inflect.Pluralize
+	fm["plural"] = inflection.Plural
 	fm["gtt"] = codegen.GoTypeTransform
 	fm["gttn"] = codegen.GoTypeTransformName
 	fm["gptn"] = codegen.GoTypeName
@@ -369,7 +370,7 @@ func (w *UserTypesWriter) Execute(data *UserTypeTemplateData) error {
 	fm["viewFieldNames"] = viewFieldNames
 	fm["goDatatype"] = goDatatype
 	fm["goDatatypeByModel"] = goDatatypeByModel
-	fm["plural"] = inflect.Pluralize
+	fm["plural"] = inflection.Plural
 	fm["gtt"] = codegen.GoTypeTransform
 	fm["gttn"] = codegen.GoTypeTransformName
 	return w.ExecuteTemplate("types", userTypeT, fm, data)

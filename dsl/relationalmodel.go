@@ -10,6 +10,7 @@ import (
 	"github.com/goadesign/goa/dslengine"
 	"github.com/goadesign/goa/goagen/codegen"
 	"github.com/goadesign/gorma"
+	"github.com/jinzhu/inflection"
 )
 
 // Model is the DSL that represents a Relational Model.
@@ -244,7 +245,7 @@ func HasMany(name, child string) {
 		field := gorma.NewRelationalFieldDefinition()
 		field.FieldName = codegen.Goify(name, true)
 		field.HasMany = child
-		field.Description = "has many " + inflect.Pluralize(child)
+		field.Description = "has many " + inflection.Plural(child)
 		field.Datatype = gorma.HasMany
 		field.Parent = r
 		r.RelationalFields[field.FieldName] = field
@@ -296,7 +297,7 @@ func HasMany(name, child string) {
 func ManyToMany(other, tablename string) {
 	if r, ok := relationalModelDefinition(false); ok {
 		field := gorma.NewRelationalFieldDefinition()
-		field.FieldName = inflect.Pluralize(other)
+		field.FieldName = inflection.Plural(other)
 		field.TableName = tablename
 		field.Many2Many = other
 		field.Datatype = gorma.Many2Many
