@@ -177,7 +177,9 @@ func tags(f *RelationalFieldDefinition) string {
 	}
 
 	var gormtags []string
-	if f.DatabaseFieldName != "" && f.DatabaseFieldName != f.Underscore() {
+	if f.DatabaseFieldName != "" &&
+		(f.DatabaseFieldName != f.Underscore() ||
+			(f.PrimaryKey && f.Underscore() != "id")) {
 		gormtags = append(gormtags, "column:"+f.DatabaseFieldName)
 	}
 	if f.PrimaryKey {
