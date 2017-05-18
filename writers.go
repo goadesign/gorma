@@ -154,6 +154,7 @@ func fieldAssignmentModelToType(model *RelationalModelDefinition, ut *design.Vie
 		}
 
 		for key := range obj {
+			helperFuncMediaTypeNames[utype] = ut.Parent.TypeName
 			gfield := obj[key]
 			if field.Underscore() == key || field.DatabaseFieldName == key {
 				// this is our field
@@ -188,7 +189,7 @@ func fieldAssignmentModelToType(model *RelationalModelDefinition, ut *design.Vie
 					fieldAssignments = append(fieldAssignments, ifa)
 					ifd := fmt.Sprintf("tmp%d := &%s.%s[i%d]", tmp, v, codegen.Goify(fname, true), tmp)
 					fieldAssignments = append(fieldAssignments, ifd)
-					ifb := fmt.Sprintf("%s.%s = append(%s.%s, tmp%d.%sTo%s())", utype, codegen.Goify(key, true), utype, codegen.Goify(key, true), tmp, inflect.Singularize(codegen.Goify(key, true)), inflect.Singularize(codegen.Goify(key, true)))
+					ifb := fmt.Sprintf("%s.%s = append(%s.%s, tmp%d.%sTo%s())", utype, codegen.Goify(key, true), utype, codegen.Goify(key, true), tmp, inflect.Singularize(codegen.Goify(key, true)), helperFuncMediaTypeNames[inflect.Singularize(key)])
 					fieldAssignments = append(fieldAssignments, ifb)
 					ifc := fmt.Sprintf("}")
 					fieldAssignments = append(fieldAssignments, ifc)

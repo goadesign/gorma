@@ -142,6 +142,11 @@ func (g *Generator) generateUserTypes(outdir string, api *design.APIDefinition) 
 	return err
 }
 
+// This var is set as a local packagewide variable to store the name of a
+// mediatype (Mt1) that may be needed in anohter mediatype (Mt2) in a different call
+// scopes of generateUserTypes. (if Mt1 is used in an array like manner in Mt2)
+var helperFuncMediaTypeNames = map[string]string{}
+
 // generateUserHelpers iterates through the user types and generates the data structures and
 // marshaling code.
 func (g *Generator) generateUserHelpers(outdir string, api *design.APIDefinition) error {
