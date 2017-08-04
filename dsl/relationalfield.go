@@ -112,6 +112,12 @@ func Nullable() {
 		f.Nullable = true
 	}
 }
+// Ignore this field for insert/update
+func Ignore() {
+	if f, ok := relationalFieldDefinition(false); ok {
+		f.Ignore = true
+	}
+}
 
 // PrimaryKey establishes a field as a Primary Key by
 // seting the struct tags necessary to create the PK in gorm.

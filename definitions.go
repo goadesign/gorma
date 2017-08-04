@@ -132,6 +132,7 @@ type RelationalFieldDefinition struct {
 	DatabaseFieldName string // gorm:column
 	Description       string
 	Nullable          bool
+	Ignore		  bool
 	PrimaryKey        bool
 	Timestamp         bool
 	Size              int // string field size
