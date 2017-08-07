@@ -29,37 +29,34 @@ to Media Types and from Payloads (User Types).  If you don't have any complex bu
 ## Use
 Write a storage definition using DSL from the `dsl` package.  Example:
 
-```
-
-	var sg = StorageGroup("MyStorageGroup", func() {
-		Description("This is the global storage group")
-		Store("mysql", gorma.MySQL, func() {
-			Description("This is the mysql relational store")
-			Model("Bottle", func() {
-				BuildsFrom(func() {
-					Payload("myresource","actionname")  // e.g. "bottle", "create" resource definition
-				})
-
-				RendersTo(Bottle)						// a Media Type definition
-				Description("This is the bottle model")
-
-				Field("ID", gorma.Integer, func() {    // Required for CRUD getters to take a PK argument!
-					PrimaryKey()
-					Description("This is the ID PK field")
-				})
-
-				Field("Vintage", gorma.Integer, func() {
-					SQLTag("index")						// Add an index
-				})
-
-				Field("CreatedAt", gorma.Timestamp)
-				Field("UpdatedAt", gorma.Timestamp)			 // Shown for demonstration
-				Field("DeletedAt", gorma.NullableTimestamp)  // These are added by default
+```go
+var sg = StorageGroup("MyStorageGroup", func() {
+	Description("This is the global storage group")
+	Store("mysql", gorma.MySQL, func() {
+		Description("This is the mysql relational store")
+		Model("Bottle", func() {
+			BuildsFrom(func() {
+				Payload("myresource","actionname")  // e.g. "bottle", "create" resource definition
 			})
+
+			RendersTo(Bottle)						// a Media Type definition
+			Description("This is the bottle model")
+
+			Field("ID", gorma.Integer, func() {    // Required for CRUD getters to take a PK argument!
+				PrimaryKey()
+				Description("This is the ID PK field")
+			})
+
+			Field("Vintage", gorma.Integer, func() {
+				SQLTag("index")						// Add an index
+			})
+
+			Field("CreatedAt", gorma.Timestamp)
+			Field("UpdatedAt", gorma.Timestamp)			 // Shown for demonstration
+			Field("DeletedAt", gorma.NullableTimestamp)  // These are added by default
 		})
 	})
-
-
+})
 ```
 
 See the [`dsl` GoDoc](https://godoc.org/github.com/goadesign/gorma/dsl) for all the details and options.
@@ -67,8 +64,9 @@ See the [`dsl` GoDoc](https://godoc.org/github.com/goadesign/gorma/dsl) for all 
 From the root of your application, issue the `goagen` command as follows:
 
 ```
-	goagen --design=github.com/gopheracademy/congo/design gen --pkg-path=github.com/goadesign/gorma
+$ goagen --design=github.com/gopheracademy/congo/design gen --pkg-path=github.com/goadesign/gorma
 ```
+
 Be sure to replace `github.com/gopheracademy/congo/design` with the design package of your `goa` application.
 
 
