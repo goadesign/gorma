@@ -112,6 +112,7 @@ func Nullable() {
 		f.Nullable = true
 	}
 }
+
 // Ignore this field for insert/update
 func Ignore() {
 	if f, ok := relationalFieldDefinition(false); ok {
