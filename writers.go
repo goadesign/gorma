@@ -519,7 +519,7 @@ func (m *{{$ut.ModelName}}DB) Add(ctx context.Context{{ if $ut.DynamicTableName 
 	defer goa.MeasureSince([]string{"goa","db","{{goify $ut.ModelName false}}", "add"}, time.Now())
 
 {{ range $l, $pk := $ut.PrimaryKeys }}
-	{{ if eq $pk.Datatype "uuid" }}model.{{$pk.FieldName}} = uuid.NewV4(){{ end }}
+	{{ if eq $pk.Datatype "uuid" }}model.{{$pk.FieldName}}, _ = uuid.NewV4(){{ end }}
 {{ end }}
 	err := m.Db{{ if $ut.DynamicTableName }}.Table(tableName){{ end }}.Create(model).Error
 	if err != nil {
