@@ -1,6 +1,6 @@
 language: go
 go:
-- 1.10.0
+- 1.8.1
 sudo: false
 install:
 - go get -v ./...
