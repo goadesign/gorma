@@ -108,8 +108,8 @@ func (g *Generator) generateUserTypes(outdir string, api *design.APIDefinition) 
 				codegen.SimpleImport("context"),
 				codegen.SimpleImport("time"),
 				codegen.SimpleImport("github.com/goadesign/goa"),
+				codegen.SimpleImport("github.com/goadesign/goa/uuid"),
 				codegen.SimpleImport("github.com/jinzhu/gorm"),
-				codegen.NewImport("uuid", "github.com/satori/go.uuid"),
 			}
 
 			if model.Cached {
@@ -171,8 +171,8 @@ func (g *Generator) generateUserHelpers(outdir string, api *design.APIDefinition
 				codegen.SimpleImport("context"),
 				codegen.SimpleImport("time"),
 				codegen.SimpleImport("github.com/goadesign/goa"),
+				codegen.SimpleImport("github.com/goadesign/goa/uuid"),
 				codegen.SimpleImport("github.com/jinzhu/gorm"),
-				codegen.NewImport("uuid", "github.com/satori/go.uuid"),
 			}
 
 			if model.Cached {
