@@ -186,6 +186,9 @@ func tags(f *RelationalFieldDefinition) string {
 	if f.Many2Many != "" {
 		gormtags = append(gormtags, "many2many:"+f.TableName)
 	}
+	if f.Ignore {
+		gormtags = append(gormtags, "-")
+	}
 
 	var tags []string
 	if len(sqltags) > 0 {
