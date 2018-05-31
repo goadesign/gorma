@@ -571,12 +571,6 @@ func (m *{{$ut.ModelName}}DB) Delete(ctx context.Context{{ if $ut.DynamicTableNa
 func (m *{{$ut.ModelName}}DB) DeleteByModel(ctx context.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, obj *{{$ut.ModelName}})  error {
 	defer goa.MeasureSince([]string{"goa","db","{{goify $ut.ModelName false}}", "deleteByModel"}, time.Now())
 
-	if obj == nil {
-		err := fmt.Errorf("assigned obj is nil")
-		goa.LogError(ctx, "error deleting {{$ut.ModelName}}", "error", err.Error())
-		return  err
-	}
-
 	err := m.Db{{ if $ut.DynamicTableName }}.Table(tableName){{ end }}.Delete(obj).Error
 	if err != nil {
 		goa.LogError(ctx, "error deleting {{$ut.ModelName}}", "error", err.Error())
