@@ -566,8 +566,8 @@ func (m *{{$ut.ModelName}}DB) Delete(ctx context.Context{{ if $ut.DynamicTableNa
 	return  nil
 }
 
-// DeleteByModel removes a single record of assigned model.
-// If record is deleted by this method, some defined callbacks of gorm are executed too.
+// DeleteModel removes a single record given the corresponding model.
+// Exisiting gorm deletion callbacks are executed if a record is deleted.
 func (m *{{$ut.ModelName}}DB) DeleteByModel(ctx context.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, obj *{{$ut.ModelName}})  error {
 	defer goa.MeasureSince([]string{"goa","db","{{goify $ut.ModelName false}}", "deleteByModel"}, time.Now())
 
