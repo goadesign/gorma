@@ -1,3 +1,4 @@
+dist: xenial # For new TLS version compatible with bitbucket
 language: go
 go:
 - 1.11.x
