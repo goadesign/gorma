@@ -34,6 +34,7 @@ docs:
 depend:
 	@go get -u $(DEPEND)
 	@go install $(DEPEND)
+	@export GO111MODULE=on && go get github.com/goa.design/tools/godoc2md
 
 lint:
 	@for d in $(DIRS) ; do \
