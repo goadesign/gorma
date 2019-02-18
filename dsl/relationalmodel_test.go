@@ -13,10 +13,8 @@ import (
 
 var _ = Describe("RelationalModel", func() {
 	var sgname, storename, name string
-	var dsl, storedsl, modeldsl func()
-	var RandomPayload *UserTypeDefinition
+	var dsl, storedsl func()
 	var ChildPayload *UserTypeDefinition
-	var HasOnePayload *UserTypeDefinition
 	var HasManyPayload *UserTypeDefinition
 	var ChildMedia *MediaTypeDefinition
 
@@ -28,7 +26,6 @@ var _ = Describe("RelationalModel", func() {
 		dsl = nil
 		storename = "mysql"
 		name = ""
-		modeldsl = nil
 
 		TestResource = Resource("testresource", func() {
 			BasePath("/tests")
@@ -50,11 +47,7 @@ var _ = Describe("RelationalModel", func() {
 			})
 
 		})
-
-		RandomPayload = Type("RandomPayload", func() {
-			Attribute("first_name", String)
-			Attribute("last_name", String)
-		})
+		Ω(TestResource).ShouldNot(BeNil())
 
 		ChildPayload = Type("ChildPayload", func() {
 			Attribute("first_name", String)
@@ -69,11 +62,6 @@ var _ = Describe("RelationalModel", func() {
 				Attribute("last_name")
 			})
 		})
-		HasOnePayload = Type("HasOnePayload", func() {
-			Attribute("first_name", String)
-			Attribute("last_name", String)
-		})
-
 		HasManyPayload = Type("HasManyPayload", func() {
 			Attribute("first_name", String)
 			Attribute("last_name", String)
@@ -380,10 +368,9 @@ var _ = Describe("RelationalModel", func() {
 var _ = Describe("RelationalModel with auto fields enabled and auto fields set in dsl", func() {
 	var sgname, storename, name string
 	var dsl func()
-	var RandomPayload *UserTypeDefinition
-	var ChildPayload *UserTypeDefinition
-	var HasOnePayload *UserTypeDefinition
-	var HasManyPayload *UserTypeDefinition
+	var ChildPayload func()
+	var HasOnePayload func()
+	var HasManyPayload func()
 
 	BeforeEach(func() {
 		Reset()
@@ -392,24 +379,19 @@ var _ = Describe("RelationalModel with auto fields enabled and auto fields set i
 		storename = "mysql"
 		name = ""
 
-		RandomPayload = Type("RandomPayload", func() {
+		ChildPayload = func() {
 			Attribute("first_name", String)
 			Attribute("last_name", String)
-		})
+		}
+		HasOnePayload = func() {
+			Attribute("first_name", String)
+			Attribute("last_name", String)
+		}
 
-		ChildPayload = Type("ChildPayload", func() {
+		HasManyPayload = func() {
 			Attribute("first_name", String)
 			Attribute("last_name", String)
-		})
-		HasOnePayload = Type("HasOnePayload", func() {
-			Attribute("first_name", String)
-			Attribute("last_name", String)
-		})
-
-		HasManyPayload = Type("HasManyPayload", func() {
-			Attribute("first_name", String)
-			Attribute("last_name", String)
-		})
+		}
 
 	})
 
@@ -418,15 +400,15 @@ var _ = Describe("RelationalModel with auto fields enabled and auto fields set i
 			gdsl.Store(storename, gorma.MySQL, func() {
 				gdsl.Model(name, dsl)
 				gdsl.Model("Child", func() {
-					//		gdsl.BuildsFrom(ChildPayload)
+					gdsl.BuildsFrom(ChildPayload)
 					gdsl.BelongsTo(name)
 				})
 				gdsl.Model("One", func() {
-					//		gdsl.BuildsFrom(HasOnePayload)
+					gdsl.BuildsFrom(HasOnePayload)
 					gdsl.HasOne("Child")
 				})
 				gdsl.Model("Many", func() {
-					//		gdsl.BuildsFrom(HasManyPayload)
+					gdsl.BuildsFrom(HasManyPayload)
 					gdsl.HasMany("Children", "Child")
 				})
 
@@ -470,10 +452,9 @@ var _ = Describe("RelationalModel with auto fields enabled and auto fields set i
 var _ = Describe("RelationalModel with auto fields explicitly enabled", func() {
 	var sgname, storename, name string
 	var dsl func()
-	var RandomPayload *UserTypeDefinition
-	var ChildPayload *UserTypeDefinition
-	var HasOnePayload *UserTypeDefinition
-	var HasManyPayload *UserTypeDefinition
+	var ChildPayload func()
+	var HasOnePayload func()
+	var HasManyPayload func()
 
 	BeforeEach(func() {
 		Reset()
@@ -482,24 +463,19 @@ var _ = Describe("RelationalModel with auto fields explicitly enabled", func() {
 		storename = "mysql"
 		name = ""
 
-		RandomPayload = Type("RandomPayload", func() {
+		ChildPayload = func() {
 			Attribute("first_name", String)
 			Attribute("last_name", String)
-		})
+		}
+		HasOnePayload = func() {
+			Attribute("first_name", String)
+			Attribute("last_name", String)
+		}
 
-		ChildPayload = Type("ChildPayload", func() {
+		HasManyPayload = func() {
 			Attribute("first_name", String)
 			Attribute("last_name", String)
-		})
-		HasOnePayload = Type("HasOnePayload", func() {
-			Attribute("first_name", String)
-			Attribute("last_name", String)
-		})
-
-		HasManyPayload = Type("HasManyPayload", func() {
-			Attribute("first_name", String)
-			Attribute("last_name", String)
-		})
+		}
 
 	})
 
@@ -508,15 +484,15 @@ var _ = Describe("RelationalModel with auto fields explicitly enabled", func() {
 			gdsl.Store(storename, gorma.MySQL, func() {
 				gdsl.Model(name, dsl)
 				gdsl.Model("Child", func() {
-					//		gdsl.BuildsFrom(ChildPayload)
+					gdsl.BuildsFrom(ChildPayload)
 					gdsl.BelongsTo(name)
 				})
 				gdsl.Model("One", func() {
-					//		gdsl.BuildsFrom(HasOnePayload)
+					gdsl.BuildsFrom(HasOnePayload)
 					gdsl.HasOne("Child")
 				})
 				gdsl.Model("Many", func() {
-					//		gdsl.BuildsFrom(HasManyPayload)
+					gdsl.BuildsFrom(HasManyPayload)
 					gdsl.HasMany("Children", "Child")
 				})
 
@@ -554,10 +530,9 @@ var _ = Describe("RelationalModel with auto fields explicitly enabled", func() {
 var _ = Describe("RelationalModel with auto fields disabled", func() {
 	var sgname, storename, name string
 	var dsl func()
-	var RandomPayload *UserTypeDefinition
-	var ChildPayload *UserTypeDefinition
-	var HasOnePayload *UserTypeDefinition
-	var HasManyPayload *UserTypeDefinition
+	var ChildPayload func()
+	var HasOnePayload func()
+	var HasManyPayload func()
 
 	BeforeEach(func() {
 		Reset()
@@ -566,25 +541,18 @@ var _ = Describe("RelationalModel with auto fields disabled", func() {
 		storename = "mysql"
 		name = ""
 
-		RandomPayload = Type("RandomPayload", func() {
+		ChildPayload = func() {
 			Attribute("first_name", String)
 			Attribute("last_name", String)
-		})
-
-		ChildPayload = Type("ChildPayload", func() {
+		}
+		HasOnePayload = func() {
 			Attribute("first_name", String)
 			Attribute("last_name", String)
-		})
-		HasOnePayload = Type("HasOnePayload", func() {
+		}
+		HasManyPayload = func() {
 			Attribute("first_name", String)
 			Attribute("last_name", String)
-		})
-
-		HasManyPayload = Type("HasManyPayload", func() {
-			Attribute("first_name", String)
-			Attribute("last_name", String)
-		})
-
+		}
 	})
 
 	JustBeforeEach(func() {
@@ -595,15 +563,15 @@ var _ = Describe("RelationalModel with auto fields disabled", func() {
 				gdsl.NoAutomaticSoftDelete()
 				gdsl.Model(name, dsl)
 				gdsl.Model("Child", func() {
-					//		gdsl.BuildsFrom(ChildPayload)
+					gdsl.BuildsFrom(ChildPayload)
 					gdsl.BelongsTo(name)
 				})
 				gdsl.Model("One", func() {
-					//		gdsl.BuildsFrom(HasOnePayload)
+					gdsl.BuildsFrom(HasOnePayload)
 					gdsl.HasOne("Child")
 				})
 				gdsl.Model("Many", func() {
-					//		gdsl.BuildsFrom(HasManyPayload)
+					gdsl.BuildsFrom(HasManyPayload)
 					gdsl.HasMany("Children", "Child")
 				})
 
@@ -641,10 +609,9 @@ var _ = Describe("RelationalModel with auto fields disabled", func() {
 var _ = Describe("RelationalModel with auto fields unset", func() {
 	var sgname, storename, name string
 	var dsl func()
-	var RandomPayload *UserTypeDefinition
-	var ChildPayload *UserTypeDefinition
-	var HasOnePayload *UserTypeDefinition
-	var HasManyPayload *UserTypeDefinition
+	var ChildPayload func()
+	var HasOnePayload func()
+	var HasManyPayload func()
 
 	BeforeEach(func() {
 		Reset()
@@ -653,24 +620,18 @@ var _ = Describe("RelationalModel with auto fields unset", func() {
 		storename = "mysql"
 		name = ""
 
-		RandomPayload = Type("RandomPayload", func() {
+		ChildPayload = func() {
 			Attribute("first_name", String)
 			Attribute("last_name", String)
-		})
-
-		ChildPayload = Type("ChildPayload", func() {
+		}
+		HasOnePayload = func() {
 			Attribute("first_name", String)
 			Attribute("last_name", String)
-		})
-		HasOnePayload = Type("HasOnePayload", func() {
+		}
+		HasManyPayload = func() {
 			Attribute("first_name", String)
 			Attribute("last_name", String)
-		})
-
-		HasManyPayload = Type("HasManyPayload", func() {
-			Attribute("first_name", String)
-			Attribute("last_name", String)
-		})
+		}
 
 	})
 
@@ -679,15 +640,15 @@ var _ = Describe("RelationalModel with auto fields unset", func() {
 			gdsl.Store(storename, gorma.MySQL, func() {
 				gdsl.Model(name, dsl)
 				gdsl.Model("Child", func() {
-					//	gdsl.BuildsFrom(ChildPayload)
+					gdsl.BuildsFrom(ChildPayload)
 					gdsl.BelongsTo(name)
 				})
 				gdsl.Model("One", func() {
-					//		gdsl.BuildsFrom(HasOnePayload)
+					gdsl.BuildsFrom(HasOnePayload)
 					gdsl.HasOne("Child")
 				})
 				gdsl.Model("Many", func() {
-					//		gdsl.BuildsFrom(HasManyPayload)
+					gdsl.BuildsFrom(HasManyPayload)
 					gdsl.HasMany("Children", "Child")
 				})
 

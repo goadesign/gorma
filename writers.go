@@ -209,7 +209,7 @@ func fieldAssignmentModelToType(model *RelationalModelDefinition, ut *design.Vie
 						if gfield.View != "" {
 							view = gfield.View
 						}
-						fa = fmt.Sprintf("%s.%s = tmp%d.%sTo%s%s() // %s", utype, codegen.Goify(fn, true), tmp, codegen.Goify(fn, true), codegen.Goify(fn, true), codegen.Goify(view, true))
+						fa = fmt.Sprintf("%s.%s = tmp%d.%sTo%s%s()", utype, codegen.Goify(fn, true), tmp, codegen.Goify(fn, true), codegen.Goify(fn, true), codegen.Goify(view, true))
 
 						fieldAssignments = append(fieldAssignments, fa)
 						tmp++

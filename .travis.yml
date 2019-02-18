@@ -4,7 +4,6 @@ go:
 - 1.11.x
 sudo: false
 install:
-- go get -v ./...
 - export PATH=$PATH:$HOME/gopath/bin
 - curl https://bitbucket.org/birkenfeld/pygments-main/get/2.1.tar.gz -L -o 2.1.tar.gz
 - mkdir -p ${HOME}/bin
@@ -31,4 +30,3 @@ deploy:
   cache-control: max-age=300
   on:
     repo: goadesign/gorma
-    go: '1.10.2'

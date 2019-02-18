@@ -35,7 +35,7 @@ func TestFieldDSL(t *testing.T) {
 	sg.DefinitionDSL = f
 	c := sg.DSL()
 	if c == nil {
-		t.Errorf("Expected %s, got nil", f)
+		t.Errorf("Expected %T, got nil", f)
 	}
 
 }

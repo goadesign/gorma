@@ -5,7 +5,6 @@ import (
 	gdsl "github.com/goadesign/gorma/dsl"
 
 	. "github.com/goadesign/goa/design"
-	. "github.com/goadesign/goa/design/apidsl"
 	. "github.com/goadesign/goa/dslengine"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -15,7 +14,6 @@ var _ = Describe("RelationalField", func() {
 	var sgname, storename, modelname, name string
 	var ft gorma.FieldType
 	var dsl, modeldsl func()
-	var RandomPayload *UserTypeDefinition
 	BeforeEach(func() {
 		Reset()
 		sgname = "production"
@@ -25,17 +23,11 @@ var _ = Describe("RelationalField", func() {
 		modelname = "Users"
 		name = ""
 		ft = gorma.String
-		RandomPayload = Type("RandomPayload", func() {
-			Attribute("first_name", String)
-			Attribute("last_name", String)
-		})
-
 	})
 
 	JustBeforeEach(func() {
 
 		modeldsl = func() {
-			//gdsl.BuildsFrom(RandomPayload)
 			gdsl.Field(name, ft, dsl)
 			gdsl.Field("id", gorma.Integer, dsl) // use lowercase "id" to test sanitizer
 			gdsl.Field("API", gorma.String)
@@ -175,7 +167,6 @@ var _ = Describe("RelationalField", func() {
 				gdsl.Store(storename, gorma.MySQL, func() {
 					gdsl.NoAutomaticIDFields()
 					gdsl.Model(modelname, func() {
-						//gdsl.BuildsFrom(RandomPayload)
 						gdsl.Field(name, ft, dsl)
 						gdsl.Field("id", gorma.Integer, dsl) // use lowercase "id" to test sanitizer
 						gdsl.Field("MiddleName", gorma.String)

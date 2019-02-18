@@ -14,7 +14,6 @@ var _ = Describe("RelationalStore", func() {
 	var sgname, name string
 	var storetype gorma.RelationalStorageType
 	var dsl, storedsl func()
-	var store *gorma.RelationalStoreDefinition
 
 	BeforeEach(func() {
 		Reset()
@@ -31,8 +30,6 @@ var _ = Describe("RelationalStore", func() {
 		})
 
 		Run()
-
-		store = gorma.GormaDesign.RelationalStores[name]
 	})
 
 	Context("with no name", func() {

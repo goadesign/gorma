@@ -12,13 +12,15 @@
 DIRS=$(shell go list -f {{.Dir}} ./... | grep -v /example)
 DEPEND=\
 	bitbucket.org/pkg/inflect \
+	github.com/goadesign/goa/... \
 	github.com/goadesign/goa.design/tools/mdc \
-	github.com/goadesign/goa.design/tools/godoc2md \
 	github.com/golang/lint/golint \
 	github.com/onsi/ginkgo \
 	github.com/onsi/ginkgo/ginkgo \
 	github.com/onsi/gomega \
-	golang.org/x/tools/cmd/goimports \
+	github.com/jinzhu/inflection \
+	github.com/kr/pretty \
+	golang.org/x/tools/cmd/goimports
 
 .PHONY: goagen
 
@@ -32,9 +34,10 @@ docs:
 	@rm -rf /tmp/goa.design
 
 depend:
-	@go get -u $(DEPEND)
+	@export GO111MODULE=on && go get -v github.com/goadesign/goa.design/tools/godoc2md
+	@go get -v $(DEPEND)
 	@go install $(DEPEND)
-	@export GO111MODULE=on && go get github.com/goa.design/tools/godoc2md
+
 
 lint:
 	@for d in $(DIRS) ; do \
