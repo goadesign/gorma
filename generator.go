@@ -109,7 +109,7 @@ func (g *Generator) generateUserTypes(outdir string, api *design.APIDefinition) 
 				codegen.SimpleImport("time"),
 				codegen.SimpleImport("github.com/goadesign/goa"),
 				codegen.SimpleImport("github.com/jinzhu/gorm"),
-				codegen.NewImport("uuid", "github.com/satori/go.uuid"),
+				codegen.SimpleImport("github.com/gofrs/uuid"),
 			}
 
 			if model.Cached {
