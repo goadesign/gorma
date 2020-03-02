@@ -29,4 +29,4 @@ deploy:
   acl: public-read
   cache-control: max-age=300
   on:
-    repo: goadesign/gorma
+    repo: kaizenplatform/gorma

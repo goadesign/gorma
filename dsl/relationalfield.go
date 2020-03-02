@@ -8,7 +8,7 @@ import (
 	"github.com/goadesign/goa/design"
 	"github.com/goadesign/goa/dslengine"
 	"github.com/goadesign/goa/goagen/codegen"
-	"github.com/goadesign/gorma"
+	"github.com/kaizenplatform/gorma"
 )
 
 // DatabaseFieldName allows for customization of the column name

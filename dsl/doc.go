@@ -49,7 +49,7 @@ a base set of fields.  Custom DSL is provided to add additional fields:
 
 Each table will likely want a primary key. Gorma automatically adds one to your table called "ID" if
 there isn't one already.  Gorma supports Integer primary keys currently, but support for UUID and string
-primary keys is in the plan for the future. [github](https://github.com/goadesign/gorma/issues/57)
+primary keys is in the plan for the future. [github](https://github.com/kaizenplatform/gorma/issues/57)
 
 In the event that the `BuildsFrom` types don't contain all the fields that you want to include in your
 model, you can add extra fields using the `Field` DSL:

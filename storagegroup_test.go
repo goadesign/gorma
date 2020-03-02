@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/goadesign/gorma"
+	"github.com/kaizenplatform/gorma"
 )
 
 func TestStorageGroupContext(t *testing.T) {
