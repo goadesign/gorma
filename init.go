@@ -33,6 +33,8 @@ const (
 	String FieldType = "string"
 	// Text is a large string field type
 	Text FieldType = "text"
+	// Json is a large json field type
+	Json FieldType = "json"
 	// UUID is not implemented yet
 	UUID FieldType = "uuid"
 	// Timestamp is a date/time field in the database
