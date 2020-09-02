@@ -6,8 +6,6 @@ import (
 	"strings"
 	"unicode"
 
-	"bitbucket.org/pkg/inflect"
-
 	"github.com/goadesign/goa/design"
 	"github.com/goadesign/goa/dslengine"
 	"github.com/goadesign/goa/goagen/codegen"

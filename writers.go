@@ -6,8 +6,6 @@ import (
 	"strings"
 	"text/template"
 
-	"bitbucket.org/pkg/inflect"
-
 	"github.com/goadesign/goa/design"
 	"github.com/goadesign/goa/goagen/codegen"
 	"github.com/jinzhu/inflection"
