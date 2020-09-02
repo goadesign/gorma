@@ -50,7 +50,7 @@ func (f *RelationalModelDefinition) DSL() func() {
 
 // TableName returns the TableName of the struct.
 func (f RelationalModelDefinition) TableName() string {
-	return inflect.Underscore(inflection.Plural(f.ModelName))
+	return gorma.Underscore(inflection.Plural(f.ModelName))
 }
 
 // Children returns a slice of this objects children.
