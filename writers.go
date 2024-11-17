@@ -438,6 +438,7 @@ type {{$ut.ModelName}}Storage interface {
 	Add(ctx context.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, {{$ut.LowerName}} *{{$ut.ModelName}}) (error)
 	Update(ctx context.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, {{$ut.LowerName}} *{{$ut.ModelName}}) (error)
 	Delete(ctx context.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, {{ $ut.PKAttributes}}) (error)
+	DeleteByModel(ctx context.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, obj *{{$ut.ModelName}}) (error)
 {{range $rname, $rmt := $ut.RenderTo}}{{/*
 
 */}}{{range $vname, $view := $rmt.Views}}{{ $mtd := $ut.Project $rname $vname }}
@@ -557,6 +558,20 @@ func (m *{{$ut.ModelName}}DB) Delete(ctx context.Context{{ if $ut.DynamicTableNa
 	err := m.Db{{ if $ut.DynamicTableName }}.Table(tableName){{ end }}.Delete(&obj, {{$ut.PKWhereFields}}).Error
 	{{ else  }}err := m.Db{{ if $ut.DynamicTableName }}.Table(tableName){{ end }}.Delete(&obj).Where("{{$ut.PKWhere}}", {{$ut.PKWhereFields}}).Error
 	{{ end }}
+	if err != nil {
+		goa.LogError(ctx, "error deleting {{$ut.ModelName}}", "error", err.Error())
+		return  err
+	}
+	{{ if $ut.Cached }} go m.cache.Delete(strconv.Itoa(id)) {{ end }}
+	return  nil
+}
+
+// DeleteModel removes a single record given the corresponding model.
+// Exisiting gorm deletion callbacks are executed if a record is deleted.
+func (m *{{$ut.ModelName}}DB) DeleteByModel(ctx context.Context{{ if $ut.DynamicTableName }}, tableName string{{ end }}, obj *{{$ut.ModelName}})  error {
+	defer goa.MeasureSince([]string{"goa","db","{{goify $ut.ModelName false}}", "deleteByModel"}, time.Now())
+
+	err := m.Db{{ if $ut.DynamicTableName }}.Table(tableName){{ end }}.Delete(obj).Error
 	if err != nil {
 		goa.LogError(ctx, "error deleting {{$ut.ModelName}}", "error", err.Error())
 		return  err
